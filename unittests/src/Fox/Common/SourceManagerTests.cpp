@@ -10,7 +10,7 @@
 #include "gtest/gtest.h"
 #include "Support/TestUtils.hpp"
 #include "Fox/Common/SourceManager.hpp"
-#include "Fox/Common/StringManipulator.hpp"
+#include "utfcpp/utf8.hpp"
 
 using namespace fox;
 
@@ -107,23 +107,22 @@ TEST(SourceManagerTest, PreciseLocation) {
     << "': " << toString(result.second);
 
   // Load file in StringManipulator
-  string_view ptr = srcMgr.getFileContent(testFile);
-  StringManipulator sm(ptr);
+  string_view str = srcMgr.getFileContent(testFile);
+  auto it = str.begin();
+  auto end = str.end();
 
   // Loop until we reach the pi sign
-  for (; sm.getCurrentChar() != 960 && !sm.eof(); sm.advance());
+  for (; (utf8::peek_next(it, end) != 960u) 
+    && (it != str.end()); utf8::next(it, end));
 
-  if (sm.getCurrentChar() == 960) {
-    SourceLoc sloc(testFile, sm.getIndexInBytes());
-    auto completeLoc = srcMgr.getCompleteLoc(sloc);
+  ASSERT_EQ(utf8::peek_next(it, end), 960u) << "Couldn't find the PI sign";
 
-    EXPECT_EQ(completeLoc.fileName, testFilePath);
-    EXPECT_EQ(completeLoc.line, 5u);
-    EXPECT_EQ(completeLoc.column, 7u);
-  }
-  else {
-    FAIL() << "Couldn't find the pi sign.";
-  }
+  SourceLoc sloc(testFile, std::distance(str.begin(), it));
+  auto completeLoc = srcMgr.getCompleteLoc(sloc);
+
+  EXPECT_EQ(completeLoc.fileName, testFilePath);
+  EXPECT_EQ(completeLoc.line, 5u);
+  EXPECT_EQ(completeLoc.column, 7u);
 }
 
 TEST(SourceManagerTest, CompleteLocToString) {

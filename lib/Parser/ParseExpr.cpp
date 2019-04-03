@@ -7,7 +7,6 @@
 
 #include "Fox/AST/ASTContext.hpp"
 #include "Fox/Common/DiagnosticEngine.hpp"
-#include "Fox/Common/StringManipulator.hpp"
 #include "Fox/Lexer/Lexer.hpp"
 #include "Fox/Parser/Parser.hpp"
 #include "utfcpp/utf8.hpp"

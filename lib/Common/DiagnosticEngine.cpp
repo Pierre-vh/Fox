@@ -9,7 +9,7 @@
 #include "Fox/Common/DiagnosticVerifier.hpp"
 #include "Fox/Common/SourceManager.hpp"
 #include "Fox/Common/Errors.hpp"
-#include "Fox/Common/StringManipulator.hpp"
+#include "Fox/Common/UTF8.hpp"
 
 using namespace fox;
 
@@ -352,7 +352,9 @@ Diagnostic& Diagnostic::replacePlaceholder(string_view replacement) {
 }
 
 Diagnostic& Diagnostic::replacePlaceholder(FoxChar replacement) {
-  return replacePlaceholder(StringManipulator::charToStr(replacement));
+  std::string dest;
+  appendFoxChar(replacement, dest);
+  return replacePlaceholder(dest);
 }
 
 void Diagnostic::kill() {

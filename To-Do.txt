@@ -152,6 +152,7 @@ To-Do:
   > String Normalization + ASTDump of normalized strings (Done)
   > Parser Recovery Improvements (Done)
   > Document the public interface with Doxygen-style comments (Done)
+  > Removing StringManipulator (Done)
 
   > VM, Bytecode, BytecodeGen (Currently being worked on, see lib/VM/Status.md)
 

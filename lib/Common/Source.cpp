@@ -8,7 +8,6 @@
 #include "Fox/Common/SourceLoc.hpp"
 #include "Fox/Common/SourceManager.hpp"
 #include "Fox/Common/Errors.hpp"
-#include "Fox/Common/StringManipulator.hpp"
 #include "utfcpp/utf8.hpp"
 #include <fstream>
 #include <sstream>
