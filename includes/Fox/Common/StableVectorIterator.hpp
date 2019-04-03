@@ -72,7 +72,7 @@ namespace fox {
     using this_type = StableVectorIteratorImpl<ContainerTy, isConst>;
     public:
       using iterator_category   = std::bidirectional_iterator_tag;
-      using difference_type     = std::ptrdiff_t;
+      using difference_type     = typename ContainerTy::difference_type;
       using value_type          = typename trait::value_type;
       using reference           = typename trait::reference;
       using pointer             = typename trait::pointer;
