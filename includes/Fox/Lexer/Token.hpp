@@ -41,8 +41,10 @@ namespace fox {
 
       /// \returns true if this token's kind != TokenKind::Invalid
       bool isValid() const;
+      /// \returns true if this token is the EOF token
+      bool isEOF() const;
       /// \returns isValid()
-      explicit operator bool() const;
+      operator bool() const;
 
       /// \returns true if this token's kind matches "kind"
       bool is(Kind kind) const;

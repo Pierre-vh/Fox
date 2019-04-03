@@ -153,15 +153,14 @@ To-Do:
   > Parser Recovery Improvements (Done)
   > Document the public interface with Doxygen-style comments (Done)
   > Removing StringManipulator (Done)
+  > Polishing the Lexer Rework (Done)
 
   > VM, Bytecode, BytecodeGen (Currently being worked on, see lib/VM/Status.md)
 
-  > Polishing the Lexer Rework (Next)
-    > Write lexer filecheck tests (test kinds using a -dump-toks option)
-    > Remove or Rework StringManipulator, maybe as a UTF8StringIterator?
-    > Operator tests (FileCheck - check that basic binary operations have the correct operators)
-    > Cleanup/Code review (Mostly Done)
-    > (Maybe now) Stop storing tokens in a huge vector, lex on demand instead.
+  > Implement "lex on demand"
+    > Adding EOF token (Done)
+    > Parser recognizes EOF token as the end of parsing (Done)
+    > Lex on demand
 
   > Break and Continue Statements
     > They're not too hard to add, I just forgot to add them!

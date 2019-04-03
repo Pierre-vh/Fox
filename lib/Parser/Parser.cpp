@@ -38,8 +38,8 @@ std::pair<Identifier, SourceRange> Parser::consumeIdentifier() {
 
 SourceRange Parser::consume() {
   auto tok = getCurtok();
-  assert(tok && "Consuming EOF token");
-  if (tokenIterator_ != getTokens().end()) tokenIterator_++;
+  assert(!isDone() && "Consuming EOF token");
+  tokenIterator_++;
   return tok.range;
 }
 
@@ -110,9 +110,7 @@ Parser::Result<TypeLoc> Parser::parseType() {
 }
 
 Token Parser::getCurtok() const {
-  if (!isDone())
-    return *tokenIterator_;
-  return Token();
+  return *tokenIterator_;
 }
 
 Token Parser::getPreviousToken() const {
@@ -243,24 +241,22 @@ Diagnostic Parser::reportErrorExpected(DiagID diag) {
   SourceRange errorRange;
   if (Token prevTok = getPreviousToken()) {
     SourceLoc loc = prevTok.range.getEndLoc();
-    // Get the next character in the file. This will be our 
-    // error's location.
+    // The first character after our Token will be the error's location.
     loc = srcMgr.advance(loc);
     errorRange = SourceRange(loc);
   }
   else {
-    // No valid undo token, use the current token's range as the 
-    // error location. (This case should be fairly rare, 
-		// or never happen at all. tests needed)
+    // No valid previous token
+    // FIXME: Is this case even possible?
     Token curTok = getCurtok();
     assert(curTok && "No valid previous token and no valid current token?");
-    errorRange = curTok.range;
+    errorRange = SourceRange(curTok.range.getBeginLoc());
   }
   return diagEngine.report(diag, errorRange);
 }
 
 bool Parser::isDone() const {
-  return (tokenIterator_ == getTokens().end());
+  return getCurtok().isEOF();
 }
 
 DeclContext* Parser::getCurrentDeclCtxt() const {

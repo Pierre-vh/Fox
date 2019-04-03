@@ -39,6 +39,10 @@ bool Token::isValid() const {
   return kind != Kind::Invalid;
 }
 
+bool Token::isEOF() const {
+  return kind == Kind::EndOfFile;
+}
+
 Token::operator bool() const {
   return isValid();
 }
@@ -48,13 +52,19 @@ bool Token::is(Kind kind) const {
 }
 
 void Token::dump(std::ostream& out) const {
-  out << '"' << str << "\", " << getKindSpelling(kind) << "\n";
+  if(str.size())
+    out << '"' << str << "\", ";
+  out << getKindSpelling(kind) << "\n";
 }
 
 void Token::dump(std::ostream& out, SourceManager& srcMgr, 
                  bool printFileName) const {
-  out << '"' << str << "\", " << getKindSpelling(kind) << ", "
-      << srcMgr.getCompleteRange(range).toString(printFileName) << '\n';
+  if(str.size())
+    out << '"' << str << "\", ";
+  out << getKindSpelling(kind);
+  if(range)
+    out << ", " << srcMgr.getCompleteRange(range).toString(printFileName);
+  out << '\n';
 }
 
 //----------------------------------------------------------------------------//
@@ -77,6 +87,9 @@ void Lexer::lex() {
     && "Iterators are null");
   // Do the actual lexing
   lexImpl();
+  assert(isEOF() && "Char lefts in the input");
+  // Append the EOF token
+  tokens_.push_back(Token(TokenKind::EndOfFile, string_view(), SourceRange()));
 }
 
 TokenVector& Lexer::getTokens() {

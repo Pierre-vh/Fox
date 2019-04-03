@@ -23,6 +23,7 @@
 
 // Misc. tokens
 TOKEN(Invalid)
+TOKEN(EndOfFile)
 
 // Identifier
 TOKEN(Identifier)
