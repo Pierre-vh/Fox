@@ -20,6 +20,7 @@
 namespace fox {
   class ASTContext;
   class DiagnosticEngine;
+  class SourceManager;
 
   /// TokenKind
   ///    The different kind of tokens that exist
@@ -46,8 +47,12 @@ namespace fox {
       /// \returns true if this token's kind matches "kind"
       bool is(Kind kind) const;
 
-      /// dumps this token's data to out
+      /// dumps this token's data to out (without loc info)
       void dump(std::ostream& out) const;
+
+      /// dumps this token's data to out (with loc info)
+      void dump(std::ostream& out, SourceManager& srcMgr, 
+        bool printFileName) const;
 
       /// The SourceRange of this token
       const SourceRange range;

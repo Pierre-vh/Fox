@@ -48,7 +48,13 @@ bool Token::is(Kind kind) const {
 }
 
 void Token::dump(std::ostream& out) const {
-  out << str << " [" << getKindSpelling(kind) << "]\n";
+  out << '"' << str << "\", " << getKindSpelling(kind) << "\n";
+}
+
+void Token::dump(std::ostream& out, SourceManager& srcMgr, 
+                 bool printFileName) const {
+  out << '"' << str << "\", " << getKindSpelling(kind) << ", "
+      << srcMgr.getCompleteRange(range).toString(printFileName) << '\n';
 }
 
 //----------------------------------------------------------------------------//

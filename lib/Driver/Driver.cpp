@@ -59,6 +59,16 @@ bool Driver::processFile(string_view filepath) {
     lex.lex();
   }
 
+  // Dump tokens if needed
+  if (getDumpTokens()) {
+    auto& toks = lex.getTokens();
+    out << toks.size() << " tokens found in '" << srcMgr_.getFileName(file) << "'\n";
+    for (Token& tok : toks) {
+      out << "    ";
+      tok.dump(out, srcMgr_, /*printFileName*/ false);
+    }
+  }
+
   Parser psr(ctxt_, lex);
 
   UnitDecl* unit = nullptr;
@@ -160,6 +170,14 @@ void Driver::setDumpAST(bool val) {
   dumpAST_ = val;
 }
 
+bool Driver::getDumpTokens() const {
+  return dumpTokens_;
+}
+
+void Driver::setDumpTokens(bool val) {
+  dumpTokens_ = val;
+}
+
 bool Driver::isParseOnly() const {
   return parseOnly_;
 }
@@ -197,6 +215,8 @@ bool Driver::doCL(int argc, char* argv[]) {
       setIsParseOnly(true);
     else if(str == "-dump-bcgen") 
       setDumpBCGen(true);
+    else if(str == "-dump-tokens") 
+      setDumpTokens(true);
     else {
       // TODO: Emit a diagnostic for this.
       out << "Unknown argument \"" << str << "\"\n";

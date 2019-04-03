@@ -28,7 +28,8 @@ namespace fox {
       bool dumpAlloc_ = false;
       bool dumpAST_ = false;
       bool dumpBCGen_ = false;
-      bool parseOnly_ = false;   
+      bool parseOnly_ = false;
+      bool dumpTokens_ = false;
 
       SourceManager srcMgr_;
       DiagnosticEngine diagEngine_;
@@ -56,6 +57,9 @@ namespace fox {
 
       bool getDumpAST() const;
       void setDumpAST(bool val);
+
+      bool getDumpTokens() const;
+      void setDumpTokens(bool val);
 
       bool isParseOnly() const;
       void setIsParseOnly(bool val);
