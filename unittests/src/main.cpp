@@ -25,13 +25,5 @@ int main(int argc, char **argv) {
     _CrtSetDbgFlag ( _CRTDBG_ALLOC_MEM_DF | _CRTDBG_LEAK_CHECK_DF );
   #endif
   ::testing::InitGoogleTest(&argc, argv);
-  auto result = RUN_ALL_TESTS();
-  // FIXME: This is just a workaround because for some reason VS
-  // refuses to keep the test window open when the tests are done,
-  // even with CTRL-F5.
-  #ifdef _MSC_VER
-    std::cout << "\nDone. Press any key to continue...";
-    std::cin.get();
-  #endif
-  return result;
+  return RUN_ALL_TESTS();
 }
