@@ -42,7 +42,7 @@ namespace fox {
       void truncate_instrs(StableInstrIter beg);
 
       /// \returns true if 'it' == getLastInstrIter()
-      bool isLastInstr(StableInstrIter it) const;
+      bool isLastInstr(StableConstInstrIter it) const;
 
       /// \returns an iterator to the last instruction inserted
       /// in the buffer.
@@ -55,7 +55,7 @@ namespace fox {
       /// Removes the last instruction added to this module.
       void popInstr();
 
-      /// The Instruction Buffer that we are building.
+      /// The Instruction vector that we are inserting into.
       InstructionVector& vector;
 
     private:

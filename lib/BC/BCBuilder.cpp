@@ -56,7 +56,7 @@ void BCBuilder::truncate_instrs(StableInstrIter beg) {
   vector.erase(beg.getContainerIterator(), vector.end());
 }
 
-bool BCBuilder::isLastInstr(StableInstrIter it) const {
+bool BCBuilder::isLastInstr(StableConstInstrIter it) const {
   return (it == getLastInstrIter());
 }
 
