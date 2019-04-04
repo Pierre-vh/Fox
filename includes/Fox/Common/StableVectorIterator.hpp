@@ -170,6 +170,36 @@ namespace fox {
         return (lhs.index_ >= rhs.index_);
       }
 
+      this_type& operator+=(difference_type value) {
+        move(value);
+        return *this;
+      }
+
+      this_type& operator-=(difference_type value) {
+        move(-value);
+        return *this;
+      }
+
+      friend this_type operator+(this_type iter, difference_type value) {
+        iter += value;
+        return iter;
+      }
+
+      friend this_type operator-(this_type iter, difference_type value) {
+        iter -= value;
+        return iter;
+      }
+
+      friend this_type operator+(difference_type value, this_type iter) {
+        iter += value;
+        return iter;
+      }
+
+      friend this_type operator-(difference_type value, this_type iter) {
+        iter -= value;
+        return iter;
+      }
+
       /// Calculates the distance between 2 iterators, \p first and \p last.
       friend difference_type
       distance(const this_type& first, const this_type& last) {

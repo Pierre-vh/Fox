@@ -174,3 +174,57 @@ TEST(StableVectorIteratorTest, stability) {
   EXPECT_EQ(pte.getContainerIterator(), vector.end()) 
     << "unstable end iter";
 }
+
+TEST(StableVectorIteratorTest, arithmetic) {
+  auto vector = makeVector();
+  auto iter = SVI(vector, 2);
+  auto minusone = iter-1;
+  auto plusone = iter+1;
+  EXPECT_EQ(iter-1, minusone);
+  EXPECT_EQ(iter+1, plusone);
+  EXPECT_EQ(iter, minusone+1);
+  EXPECT_EQ(iter, plusone-1);
+  EXPECT_EQ(plusone, iter-(-1));
+  iter+=1;
+  ASSERT_EQ(iter, plusone);
+  iter-=2;
+  ASSERT_EQ(iter, minusone);
+  iter-=-2;
+  ASSERT_EQ(iter, plusone);
+  iter+=-2;
+  ASSERT_EQ(iter, minusone);
+}
+
+// < <= > >= tests
+TEST(StableVectorIteratorTest, comparison) {
+  auto vector = makeVector();
+  auto iter = SVI(vector, 2);
+  auto minusone = iter-1;
+  auto plusone = iter+1;
+  // <
+  EXPECT_TRUE(iter < plusone);
+  EXPECT_TRUE(minusone < plusone);
+  EXPECT_TRUE(minusone < iter);
+  STOP_IF_FAILED("< test failed");
+  // <=
+  EXPECT_TRUE(iter <= plusone);
+  EXPECT_TRUE(minusone <= plusone);
+  EXPECT_TRUE(minusone <= iter);
+  EXPECT_TRUE(iter <= iter);
+  EXPECT_TRUE(minusone <= minusone);
+  EXPECT_TRUE(plusone <= plusone);
+  STOP_IF_FAILED("<= test failed");
+  // >
+  EXPECT_TRUE(plusone > iter);
+  EXPECT_TRUE(plusone > minusone);
+  EXPECT_TRUE(iter > minusone);
+  STOP_IF_FAILED("< test failed");
+  // >=
+  EXPECT_TRUE(plusone > iter);
+  EXPECT_TRUE(plusone > minusone);
+  EXPECT_TRUE(iter > minusone);
+  EXPECT_TRUE(iter >= iter);
+  EXPECT_TRUE(minusone >= minusone);
+  EXPECT_TRUE(plusone >= plusone);
+  STOP_IF_FAILED(">= test failed");
+}
