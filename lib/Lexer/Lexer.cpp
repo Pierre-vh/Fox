@@ -31,9 +31,7 @@ static const char* getKindSpelling(TokenKind kind) {
 }
 
 Token::Token(Kind kind, string_view str, SourceRange range) :
-  kind(kind), str(str), range(range) {
-  assert(range && "Token constructed with invalid an SourceRange");
-}
+  kind(kind), str(str), range(range) {}
 
 bool Token::isValid() const {
   return kind != Kind::Invalid;
