@@ -104,6 +104,6 @@ namespace fox {
       const Instruction* programCounter_ = nullptr;
 
       // The registers
-      std::array<std::uint64_t, numStackRegister> regStack_;
+      std::array<std::uint64_t, numStackRegister> regStack_ = {0};
   };
 }
