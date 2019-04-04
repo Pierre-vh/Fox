@@ -56,7 +56,7 @@ Basic VM data types and their mappings to Fox types:
       > instr_beg, instr_end
     > BCModule 
       > contains a std::vector<std::unique_ptr<BCFunction>> of functions
-      > BCFunction& createFunction() // template, forwards to BCFunction ctor
+      > BCFunction& addFunction(unique_ptr<BCFunction>) or a createFunction?
       > BCFunction& getFunction(std::size_t idx)
         > assert for out of ranges
 
