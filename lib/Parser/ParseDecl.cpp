@@ -265,7 +265,7 @@ Parser::Result<Decl*> Parser::parseVarDecl() {
   // <id>
   if(!isCurTokAnIdentifier()) {
     reportErrorExpected(DiagID::expected_iden);
-    Result<Decl*>::Error();
+    return Result<Decl*>::Error();
   }
 
   Identifier id;
