@@ -154,6 +154,7 @@ To-Do:
   > Document the public interface with Doxygen-style comments (Done)
   > Removing StringManipulator (Done)
   > Polishing the Lexer Rework (Done)
+  > StableVectorIterator (Done)
 
   > VM, Bytecode, BytecodeGen (Currently being worked on, see lib/VM/Status.md)
 

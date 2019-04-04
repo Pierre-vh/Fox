@@ -8,7 +8,6 @@
 //----------------------------------------------------------------------------//
 
 // TODO: 
-//    1) Finish the implementation
 //    2) Test this thouroughly
 //      - Const and Non-Const variants
 //      - Test every functionality of the interface
@@ -17,6 +16,8 @@
 #pragma once
 
 #include <iterator>
+#include <limits>
+#include "Errors.hpp"
 
 namespace fox {
   namespace detail {
@@ -31,8 +32,6 @@ namespace fox {
         using reference           = typename ContainerTy::reference;
         using pointer             = typename ContainerTy::pointer;
         using container           = ContainerTy;
-        using container_reference = ContainerTy&;
-        using container_pointer   = ContainerTy*;
         using container_iterator  = typename ContainerTy::iterator;
     };
 
@@ -45,8 +44,6 @@ namespace fox {
         using reference           = typename ContainerTy::const_reference;
         using pointer             = typename ContainerTy::const_pointer;
         using container           = const ContainerTy;
-        using container_reference = const ContainerTy&;
-        using container_pointer   = const ContainerTy*;
         using container_iterator  = typename ContainerTy::const_iterator;
     };
   }
@@ -56,7 +53,7 @@ namespace fox {
   ///   - The 'end' iterator is guaranteed
   ///   - Inserting/erasing AFTER the iterator's position.
   /// Stability IS NOT guaranteed for
-  ///   - Insertion/erasure before the iterator.
+  ///   - Insertion/erasure before the iterator
   /// Additional notes:
   ///   - The iterator will assert that it's dereferenceable (that it points
   ///     to a valid element
@@ -77,83 +74,167 @@ namespace fox {
       using reference           = typename trait::reference;
       using pointer             = typename trait::pointer;
       using container           = typename trait::container;
-      using container_reference = typename trait::container_reference;
-      using container_pointer   = typename trait::container_pointer;
       using container_iterator  = typename trait::container_iterator;
 
       /// Default Constructor
       StableVectorIteratorImpl() = default;
 
-      /// Constructor
+      /// Creates an interator from a container and an index.
       /// \param data the container
       /// \param index the index
-      explicit StableVectorIteratorImpl(container_reference data, 
+      explicit StableVectorIteratorImpl(container& data, 
                                         std::size_t index = 0) : 
-                                        data_(&data), index_(index) {}
+                                        data_(&data), index_(index) {
+        assert((index_ <= data.size()) && "out of range");
+        if(index_ == data.size())
+          index_ = endpos;
+      }
+
+      /// Creates an iterator from a container and an iterator.
+      /// \param data the container
+      /// \param index the index
+      explicit StableVectorIteratorImpl(container& data, 
+                                        container_iterator iter) : 
+        StableVectorIteratorImpl(data, std::distance(data.begin(), iter)) {}
 
       // Pre-increment
       this_type& operator++() {
-        // TODO
+        move(1);
+        return (*this);
       }
 
       // Post-increment
       this_type operator++(int) {
-        // TODO
+        auto save = (*this);
+        ++(*this);
+        return save;
       }
 
       // Pre-decrement
       this_type& operator--() {
-        // TODO
+        move(-1);
+        return (*this);
       }
 
       // Post-decrement
       this_type operator--(int) {
-        // TODO
+        auto save = (*this);
+        --(*this);
+        return save;
       }
 
       reference operator*() const {
-        // TODO
+        return *get();
       }
 
       pointer operator->() const {
-        // TODO
+        return get();
       }
 
       /// Converts this iterator to a 'vanilla' container iterator.
       /// (ContainerTy::iterator or ContainerTy::const_iterator, depending
       /// on if this iterator is constant or not)
       container_iterator getContainerIterator() const {
-        // TODO 
+        if(isEnd())
+          return getContainer().end();
+        return getContainer().begin()+index_;
       }
 
       friend bool operator==(const this_type& lhs, const this_type& rhs) {
-        // TODO
+        assert(((lhs.data_ != nullptr) || (rhs.data_ != nullptr))
+          && "iterator does not have a container");
+        assert(lhs.compareContainers(rhs) 
+          && "iterators not comparable");
+        return (lhs.index_ == rhs.index_);
       }
 
       friend bool operator!=(const this_type& lhs, const this_type& rhs) {
-        // TODO
+        return !(lhs == rhs);
       }
 
       /// Calculates the distance between 2 iterators, \p first and \p last.
       friend difference_type
       distance(const this_type& first, const this_type& last) {
-        // TODO
+        assert(((first.data_ != nullptr) || (last.data_ != nullptr))
+          && "iterator does not have a container");
+        assert(first.compareContainers(last) 
+          && "iterators don't share the same container");
+        return std::distance(first.getContainerIterator(),
+                             last.getContainerIterator());
       }
 
     private:
-      // bool isDereferenceable() const
-      // container_reference getContainer() const
-      //  check that it's non null (else it's not dereferenceable)
-      // void moveToEnd() (sets index_ = npos)
-      // void isEnd() 
-      // bool compareContainers(const this_type& other) const
-      // pointer get() const 
-      //    Returns the pointer to the element if dereferenceable. assert that
-      //    index < container.size() (else it's not dereferenceable)
-      // void advance(difference_type t) (both positive and negative arg)
+      static constexpr std::size_t
+      endpos = std::numeric_limits<std::size_t>::max();
 
-      static constexpr std::size_t npos = -1;
-      container_pointer data_ = nullptr;
+      /// \returns true if this iterator is dereferenceable.
+      bool isDereferenceable() const {
+        // Check that we have a container
+        if(!data_) return false;
+        // Check that we arent an end iterator
+        if(index_ == endpos) return false;
+        // Check that our element is accessible and isn't end.
+        return (data_->size() > index_);
+      }
+
+      /// Returns the container, checking that we have one in the process.
+      container& getContainer() const {
+        assert(data_ && "Iterator is not dereferenceable, "
+          "it does not have a target container");
+        return (*data_);
+      }
+
+      /// Checks if this is an end iterator
+      bool isEnd() const {
+        return (index_ == endpos);
+      }
+
+      /// Checks if this iterator shares the same container as \p other
+      bool compareContainers(const this_type& other) const {
+        return (data_ == other.data_);
+      }
+
+      /// Returns
+      pointer get() const {
+        assert(isDereferenceable() 
+          && "Iterator is not dereferenceable");
+        return &(*getContainerIterator());
+      }
+
+      /// Moves the iterator. Can have a negative argument to
+      /// decrement the iterator.
+      void move(difference_type value) {
+        assert(data_ 
+          && "cannot move iterator: iterator does not have a container");
+        if(value == 0) return;
+        // Special case, check if we want to move past-the-end
+        if ((value > 0) && (value == endpos)) {
+          index_ = endpos;
+          return;
+        }
+        assert((index_ <= getContainer().size()) 
+          && "Element pointed by the iterator does not exist anymore");
+        // value < 0 : go back
+        if (value < 0) {
+          assert((index_ > 0) 
+            && "Decrementing a begin iterator");
+          assert(((std::size_t)(-value) <= index_) 
+            && "Decrementing the iterator too much");
+          index_ += value;
+        }
+        // value > 0 : go forward
+        else {
+          assert(!isEnd() 
+            && "Incrementing a past-the-end iterator");
+          index_ += value;
+          // if we reached the end, make the index_ endpos.
+          if(index_ == getContainer().size()) index_ = endpos;
+        }
+      }
+
+      /// The container
+      container* data_ = nullptr;
+      /// The index in the container
       std::size_t index_ = 0;
   };
 
