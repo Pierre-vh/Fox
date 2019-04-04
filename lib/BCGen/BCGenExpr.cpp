@@ -26,7 +26,7 @@ class BCGen::ExprGenerator : public Generator,
   using Visitor = ExprVisitor<ExprGenerator, RegisterValue>;
   friend Visitor;
   public:
-    ExprGenerator(BCGen& gen, BCModuleBuilder& builder, 
+    ExprGenerator(BCGen& gen, BCBuilder& builder, 
                   RegisterAllocator& regAlloc) : Generator(gen, builder),
                   regAlloc(regAlloc) {}
 
@@ -410,12 +410,12 @@ class BCGen::ExprGenerator : public Generator,
 // BCGen Entrypoints
 //----------------------------------------------------------------------------//
 
-RegisterValue BCGen::genExpr(BCModuleBuilder& builder, 
+RegisterValue BCGen::genExpr(BCBuilder& builder, 
                              RegisterAllocator& regAlloc, Expr* expr) {
   return ExprGenerator(*this, builder, regAlloc).generate(expr);
 }
 
-void BCGen::genDiscardedExpr(BCModuleBuilder& builder, 
+void BCGen::genDiscardedExpr(BCBuilder& builder, 
                              RegisterAllocator& regAlloc, Expr* expr) {
   ExprGenerator(*this, builder, regAlloc).generate(expr);
 }

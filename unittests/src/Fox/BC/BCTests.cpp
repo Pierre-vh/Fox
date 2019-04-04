@@ -41,16 +41,15 @@ TEST(OpcodeTest, ToString) {
 }
 
 TEST(InstructionTest, dumpInstructions) {
-  // Create a series of instructions 
-  BCModuleBuilder builder;
+  InstructionVector instrs;
+  BCBuilder builder(instrs);
   builder.createNoOpInstr();
   builder.createAddIntInstr(0, 1, 2);
   builder.createLNotInstr(42, 84);
   builder.createStoreSmallIntInstr(0, -4242);
   builder.createJumpInstr(-30000);;
   // Check that we have the correct number of instructions
-  InstructionVector& instrs = builder.getModule().getInstructions();
-  ASSERT_EQ(instrs.size(), 5u) << "Broken BCModuleBuilder?";
+  ASSERT_EQ(instrs.size(), 5u) << "Broken BCBuilder?";
   // Dump to a stringstream
   std::stringstream ss;
   dumpInstructions(ss, instrs);
@@ -83,7 +82,8 @@ TEST(InstructionTest, isAnyJump) {
 }
 
 TEST(BCBuilderTest, TernaryInstr) {
-  BCModuleBuilder builder;
+  InstructionVector instrs;
+  BCBuilder builder(instrs);
   // Create an Ternary instr
   auto it = builder.createAddIntInstr(42, 84, 126);
   // Check if it was encoded as expected.
@@ -95,7 +95,8 @@ TEST(BCBuilderTest, TernaryInstr) {
 
 // Test for Binary Instrs with two 8 bit args.
 TEST(BCBuilderTest, SmallBinaryInstr) {
-  BCModuleBuilder builder;
+  InstructionVector instrs;
+  BCBuilder builder(instrs);
   // Create an Small Binary instr
   auto it = builder.createLNotInstr(42, 84);
   // Check if it was encoded as expected.
@@ -106,7 +107,8 @@ TEST(BCBuilderTest, SmallBinaryInstr) {
 
 // Test for Binary Instrs with one 8 bit arg and one 16 bit arg.
 TEST(BCBuilderTest, BinaryInstr) {
-  BCModuleBuilder builder;
+  InstructionVector instrs;
+  BCBuilder builder(instrs);
   // Create a Binary instr
   auto it = builder.createStoreSmallIntInstr(42, 16000);
   // Check if was encoded as expected.
@@ -116,7 +118,8 @@ TEST(BCBuilderTest, BinaryInstr) {
 }
 
 TEST(BCBuilderTest, UnaryInstr) {
-  BCModuleBuilder builder;
+  InstructionVector instrs;
+  BCBuilder builder(instrs);
   // Create unary instrs (this one uses a signed value)
   auto positive = builder.createJumpInstr(30000);
   auto negative = builder.createJumpInstr(-30000);
@@ -133,7 +136,8 @@ TEST(BCBuilderTest, UnaryInstr) {
 }
 
 TEST(BCBuilderTest, createdInstrIterators) {
-  BCModuleBuilder builder;
+  InstructionVector instrs;
+  BCBuilder builder(instrs);
   // Create a few instructions, checking that iterators are valid
   auto a = builder.createJumpInstr(30000);
   EXPECT_EQ(a->opcode, Opcode::Jump);
@@ -165,19 +169,12 @@ TEST(BCBuilderTest, createdInstrIterators) {
   EXPECT_EQ(c->DivDouble.rhs, 3u);
   // ++c should be the break instr
   EXPECT_EQ((++c)->opcode, Opcode::Break);
-  BCModule& theModule = builder.getModule();
-  // ++last should be equal to end
-  auto end = ++BCModule::instr_iterator(last);
-  EXPECT_EQ(end, theModule.instrs_end());
-  // last should be equal to instrs_last
-  EXPECT_EQ(last, theModule.instrs_last());
-  // last should be equal to --end
-  EXPECT_EQ(last, --theModule.instrs_end());
 }
 
-TEST(BCModuleTest, instr_iterator) {
+TEST(BCModuleTest, orderIsRespected) {
   // Create some instructions in the builder
-  BCModuleBuilder builder;
+  InstructionVector instrs;
+  BCBuilder builder(instrs);
   builder.createBreakInstr();
   builder.createNoOpInstr();
   builder.createAddIntInstr(0, 0, 0);
@@ -188,22 +185,10 @@ TEST(BCModuleTest, instr_iterator) {
   expectedOps.push_back(Opcode::NoOp);
   expectedOps.push_back(Opcode::AddInt);
   expectedOps.push_back(Opcode::AddDouble);
-  // Get the module
-  BCModule& theModule = builder.getModule();
-  // Check that the order matches what we expect, and that
-  // iteration is successful.
-  auto it = theModule.instrs_begin();
-  auto end = theModule.instrs_end();
+  // Check that the order matches what we expect
   {
     int idx = 0;
-    for (; it != end; ++it) {
+    for (auto it = instrs.begin(); it != instrs.end(); ++it)
       ASSERT_EQ(it->opcode, expectedOps[idx++]);
-    }
   }
-  // Check that it == end
-  ASSERT_EQ(it, theModule.instrs_end());
-  // Check that --it == back
-  ASSERT_EQ(--it, theModule.instrs_last());
-  // Check that .back is indeed AddDouble
-  ASSERT_EQ(theModule.instrs_last()->opcode, Opcode::AddDouble);
 }

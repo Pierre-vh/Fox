@@ -11,80 +11,66 @@
 using namespace fox;
 
 //----------------------------------------------------------------------------//
-// BCModuleBuilder: Macro-generated methods
+// BCBuilder: Macro-generated methods
 //----------------------------------------------------------------------------//
 
 #define SIMPLE_INSTR(ID)                                                       \
-  BCModule::instr_iterator BCModuleBuilder::create##ID##Instr() {              \
-    return getModule().addInstr(Instruction(Opcode::ID));                      \
+  BCBuilder::StableInstrIter BCBuilder::create##ID##Instr() {                  \
+    return insert(Instruction(Opcode::ID));                                    \
   }
 
 #define TERNARY_INSTR(ID, I1, T1, I2, T2, I3, T3)                              \
-  BCModule::instr_iterator                                                     \
-  BCModuleBuilder::create##ID##Instr(T1 I1, T2 I2, T3 I3) {                    \
+  BCBuilder::StableInstrIter                                                   \
+  BCBuilder::create##ID##Instr(T1 I1, T2 I2, T3 I3) {                          \
     Instruction instr(Opcode::ID);                                             \
     instr.ID.I1 = I1;                                                          \
     instr.ID.I2 = I2;                                                          \
     instr.ID.I3 = I3;                                                          \
-    return getModule().addInstr(instr);                                        \
+    return insert(instr);                                                      \
   }
 
 #define BINARY_INSTR(ID, I1, T1, I2, T2)                                       \
-  BCModule::instr_iterator                                                     \
-  BCModuleBuilder::create##ID##Instr(T1 I1, T2 I2) {                           \
+  BCBuilder::StableInstrIter BCBuilder::create##ID##Instr(T1 I1, T2 I2) {      \
     Instruction instr(Opcode::ID);                                             \
     instr.ID.I1 = I1;                                                          \
     instr.ID.I2 = I2;                                                          \
-    return getModule().addInstr(instr);                                        \
+    return insert(instr);                                                      \
   }
 
 #define UNARY_INSTR(ID, I1, T1)                                                \
-  BCModule::instr_iterator BCModuleBuilder::create##ID##Instr(T1 I1) {         \
+  BCBuilder::StableInstrIter BCBuilder::create##ID##Instr(T1 I1) {             \
     Instruction instr(Opcode::ID);                                             \
     instr.ID.I1 = I1;                                                          \
-    return getModule().addInstr(instr);                                        \
+    return insert(instr);                                                      \
   }
 
 #include "Fox/BC/Instruction.def"
 
 //----------------------------------------------------------------------------//
-// BCModuleBuilder
+// BCBuilder
 //----------------------------------------------------------------------------//
 
-BCModuleBuilder::BCModuleBuilder() = default;
-BCModuleBuilder::~BCModuleBuilder() = default;
+BCBuilder::BCBuilder(InstructionVector& vector) : vector(vector) {}
 
-void BCModuleBuilder::truncate_instrs(instr_iterator beg) {
-  getInstrBuffer().erase(beg.getContainerIterator(), getInstrBuffer().end());
+void BCBuilder::truncate_instrs(StableInstrIter beg) {
+  vector.erase(beg.getContainerIterator(), vector.end());
 }
 
-bool BCModuleBuilder::isLastInstr(instr_iterator it) const {
-  // TODO: Once I have a const version of instrs_last, remove the const_cast.
-  return (it == const_cast<BCModule&>(getModule()).instrs_last());
+bool BCBuilder::isLastInstr(StableInstrIter it) const {
+  // TODO: Once I have a const version of getLastInstrIter, 
+  // remove the const_cast.
+  return (it == const_cast<BCBuilder*>(this)->getLastInstrIter());
 }
 
-void BCModuleBuilder::popInstr() {
-  getModule().getInstructions().pop_back();
+BCBuilder::StableInstrIter BCBuilder::getLastInstrIter() {
+  return StableInstrIter(vector, vector.size()-1);
 }
 
-std::unique_ptr<BCModule> BCModuleBuilder::takeModule() {
-  return std::move(bcModule_);
+void BCBuilder::popInstr() {
+  vector.pop_back();
 }
 
-BCModule& BCModuleBuilder::getModule() {
-  // Lazily create a new module if needed.
-  if(!bcModule_) bcModule_ = std::make_unique<BCModule>();
-  return *bcModule_;
-}
-
-const BCModule& BCModuleBuilder::getModule() const {
-  return const_cast<BCModuleBuilder*>(this)->getModule();
-}
-
-InstructionVector& BCModuleBuilder::getInstrBuffer() {
-  return getModule().getInstructions();
-}
-
-const InstructionVector& BCModuleBuilder::getInstrBuffer() const {
-  return getModule().getInstructions();
+BCBuilder::StableInstrIter BCBuilder::insert(Instruction instr) {
+  vector.push_back(instr);
+  return getLastInstrIter();
 }

@@ -18,14 +18,23 @@
 
 using namespace fox;
 
-TEST(VMTest, StoreSmallInt) {
-  BCModuleBuilder builder;
+namespace {
+  class VMTest : public ::testing::Test {
+    public:
+      BCModule theModule;
+      BCBuilder builder;
+
+      VMTest() : builder(theModule.getInstructions()) {}
+  };
+}
+
+TEST_F(VMTest, StoreSmallInt) {
   FoxInt r0Value = -14242;
   FoxInt r1Value = 24000;
   builder.createStoreSmallIntInstr(1, r1Value);
   builder.createStoreSmallIntInstr(0, r0Value);
   builder.createBreakInstr();;
-  VM vm(builder.getModule());
+  VM vm(theModule);
   vm.run();
   FoxInt r0 = vm.getRegisterStack()[0];
   FoxInt r1 = vm.getRegisterStack()[1];
@@ -33,8 +42,7 @@ TEST(VMTest, StoreSmallInt) {
   EXPECT_EQ(r1, r1Value);
 }
 
-TEST(VMTest, IntArithmetic) {
-  BCModuleBuilder builder;
+TEST_F(VMTest, IntArithmetic) {
   FoxInt r0 = 2;
   FoxInt r1 = 64;
   FoxInt r2 = -16384;
@@ -55,7 +63,7 @@ TEST(VMTest, IntArithmetic) {
   builder.createNegIntInstr(10, 2);
   builder.createBreakInstr();
   // Prepare the VM & Load the code
-  VM vm(builder.getModule());
+  VM vm(theModule);
   // Load the initial values
   auto regs = vm.getRegisterStack();
   regs[0] = r0;
@@ -83,8 +91,7 @@ TEST(VMTest, IntArithmetic) {
   EXPECT_EQ(getReg(10), 16384)    << "Bad NegInt";
 }
 
-TEST(VMTest, DoubleArithmetic) {
-  BCModuleBuilder builder;
+TEST_F(VMTest, DoubleArithmetic) {
   FoxDouble r0 = -3.14;
   FoxDouble r1 = 3.333333333333;
   FoxDouble r2 = -42.42;
@@ -106,7 +113,7 @@ TEST(VMTest, DoubleArithmetic) {
   builder.createNegDoubleInstr(11, 2);
   builder.createBreakInstr();
   // Prepare the VM & Load the code
-  VM vm(builder.getModule());
+  VM vm(theModule);
 
   auto regs = vm.getRegisterStack();
   regs[0] = llvm::DoubleToBits(r0);
@@ -136,8 +143,7 @@ TEST(VMTest, DoubleArithmetic) {
   EXPECT_EQ(getReg(11), 42.42)                      << "Bad NegDouble";
 }
 
-TEST(VMTest, IntComparison) {
-  BCModuleBuilder builder;
+TEST_F(VMTest, IntComparison) {
   FoxInt r0 = 2;
   FoxInt r1 = 64;
   // r2 = (r0 == r1) --> false (0)
@@ -148,7 +154,7 @@ TEST(VMTest, IntComparison) {
   builder.createLTIntInstr(4, 1, 1);
   builder.createBreakInstr();
   // Prepare the VM & Load the code
-  VM vm(builder.getModule());
+  VM vm(theModule);
 
   // Load the initial values
   auto regs = vm.getRegisterStack();
@@ -169,8 +175,7 @@ TEST(VMTest, IntComparison) {
   EXPECT_EQ(getReg(4), 0) << "Bad LTInt";
 }
 
-TEST(VMTest, DoubleComparison) {
-  BCModuleBuilder builder;
+TEST_F(VMTest, DoubleComparison) {
   FoxDouble r0 = -3.14;
   FoxDouble r1 = 3.333333333333;
   // r2 = r1 == r1 --> true (1)
@@ -185,7 +190,7 @@ TEST(VMTest, DoubleComparison) {
   builder.createGTDoubleInstr(6, 1, 1);
   builder.createBreakInstr();
   // Prepare the VM & Load the code
-  VM vm(builder.getModule());
+  VM vm(theModule);
 
   auto regs = vm.getRegisterStack();
   regs[0] = llvm::DoubleToBits(r0);
@@ -211,8 +216,7 @@ TEST(VMTest, DoubleComparison) {
   EXPECT_DOUBLE_EQ(getReg(6), 0)  << "Bad GTDouble";
 }
 
-TEST(VMTest, LogicOps) {
-  BCModuleBuilder builder;
+TEST_F(VMTest, LogicOps) {
   FoxInt r0 = 0;
   FoxInt r1 = 1;
   // r2 = (r0 && r1) --> 0
@@ -225,7 +229,7 @@ TEST(VMTest, LogicOps) {
   builder.createLNotInstr(5, 0);
   builder.createBreakInstr();
   // Prepare the VM & Load the code
-  VM vm(builder.getModule());
+  VM vm(theModule);
 
   // Load the initial values
   auto regs = vm.getRegisterStack();
@@ -247,9 +251,7 @@ TEST(VMTest, LogicOps) {
   EXPECT_EQ(getReg(5), 1) << "Bad LNot";
 }
 
-
-TEST(VMTest, Jump) {
-  BCModuleBuilder builder;
+TEST_F(VMTest, Jump) {
   // Create instructions like this:
     // 0 Jump 2
     // 1 Break
@@ -263,7 +265,7 @@ TEST(VMTest, Jump) {
   builder.createBreakInstr();
 
   // Prepare the VM
-  VM vm(builder.getModule());
+  VM vm(theModule);
   
   // Run the code
   vm.run();
@@ -271,10 +273,9 @@ TEST(VMTest, Jump) {
   EXPECT_EQ(vm.getPCIndex(), 2u) << "Bad Jump";
 }
 
-TEST(VMTest, JumpIf) {
+TEST_F(VMTest, JumpIf) {
   FoxInt r0 = 0;
   FoxInt r1 = 1;
-  BCModuleBuilder builder;
   // Create instructions like this:
     // 0 JumpIf r0 1  // won't jump since r0 = 0
     // 1 JumpIf r1 1  // will jump since r1 = 1
@@ -286,7 +287,7 @@ TEST(VMTest, JumpIf) {
   builder.createBreakInstr();
 
   // Prepare the VM
-  VM vm(builder.getModule());
+  VM vm(theModule);
   
   // Setup initial values
   auto regs = vm.getRegisterStack();
@@ -298,10 +299,9 @@ TEST(VMTest, JumpIf) {
   EXPECT_EQ(vm.getPCIndex(), 3u) << "Bad JumpIf";
 }
 
-TEST(VMTest, JumpIfNot) {
+TEST_F(VMTest, JumpIfNot) {
   FoxInt r0 = 0;
   FoxInt r1 = 1;
-  BCModuleBuilder builder;
   // Create instructions like this:
     // 0 JumpIfNot r0 1  // will jump jump since r0 = 0
     // 2 Break    
@@ -313,7 +313,7 @@ TEST(VMTest, JumpIfNot) {
   builder.createBreakInstr();
 
   // Prepare the VM
-  VM vm(builder.getModule());
+  VM vm(theModule);
   
   // Setup initial values
   auto regs = vm.getRegisterStack();
@@ -326,8 +326,7 @@ TEST(VMTest, JumpIfNot) {
 }
 
 
-TEST(VMTest, Casts) {
-  BCModuleBuilder builder;
+TEST_F(VMTest, Casts) {
   FoxInt r0 = 42000;
   FoxInt r1 = -42;
   FoxDouble r2 = -3.3333;
@@ -341,7 +340,7 @@ TEST(VMTest, Casts) {
   // IntToDouble r7 r1 -> r7 = 3
   builder.createDoubleToIntInstr(7, 3);
   builder.createBreakInstr();
-  VM vm(builder.getModule());
+  VM vm(theModule);
   auto regs = vm.getRegisterStack();
   regs[0] = r0;
   regs[1] = r1;
@@ -363,8 +362,7 @@ TEST(VMTest, Casts) {
   EXPECT_EQ(getReg(7), 3);
 }
 
-TEST(VMTest, Copy) {
-  BCModuleBuilder builder;
+TEST_F(VMTest, Copy) {
   FoxInt r0 = 42000;
   FoxDouble r1 = -3.3333;
   // Copy r2 r0 -> r2 = r0
@@ -372,7 +370,7 @@ TEST(VMTest, Copy) {
   // Copy r3 r1 -> r3 = r1
   builder.createCopyInstr(3, 1);
   builder.createBreakInstr();
-  VM vm(builder.getModule());
+  VM vm(theModule);
   auto regs = vm.getRegisterStack();
   regs[0] = r0;
   regs[1] = llvm::DoubleToBits(r1);

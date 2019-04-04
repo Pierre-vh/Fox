@@ -16,7 +16,7 @@
 namespace fox {
   class ASTContext;
   class DiagnosticEngine;
-  class BCModuleBuilder;
+  class BCBuilder;
   class BCModule;
   class Expr;
   class RegisterAllocator;
@@ -35,28 +35,28 @@ namespace fox {
 
     private:
       // Generates (emits) the bytecode for a GLOBAL VarDecl "var" 
-      void genGlobalVar(BCModuleBuilder& builder, VarDecl* var);
+      void genGlobalVar(BCBuilder& builder, VarDecl* var);
 
       // Generates (emits) the bytecode for a function declaration "func" 
-      void genFunc(BCModuleBuilder& builder, FuncDecl* func);
+      void genFunc(BCBuilder& builder, FuncDecl* func);
 
       // Generates (emits) the bytecode for a statement "stmt"
-      void genStmt(BCModuleBuilder& builder, 
+      void genStmt(BCBuilder& builder, 
                    RegisterAllocator& regAlloc, Stmt* stmt);
 
       // Generates (emits) the bytecode for an expression "expr".
       // Returns the RegisterValue managing the register containing the
       // result of the expr.
-      RegisterValue genExpr(BCModuleBuilder& builder, 
+      RegisterValue genExpr(BCBuilder& builder, 
                    RegisterAllocator& regAlloc, Expr* expr);
 
       // Generates (emits) the bytecode for an expression "expr", but
       // immediately discards the result.
-      void genDiscardedExpr(BCModuleBuilder& builder, 
+      void genDiscardedExpr(BCBuilder& builder, 
                             RegisterAllocator& regAlloc, Expr* expr);
 
       // Generates (emits) the bytecode for a local declaration "decl"
-      void genLocalDecl(BCModuleBuilder& builder, 
+      void genLocalDecl(BCBuilder& builder, 
                         RegisterAllocator& regAlloc, Decl* decl);
 
       class Generator;
@@ -72,10 +72,10 @@ namespace fox {
       BCGen& bcGen;
       DiagnosticEngine& diagEngine;
       ASTContext& ctxt;
-      BCModuleBuilder& builder;
+      BCBuilder& builder;
 
     protected:
-      Generator(BCGen& bcGen, BCModuleBuilder& builder) : 
+      Generator(BCGen& bcGen, BCBuilder& builder) : 
         bcGen(bcGen), builder(builder),
         diagEngine(bcGen.diagEngine), ctxt(bcGen.ctxt) {}
   };

@@ -27,7 +27,7 @@ class BCGen::LocalDeclGenerator : public Generator,
   using Inherited = DeclVisitor<LocalDeclGenerator, void>;
   friend Inherited;
   public:
-    LocalDeclGenerator(BCGen& gen, BCModuleBuilder& builder,
+    LocalDeclGenerator(BCGen& gen, BCBuilder& builder,
                   RegisterAllocator& regAlloc): 
       Generator(gen, builder), regAlloc(regAlloc) {}
 
@@ -162,7 +162,7 @@ namespace {
 // BCGen Entrypoints
 //----------------------------------------------------------------------------//
 
-void BCGen::genFunc(BCModuleBuilder& builder, FuncDecl* func) {
+void BCGen::genFunc(BCBuilder& builder, FuncDecl* func) {
   assert(func && "func is null");
   // Create the RegisterAllocator for this Function
   RegisterAllocator regAlloc;
@@ -177,11 +177,11 @@ void BCGen::genFunc(BCModuleBuilder& builder, FuncDecl* func) {
   //  else the error would have been caught by Semantic Analysis)
 }
 
-void BCGen::genGlobalVar(BCModuleBuilder&, VarDecl*) {
+void BCGen::genGlobalVar(BCBuilder&, VarDecl*) {
   fox_unimplemented_feature("BCGen::genGlobalVar");
 }
 
-void BCGen::genLocalDecl(BCModuleBuilder& builder,
+void BCGen::genLocalDecl(BCBuilder& builder,
                          RegisterAllocator& regAlloc, Decl* decl) {
   assert(decl->isLocal() && "Decl isn't local!");
   LocalDeclGenerator(*this, builder, regAlloc).generate(decl);
@@ -189,14 +189,17 @@ void BCGen::genLocalDecl(BCModuleBuilder& builder,
 
 std::unique_ptr<BCModule> BCGen::genUnit(UnitDecl* unit) {
   assert(unit && "unit is null");
-  BCModuleBuilder theBuilder;
+  // Currently, we generate the unit here, but in the future
+  // we'll use the one in the BCGen.
+  std::unique_ptr<BCModule> theModule = std::make_unique<BCModule>();
+  BCBuilder builder(theModule->getInstructions());
   for (Decl* decl : unit->getDecls()) {
     // BCGen is a WIP, so for now, only gen the first function
     // we find and stop after that.
     if (FuncDecl* fn = dyn_cast<FuncDecl>(decl)) {
-      genFunc(theBuilder, fn);
+      genFunc(builder, fn);
       break;
     }
   }
-  return theBuilder.takeModule();
+  return theModule;
 }

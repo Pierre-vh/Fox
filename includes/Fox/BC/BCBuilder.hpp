@@ -4,8 +4,8 @@
 // File : BCBuilder.hpp                    
 // Author : Pierre van Houtryve                
 //----------------------------------------------------------------------------//
-//  This file contains the class used to generate Bytecode Modules (BCModules)
-//  usable by the Fox VM.
+//  This file declares the BCBuilder interface. It is a helper class used to
+//  build bytecode buffers.
 //----------------------------------------------------------------------------//
 
 #pragma once
@@ -13,48 +13,44 @@
 #include "BCUtils.hpp"
 #include "Fox/BC/BCModule.hpp"
 #include "Fox/Common/LLVM.hpp"
-#include <memory>
+#include "Fox/Common/StableVectorIterator.hpp"
 #include <cstdint>
 
 namespace fox {
-  class BCModuleBuilder {
+  class BCBuilder {
     public:
-      // The type of an interator of instructions
-      using instr_iterator = BCModule::instr_iterator;
+      /// A 'stable' iterator for the instruction buffer
+      using StableInstrIter = StableVectorIterator<InstructionVector>;
 
-      BCModuleBuilder();
-      ~BCModuleBuilder();
+      BCBuilder(InstructionVector& vector);
 
       #define TERNARY_INSTR(ID, I1, T1, I2, T2, I3, T3)\
-        BCModule::instr_iterator create##ID##Instr(T1 I1, T2 I2, T3 I3);
+        StableInstrIter create##ID##Instr(T1 I1, T2 I2, T3 I3);
       #define BINARY_INSTR(ID, I1, T1, I2, T2)\
-        BCModule::instr_iterator create##ID##Instr(T1 I1, T2 I2);
+        StableInstrIter create##ID##Instr(T1 I1, T2 I2);
       #define UNARY_INSTR(ID, I1, T1)\
-        BCModule::instr_iterator create##ID##Instr(T1 I1);
+        StableInstrIter create##ID##Instr(T1 I1);
       #define SIMPLE_INSTR(ID)\
-        BCModule::instr_iterator create##ID##Instr();
+        StableInstrIter create##ID##Instr();
       #include "Instruction.def"
 
-      // Erases all instructions in the range [beg, end)
-      void truncate_instrs(instr_iterator beg);
+      /// erases all instructions in the range [beg, end)
+      void truncate_instrs(StableInstrIter beg);
 
-      // Returns true if 'it' == instrs_last().
-      bool isLastInstr(instr_iterator it) const;
+      /// \returns true if 'it' == getLastInstrIter()
+      bool isLastInstr(StableInstrIter it) const;
 
-      // Removes the last instruction added to this module.
+      /// \returns an iterator to the last instruction inserted
+      /// in the buffer.
+      StableInstrIter getLastInstrIter();
+
+      /// Removes the last instruction added to this module.
       void popInstr();
 
-      // Takes the current BCModule from the builder.
-      // NOTE: The builder will lazily create another module
-      // when getModule (const or not) is called.
-      std::unique_ptr<BCModule> takeModule();
-      BCModule& getModule();
-      const BCModule& getModule() const;
+      /// The Instruction Buffer that we are building.
+      InstructionVector& vector;
 
     private:
-      InstructionVector& getInstrBuffer();
-      const InstructionVector& getInstrBuffer() const;
-
-      std::unique_ptr<BCModule> bcModule_;
+      StableInstrIter insert(Instruction instr);
   };
 }

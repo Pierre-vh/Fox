@@ -15,30 +15,21 @@ std::size_t BCModule::numInstructions() const {
 }
 
 InstructionVector& BCModule::getInstructions() {
-  return instrBuffer_;
+  return instrs_;
 }
 
 const InstructionVector& BCModule::getInstructions() const {
-  return instrBuffer_;
+  return instrs_;
 }
 
 void BCModule::dumpModule(std::ostream& out) const {
   dumpInstructions(out, getInstructions());
 }
 
-BCModule::instr_iterator BCModule::instrs_begin() {
-  return instr_iterator(getInstructions());
+InstructionVector::iterator BCModule::instrs_begin() {
+  return instrs_.begin();
 }
 
-BCModule::instr_iterator BCModule::instrs_end() {
-  return instr_iterator(getInstructions(), instrBuffer_.size());
-}
-
-BCModule::instr_iterator BCModule::instrs_last() {
-  return instr_iterator(getInstructions(), instrBuffer_.size()-1);
-}
-
-BCModule::instr_iterator BCModule::addInstr(Instruction instr) {
-  instrBuffer_.push_back(instr);
-  return instrs_last();
+InstructionVector::iterator BCModule::instrs_end() {
+  return instrs_.end();
 }

@@ -23,20 +23,18 @@ class BCGen::StmtGenerator : public Generator,
   using Visitor = StmtVisitor<StmtGenerator, void>;
   friend Visitor;
   public:
-    StmtGenerator(BCGen& gen, BCModuleBuilder& builder,
+    StmtGenerator(BCGen& gen, BCBuilder& builder,
                   RegisterAllocator& regAlloc): 
-      Generator(gen, builder), regAlloc(regAlloc), 
-      theModule(builder.getModule()) {}
+      Generator(gen, builder), regAlloc(regAlloc) {}
 
     void generate(Stmt* stmt) {
       visit(stmt);
     }
 
     RegisterAllocator& regAlloc;
-    BCModule& theModule;
 
   private:
-    using instr_iterator = BCModule::instr_iterator;
+    using StableInstrIter = BCBuilder::StableInstrIter;
 
     // The type used to store jump offsets. Doesn't necessarily
     // match the one of the instructions.
@@ -69,7 +67,7 @@ class BCGen::StmtGenerator : public Generator,
     /// \param jump The jump to adjust. Must be a jump of some kind.
     /// \param target The last instruction that should be skipped by the jump,
     ///               so '++jump' is the next instruction that will be executed.
-    void fixJump(instr_iterator jump, instr_iterator target) {
+    void fixJump(StableInstrIter jump, StableInstrIter target) {
       assert(jump->isAnyJump() && "not a jump!");
       assert((jump != target) && "useless jump");
       std::size_t absoluteDistance;
@@ -156,7 +154,7 @@ class BCGen::StmtGenerator : public Generator,
           builder.truncate_instrs(jumpIfFalse);
         // Else, complete 'jumpToElse' to jump after the last instr emitted.
         else 
-          fixJump(jumpIfFalse, theModule.instrs_last());
+          fixJump(jumpIfFalse, builder.getLastInstrIter());
         return;
       }
 
@@ -177,7 +175,7 @@ class BCGen::StmtGenerator : public Generator,
         }
         else {
           // If we did: Fix the jump
-          fixJump(jumpIfTrue, theModule.instrs_last());
+          fixJump(jumpIfTrue, builder.getLastInstrIter());
         }
       }
       // We have a else, and the then was not empty.
@@ -194,14 +192,14 @@ class BCGen::StmtGenerator : public Generator,
           // If we generated nothing, remove everything including jumpEnd...
           builder.truncate_instrs(jumpEnd);
           // ...and make jumpIfFalse jump after the last instruction emitted.
-          fixJump(jumpIfFalse, theModule.instrs_last());
+          fixJump(jumpIfFalse, builder.getLastInstrIter());
         }
         else {
           // If generated something, complete both jumps:
           //    jumpIfFalse should jump past JumpEnd
           fixJump(jumpIfFalse, jumpEnd);
           //    jumpEnd should jump to the last instruction emitted
-          fixJump(jumpEnd, theModule.instrs_last());
+          fixJump(jumpEnd, builder.getLastInstrIter());
         }
       }
     }
@@ -221,7 +219,7 @@ class BCGen::StmtGenerator : public Generator,
 // BCGen Entrypoints
 //----------------------------------------------------------------------------//
 
-void BCGen::genStmt(BCModuleBuilder& builder, 
+void BCGen::genStmt(BCBuilder& builder, 
                     RegisterAllocator& regAlloc, 
                     Stmt* stmt) {
   assert(stmt && "stmt is null");
