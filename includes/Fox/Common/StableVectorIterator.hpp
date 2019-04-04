@@ -48,20 +48,21 @@ namespace fox {
     };
   }
 
-  /// StableVectorIteratorImpl is a custom vector iterator with a few additions:
+  /// StableVectorIteratorImpl is a custom index-based 'stable' vector iterator
   /// Stability is guaranteed for:
   ///   - The 'end' iterator is guaranteed
   ///   - Inserting/erasing AFTER the iterator's position.
   /// Stability IS NOT guaranteed for
-  ///   - Insertion/erasure before the iterator
+  ///   - Insertion/erasure before or at the iterator
   /// Additional notes:
+  ///   - As this is index based, the result of the operator* is not stable.
+  ///     Don't store something like 'auto& elem = (*iter);' just like you
+  ///     wouldn't store a vector iterator.
   ///   - The iterator will assert that it's dereferenceable (that it points
   ///     to a valid element
   ///   - ContainerTy (the first template argument) needs to be a std::vector
   ///     or another data structure with the same interface as a std::vector.
   ///     (e.g. llvm::SmallVector)
-  /// TODO: This could be a RandomAccessIterator, however I don't need that
-  /// functionality for now so I haven't implemented it.
   template<typename ContainerTy, bool isConst>
   class StableVectorIteratorImpl {
     using trait = 
