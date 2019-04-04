@@ -169,7 +169,7 @@ TEST(BCBuilderTest, createdInstrIterators) {
   // ++last should be equal to end
   auto end = ++BCModule::instr_iterator(last);
   EXPECT_EQ(end, theModule.instrs_end());
-  // last should be equal to back
+  // last should be equal to instrs_last
   EXPECT_EQ(last, theModule.instrs_last());
   // last should be equal to --end
   EXPECT_EQ(last, --theModule.instrs_end());

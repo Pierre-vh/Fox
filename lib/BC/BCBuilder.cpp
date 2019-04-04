@@ -55,7 +55,7 @@ BCModuleBuilder::BCModuleBuilder() = default;
 BCModuleBuilder::~BCModuleBuilder() = default;
 
 void BCModuleBuilder::truncate_instrs(instr_iterator beg) {
-  getInstrBuffer().erase(beg.toIBiterator(), getInstrBuffer().end());
+  getInstrBuffer().erase(beg.getContainerIterator(), getInstrBuffer().end());
 }
 
 bool BCModuleBuilder::isLastInstr(instr_iterator it) const {
