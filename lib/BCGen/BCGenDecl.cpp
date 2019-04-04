@@ -162,13 +162,17 @@ namespace {
 // BCGen Entrypoints
 //----------------------------------------------------------------------------//
 
-void BCGen::genFunc(BCBuilder& builder, FuncDecl* func) {
+// TODO: Return a std::unique_ptr<BCFunction> or take a BCFunction& as param
+// this should be a BCFunction factory!
+void BCGen::genFunc(BCModule& bcmodule, FuncDecl* func) {
   assert(func && "func is null");
   // Create the RegisterAllocator for this Function
   RegisterAllocator regAlloc;
   // Do the prologue so classes like the RegisterAllocator
   // can be given enough information to correctly generate the bytecode.
   FuncGenPrologue(regAlloc).doPrologue(func);
+  // Create a builder
+  BCBuilder builder(bcmodule.getInstructions());
   // For now, only gen the body.
   genStmt(builder, regAlloc, func->getBody());
   // TODO: Once we gen the function properly, check that the last instruction
@@ -189,15 +193,13 @@ void BCGen::genLocalDecl(BCBuilder& builder,
 
 std::unique_ptr<BCModule> BCGen::genUnit(UnitDecl* unit) {
   assert(unit && "unit is null");
-  // Currently, we generate the unit here, but in the future
-  // we'll use the one in the BCGen.
+  // Build the module
+  // TODO: Move this in the BCGen class
   std::unique_ptr<BCModule> theModule = std::make_unique<BCModule>();
-  BCBuilder builder(theModule->getInstructions());
+  // Only gen functions for now.
   for (Decl* decl : unit->getDecls()) {
-    // BCGen is a WIP, so for now, only gen the first function
-    // we find and stop after that.
     if (FuncDecl* fn = dyn_cast<FuncDecl>(decl)) {
-      genFunc(builder, fn);
+      genFunc(*theModule, fn);
       break;
     }
   }

@@ -38,7 +38,7 @@ namespace fox {
       void genGlobalVar(BCBuilder& builder, VarDecl* var);
 
       // Generates (emits) the bytecode for a function declaration "func" 
-      void genFunc(BCBuilder& builder, FuncDecl* func);
+      void genFunc(BCModule& bcmodule, FuncDecl* func);
 
       // Generates (emits) the bytecode for a statement "stmt"
       void genStmt(BCBuilder& builder, 
