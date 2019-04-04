@@ -57,13 +57,15 @@ void BCBuilder::truncate_instrs(StableInstrIter beg) {
 }
 
 bool BCBuilder::isLastInstr(StableInstrIter it) const {
-  // TODO: Once I have a const version of getLastInstrIter, 
-  // remove the const_cast.
-  return (it == const_cast<BCBuilder*>(this)->getLastInstrIter());
+  return (it == getLastInstrIter());
 }
 
 BCBuilder::StableInstrIter BCBuilder::getLastInstrIter() {
   return StableInstrIter(vector, vector.size()-1);
+}
+
+BCBuilder::StableConstInstrIter BCBuilder::getLastInstrIter() const {
+  return StableConstInstrIter(vector, vector.size()-1);
 }
 
 void BCBuilder::popInstr() {

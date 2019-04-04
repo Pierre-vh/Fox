@@ -20,7 +20,11 @@ namespace fox {
   class BCBuilder {
     public:
       /// A 'stable' iterator for the instruction buffer
-      using StableInstrIter = StableVectorIterator<InstructionVector>;
+      using StableInstrIter = 
+        StableVectorIterator<InstructionVector>;
+      /// A 'stable' const iterator for the instruction buffer
+      using StableConstInstrIter = 
+        StableVectorConstIterator<InstructionVector>;
 
       BCBuilder(InstructionVector& vector);
 
@@ -43,6 +47,10 @@ namespace fox {
       /// \returns an iterator to the last instruction inserted
       /// in the buffer.
       StableInstrIter getLastInstrIter();
+
+      /// \returns an iterator to the last instruction inserted
+      /// in the buffer.
+      StableConstInstrIter getLastInstrIter() const;
 
       /// Removes the last instruction added to this module.
       void popInstr();

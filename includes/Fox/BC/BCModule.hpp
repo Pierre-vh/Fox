@@ -38,8 +38,12 @@ namespace fox {
 
       /// \returns the begin iterator for the instruction vector
       InstructionVector::iterator instrs_begin();
+      /// \returns the begin iterator for the instruction vector
+      InstructionVector::const_iterator instrs_begin() const;
       /// \returns the end iterator for the instruction vector
       InstructionVector::iterator instrs_end();
+      /// \returns the end iterator for the instruction vector
+      InstructionVector::const_iterator instrs_end() const;
 
     private:
       InstructionVector instrs_;

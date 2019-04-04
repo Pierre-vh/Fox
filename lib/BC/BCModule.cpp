@@ -30,6 +30,14 @@ InstructionVector::iterator BCModule::instrs_begin() {
   return instrs_.begin();
 }
 
+InstructionVector::const_iterator BCModule::instrs_begin() const {
+  return instrs_.begin();
+}
+
 InstructionVector::iterator BCModule::instrs_end() {
+  return instrs_.end();
+}
+
+InstructionVector::const_iterator BCModule::instrs_end() const {
   return instrs_.end();
 }
