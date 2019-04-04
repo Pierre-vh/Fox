@@ -141,24 +141,39 @@ namespace fox {
       }
 
       friend bool operator==(const this_type& lhs, const this_type& rhs) {
-        assert(((lhs.data_ != nullptr) || (rhs.data_ != nullptr))
-          && "iterator does not have a container");
-        assert(lhs.compareContainers(rhs) 
-          && "iterators not comparable");
+        assert(lhs.canCompareWith(rhs) && "iterators aren't comparable");
         return (lhs.index_ == rhs.index_);
       }
 
       friend bool operator!=(const this_type& lhs, const this_type& rhs) {
-        return !(lhs == rhs);
+        assert(lhs.canCompareWith(rhs) && "iterators aren't comparable");
+        return (lhs.index_ != rhs.index_);
+      }
+
+      friend bool operator<(const this_type& lhs, const this_type& rhs) {
+        assert(lhs.canCompareWith(rhs) && "iterators aren't comparable");
+        return (lhs.index_ <= rhs.index_);
+      }
+
+      friend bool operator<=(const this_type& lhs, const this_type& rhs) {
+        assert(lhs.canCompareWith(rhs) && "iterators aren't comparable");
+        return (lhs.index_ <= rhs.index_);
+      }
+      
+      friend bool operator>(const this_type& lhs, const this_type& rhs) {
+        assert(lhs.canCompareWith(rhs) && "iterators aren't comparable");
+        return (lhs.index_ > rhs.index_);
+      }
+
+      friend bool operator>=(const this_type& lhs, const this_type& rhs) {
+        assert(lhs.canCompareWith(rhs) && "iterators aren't comparable");
+        return (lhs.index_ >= rhs.index_);
       }
 
       /// Calculates the distance between 2 iterators, \p first and \p last.
       friend difference_type
       distance(const this_type& first, const this_type& last) {
-        assert(((first.data_ != nullptr) || (last.data_ != nullptr))
-          && "iterator does not have a container");
-        assert(first.compareContainers(last) 
-          && "iterators don't share the same container");
+        assert(first.canCompareWith(last) && "iterators aren't comparable");
         return std::distance(first.getContainerIterator(),
                              last.getContainerIterator());
       }
@@ -194,6 +209,14 @@ namespace fox {
         return (data_ == other.data_);
       }
 
+      /// \returns true if both this and \p other have the same non-null
+      /// container
+      bool canCompareWith(const this_type& other) const {
+        if(compareContainers(other))
+          return (data_ != nullptr);
+        return false;
+      }
+
       /// Returns
       pointer get() const {
         assert(isDereferenceable() 
@@ -212,23 +235,36 @@ namespace fox {
           index_ = endpos;
           return;
         }
-        assert((index_ <= getContainer().size()) 
+        assert(((index_ < getContainer().size()) || (index_ == endpos))
           && "Element pointed by the iterator does not exist anymore");
-        // value < 0 : go back
+        // value < 0 : decrement
         if (value < 0) {
+          // Note: keep in mind that the value is negative in this branch,
+          // so when we add the value we're actually substracting.
           assert((index_ > 0) 
             && "Decrementing a begin iterator");
-          assert(((std::size_t)(-value) <= index_) 
-            && "Decrementing the iterator too much");
-          index_ += value;
+          // Decrementing the past-the-end iterator.
+          if (isEnd())
+            index_ = (getContainer().size() + value);
+          // Decrementing any other iterator
+          else {
+            assert(((std::size_t)(-value) <= index_) 
+              && "Decrementing the iterator too much: "
+                 "result would be before the begin iterator");
+            index_ += value;
+          }
         }
-        // value > 0 : go forward
+        // value > 0 : increment
         else {
           assert(!isEnd() 
             && "Incrementing a past-the-end iterator");
+          assert(((index_ + value) <= getContainer().size())
+            && "Incrementing the iterator too much: "
+               "result would be after the end iterator");
           index_ += value;
           // if we reached the end, make the index_ endpos.
-          if(index_ == getContainer().size()) index_ = endpos;
+          if(index_ == getContainer().size()) 
+            index_ = endpos;
         }
       }
 
