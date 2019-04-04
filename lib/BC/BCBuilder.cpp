@@ -81,10 +81,10 @@ const BCModule& BCModuleBuilder::getModule() const {
   return const_cast<BCModuleBuilder*>(this)->getModule();
 }
 
-InstructionBuffer& BCModuleBuilder::getInstrBuffer() {
+InstructionVector& BCModuleBuilder::getInstrBuffer() {
   return getModule().getInstructions();
 }
 
-const InstructionBuffer& BCModuleBuilder::getInstrBuffer() const {
+const InstructionVector& BCModuleBuilder::getInstrBuffer() const {
   return getModule().getInstructions();
 }

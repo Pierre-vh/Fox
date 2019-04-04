@@ -23,7 +23,7 @@
 namespace fox {
   class BCModule {
     public:
-      using instr_iterator = StableVectorIterator<InstructionBuffer>;
+      using instr_iterator = StableVectorIterator<InstructionVector>;
 
       BCModule() = default;
       BCModule(const BCModule&) = delete;
@@ -33,10 +33,10 @@ namespace fox {
       std::size_t numInstructions() const;
 
       // Returns a reference to the instruction buffer
-      InstructionBuffer& getInstructions();
+      InstructionVector& getInstructions();
 
       // Returns a constant reference to the instruction buffer
-      const InstructionBuffer& getInstructions() const;
+      const InstructionVector& getInstructions() const;
 
       // Dumps the module to 'out'
       void dumpModule(std::ostream& out) const;
@@ -56,6 +56,6 @@ namespace fox {
       // an iterator to the pushed element
       instr_iterator addInstr(Instruction instr);
 
-      InstructionBuffer instrBuffer_;
+      InstructionVector instrBuffer_;
   };
 }

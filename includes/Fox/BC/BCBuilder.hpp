@@ -52,8 +52,8 @@ namespace fox {
       const BCModule& getModule() const;
 
     private:
-      InstructionBuffer& getInstrBuffer();
-      const InstructionBuffer& getInstrBuffer() const;
+      InstructionVector& getInstrBuffer();
+      const InstructionVector& getInstrBuffer() const;
 
       std::unique_ptr<BCModule> bcModule_;
   };

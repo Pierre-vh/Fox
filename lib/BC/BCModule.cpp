@@ -14,11 +14,11 @@ std::size_t BCModule::numInstructions() const {
   return getInstructions().size();
 }
 
-InstructionBuffer& BCModule::getInstructions() {
+InstructionVector& BCModule::getInstructions() {
   return instrBuffer_;
 }
 
-const InstructionBuffer& BCModule::getInstructions() const {
+const InstructionVector& BCModule::getInstructions() const {
   return instrBuffer_;
 }
 

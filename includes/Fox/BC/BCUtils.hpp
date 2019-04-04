@@ -35,6 +35,6 @@ namespace fox {
   /// Forward declaration of the 'Opcode' enum
   enum class Opcode : opcode_t;
 
-  /// An instruction buffer
-  using InstructionBuffer = llvm::SmallVector<Instruction, 4>;
+  /// A Vector of Instructions
+  using InstructionVector = llvm::SmallVector<Instruction, 4>;
 }
