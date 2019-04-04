@@ -7,12 +7,6 @@
 // This file contains the "StableVectorIterator" class
 //----------------------------------------------------------------------------//
 
-// TODO: 
-//    2) Test this thouroughly
-//      - Const and Non-Const variants
-//      - Test every functionality of the interface
-//    3) Code review/re-read.
-
 #pragma once
 
 #include <iterator>
@@ -208,6 +202,11 @@ namespace fox {
         return std::distance(first.getContainerIterator(),
                              last.getContainerIterator());
       }
+    protected:
+      /// The container
+      container* data_ = nullptr;
+      /// The index in the container
+      std::size_t index_ = 0;
 
     private:
       static constexpr std::size_t
@@ -298,16 +297,36 @@ namespace fox {
             index_ = endpos;
         }
       }
-
-      /// The container
-      container* data_ = nullptr;
-      /// The index in the container
-      std::size_t index_ = 0;
   };
 
+  /// The const 'StableVectorIterator'.
+  /// See \ref StableVectorIteratorImpl for more information
   template<typename Container>
-  using StableVectorIterator = StableVectorIteratorImpl<Container, false>;
+  class StableVectorConstIterator : 
+      public StableVectorIteratorImpl<Container, true> {
+    using Base = StableVectorIteratorImpl<Container, true>;
+    public:
+      // bring in the constructors
+      using Base::StableVectorIteratorImpl;
+  };
 
+  /// The 'StableVectorIterator'.
+  /// See \ref StableVectorIteratorImpl for more information
   template<typename Container>
-  using StableVectorConstIterator = StableVectorIteratorImpl<Container, true>;
+  class StableVectorIterator : 
+      public StableVectorIteratorImpl<Container, false> {
+    using Base = StableVectorIteratorImpl<Container, false>;
+    public:
+      // bring in the constructors
+      using Base::StableVectorIteratorImpl;
+
+      /// Allow implicit conversions to constant iterators
+      operator StableVectorConstIterator<Container>() {
+        if(this->data_)
+          return StableVectorConstIterator<Container>(*this->data_, this->index_);
+        assert((this->index_ == 0) 
+          && "Iterator does not have data, but it has a non-zero index?");
+        return StableVectorConstIterator<Container>();
+      }
+  };
 }
