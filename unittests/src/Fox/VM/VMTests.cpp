@@ -24,7 +24,7 @@ namespace {
       BCModule theModule;
       BCBuilder builder;
 
-      VMTest() : builder(theModule.getInstructions()) {}
+      VMTest() : builder(theModule.getInstrsVec()) {}
   };
 }
 

@@ -172,7 +172,7 @@ void BCGen::genFunc(BCModule& bcmodule, FuncDecl* func) {
   // can be given enough information to correctly generate the bytecode.
   FuncGenPrologue(regAlloc).doPrologue(func);
   // Create a builder
-  BCBuilder builder(bcmodule.getInstructions());
+  BCBuilder builder(bcmodule.getInstrsVec());
   // For now, only gen the body.
   genStmt(builder, regAlloc, func->getBody());
   // TODO: Once we gen the function properly, check that the last instruction

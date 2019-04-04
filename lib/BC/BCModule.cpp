@@ -11,19 +11,19 @@
 using namespace fox;
 
 std::size_t BCModule::numInstructions() const {
-  return getInstructions().size();
+  return getInstrsVec().size();
 }
 
-InstructionVector& BCModule::getInstructions() {
+InstructionVector& BCModule::getInstrsVec() {
   return instrs_;
 }
 
-const InstructionVector& BCModule::getInstructions() const {
+const InstructionVector& BCModule::getInstrsVec() const {
   return instrs_;
 }
 
 void BCModule::dumpModule(std::ostream& out) const {
-  dumpInstructions(out, getInstructions());
+  dumpInstructions(out, getInstrsVec());
 }
 
 InstructionVector::iterator BCModule::instrs_begin() {

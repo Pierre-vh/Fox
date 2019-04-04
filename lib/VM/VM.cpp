@@ -15,7 +15,7 @@
 using namespace fox;
 
 VM::VM(BCModule& bcModule) : bcModule(bcModule) {
-  programCounter_ = bcModule.getInstructions().begin();
+  programCounter_ = bcModule.getInstrsVec().begin();
 }
 
 void VM::run() {
@@ -209,7 +209,7 @@ void VM::run() {
 }
 
 std::size_t VM::getPCIndex() const {
-  const Instruction* beg = bcModule.getInstructions().begin();
+  const Instruction* beg = bcModule.getInstrsVec().begin();
   return std::distance(beg, programCounter_);
 }
 
