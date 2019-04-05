@@ -228,3 +228,18 @@ TEST(StableVectorIteratorTest, comparison) {
   EXPECT_TRUE(plusone >= plusone);
   STOP_IF_FAILED(">= test failed");
 }
+
+TEST(StableVectorIteratorTest, distance) {
+  auto vector = makeVector();
+  auto beg = SVI(vector);
+  auto end = SVI(vector, vector.size());
+  
+  auto dist_svi = distance(beg, end);
+  auto dist_stl = distance(vector.begin(), vector.end());
+  auto dist_svci = distance(SVCI(vector, vector.begin()), 
+                            SVCI(vector, vector.end()));
+
+  EXPECT_EQ(dist_svi, dist_stl);
+  EXPECT_EQ(dist_svi, dist_svci);
+  EXPECT_EQ(dist_stl, dist_svci);
+}
