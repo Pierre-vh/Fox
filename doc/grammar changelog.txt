@@ -1,5 +1,5 @@
-Fox's Grammar Changelog : 
-* 0.0 ->  First version that had a lot of error (it was my first try at making a full ebnf grammar).
+Fox Grammar Changelog : 
+* 0.0 ->  First (terrible) version (it was my first try at making a full EBNF grammar).
 * 0.1 ->  Reworked expressions, added one-stmt blocks and support for unary operators ! and - and type conversion.
 * 0.2 ->  Grammar cleanup
 * 0.3 ->  Now using Expression Statements instead of f_call_stmt and var_ass_stmt. 

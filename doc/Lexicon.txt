@@ -1,4 +1,4 @@
-//Note: this is still highly incomplete
+//TODO: Complete this a bit more
 Sema:
   > Primitive Type:
     int, float, bool, string, char, void

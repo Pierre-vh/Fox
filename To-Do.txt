@@ -1,5 +1,5 @@
-﻿This file contains personal notes I take when writing the project, this is essentially a to-do list.
-It isn't definitive, don't take anything listed here for granted. The stuff I write here changes a lot!
+﻿This file contains my personal notes/to-do list.
+Don't take anything listed here for granted. The stuff I write here changes a lot!
 - Pierre
 
 To-Do:
@@ -153,13 +153,20 @@ To-Do:
   > Parser Recovery Improvements (Done)
   > Document the public interface with Doxygen-style comments (Done)
   > Removing StringManipulator (Done)
-  > Polishing the Lexer Rework (Done)
+  > Polishing the Lexer Rework + Adding EOF token (Done)
   > StableVectorIterator (Done)
 
-  > VM, Bytecode, BytecodeGen (Currently being worked on, see lib/VM/Status.md)
+  > VM, Bytecode, BytecodeGen (Currently being worked on, see Backend To-Do.txt
 
   > Break and Continue Statements
-    > They're not too hard to add, I just forgot to add them!
+
+  > FFI (just the basics to support intrinsics)
+
+  --- Work on getting a primitive version of the language working ---
+    At least get I/O working (print/getline) so I can have a basic working version
+    of the language.
+
+  --- Get "feature-complete" ---
 
   > Function Overloads on number and type of arguments. 
     > To Implement function overloads, add another "SemaType" that represents a
@@ -169,56 +176,25 @@ To-Do:
 
   > UFCS
 
-  > FFI (just the basics to support intrinsics)
-
-  > Intrinsics (= builtin functions)
-    > Needed intrinsics:
-        toString for all types (primitives and objects)
-        Arrays: .slice(beg, end)
-        Arrays AND String: .append(elem)
-        Strings: .substring(beg, end) // works like slice, but with another name.
+  > More Intrinsics
+      toString for all types (primitives and objects)
+      Arrays: .slice(beg, end)
+      Arrays AND String: .append(elem)
+      Strings: .substring(beg, end) // works like slice, but with another name.
     // More TBA
 
   > Ternary operator
 
-  > Function types & Functions as first class citizens
-
   > Support omission of the type in local declarations (e.g. let foo = 3).
-    Maybe even for global ones too, but that gets a lot more complicated so I can't
-    promise anything yet. If it gets too complicated, I'll abandon it for now and come
-    back to it later.
+    Maybe even for global ones too, but that gets a bit more complicated so I can't
+    promise anything yet.
 
   > Multifile support:
-    > Exact model still to be decided. It'll probably be package/module based, like Java,
-      but with a lot less nesting.
+    > Syntax/Semantics still to be decided.
 
-  > Type aliases
-    > e.g. "typealias foo = [[int]]"
-    > Will have to introduce sugared & canonical types for this, so it'll be a pretty
-      major rework.
-
-Future:
-  > Structs/Tuple/Union
-
-Other:
-  Maybe someday: 
-    This is a list of things that I don't know/I'm not sure yet how I'll fix.
-
-    > Const-correctness in the AST
-      > I'd need to decide on a strict const-correctness policy and stick to it. 
-        Right now I'm using const getters when returning pointers everytime except in some
-        specific cases, but it kind of feels wrong. I'd need to adopt a stricter/cleaner
-        policy, but the only "stricter" policy that I can think of is always returning
-        a const pointers when having const getters, but this feels too strict IMHO, and there's
-        always the problem of "wrapper" types such as "Type".
-
+Other things that aren't part of the main pipeline:
   High priority:
-    This is a list of "high-priority" stuff that needs to be done, but isn't part of the main
-    "roadmap", so it probably will be done later.
-
     > Implement "lex on demand" + Improve the parser
-      > Adding EOF token (Done)
-      > Parser recognizes EOF token as the end of parsing (Done)
       > Lex on demand, Remove TokenVector
       > Parser consume methods should return a SourceLoc instead of a range to eliminate
         the dozen of .getBeginLoc() calls in the parser. This change is just to reduce
@@ -226,37 +202,27 @@ Other:
         Ideally, I should have 2 consume methods, one that returns locs, and one that
         returns range
   
-    > Split lookupmap implementation depending on if it needs
-      ScopeInfo or not, so not all DeclContext pay the price of
-      storing the ScopeInfo if they don't need it
+    > Split lookupmap implementation depending on if it needs ScopeInfo or not, 
+      so not all DeclContext pay the price of storing the ScopeInfo if they don't need it
 
     > DiagnosticEngine overhaul: report(..) should return a Diagnostic::Builder object:
-      a lightweight RAII object. The actual Diagnostic data should be contained
-      inside the DiagnosticEngine. This avoids the large temporary object that is the
-      current Diagnostic object, at the cost of only one "in-flight" diag allowed.
+      a lightweight RAII object. The actual Diagnostic data should be contained 
+      inside the DiagnosticEngine. 
+      TODO: Prove that this will bring a perf improvement.
 
-    > ASTVerifier
-      Asserts that the AST is well formed. Used as a debug tool (will only be enabled in Debug builds)
+    > ASTVerifier: Checks that the AST is well formed: a nice debug tool!
 
-    > Multiple allocator kids in the ASTContext: Perma (for the permanent AST nodes), 
-      Unresolveds (for unresolved AST nodes) and Sema (for Semantic analysis type variables)
+    > Multiple allocator kids in the ASTContext: Perma (for the resolved ASTNodes)
+      Unresolveds (for unresolved ASTNode/Types) and Sema (for SemaTypes)
       Sema pools are created and managed by Sema using a RAII object. Unresolveds pool
-      is always there and can be reset separately from the Perma pool at any moment. 
-
-      Arena struct:
-        Type maps
-        The allocator
-        Cleanups
+      is always there and can be reset separately from the Perma pool at any moment, but usually
+      they'll be freed past semantic analysis.
+        ASTContext::Arena class: type maps, the allocator and cleanups
         
-  Medium priority:
-    This is a list of "medium-priority" stuff that needs to be done.
-  
-    > Rework StringManipulator into an iterator
-
-    > Completely abstract-away the utfcpp library (create a wrapper (e.g. Common/UTF8.hpp))
-      so I can change the library used in the future without too much hassle.
-
-    > Lexer & Token rewrite + Parser rework.
+  Medium priority:  
+    > Getting Exception-Free:
+        > Create my own "checked" wrapper around the unchecked functions of utfcpp, and stop
+          using utfcpp's checked.h header, so I can be fully exception-free.
 
     > Add a "RAIIIgnoreAll" object to ignore all diagnostics temporarily, and
       remove setIgnoreAll(value) (replace by ignoreAll() returning RAIIIgnoreAll)
@@ -264,15 +230,14 @@ Other:
     > DiagnosticVerifier: Add a syntax to expect a diag multiple times, e.g. 'expect-error(3)@+1'
       -> Use it in tests\VerifyMode\Sema\Expr\call.fox
 
-    > Improve clarity of ASTDump, especially for ValueDecl/DeclRefExpr dumps.
-      Maybe even rewrite ASTDumper completely.
+    > Rewrite the mess that is ASTDumper.
 
   Low priority:
     This is a list of "low-priority" stuff that needs to be done.
 
     > Add proper unicode support for StreamDiagConsumer's caret line, and re-enable it for
       every source line (even those with non ASCII char).
-        For that, use utf8proc: https://github.com/JuliaStrings/utf8proc
+        utf8proc would be great for this: https://github.com/JuliaStrings/utf8proc
 
     > Fix warnings generated by -Wreorder on CLang
 
@@ -282,4 +247,17 @@ Other:
 
     > Allow cast expr chaining (update grammar & parser)
       This isn't really a commonly used feature, but I hate seeing errors just because I type
-      "foo as bool as string"
+      "foo as bool as string" in tests.
+
+  Maybe someday: 
+    This is a list of things that *might* be done one day, I'm just not sure if it's worth it, doable or if I want it.
+  -- Features --
+    > Function types & Functions as first class citizens
+
+    > Type aliases
+      > e.g. "typealias foo = [[int]]"
+      > Will have to introduce sugared & canonical types for this, so it'll be a pretty
+        major rework.
+
+  -- Implementation --
+    > Re-think the const-correctness policy, especially when it comes to pointers getters.

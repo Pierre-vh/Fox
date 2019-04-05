@@ -1,0 +1,10 @@
+This is to be included in every C/C++ file of the Fox project.
+
+//----------------------------------------------------------------------------//
+// Part of the Fox project, licensed under the MIT license.
+// See LICENSE.txt in the project root for license information.
+// File : XXXX.cpp
+// Author : XXXX
+//----------------------------------------------------------------------------//
+// (optional description of the file, can be omitted in .cpp files)
+//----------------------------------------------------------------------------//
