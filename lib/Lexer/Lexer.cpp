@@ -275,8 +275,11 @@ void Lexer::lexImpl() {
       default:
         if(isValidIdentifierHead(cur)) 
           lexIdentifierOrKeyword();
-        else
-          beginAndPushToken(TokenKind::Invalid);
+        else {
+          // Unknown/Invalid character, diagnose it.
+          diagEngine.report(DiagID::invalid_char_in_sf, getCurPtrLoc());
+          advance();
+        }
         break;
     }
   }

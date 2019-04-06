@@ -11,3 +11,5 @@ ERROR(unterminated_char_lit,
   "unterminated char literal")
 ERROR(unterminated_str_lit,
   "unterminated string literal")
+ERROR(invalid_char_in_sf,
+  "invalid character in source file")
