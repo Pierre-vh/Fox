@@ -154,7 +154,7 @@ const TokenVector& Parser::getTokens() const {
 
 void Parser::skip() {
   Token tok = getCurtok();
-  assert(tok && "Skipping EOF Token");
+  assert(!tok.isEOF() && "Skipping EOF Token");
   consume();
   switch (tok.kind) {
     case TokenKind::LBrace:
