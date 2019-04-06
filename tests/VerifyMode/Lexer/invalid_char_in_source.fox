@@ -1,0 +1,10 @@
+// RUN: %fox-verify
+
+// expect-error@+1: invalid character in source file
+let � : int;
+
+// expect-error@+4: invalid character in source file
+// expect-error@+3: invalid character in source file
+// expect-error@+2: invalid character in source file
+// expect-error@+1: invalid character in source file
+let �£ù� : int; // These are currently not allowed in the source, or in identifiers.
