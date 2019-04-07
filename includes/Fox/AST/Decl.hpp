@@ -198,11 +198,16 @@ namespace fox {
     public:
       static ParamDecl* create(ASTContext& ctxt, DeclContext* dc, 
         Identifier id, SourceRange idRange, TypeLoc type,
-        bool isMutable);
+        bool isMut);
 
-      bool isMutable() const;
+      /// \returns true if this parameter was declared with 'mut'
+      bool isMut() const;
 
       TypeLoc getTypeLoc() const;
+
+      /// \returns the 'value type' of this ParamDecl, which is simply the type
+      /// as written down by the user. This does not include the 'mut' qualifier
+      /// if present.
       Type getValueType() const;
 
       SourceRange getSourceRange() const;
@@ -213,7 +218,7 @@ namespace fox {
 
     private:
       ParamDecl(DeclContext* dc, Identifier id, SourceRange idRange, 
-        TypeLoc type, bool isMutable);
+        TypeLoc type, bool isMut);
 
       const bool isMut_ : 1;
       TypeLoc typeLoc_;
@@ -229,7 +234,7 @@ namespace fox {
   ///    but you can do
   ///         paramList[0]->setSomething(...)
   ///
-  ///    TL;DR: it acts like an ArrayRef<ParamDecl*>
+  ///    TL;DR: it feels like an ArrayRef<ParamDecl*>
   class ParamList final : llvm::TrailingObjects<ParamList, ParamDecl*> {
     using TrailingObjects = llvm::TrailingObjects<ParamList, ParamDecl*>;
     friend TrailingObjects;
@@ -293,8 +298,8 @@ namespace fox {
       bool hasParams() const;
 
       /// (Re)calculates the ValueDecl type for this FuncDecl
-      /// The ValueDecl type must be nullptr!
       void calculateValueType();
+      /// \returns the FunctionType for this function
       Type getValueType() const;
 
       SourceRange getSourceRange() const;
@@ -340,6 +345,10 @@ namespace fox {
       bool hasInitExpr() const;
 
       TypeLoc getTypeLoc() const;
+
+      /// \returns the ValueType for this VarDecl. This does not
+      /// make a distinction between 'let' and 'var', it just
+      /// returns the type as written down by the user.
       Type getValueType() const;
 
       SourceRange getSourceRange() const;

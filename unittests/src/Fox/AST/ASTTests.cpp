@@ -141,7 +141,9 @@ TEST_F(ASTTest, TypeRTTI) {
   TypeBase* errType = ErrorType::get(ctxt);
   TypeBase* tyVarType = TypeVariableType::create(ctxt, 0);
 
-  TypeBase* funcType = FunctionType::get(ctxt, {intTy, intTy}, intTy);
+  FunctionTypeParam p1(intTy, false);
+  FunctionTypeParam p2(intTy, true);
+  TypeBase* funcType = FunctionType::get(ctxt, {p1, p2}, intTy);
 
   EXPECT_EQ(intTy->getKind(), TypeKind::PrimitiveType);
   EXPECT_TRUE(PrimitiveType::classof(intTy));
@@ -500,20 +502,23 @@ TEST_F(ASTTest, functionTypesUniqueness) {
   Type boolTy = PrimitiveType::getBool(ctxt);
   Type voidTy = PrimitiveType::getVoid(ctxt);
 
+  FunctionTypeParam p1(intTy, false);
+  FunctionTypeParam p2(boolTy, true);
+
   Type fns[6];
   // Create a few functions with different signatures.
-  // (int, bool) -> void
-  fns[0] = FunctionType::get(ctxt, {intTy, boolTy}, voidTy);
+  // (int, mut bool) -> void
+  fns[0] = FunctionType::get(ctxt, {p1, p2}, voidTy);
   // (int) -> bool
-  fns[1] = FunctionType::get(ctxt, {intTy}, boolTy);
-  // (bool) -> int
-  fns[2] = FunctionType::get(ctxt, {boolTy}, intTy);
+  fns[1] = FunctionType::get(ctxt, {p1}, boolTy);
+  // (mut bool) -> int
+  fns[2] = FunctionType::get(ctxt, {p2}, intTy);
   // () -> void
   fns[3] = FunctionType::get(ctxt, {}, voidTy);
-  // (bool, int) -> void
-  fns[4] = FunctionType::get(ctxt, {boolTy, intTy}, voidTy);
-  // (bool) -> void
-  fns[5] = FunctionType::get(ctxt, {boolTy}, voidTy);
+  // (mut bool, int) -> void
+  fns[4] = FunctionType::get(ctxt, {p2, p1}, voidTy);
+  // (mut bool) -> void
+  fns[5] = FunctionType::get(ctxt, {p2}, voidTy);
 
   // Check that they all have different pointers
   std::set<TypeBase*> ptrs;
@@ -524,10 +529,15 @@ TEST_F(ASTTest, functionTypesUniqueness) {
 
   // Check that we can successfully retrieve every function type
   // while keeping the same pointer value.
-  EXPECT_EQ(fns[0], FunctionType::get(ctxt, {intTy, boolTy}, voidTy));
-  EXPECT_EQ(fns[1], FunctionType::get(ctxt, {intTy}, boolTy));
-  EXPECT_EQ(fns[2], FunctionType::get(ctxt, {boolTy}, intTy));
+  EXPECT_EQ(fns[0], FunctionType::get(ctxt, {p1, p2}, voidTy));
+  EXPECT_EQ(fns[1], FunctionType::get(ctxt, {p1}, boolTy));
+  EXPECT_EQ(fns[2], FunctionType::get(ctxt, {p2}, intTy));
   EXPECT_EQ(fns[3], FunctionType::get(ctxt, {}, voidTy));
-  EXPECT_EQ(fns[4], FunctionType::get(ctxt, {boolTy, intTy}, voidTy));
-  EXPECT_EQ(fns[5], FunctionType::get(ctxt, {boolTy}, voidTy));
+  EXPECT_EQ(fns[4], FunctionType::get(ctxt, {p2, p1}, voidTy));
+  EXPECT_EQ(fns[5], FunctionType::get(ctxt, {p2}, voidTy));
+
+  // Also, check that 'mut' taken into account
+  FunctionTypeParam p2immut(boolTy, false);
+  EXPECT_NE(FunctionType::get(ctxt, {p2immut}, voidTy), 
+            FunctionType::get(ctxt, {p2}, voidTy));
 }

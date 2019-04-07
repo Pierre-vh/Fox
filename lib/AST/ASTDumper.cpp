@@ -443,7 +443,7 @@ std::string ASTDumper::getValueDeclInfo(ValueDecl* decl) const {
     case DeclKind::ParamDecl:
     {
       ParamDecl* param = cast<ParamDecl>(decl);
-      if(param->isMutable())
+      if(param->isMut())
         ss << "mut ";
       break;
     }

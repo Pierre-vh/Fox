@@ -5,6 +5,10 @@
 // Author : Pierre van Houtryve                
 //----------------------------------------------------------------------------//
 // This file declares the TypeBase hierarchy.
+//
+// Note: a small (intentional) quirk of this hierarchy is the lack of a 
+// 'MutType' for 'mut'. Mut is simply not represented in the type hierarchy 
+// except in FunctionType (through FunctionTypeParam)
 //----------------------------------------------------------------------------//
 
 #pragma once
@@ -13,12 +17,13 @@
 #include "Type.hpp"
 #include "Fox/Common/LLVM.hpp"
 #include "llvm/Support/TrailingObjects.h"
+#include "llvm/ADT/PointerIntPair.h"
 #include "llvm/ADT/ArrayRef.h"
 #include <string>
 #include <cstdint>
 
 namespace fox {
-  // Kinds of Types
+  /// Type Kinds
   enum class TypeKind : std::uint8_t {
     #define TYPE(ID,PARENT) ID,
     #define TYPE_RANGE(ID,FIRST,LAST) First_##ID = FIRST, Last_##ID = LAST,
@@ -318,30 +323,56 @@ namespace fox {
       ErrorType();
   };
 
+  /// FunctionTypeParam
+  ///   Contains information about a FunctionType's Parameter:
+  ///     - its type
+  ///     - a boolean indicating if it is mutable or not
+  /// Note that this doesn't have a 'Type' suffix because it's not
+  /// a type!
+  class FunctionTypeParam {
+    /// The type + a flag indicating if it's 'mut'.
+    llvm::PointerIntPair<Type, 1> typeAndIsMut_;
+    public:
+      FunctionTypeParam(Type type, bool isMut);
+
+      /// \returns this parameter's type
+      Type getType() const;
+
+      /// \returns true if this parameter is 'mut'
+      bool isMut() const;
+
+      /// \returns an opaque pointer with flags embedded in the low
+      /// bits of the pointers. Useful for hashing.
+      void* getOpaqueValue() const;
+
+      bool operator==(const FunctionTypeParam& other) const;
+      bool operator!=(const FunctionTypeParam& other) const;
+  };
+
   /// FunctionType
   ///    Represents the type of a function. 
   ///    Example: (int, int) -> int
-  ///
-  ///  Note: Currently, the FunctionType doesn't represent the "mut" qualifier
-  ///        because there is no need for it.
   class FunctionType final : public TypeBase, 
-    llvm::TrailingObjects<FunctionType, Type> {
-    using TrailingObjects = llvm::TrailingObjects<FunctionType, Type>;
+      llvm::TrailingObjects<FunctionType, FunctionTypeParam> {
+    using TrailingObjects = 
+      llvm::TrailingObjects<FunctionType, FunctionTypeParam>;
     friend TrailingObjects;
     public:
+      using Param = FunctionTypeParam;
+
       using SizeTy = std::size_t;
       static constexpr auto maxParams = std::numeric_limits<SizeTy>::max();
 
       static FunctionType* 
-      get(ASTContext& ctxt, ArrayRef<Type> params, Type rtr);
+      get(ASTContext& ctxt, ArrayRef<FunctionTypeParam> params, Type rtr);
 
-      /// \returns true if this FunctionType's parameter types and return
-      /// type match the ones passed as parameters.
-      bool isSame(ArrayRef<Type> params, Type rtr);
+      /// \returns true if this function's parameters and return type are
+      /// all equal to \p params and \p rtr
+      bool isSame(ArrayRef<Param> params, Type rtr);
 
       Type getReturnType() const;
-      ArrayRef<Type> getParamTypes() const;
-      Type getParamType(std::size_t idx) const;
+      ArrayRef<FunctionTypeParam> getParams() const;
+      FunctionTypeParam getParam(std::size_t idx) const;
       SizeTy numParams() const;
 
       static bool classof(const TypeBase* type) {
@@ -349,9 +380,10 @@ namespace fox {
       }
       
     private:
-      FunctionType(ArrayRef<Type> params, Type rtr);
+      FunctionType(ArrayRef<FunctionTypeParam> params, Type rtr);
 
-      static Properties getPropertiesForFunc(ArrayRef<Type> params, Type rtr);
+      static Properties 
+      getPropertiesForFunc(ArrayRef<FunctionTypeParam> params, Type rtr);
 
       Type rtrType_;
       const SizeTy numParams_;

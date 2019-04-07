@@ -165,11 +165,11 @@ Type Sema::simplify(Type type) {
 
         if (!returnType) return nullptr;
         // Get Param types
-        SmallVector<Type, 4> paramTypes;
-        for (auto param : type->getParamTypes()) {
-          Type t = visit(param);
-          if (!t) return nullptr;
-          paramTypes.push_back(t);
+        SmallVector<FunctionTypeParam, 4> paramTypes;
+        for (auto param : type->getParams()) {
+          Type paramTy = visit(param.getType());
+          if (!paramTy) return nullptr;
+          paramTypes.emplace_back(paramTy, param.isMut());
         }
         // Recompute if needed
         if (!type->isSame(paramTypes, returnType))

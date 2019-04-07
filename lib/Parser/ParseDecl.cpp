@@ -224,7 +224,7 @@ Parser::Result<Decl*> Parser::parseParamDecl() {
     return Result<Decl*>::Error();
   }
 
-  auto isMutable = (bool)tryConsume(TokenKind::MutKw);
+  auto isMut = (bool)tryConsume(TokenKind::MutKw);
 
   // <type>
   auto typeResult = parseType();
@@ -239,7 +239,7 @@ Parser::Result<Decl*> Parser::parseParamDecl() {
   assert(idRange && tl.getSourceRange() && "Invalid loc info");
 
   auto* rtr = ParamDecl::create(ctxt, getCurrentDeclCtxt(), id, idRange, 
-                                tl, isMutable); 
+                                tl, isMut); 
   finishDecl(rtr);
   return Result<Decl*>(rtr);
 }

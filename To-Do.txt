@@ -156,6 +156,8 @@ To-Do:
   > Polishing the Lexer Rework + Adding EOF token (Done)
   > StableVectorIterator (Done)
 
+  > Unit Test with FunctionTypeParam
+
   > VM, Bytecode, BytecodeGen (Currently being worked on, see Backend To-Do.txt
 
   > Break and Continue Statements

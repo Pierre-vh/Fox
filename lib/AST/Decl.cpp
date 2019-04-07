@@ -194,7 +194,7 @@ bool ValueDecl::isConst() const {
     case DeclKind::ParamDecl:
       // ParamDecls are constant if they aren't explicitely
       // mutable.
-      return !(cast<ParamDecl>(this)->isMutable());
+      return !(cast<ParamDecl>(this)->isMut());
     case DeclKind::FuncDecl:
       // FuncDecls are always const.
       return true;
@@ -208,11 +208,11 @@ bool ValueDecl::isConst() const {
 //----------------------------------------------------------------------------//
 
 ParamDecl* ParamDecl::create(ASTContext& ctxt, DeclContext* dc, 
-  Identifier id, SourceRange idRange, TypeLoc type, bool isMutable) {
-  return new(ctxt) ParamDecl(dc, id, idRange, type, isMutable);
+  Identifier id, SourceRange idRange, TypeLoc type, bool isMut) {
+  return new(ctxt) ParamDecl(dc, id, idRange, type, isMut);
 }
 
-bool ParamDecl::isMutable() const {
+bool ParamDecl::isMut() const {
   return isMut_;
 }
 
@@ -229,9 +229,9 @@ SourceRange ParamDecl::getSourceRange() const {
 }
 
 ParamDecl::ParamDecl(DeclContext* dc, Identifier id, SourceRange idRange, 
-  TypeLoc type, bool isMutable):
+  TypeLoc type, bool isMut):
   ValueDecl(DeclKind::ParamDecl, dc, id, idRange), typeLoc_(type), 
-  isMut_(isMutable) {}
+  isMut_(isMut) {}
 
 //----------------------------------------------------------------------------//
 // ParamList
@@ -338,16 +338,17 @@ void FuncDecl::calculateValueType() {
   assert(returnTypeLoc_.isTypeValid() && "ill-formed FuncDecl: "
     "no return type");
   // Collect the param types
-  SmallVector<Type, 4> paramTys;
+  SmallVector<FunctionTypeParam, 4> paramTypes;
   if (ParamList* params = getParams()) {
     for(ParamDecl* param : *params) {
       Type ty = param->getValueType();
+      bool isMut = param->isMut();
       assert(ty && "ill-formed FuncDecl: Parameter with null type");
-      paramTys.push_back(ty);
+      paramTypes.emplace_back(ty, isMut);
     }
   }
   // Generate the FunctionType
-  valueType_ = FunctionType::get(ctxt, paramTys, returnTypeLoc_.getType());
+  valueType_ = FunctionType::get(ctxt, paramTypes, returnTypeLoc_.getType());
 }
 
 SourceRange FuncDecl::getSourceRange() const {
