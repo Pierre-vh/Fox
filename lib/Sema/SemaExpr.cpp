@@ -626,12 +626,35 @@ class Sema::ExprChecker : Checker, ExprVisitor<ExprChecker, Expr*>,  ASTWalker {
         return expr;
       }
 
-      // Check arg types
-      for(std::size_t idx = 0; idx < callArgc; idx++) {
-        Type expected = fnTy->getParamType(idx);
-        Type got = expr->getArg(idx)->getType();
-        assert(expected && got && "types cant be nullptrs!");
-        if(!sema.unify(expected, got)) {
+      // Check that the function is callable with these arguments.
+      FuncDecl* fn = getFuncDeclFromCallee(callee);
+      assert(fn && "couldn't find FuncDecl in callee");
+      if(fn->hasParams()) {
+        bool hasArgTypeMismatch = false;
+        // Check arg types
+        for(std::size_t idx = 0; idx < callArgc; idx++) {
+          Expr* arg = expr->getArg(idx);
+          Type expectedType = fnTy->getParamType(idx);
+          Type argType = arg->getType();
+          assert(expectedType && argType && "types cant be nullptrs!");
+          // Check that the types match.
+          if (!sema.unify(expectedType, argType)) {
+            hasArgTypeMismatch = true;
+            continue;
+          }
+          // If the parameter is mutable, check that we got an assignable type.
+          // Else, emit an error.
+          // TODO: This is a hack because 'mut' is not represented as a type.
+          // When MutType is added, rewrite this.
+          if (fn->getParams()->get(idx)->isMutable()) {
+            if (!argType->isAssignable()) {
+              diagEngine.report(DiagID::cannot_pass_rvalue_as_mut,
+                                arg->getSourceRange());
+            }
+          }
+        }
+
+        if (hasArgTypeMismatch) {
           diagnoseBadFunctionCall(expr);
           return expr;
         }
@@ -881,6 +904,15 @@ class Sema::ExprChecker : Checker, ExprVisitor<ExprChecker, Expr*>,  ASTWalker {
       }
       ss << ")";
       return ss.str();
+    }
+
+    // From a callee expression, retrieve the FuncDecl that's
+    // being called. Returns nullptr if the callee couldn't be found.
+    // TODO: This is used to support a 'hack' in visitCallExpr.
+    // Remove this later.
+    FuncDecl* getFuncDeclFromCallee(Expr* callee) {
+      // For now, I can only have DeclRefExprs as callees, so it's easy:
+      return dyn_cast<FuncDecl>(dyn_cast<DeclRefExpr>(callee)->getDecl());
     }
 };
 

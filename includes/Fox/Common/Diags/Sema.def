@@ -50,6 +50,8 @@ ERROR(var_init_self_ref,
   "variable used inside its own initial value")
 ERROR(cannot_call_func_with_args,
   "cannot call '%0' with arguments of type '%1'")
+ERROR(cannot_pass_rvalue_as_mut,
+  "cannot pass unassignable expression as 'mut' argument")
 ERROR(cannot_convert_return_expr,
   "cannot convert return expression of type '%0' to return type '%1'")
 ERROR(unexpected_non_void_rtr_expr,
