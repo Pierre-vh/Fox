@@ -13,9 +13,7 @@
 #include "Fox/Common/LLVM.hpp"
 #include "llvm/ADT/SmallVector.h"
 #include <cstdint>
-#include <tuple>
 #include <functional>
-#include <memory>
 
 namespace fox {
   // Forward Declarations
