@@ -109,15 +109,6 @@ namespace fox {
       // it might remove
       bool unify(Type a, Type b, std::function<bool(Type, Type)> comparator);
 
-      // A shortened syntax for a std::pair of Type
-      using TypePair = std::pair<Type, Type>;
-
-      // Ignore LValue and removes layers of ArrayTypes
-      // until this reaches a point where one of the types become basic.
-      // Note that the result types may not be basic! The function will simply
-      // stop unwrapping once one of them becomes basic.
-      static TypePair unwrapAll(Type a, Type b);
-
       // Simplifies "type", replacing type variables with their 
       // substitution (using getSubstRecursive()). 
       //
@@ -127,7 +118,7 @@ namespace fox {
       // If "type" doesn't contain a TypeVariable, returns "type".
       Type simplify(Type type);
 
-      // Calls simplify(type). If it returns nullptr, returns "type"
+      // Calls simplify(type). If it returns nullptr, returns its parameter.
       Type trySimplify(Type type);
 
       // Returns true if the type is considered "well formed".

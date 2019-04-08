@@ -27,11 +27,36 @@ bool Sema::unify(Type a, Type b) {
   return unify(a, b, comparator);
 }
 
+namespace {
+  void unwrapTypes(Type& a, Type& b) {
+    assert(a && b && "args cannot be null");
+    // Ignore LValues 
+    a = a->getRValue();
+    b = b->getRValue();
+
+    while (true) {
+      auto arrayA = a->getAs<ArrayType>();
+      auto arrayB = b->getAs<ArrayType>();
+      // If both are arrays, unwrap and loop again.
+      if (arrayA && arrayB) {
+        a = arrayA->getElementType();
+        b = arrayB->getElementType();
+        assert(a && 
+          "'a' had a null element type!");
+        assert(b && 
+          "'b' had a null element type!");
+      }
+      // else we're done.
+      else break;
+    }
+  }
+}
+
 bool Sema::unify(Type a, Type b, std::function<bool(Type, Type)> comparator)  {
   assert(a && b && "Pointers cannot be null");
 
-  // Unwrap 
-  std::tie(a, b) = Sema::unwrapAll(a, b);
+  // Unwrap the types
+  unwrapTypes(a, b);
 
   // Check if well formed
   if(!isWellFormed({a, b})) return false;
@@ -94,28 +119,6 @@ bool Sema::unify(Type a, Type b, std::function<bool(Type, Type)> comparator)  {
   }
   // Can't unify.
   return false;
-}
-
-Sema::TypePair Sema::unwrapAll(Type a, Type b) {
-  assert(a && b && "args cannot be null");
-  // Ignore LValues 
-  a = a->getRValue();
-  b = b->getRValue();
-
-  // Unwrap arrays
-  while (true) {
-    if (a->is<ArrayType>() && b->is<ArrayType>()) {
-      a = a->castTo<ArrayType>()->getElementType();
-      b = b->castTo<ArrayType>()->getElementType();
-      assert(a && 
-        "'a' had a null element type!");
-      assert(b && 
-        "'b' had a null element type!");
-    }
-    else break;
-  }
-
-  return {a, b};
 }
 
 Type Sema::simplify(Type type) {
