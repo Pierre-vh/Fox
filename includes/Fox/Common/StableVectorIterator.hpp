@@ -81,8 +81,16 @@ namespace fox {
                                         std::size_t index = 0) : 
                                         data_(&data), index_(index) {
         assert((index_ <= data.size()) && "out of range");
-        if(index_ == data.size())
-          index_ = endpos;
+        auto dataSize = data.size();
+        // FIXME: This breaks if we try to create an end iterator
+        // for an empty container.
+        // To solve this, abstract away the constructor using
+        // factory 'create' method, such as createBeg, createEnd and
+        // create(data, idx)
+        if (index_ == dataSize) {
+          if(dataSize) 
+            index_ = endpos;
+        }
       }
 
       /// Creates an iterator from a container and an iterator.
