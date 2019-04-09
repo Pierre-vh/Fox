@@ -39,7 +39,7 @@ namespace fox {
       std::unordered_set<const VarDecl*> varsInLoop_;
       // The set of variables declared outside the loop that 'died'
       // while inside the loop. 
-      std::unordered_set<const VarDecl*> delayedFrees_;
+      std::unordered_set<const VarDecl*> delayedReleases_;
       LoopContext* previousLC_= nullptr;
   };
 }

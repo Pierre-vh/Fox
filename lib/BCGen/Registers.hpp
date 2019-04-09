@@ -109,9 +109,8 @@ namespace fox {
       //       (It just reads data)
       regaddr_t getRegisterOfVar(const VarDecl* var) const;
 
-      // Decrements the use count of "var", potentially freeing its register
-      // if it reaches zero.
-      void release(const VarDecl* var);
+      // Decrements the use count of "var".
+      void release(const VarDecl* var, bool isAlreadyDead = false);
 
       // Returns true if var's usage count is 1.
       bool isLastUsage(const VarDecl* var) const;

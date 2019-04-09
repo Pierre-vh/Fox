@@ -10,7 +10,8 @@
 
 using namespace fox;
 
-LoopContext::LoopContext(RegisterAllocator& regAlloc) : regAlloc(regAlloc){
+LoopContext::LoopContext(RegisterAllocator& regAlloc) : regAlloc(regAlloc) {
+  // TOOD: Abstract this in a "RegisterAllocator::actOnNewLoopContext" method
   previousLC_ = regAlloc.curLoopContext_;
   regAlloc.curLoopContext_ = this;
 }
@@ -18,8 +19,6 @@ LoopContext::LoopContext(RegisterAllocator& regAlloc) : regAlloc(regAlloc){
 LoopContext::~LoopContext() {
   // Notify the RegisterAllocator
   regAlloc.actOnEndOfLoopContext(*this);
-  // Restore the previous LC
-  regAlloc.curLoopContext_ = previousLC_;
 }
 
 bool LoopContext::isVarDeclaredInside(const VarDecl* var) const {

@@ -78,26 +78,18 @@ bool RegisterAllocator::isInLoop() const {
 }
 
 void RegisterAllocator::actOnEndOfLoopContext(LoopContext& lc) {
-  // First, check that every variable declared inside the loop context
+  // First, restore the previous loop context.
+  // This is needed in cases we have nested LCs, in that case
+  // we want release() to handle that smoothly.
+  curLoopContext_ = lc.previousLC_;
+  // Now, check that every variable declared inside the loop context
   // was indeed freed. 
   assert((lc.varsInLoop_.size() == 0)
     && "Some variables declared inside the loop were still alive "
        "at the destruction of the LoopContext");
-  // Now free every variable in the "delayedFrees" set
-  for (auto var : lc.delayedFrees_) {
-    // Search for the var and fetch its data
-    auto it = knownVars_.find(var);
-    assert((it != knownVars_.end()) && "Unknown Variable!");
-    VarData& data = it->second;
-    // Check that the variable is dead
-    assert((data.useCount == 0)
-      && "a variable part of LoopContext::delayedFrees_ was not "
-         "dead");
-    // Free it
-    markRegisterAsFreed(data.addr.getValue());
-    // Remove the entry from the map
-    knownVars_.erase(it);
-  }
+  // Now release every variable in the "delayedFrees" set
+  for (auto var : lc.delayedReleases_) 
+    release(var, /*alreadyDead*/ true);
 }
 
 regaddr_t RegisterAllocator::rawRecycleRegister(RegisterValue value) {
@@ -182,23 +174,29 @@ regaddr_t RegisterAllocator::getRegisterOfVar(const VarDecl* var) const {
   return it->second.addr.getValue();
 }
 
-void RegisterAllocator::release(const VarDecl* var) {
+void RegisterAllocator::release(const VarDecl* var, bool isAlreadyDead) {
   // Search for the var and fetch its data
   auto it = knownVars_.find(var);
   assert((it != knownVars_.end()) && "Unknown Variable!");
   VarData& data = it->second;
-  // Decrement the use count, asserting that it isn't 0 already
-  assert((data.useCount != 0) && "Variable is already dead");
-  --(data.useCount);
+  // Decrement the use count (if needed)
+  if(isAlreadyDead)
+    assert(data.useCount == 0);
+  else {
+    assert((data.useCount != 0) && "Variable is already dead");
+    --(data.useCount);
+  }
   // Check if the variable is dead after decrementation
   if (data.useCount == 0) {
-    // If we are inside a loop, we must check that the variable
-    // is part of this LoopContext.
-    // If that's the case, we can free it, else, we must
-    // delay its death until the end of the LC.
     if (isInLoop()) {
-      if (!curLoopContext_->isVarDeclaredInside(var)) {
-        curLoopContext_->delayedFrees_.insert(var);
+      // If we try to kill a variable declared inside the current LC,
+      // it's possible, but we must remove it from the LC.
+      if (curLoopContext_->isVarDeclaredInside(var))
+        curLoopContext_->varsInLoop_.erase(var);
+      // If the variable was declared outside the loop, we can't free it.
+      // We must delay the free until the end of the LC's lifetime.
+      else {
+        curLoopContext_->delayedReleases_.insert(var);
         return;
       }
     }

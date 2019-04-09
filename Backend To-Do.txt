@@ -49,7 +49,12 @@ Basic VM data types and their mappings to Fox types:
         -> LoopContext + RegisterAllocator modifications (Done)
           -> Code Review/Re-read?
         -> WhileLoop compilation
-          -> Fix it
+          -> Fix it (Done)
+          -> Polish it:
+            -> RegisterAllocator::release : remove isAlreadyDead
+            -> Abstract-away more stuff in LoopContext, stop manipulating the map
+               directly in the RegisterAllocator 
+            -> FileCheck tests
         -> FileCheck unit tests
 
   > BCModule/BCModuleBuilder rework (Done)
