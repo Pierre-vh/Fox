@@ -209,10 +209,13 @@ class BCGen::StmtGenerator : public Generator,
       // Create the loop context
       LoopContext loopCtxt(regAlloc);
       // Save an iterator to the beginning of the loop
+      // This is actually an iterator to the last instruction emitted,
+      // but as fixJump jumps *after* an instruction, we can use
+      // that to jump to the first instruction of the loop.
       auto loopBeg = builder.getLastInstrIter();
       // Compile the condition and save its address.
-      // The RegisterValue is intentionally discarded so its register
-      // is freed.
+      // The resulting RegisterValue is intentionally discarded
+      // so its register is freed directly.
       auto condAddr = 
         bcGen.genExpr(builder, regAlloc, stmt->getCond()).getAddress();
       // When the condition is false, we skip the body, so create a 
@@ -222,7 +225,7 @@ class BCGen::StmtGenerator : public Generator,
       bcGen.genStmt(builder, regAlloc, stmt->getBody());
       // Gen the jump to the beginning of the loop
       auto jumpToBeg = builder.createJumpInstr(0);
-      // TODO: Instead of fixing it, build it directly using a 
+      // TODO: Instead of fixing the jump, build it directly using a 
       // "calculateOffSetForJump" function
       fixJump(jumpToBeg, loopBeg);
       // Fix the 'skipBody' jump so it jumps past the 'jumpToBeg'
