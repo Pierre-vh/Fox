@@ -46,8 +46,11 @@ Basic VM data types and their mappings to Fox types:
   -> CodeGen of Statements
       -> Conditions (Done)
       -> Loops
-        -> Don't forget to "protect" the liveliness of variables declared outside the loop.
-           I'll need a "RegisterAllocator::LoopContext" to prevent variable declared outside a loop from dying inside it.
+        -> LoopContext + RegisterAllocator modifications (Done)
+          -> Code Review/Re-read?
+        -> WhileLoop compilation
+          -> Fix it
+        -> FileCheck unit tests
 
   > BCModule/BCModuleBuilder rework (Done)
   > Add and use BCFunction as primary bytecode containers instead of BCModule:

@@ -25,6 +25,7 @@ namespace llvm {
 namespace fox {
   class RegisterValue;
   class VarDecl;
+  class LoopContext;
 
   // The (per function) register allocator. It manages allocation
   // a freeing of registers, striving to reuse registers (at smaller indexes)
@@ -74,6 +75,16 @@ namespace fox {
 
     private:
       friend RegisterValue;
+      friend LoopContext;
+
+      // Returns true if we are inside a loop (if we have an active LoopContext)
+      bool isInLoop() const;
+
+      // Performs some actions related to the destruction of a LoopContext.
+      //    - Perform some checks : The use count of all variables in declaredIn
+      //      should have reached zero.
+      //    - Frees every register occupied by the variables in declaredIn
+      void actOnEndOfLoopContext(LoopContext& lc);
 
       // This method will take care of recycling 'value', returning
       // its address.
@@ -144,6 +155,8 @@ namespace fox {
 
       // The set of variables known by this RegisterAllocator.
       std::unordered_map<const VarDecl*, VarData> knownVars_;
+      // The current LoopContext
+      LoopContext* curLoopContext_ = nullptr;
   };
 
   // The register value, representing (maybe shared) ownership

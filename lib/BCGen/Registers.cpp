@@ -7,6 +7,7 @@
 
 #include "Registers.hpp"
 #include "Fox/Common/Errors.hpp"
+#include "LoopContext.hpp"
 #include <utility>
 
 using namespace fox;
@@ -37,6 +38,11 @@ RegisterAllocator::initVar(const VarDecl* var, RegisterValue* hint) {
   // Else just use a new register
   else 
     data.addr = rawAllocateNewRegister();
+  // If we're in a loop, notify the LoopContext that this variable
+  // was declared inside it.
+  if (isInLoop()) {
+    curLoopContext_->varsInLoop_.insert(var);
+  }
   // Return a RegisterValue managing this Var
   return RegisterValue(this, var);
 }
@@ -67,7 +73,34 @@ regaddr_t RegisterAllocator::numbersOfRegisterInUse() const {
   return num;
 }
 
-regaddr_t fox::RegisterAllocator::rawRecycleRegister(RegisterValue value) {
+bool RegisterAllocator::isInLoop() const {
+  return curLoopContext_;
+}
+
+void RegisterAllocator::actOnEndOfLoopContext(LoopContext& lc) {
+  // First, check that every variable declared inside the loop context
+  // was indeed freed. 
+  assert((lc.varsInLoop_.size() == 0)
+    && "Some variables declared inside the loop were still alive "
+       "at the destruction of the LoopContext");
+  // Now free every variable in the "delayedFrees" set
+  for (auto var : lc.delayedFrees_) {
+    // Search for the var and fetch its data
+    auto it = knownVars_.find(var);
+    assert((it != knownVars_.end()) && "Unknown Variable!");
+    VarData& data = it->second;
+    // Check that the variable is dead
+    assert((data.useCount == 0)
+      && "a variable part of LoopContext::delayedFrees_ was not "
+         "dead");
+    // Free it
+    markRegisterAsFreed(data.addr.getValue());
+    // Remove the entry from the map
+    knownVars_.erase(it);
+  }
+}
+
+regaddr_t RegisterAllocator::rawRecycleRegister(RegisterValue value) {
   assert(value.canRecycle() && "register not recyclable");
   regaddr_t addr = value.getAddress();
   switch (value.getKind()) {
@@ -159,7 +192,17 @@ void RegisterAllocator::release(const VarDecl* var) {
   --(data.useCount);
   // Check if the variable is dead after decrementation
   if (data.useCount == 0) {
-    // If so, free the register
+    // If we are inside a loop, we must check that the variable
+    // is part of this LoopContext.
+    // If that's the case, we can free it, else, we must
+    // delay its death until the end of the LC.
+    if (isInLoop()) {
+      if (!curLoopContext_->isVarDeclaredInside(var)) {
+        curLoopContext_->delayedFrees_.insert(var);
+        return;
+      }
+    }
+    // Free the register.
     assert(data.hasAddress() && "Variable doesn't have an address!");
     markRegisterAsFreed(data.addr.getValue());
     // Remove the entry from the map

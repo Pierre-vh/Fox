@@ -6,11 +6,12 @@
 //----------------------------------------------------------------------------//
 
 #include "Fox/BCGen/BCGen.hpp"
-#include "Registers.hpp"
-#include "Fox/AST/Stmt.hpp"
 #include "Fox/AST/ASTVisitor.hpp"
+#include "Fox/AST/Stmt.hpp"
 #include "Fox/BC/BCBuilder.hpp"
 #include "Fox/Common/Errors.hpp"
+#include "LoopContext.hpp"
+#include "Registers.hpp"
 
 using namespace fox;
 
@@ -204,10 +205,28 @@ class BCGen::StmtGenerator : public Generator,
       }
     }
 
-    void visitWhileStmt(WhileStmt*) {
-      fox_unimplemented_feature("WhileStmt BCGen");
-      // Don't forget about variable liveliness: I'll need a
-      // RegisterAllocator::LoopContext or something like that.
+    void visitWhileStmt(WhileStmt* stmt) {
+      // Create the loop context
+      LoopContext loopCtxt(regAlloc);
+      // Save an iterator to the beginning of the loop
+      auto loopBeg = builder.getLastInstrIter();
+      // Compile the condition and save its address.
+      // The RegisterValue is intentionally discarded so its register
+      // is freed.
+      auto condAddr = 
+        bcGen.genExpr(builder, regAlloc, stmt->getCond()).getAddress();
+      // When the condition is false, we skip the body, so create a 
+      // JumpIfNot. It'll be completed later
+      auto skipBodyJump = builder.createJumpIfNotInstr(condAddr, 0);
+      // Gen the body of the loop
+      bcGen.genStmt(builder, regAlloc, stmt->getBody());
+      // Gen the jump to the beginning of the loop
+      auto jumpToBeg = builder.createJumpInstr(0);
+      // TODO: Instead of fixing it, build it directly using a 
+      // "calculateOffSetForJump" function
+      fixJump(jumpToBeg, loopBeg);
+      // Fix the 'skipBody' jump so it jumps past the 'jumpToBeg'
+      fixJump(skipBodyJump, jumpToBeg);
     }
 
     void visitReturnStmt(ReturnStmt*) {

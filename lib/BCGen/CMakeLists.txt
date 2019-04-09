@@ -3,5 +3,6 @@ add_source(bcgen_src
   "BCGenDecl.cpp"
   "BCGenExpr.cpp"
   "BCGenStmt.cpp"
+  "LoopContext.cpp"
   "Registers.cpp"
 )
