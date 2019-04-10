@@ -72,9 +72,9 @@ class BCGen::StmtGenerator : public Generator,
     /// This class is also responsible for fixing 'jump' instructions.
     class JumpPoint {
       public:
-        /// Creates a JumpPoint to the next instruction after \p instr
+        /// Creates a JumpPoint for the next instruction after \p instr.
         static JumpPoint 
-        createForAfterInstr(BCBuilder& builder, StableInstrIter instr) {
+        createAfterInstr(BCBuilder& builder, StableInstrIter instr) {
           return JumpPoint(builder, Kind::AfterIter, instr);
         }
 
@@ -82,7 +82,7 @@ class BCGen::StmtGenerator : public Generator,
         /// Useful for when you want to jump to the next instruction that
         /// will be inserted in the buffer.
         static JumpPoint 
-        createForEnd(BCBuilder& builder) {
+        createAtEnd(BCBuilder& builder) {
           // If the Builder is empty, we'll want to jump to the beginning
           // of the instruction buffer
           if(builder.empty())
@@ -93,7 +93,8 @@ class BCGen::StmtGenerator : public Generator,
         }
 
         /// Fixes a "Jump" instruction \p jump so it jumps to
-        /// the JumpPoint
+        /// the JumpPoint when executed.
+        /// \p jump can be any jump: a Jump, JumpIf or JumpIfNot.
         void fixJumpInstr(StableInstrIter jump) const {
           assert(jump->isAnyJump() && "not a jump!");
           // Calculate the distance + decrement it
@@ -133,7 +134,7 @@ class BCGen::StmtGenerator : public Generator,
           /// in the bytecode buffer.
           BufferBeg,
           /// For when we want to jump to the instruction after 'iter'
-          AfterIter,
+          AfterIter
         };
 
         /// Returns an iterator to the target instruction
@@ -184,8 +185,8 @@ class BCGen::StmtGenerator : public Generator,
       regaddr_t regAddr = 
         bcGen.genExpr(builder, regAlloc, stmt->getCond()).getAddress();
 
-      // Create a "JumpIfNot" so we can jump to the else's code
-      // when the instruction is false.
+      // Create a "JumpIfNot" so we can jump to the else's code when the
+      // condition is false.
       auto jumpIfFalse = builder.createJumpIfNotInstr(regAddr, 0);
 
       // Gen the 'then'
@@ -194,15 +195,16 @@ class BCGen::StmtGenerator : public Generator,
       // Check if the "then" emitted any instruction,
       bool isThenEmpty = builder.isLastInstr(jumpIfFalse);
 
-      // Conditions without elses
+      // If the condition does not have a else, finalize the codegen
+      // and return.
       if(!stmt->hasElse()) {
         // If the 'then' was empty, remove all of the code we've generated
-        // related to the then/else, so only the condition's code is left.
+        // except the condition's. Else, simply complete the jumpToElse
+        // so it jumps to the next instruction that will be emitted.
         if (isThenEmpty) 
           builder.truncate_instrs(jumpIfFalse);
-        // Else, complete 'jumpToElse' to jump after the last instr emitted.
         else 
-          JumpPoint::createForEnd(builder).fixJumpInstr(jumpIfFalse);
+          JumpPoint::createAtEnd(builder).fixJumpInstr(jumpIfFalse);
         return;
       }
 
@@ -215,65 +217,62 @@ class BCGen::StmtGenerator : public Generator,
         auto jumpIfTrue = builder.createJumpIfInstr(regAddr, 0);
         // Gen the 'else'
         visit(elseBody);
-        // Check if we have generated something
-        if (builder.isLastInstr(jumpIfTrue)) {
-          // If we didn't: Remove everything, including jumpIfTrue, so just the
-          // condition's code is left
+        // Check if we have generated something. If we didn't: remove everything
+        // including jumpIfTrue, so just the condition's code is left.
+        // if we did generate something, fix the jump so it jumps to the next
+        // instruction that will be emitted.
+        if (builder.isLastInstr(jumpIfTrue))
           builder.truncate_instrs(jumpIfTrue);
-        }
-        else {
-          // If we did: Fix the jump
-          JumpPoint::createForEnd(builder).fixJumpInstr(jumpIfTrue);
-        }
+        else
+          JumpPoint::createAtEnd(builder).fixJumpInstr(jumpIfTrue);
+        return;
       }
-      // We have a else, and the then was not empty.
+      // We have a else, and the then was not empty: create a jump to the end
+      // of the condition so the then's code skips the else's code.
+      auto jumpEnd = builder.createJumpInstr(0);
+
+      // Gen the 'else'
+      visit(elseBody);
+
+      // Check if we have generated something.
+      if (builder.isLastInstr(jumpEnd)) {
+        // If we generated nothing, remove everything including jumpEnd
+        builder.truncate_instrs(jumpEnd);
+        // And make jumpIfFalse jump to the next instr that will be emitted
+        JumpPoint::createAtEnd(builder).fixJumpInstr(jumpIfFalse);
+      }
       else {
-        // Create a jump to the end of the condition so the then's code
-        // skips the else's code.
-        auto jumpEnd = builder.createJumpInstr(0);
-
-        // Gen the 'else'
-        visit(elseBody);
-
-        // Check if we have generated something.
-        if (builder.isLastInstr(jumpEnd)) {
-          // If we generated nothing, remove everything including jumpEnd...
-          builder.truncate_instrs(jumpEnd);
-          // ...and make jumpIfFalse jump to the next instr that will be emitted
-          JumpPoint::createForEnd(builder).fixJumpInstr(jumpIfFalse);
-        }
-        else {
-          // If generated something, complete both jumps:
-          //    jumpIfFalse should jump past JumpEnd
-          JumpPoint::createForAfterInstr(builder, jumpEnd)
-            .fixJumpInstr(jumpIfFalse);
-          //    jumpEnd should jump to the last instruction emitted
-          JumpPoint::createForEnd(builder).fixJumpInstr(jumpEnd);
-        }
+        // If we generated something, complete both jumps:
+        //    jumpIfFalse should jump past JumpEnd
+        JumpPoint::createAfterInstr(builder, jumpEnd).fixJumpInstr(jumpIfFalse);
+        //    jumpEnd should jump to the next instruction that will be emitted
+        JumpPoint::createAtEnd(builder).fixJumpInstr(jumpEnd);
       }
     }
 
     void visitWhileStmt(WhileStmt* stmt) {
-      // Create the loop context
       LoopContext loopCtxt(regAlloc);
-      // Create a JumpPoint to the beginning of the loop
-      auto loopBeg = JumpPoint::createForEnd(builder);
+      auto loopBeg = JumpPoint::createAtEnd(builder);
+
       // Compile the condition and save its address.
       // The resulting RegisterValue is intentionally discarded
       // so its register is freed directly.
       auto condAddr = 
         bcGen.genExpr(builder, regAlloc, stmt->getCond()).getAddress();
-      // When the condition is false, we skip the body, so create a 
-      // JumpIfNot. It'll be completed later
+
+      // When the condition is false, we skip the body so
+      // create a jump that'll be completed later.
       auto skipBodyJump = builder.createJumpIfNotInstr(condAddr, 0);
+
       // Gen the body of the loop
       bcGen.genStmt(builder, regAlloc, stmt->getBody());
-      // Gen the jump to the beginning of the loop
+
+      // Gen the jump to the beginning of the loop and fix it.
       auto jumpToBeg = builder.createJumpInstr(0);
-      // Fix it
       loopBeg.fixJumpInstr(jumpToBeg);
+
       // Fix the 'skipBody' jump so it jumps past the 'jumpToBeg'
-      JumpPoint::createForAfterInstr(builder, jumpToBeg)
+      JumpPoint::createAfterInstr(builder, jumpToBeg)
         .fixJumpInstr(skipBodyJump);
     }
 

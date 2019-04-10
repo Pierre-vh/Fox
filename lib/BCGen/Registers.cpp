@@ -25,23 +25,26 @@ RegisterAllocator::initVar(const VarDecl* var, RegisterValue* hint) {
   // Search for the var
   auto it = knownVars_.find(var);
   assert((it != knownVars_.end()) && "Unknown Variable!");
+
   // Assert that the variable has not been initialized yet
   VarData& data = it->second;
   assert(!data.hasAddress() && "Var has already been initialized:"
     "(initVar already called for this variable)");
-  // Use the hint if possible
+
+  // Use the hint if possible, else just use a new register.
   if (hint) {
     assert(hint->canRecycle() && "Hint is not recyclable");
     // Recycle the hint as the new address
     data.addr = rawRecycleRegister(std::move(*hint));
   } 
-  // Else just use a new register
   else 
     data.addr = rawAllocateNewRegister();
+
   // If we're in a loop, notify the LoopContext that this variable
   // was declared inside it.
   if (isInLoop())
     curLoopContext_->varsInLoop_.insert(var);
+
   // Return a RegisterValue managing this Var
   return RegisterValue(this, var);
 }
@@ -50,9 +53,11 @@ RegisterValue RegisterAllocator::useVar(const VarDecl* var) {
   // Search for the var
   auto it = knownVars_.find(var);
   assert((it != knownVars_.end()) && "Unknown Variable!");
+
   // Assert that the variable has been assigned a register.
   assert(it->second.hasAddress() && "Var has not been initialized "
     "(initVar not called for this variable)");
+
   // Return a RegisterValue managing this Var
   return RegisterValue(this, var);
 }
@@ -91,9 +96,8 @@ regaddr_t RegisterAllocator::rawRecycleRegister(RegisterValue value) {
   assert(value.canRecycle() && "register not recyclable");
   regaddr_t addr = value.getAddress();
   switch (value.getKind()) {
-    case RegisterValue::Kind::Temporary:
-      // Nothing to do for temporaries
-      break;
+    // Nothing to do for temporaries
+    case RegisterValue::Kind::Temporary: break;
     case RegisterValue::Kind::Var:
       forgetVariable(knownVars_.find(value.data_.varDecl));
       break;
@@ -106,6 +110,7 @@ regaddr_t RegisterAllocator::rawRecycleRegister(RegisterValue value) {
 
 void RegisterAllocator::forgetVariable(KnownVarsMap::iterator iter) {
   assert((iter != knownVars_.end()) && "unknown var");
+
   // Remove it from the current LoopContext if needed
   if (isInLoop()) {
     auto& lc_knownVars = curLoopContext_->varsInLoop_;
@@ -113,6 +118,7 @@ void RegisterAllocator::forgetVariable(KnownVarsMap::iterator iter) {
     if(lc_iter != lc_knownVars.end())
       lc_knownVars.erase(lc_iter);
   }
+
   // Remove it from the set of known variables
   knownVars_.erase(iter);
 }
@@ -122,16 +128,15 @@ regaddr_t RegisterAllocator::rawAllocateNewRegister() {
 
   // If we have something in freeRegisters_, use that.
   if (!freeRegisters_.empty()) {
-    // Take the smallest number possible (to reuse registers whose number
-    // is as small as possible, so compactFreeRegisterSet() is more
-    // efficient)
+    // Take the smallest number possible
     auto pick = --freeRegisters_.end();
     regaddr_t reg = (*pick);
     freeRegisters_.erase(pick);
     return reg;
   }
 
-  // Check that we haven't allocated too many registers.
+  // Else we'll need to allocate a new register, so check
+  // if that's possible.
   // TODO: Replace this with a proper diagnostic
   assert((biggestAllocatedReg_ != max_regaddr) && 
     "Can't allocate more registers : Register number limit reached "
@@ -149,18 +154,15 @@ void RegisterAllocator::markRegisterAsFreed(regaddr_t reg) {
     biggestAllocatedReg_--;
   // Else, add it to the free registers set
   else {
-    assert((biggestAllocatedReg_ > reg) 
-      && "Register maybe freed twice");
-    // Only capture the result of std::set::insert in debug builds to avoid
-    // "unused variable" errors in release builds (where asserts are disabled)
+    assert((biggestAllocatedReg_ > reg) && "Register free twice");
+
     #ifndef NDEBUG
       auto insertResult =
     #endif
-
     freeRegisters_.insert(reg);
 
-    assert(insertResult.second && "Register maybe freed twice: "
-    " It was already in freeRegisters_");
+    assert(insertResult.second && "Register freed twice, it was already "
+      "in freeRegisters");
   }
 }
 
@@ -168,7 +170,7 @@ regaddr_t RegisterAllocator::getRegisterOfVar(const VarDecl* var) const {
   // Search for the var
   auto it = knownVars_.find(var);
   assert((it != knownVars_.end()) && "Unknown Variable!");
-  // If this function is called, we should have a register reserved for this
+  // If this function is called, we should have a register reserved for this 
   // variable
   assert(it->second.hasAddress() && "Variable doesn't have an address!");
   assert(it->second.useCount && "Variable is dead");
