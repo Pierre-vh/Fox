@@ -62,6 +62,7 @@ namespace fox {
     using trait = 
       detail::StableVectorIteratorTraits<ContainerTy, isConst>;
     using this_type = StableVectorIteratorImpl<ContainerTy, isConst>;
+    using const_iter = StableVectorIteratorImpl<ContainerTy, true>;
     public:
       using iterator_category   = std::bidirectional_iterator_tag;
       using difference_type     = typename ContainerTy::difference_type;
@@ -90,6 +91,16 @@ namespace fox {
           index_ = idx;
       }
 
+      /// Creates an iterator to past-the-end of \p data
+      static this_type getEnd(container& data) {
+        return this_type(data, endpos);
+      }
+
+      /// Creates an iterator to the beginning of \p data
+      static this_type getBegin(container& data) {
+        return this_type(data);
+      }
+
       /// Creates a StableVectorIterator from a container and an iterator.
       /// NOTE: for empty vectors (.begin() == .end()), this will create a
       /// begin iterator even if you pass a .end() iterator.
@@ -97,6 +108,15 @@ namespace fox {
       /// ::getEnd()
       StableVectorIteratorImpl(container& data, container_iterator iter) : 
          StableVectorIteratorImpl(data, std::distance(data.begin(), iter)) {}
+
+      // Allow non-const iterators to implicitely cast to const iterators.
+      operator const_iter() {
+        if(this->data_)
+          return const_iter(*this->data_, this->index_);
+        assert((this->index_ == 0) 
+          && "Iterator does not have data, but it has a non-zero index?");
+        return const_iter();
+      }
 
       // Pre-increment
       this_type& operator++() {
@@ -300,50 +320,13 @@ namespace fox {
       }
   };
 
-  /// The const 'StableVectorIterator'.
+  /// The 'StableVectorIterator'.
   /// See \ref StableVectorIteratorImpl for more information
   template<typename Container>
-  class StableVectorConstIterator : 
-      public StableVectorIteratorImpl<Container, true> {
-    using Base = StableVectorIteratorImpl<Container, true>;
-    using this_type = StableVectorConstIterator<Container>;
-    public:
-      using Base::StableVectorIteratorImpl;
-
-      static this_type getEnd(Base::container& data) {
-        return this_type(data, Base::endpos);
-      }
-
-      static this_type getBegin(Base::container& data) {
-        return this_type(data);
-      }
-  };
+  using StableVectorConstIterator = StableVectorIteratorImpl<Container, true>;
 
   /// The 'StableVectorIterator'.
   /// See \ref StableVectorIteratorImpl for more information
   template<typename Container>
-  class StableVectorIterator : 
-      public StableVectorIteratorImpl<Container, false> {
-    using Base = StableVectorIteratorImpl<Container, false>;
-    using this_type = StableVectorIterator<Container>;
-    public:
-      using Base::StableVectorIteratorImpl;
-
-      static this_type getEnd(Base::container& data) {
-        return this_type(data, Base::endpos);
-      }
-
-      static this_type getBegin(Base::container& data) {
-        return this_type(data);
-      }
-
-      /// Allow implicit conversions to constant iterators
-      operator StableVectorConstIterator<Container>() {
-        if(this->data_)
-          return StableVectorConstIterator<Container>(*this->data_, this->index_);
-        assert((this->index_ == 0) 
-          && "Iterator does not have data, but it has a non-zero index?");
-        return StableVectorConstIterator<Container>();
-      }
-  };
+  using StableVectorIterator = StableVectorIteratorImpl<Container, false>;
 }
