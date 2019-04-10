@@ -42,16 +42,10 @@ Basic VM data types and their mappings to Fox types:
   -> BCModule::instr_iterator (Done)
   -> BCBuilder Update (Done)
   -> Add index when dumping instructions, e.g. [42] StoreSmallInt 3 50 (Done)
+  -> BCModule/BCModuleBuilder rework part 1(Done)
+  -> CodeGen of Statements except ReturnStmt (Done)
 
-  -> CodeGen of Statements
-      -> Conditions (Done)
-      -> Loops (Done)
-
-  > Code review in Registers.cpp and BCGenStmt.cpp
-      -> Update comments, refactor ugly code, etc.
-
-  > BCModule/BCModuleBuilder rework (Done)
-  > Add and use BCFunction as primary bytecode containers instead of BCModule:
+  > BCModule/BCModuleBuilder rework part 2 (Next)
     > BCFunction (Next)
       > getInstrVec()
       > instr_beg, instr_end
@@ -61,12 +55,12 @@ Basic VM data types and their mappings to Fox types:
       > BCFunction& getFunction(std::size_t idx)
         > assert for out of ranges
 
-  -> Destination register for ExprGenerator: Require a destination register for an expression. If present, the result
-     must be stored there. Will be used for calling functions. Just pass an extra "RegisterValue" as parameter, maybe
-     even an "Optional<RegisterValue>" one to make optionality obvious.
+  -> Destination register for ExprGenerator: Require a destination register for an expression.
+     If present, the result must be stored there. Will be used for calling functions. 
+     Just pass an Optional<RegisterValue> to bcgen functions. RegisterValue, if present,
+     must be a recyclable RegisterValue.
 
   -> Constants & Constant Table
-    -> "Constant" object ?
     -> BCModule 
     -> BCGen 
     -> Instructions + VM
@@ -90,8 +84,7 @@ Basic VM data types and their mappings to Fox types:
   -> ArrayObject: Always dynamically sized, essentially just a SmallVector (will maybe even inherit from it). Has a "isReference" flag.
   -> Strings: Similar to ArrayObject. I think they'll also be dynamically sized, but that's subject to change.
  
-  Note: In the future, I'll probably have a UserObject and a TupleObject.
-        UserObject for structs, TupleObject for tuples.
+  Note: In the future, I'll probably have a UserObject (structs) and a TupleObject (tuples).
 
 ---- Getting feature-complete (with the current feature set) ----
   -> Functions
@@ -109,7 +102,7 @@ Basic VM data types and their mappings to Fox types:
   (Current ideas, highly subject to changes)
   -> "ReferenceMap" (Safe points) to track register that contain references if I decide to do a precise GC.
     -> Implemented in the RegisterAllocator. I'll just need an extra arg to "allocateTemporary" like "RegisterPurpose" to track
-       registers holding refs. When a register dies, the corresponding bit is cleared. Import/use llvm::BitVector for that!
+       registers holding refs. When a register dies, the corresponding bit is cleared. Import & use llvm::BitVector for that!
   -> Basic GC algorithm: mark and sweep, colored object. Non-generational/non-compacting at first. 
       (I'll try to get decent perf without compacting/generational and then only think about the rest)
 
