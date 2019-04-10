@@ -98,11 +98,19 @@ regaddr_t RegisterAllocator::rawRecycleRegister(RegisterValue value) {
       value.kill();
       return addr;
     case RegisterValue::Kind::Var: {
+      // TODO: Factor this out because a similar logic is contained
+      // in release()
+      auto var = value.data_.varDecl;
       // Search for the var
-      auto it = knownVars_.find(value.data_.varDecl);
+      auto it = knownVars_.find(var);
       assert((it != knownVars_.end()) && "Unknown Variable!");
       // Forget it, kill 'value' and return
       knownVars_.erase(it);
+      // Remove it from the current LC if needed
+      if (curLoopContext_) {
+        if(curLoopContext_->isVarDeclaredInside(var)) 
+          curLoopContext_->varsInLoop_.erase(var);
+      }
       value.kill();
       return addr;
     }
