@@ -36,6 +36,7 @@ class BCGen::StmtGenerator : public Generator,
 
   private:
     using StableInstrIter = BCBuilder::StableInstrIter;
+    using StableInstrConstIter = BCBuilder::StableInstrConstIter;
 
     // The type used to store jump offsets. Doesn't necessarily
     // match the one of the instructions.
@@ -44,7 +45,9 @@ class BCGen::StmtGenerator : public Generator,
     // The current maximum jump offset possible (positive or negative)
     // is the max (positive or negative) value of a 16 bit signed number:
     // 2^15-1
-    static constexpr std::size_t max_jump_offset = (1 << 15)-1;
+    static constexpr jump_offset_t max_jump_offset = (1 << 15)-1;
+    // Same as max_jump_offset but negative
+    static constexpr jump_offset_t min_jump_offset = -max_jump_offset;
 
     //------------------------------------------------------------------------//
     // "emit" and "gen" methods 
@@ -64,55 +67,96 @@ class BCGen::StmtGenerator : public Generator,
         fox_unreachable("Unknown ASTNode kind");
     }
 
-    /// Fix a jump \p jump so it jumps to the instruction AFTER \p target.
-    /// \param jump The jump to adjust. Must be a jump of some kind.
-    /// \param target The last instruction that should be skipped by the jump,
-    ///               so '++jump' is the next instruction that will be executed.
-    void fixJump(StableInstrIter jump, StableInstrIter target) {
-      assert(jump->isAnyJump() && "not a jump!");
-      assert((jump != target) && "useless jump");
-      std::size_t absoluteDistance;
-      bool isBackward = false;
-      // Calculate the absolute distance
-      {
-        auto start = jump, end = target;
-        // Check if we try to jump backward. If we do, swap
-        // start and end because the distance function expects that
-        // its first argument is smaller than the second.
-        if (start > end) {
-          std::swap(start, end);
-          isBackward = true;
+    /// Represents a 'jump point', a point in the bytecode buffer that we
+    /// want to jump to.
+    /// This class is also responsible for fixing 'jump' instructions.
+    class JumpPoint {
+      public:
+        /// Creates a JumpPoint to the next instruction after \p instr
+        static JumpPoint 
+        createAfterInstr(BCBuilder& builder, StableInstrIter instr) {
+          return JumpPoint(builder, Kind::AfterIter, instr);
         }
-        absoluteDistance = distance(start, end);
-      }
-      // Check if the distance is acceptable
-      // TODO: Replace this assertion by a proper 'fatal' diagnostic explaining
-      // the problem. Maybe pass a lambda 'onOutOfRange' as parameter to
-      // this function and call onOutOfRange() + return 0; when we try to
-      // jump too far.
-      assert((absoluteDistance <= max_jump_offset) && "Jump is too large!");
-      // Now that we know that the conversion is safe, convert the absolute 
-      // distance to jump_offset_t
-      jump_offset_t offset = absoluteDistance;
-      // Reapply the minus sign if needed
-      // Note: for backwards jump we need to add an additional offset of 1
-      // because jumps are relative to the next instruction.
-      if(isBackward) offset = -offset-1;
-      // Fix the Jump
-      switch (jump->opcode) {
-        case Opcode::Jump:
-          jump->Jump.offset = offset;
-          break;
-        case Opcode::JumpIf:
-          jump->JumpIf.offset = offset;
-          break;
-        case Opcode::JumpIfNot:
-          jump->JumpIfNot.offset = offset;
-          break;
-        default:
-          fox_unreachable("Unknown Jump Kind!");
-      }
-    }
+
+        /// Creates a JumpPoint 'past-the-end' of the instruction buffer.
+        /// Useful for when you want to jump to the next instruction that
+        /// will be emitted.
+        static JumpPoint createForNextInstr(BCBuilder& builder) {
+          // If the Builder is empty, we'll want to jump to the beginning
+          // of the instruction buffer
+          if(builder.empty())
+            return JumpPoint(builder, Kind::BufferBeg);
+          // Else we want to just past the last instruction emitted
+          return JumpPoint(builder, Kind::AfterIter, 
+                           builder.getLastInstrIter());
+        }
+
+        /// Fixes a "Jump" instruction \p jump so it jumps to
+        /// the JumpPoint
+        void fixJumpInstr(StableInstrIter jump) const {
+          assert(jump->isAnyJump() && "not a jump!");
+          // Calculate the distance + decrement it
+          // (because jumps are relative to the next instruction)
+          auto rawDistance = distance(jump, getTargetIter())-1;
+          // Check if the distance is acceptable
+          // TODO: Replace this check by a proper diagnostic
+          assert((rawDistance >= min_jump_offset) 
+            && (rawDistance <= max_jump_offset)
+            && "Jumping too far");
+          // Now that we know that the conversion is safe, convert the absolute 
+          // distance to jump_offset_t
+          jump_offset_t offset = rawDistance;
+          // Fix the Jump
+          switch (jump->opcode) {
+            case Opcode::Jump:
+              jump->Jump.offset = offset;
+              break;
+            case Opcode::JumpIf:
+              jump->JumpIf.offset = offset;
+              break;
+            case Opcode::JumpIfNot:
+              jump->JumpIfNot.offset = offset;
+              break;
+            default:
+              fox_unreachable("Unknown Jump Kind!");
+          }
+        }
+
+        /// The bytecode builder
+        BCBuilder& builder;
+
+      private:
+        /// The Kind of JumpPoint this is.
+        enum class Kind : std::uint8_t {
+          /// For when we want to jump to the first instruction
+          /// in the bytecode buffer.
+          BufferBeg,
+          /// For when we want to jump to the instruction after 'iter'
+          AfterIter,
+        };
+
+        /// Returns an iterator to the target instruction
+        ///   For Kind::BufferBeg, returns an iterator to the
+        ///     beginning of the buffer.
+        ///   For Kind::AfterIter, returns (iter_+1);
+        StableInstrConstIter getTargetIter() const {
+          switch (kind_) {
+            case Kind::BufferBeg:
+              return StableInstrConstIter::getBegin(builder.vector);
+            case Kind::AfterIter: 
+              return ++StableInstrConstIter(iter_);
+            default:
+              fox_unreachable("unknown JumpPoint::Kind");
+          }
+        }
+
+        Kind kind_;
+        StableInstrConstIter iter_;
+
+        JumpPoint(BCBuilder& builder, Kind kind, 
+          StableInstrConstIter iter = StableInstrConstIter())
+          : builder(builder), kind_(kind), iter_(iter) { }
+    };
 
     //------------------------------------------------------------------------//
     // "visit" methods 
@@ -157,7 +201,7 @@ class BCGen::StmtGenerator : public Generator,
           builder.truncate_instrs(jumpIfFalse);
         // Else, complete 'jumpToElse' to jump after the last instr emitted.
         else 
-          fixJump(jumpIfFalse, builder.getLastInstrIter());
+          JumpPoint::createForNextInstr(builder).fixJumpInstr(jumpIfFalse);
         return;
       }
 
@@ -178,7 +222,7 @@ class BCGen::StmtGenerator : public Generator,
         }
         else {
           // If we did: Fix the jump
-          fixJump(jumpIfTrue, builder.getLastInstrIter());
+          JumpPoint::createForNextInstr(builder).fixJumpInstr(jumpIfTrue);
         }
       }
       // We have a else, and the then was not empty.
@@ -194,15 +238,16 @@ class BCGen::StmtGenerator : public Generator,
         if (builder.isLastInstr(jumpEnd)) {
           // If we generated nothing, remove everything including jumpEnd...
           builder.truncate_instrs(jumpEnd);
-          // ...and make jumpIfFalse jump after the last instruction emitted.
-          fixJump(jumpIfFalse, builder.getLastInstrIter());
+          // ...and make jumpIfFalse jump to the next instr that will be emitted
+          JumpPoint::createForNextInstr(builder).fixJumpInstr(jumpIfFalse);
         }
         else {
           // If generated something, complete both jumps:
           //    jumpIfFalse should jump past JumpEnd
-          fixJump(jumpIfFalse, jumpEnd);
+          JumpPoint::createAfterInstr(builder, jumpEnd)
+            .fixJumpInstr(jumpIfFalse);
           //    jumpEnd should jump to the last instruction emitted
-          fixJump(jumpEnd, builder.getLastInstrIter());
+          JumpPoint::createForNextInstr(builder).fixJumpInstr(jumpEnd);
         }
       }
     }
@@ -210,11 +255,8 @@ class BCGen::StmtGenerator : public Generator,
     void visitWhileStmt(WhileStmt* stmt) {
       // Create the loop context
       LoopContext loopCtxt(regAlloc);
-      // Save an iterator to the beginning of the loop
-      // This is actually an iterator to the last instruction emitted,
-      // but as fixJump jumps *after* an instruction, we can use
-      // that to jump to the first instruction of the loop.
-      auto loopBeg = builder.getLastInstrIter();
+      // Create a JumpPoint to the beginning of the loop
+      auto loopBeg = JumpPoint::createForNextInstr(builder);
       // Compile the condition and save its address.
       // The resulting RegisterValue is intentionally discarded
       // so its register is freed directly.
@@ -227,11 +269,10 @@ class BCGen::StmtGenerator : public Generator,
       bcGen.genStmt(builder, regAlloc, stmt->getBody());
       // Gen the jump to the beginning of the loop
       auto jumpToBeg = builder.createJumpInstr(0);
-      // TODO: Instead of fixing the jump, build it directly using a 
-      // "calculateOffSetForJump" function
-      fixJump(jumpToBeg, loopBeg);
+      // Fix it
+      loopBeg.fixJumpInstr(jumpToBeg);
       // Fix the 'skipBody' jump so it jumps past the 'jumpToBeg'
-      fixJump(skipBodyJump, jumpToBeg);
+      JumpPoint::createAfterInstr(builder, jumpToBeg).fixJumpInstr(skipBodyJump);
     }
 
     void visitReturnStmt(ReturnStmt*) {
