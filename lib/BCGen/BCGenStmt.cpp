@@ -74,14 +74,15 @@ class BCGen::StmtGenerator : public Generator,
       public:
         /// Creates a JumpPoint to the next instruction after \p instr
         static JumpPoint 
-        createAfterInstr(BCBuilder& builder, StableInstrIter instr) {
+        createForAfterInstr(BCBuilder& builder, StableInstrIter instr) {
           return JumpPoint(builder, Kind::AfterIter, instr);
         }
 
         /// Creates a JumpPoint 'past-the-end' of the instruction buffer.
         /// Useful for when you want to jump to the next instruction that
-        /// will be emitted.
-        static JumpPoint createForNextInstr(BCBuilder& builder) {
+        /// will be inserted in the buffer.
+        static JumpPoint 
+        createForEnd(BCBuilder& builder) {
           // If the Builder is empty, we'll want to jump to the beginning
           // of the instruction buffer
           if(builder.empty())
@@ -103,8 +104,8 @@ class BCGen::StmtGenerator : public Generator,
           assert((rawDistance >= min_jump_offset) 
             && (rawDistance <= max_jump_offset)
             && "Jumping too far");
-          // Now that we know that the conversion is safe, convert the absolute 
-          // distance to jump_offset_t
+          // Now that we know that the conversion is safe, convert it to a 
+          // jump_offset_t
           jump_offset_t offset = rawDistance;
           // Fix the Jump
           switch (jump->opcode) {
@@ -201,7 +202,7 @@ class BCGen::StmtGenerator : public Generator,
           builder.truncate_instrs(jumpIfFalse);
         // Else, complete 'jumpToElse' to jump after the last instr emitted.
         else 
-          JumpPoint::createForNextInstr(builder).fixJumpInstr(jumpIfFalse);
+          JumpPoint::createForEnd(builder).fixJumpInstr(jumpIfFalse);
         return;
       }
 
@@ -222,7 +223,7 @@ class BCGen::StmtGenerator : public Generator,
         }
         else {
           // If we did: Fix the jump
-          JumpPoint::createForNextInstr(builder).fixJumpInstr(jumpIfTrue);
+          JumpPoint::createForEnd(builder).fixJumpInstr(jumpIfTrue);
         }
       }
       // We have a else, and the then was not empty.
@@ -239,15 +240,15 @@ class BCGen::StmtGenerator : public Generator,
           // If we generated nothing, remove everything including jumpEnd...
           builder.truncate_instrs(jumpEnd);
           // ...and make jumpIfFalse jump to the next instr that will be emitted
-          JumpPoint::createForNextInstr(builder).fixJumpInstr(jumpIfFalse);
+          JumpPoint::createForEnd(builder).fixJumpInstr(jumpIfFalse);
         }
         else {
           // If generated something, complete both jumps:
           //    jumpIfFalse should jump past JumpEnd
-          JumpPoint::createAfterInstr(builder, jumpEnd)
+          JumpPoint::createForAfterInstr(builder, jumpEnd)
             .fixJumpInstr(jumpIfFalse);
           //    jumpEnd should jump to the last instruction emitted
-          JumpPoint::createForNextInstr(builder).fixJumpInstr(jumpEnd);
+          JumpPoint::createForEnd(builder).fixJumpInstr(jumpEnd);
         }
       }
     }
@@ -256,7 +257,7 @@ class BCGen::StmtGenerator : public Generator,
       // Create the loop context
       LoopContext loopCtxt(regAlloc);
       // Create a JumpPoint to the beginning of the loop
-      auto loopBeg = JumpPoint::createForNextInstr(builder);
+      auto loopBeg = JumpPoint::createForEnd(builder);
       // Compile the condition and save its address.
       // The resulting RegisterValue is intentionally discarded
       // so its register is freed directly.
@@ -272,7 +273,8 @@ class BCGen::StmtGenerator : public Generator,
       // Fix it
       loopBeg.fixJumpInstr(jumpToBeg);
       // Fix the 'skipBody' jump so it jumps past the 'jumpToBeg'
-      JumpPoint::createAfterInstr(builder, jumpToBeg).fixJumpInstr(skipBodyJump);
+      JumpPoint::createForAfterInstr(builder, jumpToBeg)
+        .fixJumpInstr(skipBodyJump);
     }
 
     void visitReturnStmt(ReturnStmt*) {
