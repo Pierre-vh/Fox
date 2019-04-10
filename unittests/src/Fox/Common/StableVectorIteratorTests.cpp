@@ -25,7 +25,7 @@ static VectorType makeVector() {
 
 TEST(StableVectorIteratorTest, basicTest1) {
   auto vector = makeVector();
-  auto iter = SVI(vector);
+  auto iter = SVI::getBegin(vector);
   auto a = ++iter;
   auto b = iter;
   auto c = iter++;
@@ -227,6 +227,17 @@ TEST(StableVectorIteratorTest, comparison) {
   EXPECT_TRUE(minusone >= minusone);
   EXPECT_TRUE(plusone >= plusone);
   STOP_IF_FAILED(">= test failed");
+}
+
+TEST(StableVectorIteratorTest, emptyVecComparison) {
+  std::vector<int> vec;
+  auto beg = SVI::getBegin(vec);
+  auto end = SVI::getEnd(vec);
+  EXPECT_EQ(beg, end);
+  EXPECT_LE(beg, end);
+  EXPECT_GE(beg, end);
+  EXPECT_FALSE(beg < end);
+  EXPECT_FALSE(beg > end);
 }
 
 TEST(StableVectorIteratorTest, distance) {

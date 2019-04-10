@@ -74,35 +74,33 @@ namespace fox {
       /// Default Constructor
       StableVectorIteratorImpl() = default;
 
-      /// Creates an interator from a container and an index.
-      /// \param data the container
-      /// \param index the index
-      explicit StableVectorIteratorImpl(container& data, 
-                                        std::size_t index = 0) : 
-                                        data_(&data), index_(index) {
-        assert((index_ <= data.size()) && "out of range");
-        auto dataSize = data.size();
-        // FIXME: This breaks if we try to create an end iterator
-        // for an empty container.
-        // To solve this, abstract away the constructor using
-        // factory 'create' method, such as createBeg, createEnd and
-        // create(data, idx)
-        if (index_ == dataSize) {
-          if(dataSize) 
-            index_ = endpos;
-        }
+      /// Creates a StableVectorIterator from a container and an index.
+      /// NOTE: for empty vectors, this will always create a
+      /// begin iterator if you pass '0'.
+      /// If you want a end() iterator for a maybe empty container, use
+      /// ::getEnd()
+      explicit StableVectorIteratorImpl(container& data, std::size_t idx = 0) :
+        data_(&data) {
+        assert(idx <= data.size());
+        // if index equals the size of the container, and the container is
+        // not empty, create a end iterator.
+        if((idx == data.size()) && data.size())
+          index_ = endpos;
+        else 
+          index_ = idx;
       }
 
-      /// Creates an iterator from a container and an iterator.
-      /// \param data the container
-      /// \param index the index
-      explicit StableVectorIteratorImpl(container& data, 
-                                        container_iterator iter) : 
-        StableVectorIteratorImpl(data, std::distance(data.begin(), iter)) {}
+      /// Creates a StableVectorIterator from a container and an iterator.
+      /// NOTE: for empty vectors (.begin() == .end()), this will create a
+      /// begin iterator even if you pass a .end() iterator.
+      /// If you want a end() iterator for a maybe empty container, use
+      /// ::getEnd()
+      StableVectorIteratorImpl(container& data, container_iterator iter) : 
+         StableVectorIteratorImpl(data, std::distance(data.begin(), iter)) {}
 
       // Pre-increment
       this_type& operator++() {
-        move(1);
+        advance(1);
         return (*this);
       }
 
@@ -115,7 +113,7 @@ namespace fox {
 
       // Pre-decrement
       this_type& operator--() {
-        move(-1);
+        advance(-1);
         return (*this);
       }
 
@@ -144,42 +142,36 @@ namespace fox {
       }
 
       friend bool operator==(const this_type& lhs, const this_type& rhs) {
-        assert(lhs.canCompareWith(rhs) && "iterators aren't comparable");
-        return (lhs.index_ == rhs.index_);
+        return lhs.getContainerIterator() == rhs.getContainerIterator();
       }
 
       friend bool operator!=(const this_type& lhs, const this_type& rhs) {
-        assert(lhs.canCompareWith(rhs) && "iterators aren't comparable");
-        return (lhs.index_ != rhs.index_);
+        return lhs.getContainerIterator() != rhs.getContainerIterator();
       }
 
       friend bool operator<(const this_type& lhs, const this_type& rhs) {
-        assert(lhs.canCompareWith(rhs) && "iterators aren't comparable");
-        return (lhs.index_ <= rhs.index_);
+        return lhs.getContainerIterator() < rhs.getContainerIterator();
       }
 
       friend bool operator<=(const this_type& lhs, const this_type& rhs) {
-        assert(lhs.canCompareWith(rhs) && "iterators aren't comparable");
-        return (lhs.index_ <= rhs.index_);
+        return lhs.getContainerIterator() <= rhs.getContainerIterator();
       }
       
       friend bool operator>(const this_type& lhs, const this_type& rhs) {
-        assert(lhs.canCompareWith(rhs) && "iterators aren't comparable");
-        return (lhs.index_ > rhs.index_);
+        return lhs.getContainerIterator() > rhs.getContainerIterator();
       }
 
       friend bool operator>=(const this_type& lhs, const this_type& rhs) {
-        assert(lhs.canCompareWith(rhs) && "iterators aren't comparable");
-        return (lhs.index_ >= rhs.index_);
+        return lhs.getContainerIterator() >= rhs.getContainerIterator();
       }
 
       this_type& operator+=(difference_type value) {
-        move(value);
+        advance(value);
         return *this;
       }
 
       this_type& operator-=(difference_type value) {
-        move(-value);
+        advance(-value);
         return *this;
       }
 
@@ -211,15 +203,16 @@ namespace fox {
                              last.getContainerIterator());
       }
     protected:
+      /// Sentinel value for end iterators
+      static constexpr std::size_t
+        endpos = std::numeric_limits<std::size_t>::max();
       /// The container
       container* data_ = nullptr;
       /// The index in the container
       std::size_t index_ = 0;
 
     private:
-      static constexpr std::size_t
-      endpos = std::numeric_limits<std::size_t>::max();
-
+      
       /// \returns true if this iterator is dereferenceable.
       bool isDereferenceable() const {
         // Check that we have a container
@@ -264,7 +257,7 @@ namespace fox {
 
       /// Moves the iterator. Can have a negative argument to
       /// decrement the iterator.
-      void move(difference_type value) {
+      void advance(difference_type value) {
         assert(data_ 
           && "cannot move iterator: iterator does not have a container");
         if(value == 0) return;
@@ -313,9 +306,17 @@ namespace fox {
   class StableVectorConstIterator : 
       public StableVectorIteratorImpl<Container, true> {
     using Base = StableVectorIteratorImpl<Container, true>;
+    using this_type = StableVectorConstIterator<Container>;
     public:
-      // bring in the constructors
       using Base::StableVectorIteratorImpl;
+
+      static this_type getEnd(Base::container& data) {
+        return this_type(data, Base::endpos);
+      }
+
+      static this_type getBegin(Base::container& data) {
+        return this_type(data);
+      }
   };
 
   /// The 'StableVectorIterator'.
@@ -324,9 +325,17 @@ namespace fox {
   class StableVectorIterator : 
       public StableVectorIteratorImpl<Container, false> {
     using Base = StableVectorIteratorImpl<Container, false>;
+    using this_type = StableVectorIterator<Container>;
     public:
-      // bring in the constructors
       using Base::StableVectorIteratorImpl;
+
+      static this_type getEnd(Base::container& data) {
+        return this_type(data, Base::endpos);
+      }
+
+      static this_type getBegin(Base::container& data) {
+        return this_type(data);
+      }
 
       /// Allow implicit conversions to constant iterators
       operator StableVectorConstIterator<Container>() {

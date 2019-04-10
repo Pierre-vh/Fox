@@ -156,11 +156,6 @@ To-Do:
   > Polishing the Lexer Rework + Adding EOF token (Done)
   > StableVectorIterator (Done)
 
-  > Abstract-away the constructors in StableVectorIterator, use factory ::create
-    methods. This is needed in cases where the vector is null and we want to create
-    an iterator to the beginning or the end of the container, in both cases we call
-    <iterator>(data, 0) and it can't decide if we want a beg or end iter.
-
   > VM, Bytecode, BytecodeGen (Currently being worked on, see Backend To-Do.txt
 
   > Break and Continue Statements
