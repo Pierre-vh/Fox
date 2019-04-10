@@ -95,7 +95,9 @@ class BCGen::StmtGenerator : public Generator,
       // distance to jump_offset_t
       jump_offset_t offset = absoluteDistance;
       // Reapply the minus sign if needed
-      if(isBackward) offset = -offset;
+      // Note: for backwards jump we need to add an additional offset of 1
+      // because jumps are relative to the next instruction.
+      if(isBackward) offset = -offset-1;
       // Fix the Jump
       switch (jump->opcode) {
         case Opcode::Jump:
