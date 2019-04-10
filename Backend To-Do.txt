@@ -47,7 +47,8 @@ Basic VM data types and their mappings to Fox types:
       -> Conditions (Done)
       -> Loops (Done)
 
-  > Code review in Registers.cpp, clean it up a bit!
+  > Code review in Registers.cpp and BCGenStmt.cpp
+      -> Update comments, refactor ugly code, etc.
 
   > BCModule/BCModuleBuilder rework (Done)
   > Add and use BCFunction as primary bytecode containers instead of BCModule:
