@@ -1,0 +1,19 @@
+// RUN: %fox-dump-bcgen | %filecheck
+
+func foo() {
+    // CHECK:       StoreSmallInt 0 3
+    // CHECK-NEXT:  StoreSmallInt 1 3
+    // CHECK-NEXT:  AddInt 0 0 1
+    // CHECK-NEXT:  StoreSmallInt 1 0
+    // CHECK-NEXT:  EqInt 0 0 1
+    // CHECK-NEXT:  JumpIfNot 0 6
+    while 3+3==0 {
+    // CHECK-NEXT:  StoreSmallInt 0 1
+    // CHECK-NEXT:  StoreSmallInt 1 1
+    // CHECK-NEXT:  AddInt 0 0 1
+    // CHECK-NEXT:  StoreSmallInt 1 2
+    // CHECK-NEXT:  EqInt 0 0 1
+        1+1==2;
+    // CHECK-NEXT:  Jump -12
+    }
+}

@@ -1,0 +1,33 @@
+// RUN: %fox-dump-bcgen | %filecheck
+
+func foo() {
+    // CHECK:       StoreSmallInt 0 1
+    let a : int = 1;
+    // CHECK-NEXT:  StoreSmallInt 1 2
+    let b : int = 2;
+    // CHECK-NEXT:  StoreSmallInt 2 0
+    // CHECK-NEXT:  JumpIfNot 2 8
+    while false {
+    // CHECK-NEXT:  Copy 2 0
+        let c: int = a;
+        // d shouldn't take a's register it should take c's
+        // so this shouldn't emit any instr.
+        let d : int = c;
+    // CHECK-NEXT:  StoreSmallInt 2 0
+    // CHECK-NEXT:  JumpIfNot 2 3
+        while false {
+    // CHECK-NEXT:  StoreSmallInt 2 0
+    // CHECK-NEXT:  AddInt 2 1 2
+            // this should be in a new register
+            let e : int = b+0;
+    // CHECK-NEXT:  Jump -5
+        }
+        // f should take d/c's register
+    // CHECK-NEXT:  StoreSmallInt 2 3
+        let f : int = 3;
+    // CHECK-NEXT:  Jump -10
+    }
+    // g should take a's register
+    // CHECK-NEXT:  StoreSmallInt 0 4
+    let g : int = 4;
+}
