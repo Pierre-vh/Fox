@@ -82,7 +82,7 @@ namespace fox {
       /// ::getEnd()
       explicit StableVectorIteratorImpl(container& data, std::size_t idx = 0) :
         data_(&data) {
-        assert(idx <= data.size());
+        assert((idx <= data.size()) || (idx == endpos));
         // if index equals the size of the container, and the container is
         // not empty, create a end iterator.
         if((idx == data.size()) && data.size())
