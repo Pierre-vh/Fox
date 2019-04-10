@@ -14,6 +14,7 @@
 #include "Fox/BC/BCModule.hpp"
 #include "Fox/Common/LLVM.hpp"
 #include "Fox/Common/StableVectorIterator.hpp"
+#include "llvm/Support/Compiler.h"
 #include <cstdint>
 
 namespace fox {
@@ -23,7 +24,7 @@ namespace fox {
       using StableInstrIter = 
         StableVectorIterator<InstructionVector>;
       /// A 'stable' const iterator for the instruction buffer
-      using StableConstInstrIter = 
+      using StableInstrConstIter = 
         StableVectorConstIterator<InstructionVector>;
 
       BCBuilder(InstructionVector& vector);
@@ -41,18 +42,19 @@ namespace fox {
       /// erases all instructions in the range [beg, end)
       void truncate_instrs(StableInstrIter beg);
 
+      /// \returns true if the builder is empty
+      LLVM_NODISCARD bool empty() const;
+
       /// \returns true if 'it' == getLastInstrIter()
-      bool isLastInstr(StableConstInstrIter it) const;
+      bool isLastInstr(StableInstrConstIter it) const;
 
       /// \returns an iterator to the last instruction inserted
-      /// in the buffer.
-      /// If the buffer is empty, returns a begin iterator.
+      /// in the buffer. The buffer must not be empty.
       StableInstrIter getLastInstrIter();
 
       /// \returns an iterator to the last instruction inserted
-      /// in the buffer.
-      /// If the buffer is empty, returns a begin iterator.
-      StableConstInstrIter getLastInstrIter() const;
+      /// in the buffer. The buffer must not be empty.
+      StableInstrConstIter getLastInstrIter() const;
 
       /// Removes the last instruction added to this module.
       void popInstr();

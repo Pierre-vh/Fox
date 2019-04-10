@@ -56,20 +56,22 @@ void BCBuilder::truncate_instrs(StableInstrIter beg) {
   vector.erase(beg.getContainerIterator(), vector.end());
 }
 
-bool BCBuilder::isLastInstr(StableConstInstrIter it) const {
+LLVM_NODISCARD bool BCBuilder::empty() const {
+  return vector.empty();
+}
+
+bool BCBuilder::isLastInstr(StableInstrConstIter it) const {
   return (it == getLastInstrIter());
 }
 
 BCBuilder::StableInstrIter BCBuilder::getLastInstrIter() {
-  if(vector.size())
-    return StableInstrIter(vector, vector.end()-1);
-  return StableInstrIter::getBegin(vector);
+  assert(vector.size() && "not available for empty buffers");
+  return StableInstrIter(vector, vector.size()-1);
 }
 
-BCBuilder::StableConstInstrIter BCBuilder::getLastInstrIter() const {
-  if(vector.size())
-    return StableInstrIter(vector, vector.end()-1);
-  return StableInstrIter::getBegin(vector);
+BCBuilder::StableInstrConstIter BCBuilder::getLastInstrIter() const {
+  assert(vector.size() && "not available for empty buffers");
+  return StableInstrConstIter(vector, vector.size()-1);
 }
 
 void BCBuilder::popInstr() {
