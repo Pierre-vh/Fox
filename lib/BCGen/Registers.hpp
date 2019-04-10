@@ -109,11 +109,12 @@ namespace fox {
       //       (It just reads data)
       regaddr_t getRegisterOfVar(const VarDecl* var) const;
 
-      // Decrements the use count of "var".
+      // Decrements the use count of "var", potentially freeing
+      // it if its use count reaches 0
       void release(const VarDecl* var, bool isAlreadyDead = false);
 
-      // Returns true if var's usage count is 1.
-      bool isLastUsage(const VarDecl* var) const;
+      // Returns true if we can recycle this variable
+      bool canRecycle(const VarDecl* var) const;
 
       // This method tries to remove elements from the freeRegisters_
       // set by decrementing biggestAllocatedReg_.

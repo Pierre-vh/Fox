@@ -204,7 +204,12 @@ void RegisterAllocator::release(const VarDecl* var, bool isAlreadyDead) {
   }
 }
 
-bool RegisterAllocator::isLastUsage(const VarDecl* var) const {
+bool RegisterAllocator::canRecycle(const VarDecl* var) const {
+  if (isInLoop()) {
+    // Can only recycle vars declared inside this LC
+    if(!curLoopContext_->isVarDeclaredInside(var))
+      return false;
+  }
   auto it = knownVars_.find(var);
   assert((it != knownVars_.end()) && "Unknown Variable!");
   return (it->second.useCount == 1);
@@ -290,7 +295,7 @@ bool RegisterValue::canRecycle() const {
     case Kind::Temporary:
       return true;
     case Kind::Var:
-      return getRegisterAllocator()->isLastUsage(data_.varDecl);
+      return getRegisterAllocator()->canRecycle(data_.varDecl);
     default:
       fox_unreachable("unknown RegisterValue::Kind");
   }
