@@ -61,13 +61,15 @@ bool BCBuilder::isLastInstr(StableConstInstrIter it) const {
 }
 
 BCBuilder::StableInstrIter BCBuilder::getLastInstrIter() {
-  auto size = vector.size();
-  // FIXME: This is a temporary hack until StableVectorIterator is fixed.
-  return StableInstrIter(vector, size ? (size-1) : size);
+  if(vector.size())
+    return StableInstrIter(vector, vector.end()-1);
+  return StableInstrIter::getBegin(vector);
 }
 
 BCBuilder::StableConstInstrIter BCBuilder::getLastInstrIter() const {
-  return StableConstInstrIter(vector, vector.size()-1);
+  if(vector.size())
+    return StableInstrIter(vector, vector.end()-1);
+  return StableInstrIter::getBegin(vector);
 }
 
 void BCBuilder::popInstr() {

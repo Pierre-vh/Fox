@@ -46,10 +46,12 @@ namespace fox {
 
       /// \returns an iterator to the last instruction inserted
       /// in the buffer.
+      /// If the buffer is empty, returns a begin iterator.
       StableInstrIter getLastInstrIter();
 
       /// \returns an iterator to the last instruction inserted
       /// in the buffer.
+      /// If the buffer is empty, returns a begin iterator.
       StableConstInstrIter getLastInstrIter() const;
 
       /// Removes the last instruction added to this module.
