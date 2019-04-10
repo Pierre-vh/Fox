@@ -79,15 +79,12 @@ bool RegisterAllocator::isInLoop() const {
 
 void RegisterAllocator::actOnEndOfLoopContext(LoopContext& lc) {
   // First, restore the previous loop context.
-  // This is needed in cases we have nested LCs, in that case
-  // we want release() to handle that smoothly.
+  // This is needed if we have nested LCs
   curLoopContext_ = lc.previousLC_;
-  // Now, check that every variable declared inside the loop context
-  // was indeed freed. 
   assert((lc.varsInLoop_.size() == 0)
     && "Some variables declared inside the loop were still alive "
        "at the destruction of the LoopContext");
-  // Now release every variable in the "delayedFrees" set
+  // Release every variable in the "delayedFrees" set
   for (auto var : lc.delayedReleases_) 
     release(var, /*alreadyDead*/ true);
 }
@@ -171,6 +168,7 @@ regaddr_t RegisterAllocator::getRegisterOfVar(const VarDecl* var) const {
   // If this function is called, we should have a register reserved for this
   // variable
   assert(it->second.hasAddress() && "Variable doesn't have an address!");
+  assert(it->second.useCount && "Variable is dead");
   return it->second.addr.getValue();
 }
 
@@ -186,19 +184,17 @@ void RegisterAllocator::release(const VarDecl* var, bool isAlreadyDead) {
     assert((data.useCount != 0) && "Variable is already dead");
     --(data.useCount);
   }
-  // Check if the variable is dead after decrementation
+  // Check if the variable is dead
   if (data.useCount == 0) {
+    // Handle LoopContexts.
     if (isInLoop()) {
-      // If we try to kill a variable declared inside the current LC,
-      // it's possible, but we must remove it from the LC.
-      if (curLoopContext_->isVarDeclaredInside(var))
-        curLoopContext_->varsInLoop_.erase(var);
-      // If the variable was declared outside the loop, we can't free it.
+      // If the variable was declared outside this LC we can't free it.
       // We must delay the free until the end of the LC's lifetime.
-      else {
+      if (!curLoopContext_->isVarDeclaredInside(var)) {
         curLoopContext_->delayedReleases_.insert(var);
         return;
       }
+      curLoopContext_->varsInLoop_.erase(var);
     }
     // Free the register.
     assert(data.hasAddress() && "Variable doesn't have an address!");
@@ -305,9 +301,7 @@ RegisterValue::operator bool() const {
 }
 
 void RegisterValue::free() {
-  // We can't free dead RVs.
   if(!isAlive()) return;
-  // Do what we have to do.
   switch (getKind()) {
     case Kind::Temporary:
       getRegisterAllocator()->markRegisterAsFreed(data_.tempRegAddress);
@@ -318,7 +312,6 @@ void RegisterValue::free() {
     default:
       fox_unreachable("unknown RegisterValue::Kind");
   }
-  // Kill this object to doing it twice.
   kill();
 }
 
