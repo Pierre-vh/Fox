@@ -77,6 +77,22 @@ namespace fox {
       friend RegisterValue;
       friend LoopContext;
 
+      // The data of a VarDecl known by this RegisterAllocator.
+      // This contains 2 fields: the (optional ) address of the variable
+      //  (none if unassigned), and the variable's use count.
+      // When the use count reaches 0, the register occupied by the variable
+      // is freed.
+      struct VarData {
+        bool hasAddress() const {
+          return addr.hasValue();
+        }
+
+        llvm::Optional<regaddr_t> addr;
+        std::size_t useCount;
+      };
+
+      using KnownVarsMap = std::unordered_map<const VarDecl*, VarData>;
+
       // Returns true if we are inside a loop (if we have an active LoopContext)
       bool isInLoop() const;
 
@@ -92,6 +108,13 @@ namespace fox {
       // address. If address number is lost and freeRegister is never called,
       // the register will never be freed (like a memory leak)
       regaddr_t rawRecycleRegister(RegisterValue value);
+
+      // Forgets a known variable, removing it from the set of known variables and
+      // (optionally) removing it from the current LoopContext if it belongs
+      // in it.
+      // NOTE: This deletes the VarData of the variable
+      // NOTE: This DOES NOT free the register occupied by the variable.
+      void forgetVariable(KnownVarsMap::iterator iter);
 
       // Allocates a new register.
       // This should be used carefully as it returns the raw register
@@ -113,7 +136,8 @@ namespace fox {
       // it if its use count reaches 0
       void release(const VarDecl* var, bool isAlreadyDead = false);
 
-      // Returns true if we can recycle this variable
+      // Returns true if we can recycle the register occupied by this
+      // variable
       bool canRecycle(const VarDecl* var) const;
 
       // This method tries to remove elements from the freeRegisters_
@@ -122,12 +146,6 @@ namespace fox {
       // It is called every register allocation, in the future, this
       // may also be called before setting up a call to minimize
       // register usage.
-      //
-      // Example:
-      // pre compacting:
-      //    freeRegisters_ = (4, 3, 1, 0) and biggestAllocatedReg_ = 5
-      // after compacting:
-      //    freeRegisters_ = (1, 0) and biggestAllocatedReg_ = 3
       void compactFreeRegisterSet();
 
       // The address of the 'highest' allocated register + 1
@@ -135,26 +153,11 @@ namespace fox {
       // e.g. if we have allocated 5 registers, this value will be set to 6.
       regaddr_t biggestAllocatedReg_ = 0;
 
-      // The set of free registers, sorted from the highest to the lowest
-      // one.
+      // The set of free registers, sorted from the highest to the lowest one.
       std::set<regaddr_t, std::greater<regaddr_t> > freeRegisters_;
 
-      // The data of a VarDecl known by this RegisterAllocator.
-      // This contains 2 fields: the (optional ) address of the variable
-      //  (none if unassigned), and the variable's use count.
-      // When the use count reaches 0, the register occupied by the variable
-      // is freed.
-      struct VarData {
-        bool hasAddress() const {
-          return addr.hasValue();
-        }
-
-        llvm::Optional<regaddr_t> addr;
-        std::size_t useCount;
-      };
-
       // The set of variables known by this RegisterAllocator.
-      std::unordered_map<const VarDecl*, VarData> knownVars_;
+      KnownVarsMap knownVars_;
       // The current LoopContext
       LoopContext* curLoopContext_ = nullptr;
   };

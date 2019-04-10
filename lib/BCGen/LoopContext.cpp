@@ -17,6 +17,8 @@ LoopContext::LoopContext(RegisterAllocator& regAlloc) : regAlloc(regAlloc) {
 }
 
 LoopContext::~LoopContext() {
+  // Restore the previous LC
+  regAlloc.curLoopContext_ = previousLC_;
   // Notify the RegisterAllocator
   regAlloc.actOnEndOfLoopContext(*this);
 }

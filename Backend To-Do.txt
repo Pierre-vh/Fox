@@ -45,21 +45,13 @@ Basic VM data types and their mappings to Fox types:
 
   -> CodeGen of Statements
       -> Conditions (Done)
-      -> Loops
-        -> LoopContext + RegisterAllocator modifications (Done)
-          -> Code Review/Re-read?
-        -> WhileLoop compilation
-          -> Fix it (Done)
-          -> Polish it:
-            -> RegisterAllocator: code review, make the code better
-            -> Abstract-away more stuff in LoopContext, stop manipulating the map
-               directly in the RegisterAllocator 
-            -> FileCheck tests
-        -> FileCheck unit tests
+      -> Loops (Done)
+
+  > Code review in Registers.cpp, clean it up a bit!
 
   > BCModule/BCModuleBuilder rework (Done)
   > Add and use BCFunction as primary bytecode containers instead of BCModule:
-    > BCFunction
+    > BCFunction (Next)
       > getInstrVec()
       > instr_beg, instr_end
     > BCModule 

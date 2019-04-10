@@ -40,9 +40,8 @@ RegisterAllocator::initVar(const VarDecl* var, RegisterValue* hint) {
     data.addr = rawAllocateNewRegister();
   // If we're in a loop, notify the LoopContext that this variable
   // was declared inside it.
-  if (isInLoop()) {
+  if (isInLoop())
     curLoopContext_->varsInLoop_.insert(var);
-  }
   // Return a RegisterValue managing this Var
   return RegisterValue(this, var);
 }
@@ -78,9 +77,8 @@ bool RegisterAllocator::isInLoop() const {
 }
 
 void RegisterAllocator::actOnEndOfLoopContext(LoopContext& lc) {
-  // First, restore the previous loop context.
-  // This is needed if we have nested LCs
-  curLoopContext_ = lc.previousLC_;
+  // Assert that all variables declared inside this LC have been
+  // released.
   assert((lc.varsInLoop_.size() == 0)
     && "Some variables declared inside the loop were still alive "
        "at the destruction of the LoopContext");
@@ -94,36 +92,32 @@ regaddr_t RegisterAllocator::rawRecycleRegister(RegisterValue value) {
   regaddr_t addr = value.getAddress();
   switch (value.getKind()) {
     case RegisterValue::Kind::Temporary:
-      // Nothing to do for temporaries except killing it
-      value.kill();
-      return addr;
-    case RegisterValue::Kind::Var: {
-      // TODO: Factor this out because a similar logic is contained
-      // in release()
-      auto var = value.data_.varDecl;
-      // Search for the var
-      auto it = knownVars_.find(var);
-      assert((it != knownVars_.end()) && "Unknown Variable!");
-      // Forget it, kill 'value' and return
-      knownVars_.erase(it);
-      // Remove it from the current LC if needed
-      if (curLoopContext_) {
-        if(curLoopContext_->isVarDeclaredInside(var)) 
-          curLoopContext_->varsInLoop_.erase(var);
-      }
-      value.kill();
-      return addr;
-    }
+      // Nothing to do for temporaries
+      break;
+    case RegisterValue::Kind::Var:
+      forgetVariable(knownVars_.find(value.data_.varDecl));
+      break;
     default:
       fox_unreachable("Unknown RegisterValue::Kind");
   }
+  value.kill();
+  return addr;
+}
+
+void RegisterAllocator::forgetVariable(KnownVarsMap::iterator iter) {
+  assert((iter != knownVars_.end()) && "unknown var");
+  // Remove it from the current LoopContext if needed
+  if (isInLoop()) {
+    auto& lc_knownVars = curLoopContext_->varsInLoop_;
+    auto lc_iter = lc_knownVars.find(iter->first);
+    if(lc_iter != lc_knownVars.end())
+      lc_knownVars.erase(lc_iter);
+  }
+  // Remove it from the set of known variables
+  knownVars_.erase(iter);
 }
 
 regaddr_t RegisterAllocator::rawAllocateNewRegister() {
-  // Try to compact the freeRegisters_ set
-  // FIXME: Is this a good idea to call this every alloc? 
-  //        The method is fairly cheap so it shouldn't be an issue, 
-  //        but some profiling wouldn't hurt!
   compactFreeRegisterSet();
 
   // If we have something in freeRegisters_, use that.
@@ -138,6 +132,7 @@ regaddr_t RegisterAllocator::rawAllocateNewRegister() {
   }
 
   // Check that we haven't allocated too many registers.
+  // TODO: Replace this with a proper diagnostic
   assert((biggestAllocatedReg_ != max_regaddr) && 
     "Can't allocate more registers : Register number limit reached "
     "(too much register pressure)");
@@ -185,30 +180,28 @@ void RegisterAllocator::release(const VarDecl* var, bool isAlreadyDead) {
   auto it = knownVars_.find(var);
   assert((it != knownVars_.end()) && "Unknown Variable!");
   VarData& data = it->second;
+
   // Decrement the use count (if needed)
-  if(isAlreadyDead)
-    assert(data.useCount == 0);
+  if(isAlreadyDead) assert(data.useCount == 0);
   else {
     assert((data.useCount != 0) && "Variable is already dead");
     --(data.useCount);
   }
+
   // Check if the variable is dead
   if (data.useCount == 0) {
-    // Handle LoopContexts.
+    // In loops, we can't free variables declared outside the loop
     if (isInLoop()) {
-      // If the variable was declared outside this LC we can't free it.
-      // We must delay the free until the end of the LC's lifetime.
       if (!curLoopContext_->isVarDeclaredInside(var)) {
+        // Delay the release until the end of the LC's lifetime.
         curLoopContext_->delayedReleases_.insert(var);
         return;
       }
-      curLoopContext_->varsInLoop_.erase(var);
     }
-    // Free the register.
-    assert(data.hasAddress() && "Variable doesn't have an address!");
+    // Free its register
     markRegisterAsFreed(data.addr.getValue());
-    // Remove the entry from the map
-    knownVars_.erase(it);
+    // Forget the variable
+    forgetVariable(it);
   }
 }
 
