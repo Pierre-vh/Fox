@@ -23,16 +23,14 @@ Required:
 Assuming that the binaries are installed in your path:
 * `fox` will launch the "command line interface", which is a quick and easy way to test the interpreter. The interface is really simple: you can only enter paths to files for the interpreter to process. (This is only a testing tool. For more advanced use, invoke the compiler using command line options (see below))
 * `fox path/to/file.fox` will process the given file. Errors and diagnostics will be printed to stdout, and the command line tool will return EXIT_SUCCESS if the file was processed without any diagnostic being emitted (it'll return EXIT_FAILURE otherwise). Several  options can be passed to the command line tool.
-  * `-verify` enables verify mode (See **Testing**))
+  * `-verify` enables verify mode
   * `-werr` promotes warnings to errors
   * `-dump-ast` will dump the abstract syntax tree (AST) after processing the file.
+  * `-parse-only` will stop the interpretation process right after parsing
 
-
-## Testing
-  TODO
 
 ## Doc
-I try to re-document the code as much as possible using Doxygen-style doc, but not all the code uses it for now.
+I try to document the code as much as possible using Doxygen-style doc, but not all the code uses it for now.
 
 Also, I don't generate Doxygen doc regularly, so I can't guarantee that it works as intended.
 However, the documentation in the code should be enough to understand what's going on most of the time.
