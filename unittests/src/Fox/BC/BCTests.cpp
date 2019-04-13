@@ -184,11 +184,7 @@ TEST(BCBuilderTest, createdInstrIterators) {
   EXPECT_EQ((++c)->opcode, Opcode::Break);
 }
 
-//----------------------------------------------------------------------------//
-// BCModule tests
-//----------------------------------------------------------------------------//
-
-TEST(BCModuleTest, orderIsRespected) {
+TEST(BCBuilderTest, orderIsRespected) {
   // Create some instructions in the builder
   InstructionVector instrs;
   BCBuilder builder(instrs);
@@ -207,6 +203,19 @@ TEST(BCModuleTest, orderIsRespected) {
     int idx = 0;
     for (auto it = instrs.begin(); it != instrs.end(); ++it)
       ASSERT_EQ(it->opcode, expectedOps[idx++]);
+  }
+}
+
+//----------------------------------------------------------------------------//
+// BCModule tests
+//----------------------------------------------------------------------------//
+
+TEST(BCModuleTest, funcCreation) {
+  BCModule theModule;
+  // Create a few functions, checking that the IDs match the ones we expected.
+  for (std::size_t idx = 0, end = 42; idx < end; ++idx) {
+    ASSERT_EQ(theModule.createFunction().getID(), idx)
+      << "Func ID was not the one expected";
   }
 }
 
