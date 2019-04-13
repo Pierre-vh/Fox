@@ -1,5 +1,6 @@
 add_source(bc_src
-  "BCModule.cpp"
   "BCBuilder.cpp"
+  "BCFunction.cpp"
+  "BCModule.cpp"
   "Instruction.cpp"
 )

@@ -4,14 +4,15 @@
 // File : BCTests.cpp                      
 // Author : Pierre van Houtryve                
 //----------------------------------------------------------------------------//
-//  Various Bytecode-related tests
+//  Tests for Opcodes, Instructions, BCModule, BCBuilder and BCFunction.
 //----------------------------------------------------------------------------//
 
 #include "gtest/gtest.h"
-#include "Fox/BC/Instruction.hpp"
 #include "Fox/BC/BCBuilder.hpp"
+#include "Fox/BC/BCFunction.hpp"
 #include "Fox/BC/BCModule.hpp"
 #include "Fox/BC/BCUtils.hpp"
+#include "Fox/BC/Instruction.hpp"
 #include "Fox/Common/FoxTypes.hpp"
 #include "Fox/Common/LLVM.hpp"
 #include "llvm/ADT/ArrayRef.h"
@@ -19,7 +20,11 @@
 
 using namespace fox;
 
-TEST(OpcodeTest, ToString) {
+//----------------------------------------------------------------------------//
+// Opcode tests
+//----------------------------------------------------------------------------//
+
+TEST(OpcodeTest, toString) {
   Opcode a = Opcode::StoreSmallInt;
   Opcode b = Opcode::NoOp;
   Opcode c = Opcode::LAnd;
@@ -39,6 +44,10 @@ TEST(OpcodeTest, ToString) {
   EXPECT_STRCASEEQ(strB, "NoOp");
   EXPECT_STRCASEEQ(strC, "LAnd");
 }
+
+//----------------------------------------------------------------------------//
+// Instructions tests
+//----------------------------------------------------------------------------//
 
 TEST(InstructionTest, dumpInstructions) {
   InstructionVector instrs;
@@ -80,6 +89,10 @@ TEST(InstructionTest, isAnyJump) {
   #undef TEST_JUMP
   #undef TEST_NONJUMP
 }
+
+//----------------------------------------------------------------------------//
+// BCBuilder tests
+//----------------------------------------------------------------------------//
 
 TEST(BCBuilderTest, TernaryInstr) {
   InstructionVector instrs;
@@ -171,6 +184,10 @@ TEST(BCBuilderTest, createdInstrIterators) {
   EXPECT_EQ((++c)->opcode, Opcode::Break);
 }
 
+//----------------------------------------------------------------------------//
+// BCModule tests
+//----------------------------------------------------------------------------//
+
 TEST(BCModuleTest, orderIsRespected) {
   // Create some instructions in the builder
   InstructionVector instrs;
@@ -191,4 +208,44 @@ TEST(BCModuleTest, orderIsRespected) {
     for (auto it = instrs.begin(); it != instrs.end(); ++it)
       ASSERT_EQ(it->opcode, expectedOps[idx++]);
   }
+}
+
+//----------------------------------------------------------------------------//
+// BCFunction tests
+//----------------------------------------------------------------------------//
+
+TEST(BCFunctionTest, id) {
+  BCFunction foo(42);
+  EXPECT_EQ(foo.getID(), 42u);
+}
+
+TEST(BCFunctionTest, builder) {
+  BCFunction fn(42);
+  auto builder = fn.createBCBuilder();
+  // Create some instrs
+  builder.createNoOpInstr();
+  builder.createBreakInstr();
+  builder.createJumpIfInstr(0, 0);
+  // Check that they're in the buffer
+  SmallVector<Opcode, 4> expected = { Opcode::NoOp, Opcode::Break, Opcode::JumpIf};
+  ASSERT_EQ(fn.numInstructions(), expected.size());
+  for (std::size_t idx = 0, size = expected.size(); idx < size; ++idx)
+    EXPECT_EQ(fn.getInstructions()[idx].opcode, expected[idx]);
+}
+
+TEST(BCFunctionTest, dump) {
+  BCFunction fn(42);
+  auto builder = fn.createBCBuilder();
+  // Create some instrs
+  builder.createNoOpInstr();
+  builder.createBreakInstr();
+  builder.createJumpIfInstr(1, 2);
+  // Check that the dump is correct
+  std::stringstream ss;
+  fn.dump(ss);
+  EXPECT_EQ(ss.str(),
+    "Function 42\n"
+    "     0\t| NoOp\n"
+    "     1\t| Break\n"
+    "     2\t| JumpIf 1 2\n");
 }
