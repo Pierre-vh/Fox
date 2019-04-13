@@ -22,11 +22,10 @@ namespace {
   class VMTest : public ::testing::Test {
     public:
       BCModule theModule;
-      InstructionVector& instrs;
+      InstructionVector instrs;
       BCBuilder builder;
 
-      VMTest() : 
-        instrs(theModule.getInstrsVec()), builder(instrs) {}
+      VMTest() : builder(instrs) {}
   };
 }
 

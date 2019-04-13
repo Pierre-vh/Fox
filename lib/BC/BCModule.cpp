@@ -10,34 +10,34 @@
 
 using namespace fox;
 
-std::size_t BCModule::numInstructions() const {
-  return getInstrsVec().size();
+std::size_t BCModule::numFunctions() const {
+  return functions_.size();
 }
 
-InstructionVector& BCModule::getInstrsVec() {
-  return instrs_;
+BCFunction& BCModule::createFunction() {
+  functions_.push_back(std::make_unique<BCFunction>(numFunctions()));
+  return *functions_.back();
 }
 
-const InstructionVector& BCModule::getInstrsVec() const {
-  return instrs_;
+BCFunction& BCModule::getFunction(std::size_t idx) {
+  assert((idx < numFunctions()) && "out of range");
+  return *functions_[idx];
+}
+
+const BCFunction& fox::BCModule::getFunction(std::size_t idx) const {
+  assert((idx < numFunctions()) && "out of range");
+  return *functions_[idx];
+}
+
+BCModule::FunctionVector& BCModule::getFunctions() {
+  return functions_;
+}
+
+const BCModule::FunctionVector& BCModule::getFunctions() const {
+  return functions_;
 }
 
 void BCModule::dump(std::ostream& out) const {
-  dumpInstructions(out, getInstrsVec());
-}
-
-InstructionVector::iterator BCModule::instrs_begin() {
-  return instrs_.begin();
-}
-
-InstructionVector::const_iterator BCModule::instrs_begin() const {
-  return instrs_.begin();
-}
-
-InstructionVector::iterator BCModule::instrs_end() {
-  return instrs_.end();
-}
-
-InstructionVector::const_iterator BCModule::instrs_end() const {
-  return instrs_.end();
+  for(auto& fn : functions_)
+    fn->dump(out);
 }

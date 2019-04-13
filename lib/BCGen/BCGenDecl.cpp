@@ -162,20 +162,22 @@ namespace {
 // BCGen Entrypoints
 //----------------------------------------------------------------------------//
 
-// TODO: Return a std::unique_ptr<BCFunction> or take a BCFunction& as param
-// this should be a BCFunction factory!
 void BCGen::genFunc(BCModule& bcmodule, FuncDecl* func) {
   assert(func && "func is null");
+  assert((bcmodule.numFunctions() < max_functions)
+    && "Cannot create function: too many functions in the module");
+  // Create the function
+  BCFunction& fn = bcmodule.createFunction();
   // Create the RegisterAllocator for this Function
   RegisterAllocator regAlloc;
   // Do the prologue so classes like the RegisterAllocator
   // can be given enough information to correctly generate the bytecode.
   FuncGenPrologue(regAlloc).doPrologue(func);
   // Create a builder
-  BCBuilder builder(bcmodule.getInstrsVec());
+  BCBuilder builder = fn.createBCBuilder();
   // For now, only gen the body.
   genStmt(builder, regAlloc, func->getBody());
-  // TODO: Once we gen the function properly, check that the last instruction
+  // TODO: Once we can gen the function properly, check that the last instruction
   // emitted was a Return, if it wasn't, insert a return void instruction.
   // (we can assert that the function's return type is void because
   //  else the error would have been caught by Semantic Analysis)
