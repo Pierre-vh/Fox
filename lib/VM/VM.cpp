@@ -17,11 +17,11 @@ using namespace fox;
 VM::VM(BCModule& bcModule) : bcModule(bcModule) {}
 
 void VM::run(ArrayRef<Instruction> instrs) {
-  programCounter_ = instrs.begin();
+  setupIterators(instrs);
   Instruction instr;
   do {
     // Fetch the current instruction
-    instr = *programCounter_;
+    instr = *curInstr_;
     // Macros used to implement repetitive operations
     #define TRIVIAL_TAC_BINOP_IMPL(ID, TYPE, OP)\
       setReg(instr.ID.dest,\
@@ -174,17 +174,17 @@ void VM::run(ArrayRef<Instruction> instrs) {
         // JumpIf condReg offset : Add offset (int16) to pc 
         //    if condReg != 0
         if(getReg(instr.JumpIf.condReg))
-          programCounter_ += instr.JumpIf.offset;
+          curInstr_ += instr.JumpIf.offset;
         continue;
       case Opcode::JumpIfNot:
         // JumpIfNot condReg offset : Add offset (int16) to pc 
         //    if condReg == 0
         if(!getReg(instr.JumpIfNot.condReg))
-          programCounter_ += instr.JumpIfNot.offset;
+          curInstr_ += instr.JumpIfNot.offset;
         continue;
       case Opcode::Jump:
         // Jump offset: Add offset (int16) to pc
-        programCounter_ += instr.Jump.offset;
+        curInstr_ += instr.Jump.offset;
         continue;
       case Opcode::IntToDouble:
         // IntToDouble dest srrhs: dest = (src as FoxDouble) (srrhs: FoxInt)
@@ -204,16 +204,15 @@ void VM::run(ArrayRef<Instruction> instrs) {
         fox_unreachable("illegal or unimplemented instruction found");
     }
     #undef TRIVIAL_TAC_BINOP_IMPL
-  } while(++programCounter_);
+  } while(++curInstr_);
 }
 
 std::size_t VM::getPCIndex() const {
-  const Instruction* beg = bcModule.getInstrsVec().begin();
-  return std::distance(beg, programCounter_);
+  return std::distance(instrsBeg_, curInstr_);
 }
 
 const Instruction* VM::getPC() const {
-  return programCounter_;
+  return curInstr_;
 }
 
 ArrayRef<std::uint64_t> VM::getRegisterStack() const {
@@ -222,4 +221,8 @@ ArrayRef<std::uint64_t> VM::getRegisterStack() const {
 
 MutableArrayRef<std::uint64_t> VM::getRegisterStack() {
   return regStack_;
+}
+
+void VM::setupIterators(ArrayRef<Instruction> instrs) {
+  instrsBeg_ = curInstr_ = instrs.begin();
 }

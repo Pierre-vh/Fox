@@ -103,8 +103,11 @@ namespace fox {
         regStack_[idx] = llvm::DoubleToBits(value);
       }
 
+      void setupIterators(ArrayRef<Instruction> instrs);
+
       // The program counter
-      const Instruction* programCounter_ = nullptr;
+      const Instruction* instrsBeg_ = nullptr;
+      const Instruction* curInstr_ = nullptr;
 
       // The registers
       std::array<std::uint64_t, numStackRegister> regStack_ = {0};
