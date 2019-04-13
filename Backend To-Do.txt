@@ -44,21 +44,13 @@ Basic VM data types and their mappings to Fox types:
   -> Add index when dumping instructions, e.g. [42] StoreSmallInt 3 50 (Done)
   -> BCModule/BCModuleBuilder rework part 1(Done)
   -> CodeGen of Statements except ReturnStmt (Done)
-
-  > BCModule/BCModuleBuilder rework part 2 (Next)
-    > BCFunction (Next)
-      > getInstrVec()
-      > instr_beg, instr_end
-    > BCModule 
-      > contains a std::vector<std::unique_ptr<BCFunction>> of functions
-      > BCFunction& addFunction(unique_ptr<BCFunction>) or a createFunction?
-      > BCFunction& getFunction(std::size_t idx)
-        > assert for out of ranges
+  > BCModule/BCModuleBuilder rework part 2 : Functions (Done)
 
   -> Destination register for ExprGenerator: Require a destination register for an expression.
-     If present, the result must be stored there. Will be used for calling functions. 
-     Just pass an Optional<RegisterValue> to bcgen functions. RegisterValue, if present,
-     must be a recyclable RegisterValue.
+     If present, the result must be stored there. 
+     Will be needed for calling functions.
+     TODO: Decide the type of this extra argument. Maybe Optional<RegisterValue> dest?
+           or just a RegisterValue that may be empty?
 
   -> Constants & Constant Table
     -> BCModule 
