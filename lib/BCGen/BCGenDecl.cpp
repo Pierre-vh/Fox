@@ -14,6 +14,7 @@
 #include "Fox/AST/ASTVisitor.hpp"
 #include "Fox/BC/BCBuilder.hpp"
 #include "Fox/BC/BCModule.hpp"
+#include "Fox/BC/BCUtils.hpp"
 #include "Fox/Common/Errors.hpp"
 
 using namespace fox;
@@ -164,7 +165,7 @@ namespace {
 
 void BCGen::genFunc(BCModule& bcmodule, FuncDecl* func) {
   assert(func && "func is null");
-  assert((bcmodule.numFunctions() < max_functions)
+  assert((bcmodule.numFunctions() < bc_limits::max_functions)
     && "Cannot create function: too many functions in the module");
   // Create the function
   BCFunction& fn = bcmodule.createFunction();

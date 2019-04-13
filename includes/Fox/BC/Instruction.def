@@ -93,11 +93,11 @@ UNARY_REG_OP(LNot)  // Logical NOT
 
 // Jumps
 //    Conditional "If" Jump : Jump iff condReg != 0
-BINARY_INSTR(JumpIf, condReg, regaddr_t, offset, std::int16_t)
+BINARY_INSTR(JumpIf, condReg, regaddr_t, offset, jump_offset_t)
 //    Conditional "If Not" Jump : Jump iff condReg == 0
-BINARY_INSTR(JumpIfNot, condReg, regaddr_t, offset, std::int16_t)
+BINARY_INSTR(JumpIfNot, condReg, regaddr_t, offset, jump_offset_t)
 //    Unconditional Jump
-UNARY_INSTR(Jump, offset, std::int16_t)
+UNARY_INSTR(Jump, offset, jump_offset_t)
 
 // Casts
 UNARY_REG_OP(IntToDouble) // Converts an int to a double

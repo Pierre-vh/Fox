@@ -34,10 +34,6 @@ namespace fox {
       DiagnosticEngine& diagEngine;
 
     private:
-      /// the maximum number of functions that can be contained
-      /// in a single module.
-      static constexpr std::size_t max_functions = 0xFFFF;
-
       // Generates (emits) the bytecode for a GLOBAL VarDecl "var" 
       void genGlobalVar(BCBuilder& builder, VarDecl* var);
 

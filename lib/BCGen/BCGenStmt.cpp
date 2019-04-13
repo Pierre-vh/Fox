@@ -9,6 +9,7 @@
 #include "Fox/AST/ASTVisitor.hpp"
 #include "Fox/AST/Stmt.hpp"
 #include "Fox/BC/BCBuilder.hpp"
+#include "Fox/BC/BCUtils.hpp"
 #include "Fox/Common/Errors.hpp"
 #include "LoopContext.hpp"
 #include "Registers.hpp"
@@ -37,17 +38,6 @@ class BCGen::StmtGenerator : public Generator,
   private:
     using StableInstrIter = BCBuilder::StableInstrIter;
     using StableInstrConstIter = BCBuilder::StableInstrConstIter;
-
-    // The type used to store jump offsets. Doesn't necessarily
-    // match the one of the instructions.
-    using jump_offset_t = std::int32_t;
-
-    // The current maximum jump offset possible (positive or negative)
-    // is the max (positive or negative) value of a 16 bit signed number:
-    // 2^15-1
-    static constexpr jump_offset_t max_jump_offset = (1 << 15)-1;
-    // Same as max_jump_offset but negative
-    static constexpr jump_offset_t min_jump_offset = -max_jump_offset;
 
     //------------------------------------------------------------------------//
     // "emit" and "gen" methods 
@@ -102,8 +92,8 @@ class BCGen::StmtGenerator : public Generator,
           auto rawDistance = distance(jump, getTargetIter())-1;
           // Check if the distance is acceptable
           // TODO: Replace this check by a proper diagnostic
-          assert((rawDistance >= min_jump_offset) 
-            && (rawDistance <= max_jump_offset)
+          assert((rawDistance >= bc_limits::min_jump_offset) 
+            && (rawDistance <= bc_limits::max_jump_offset)
             && "Jumping too far");
           // Now that we know that the conversion is safe, convert it to a 
           // jump_offset_t
