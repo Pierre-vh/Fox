@@ -22,7 +22,7 @@ const InstructionVector& BCModule::getInstrsVec() const {
   return instrs_;
 }
 
-void BCModule::dumpModule(std::ostream& out) const {
+void BCModule::dump(std::ostream& out) const {
   dumpInstructions(out, getInstrsVec());
 }
 

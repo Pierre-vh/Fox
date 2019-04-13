@@ -5,8 +5,7 @@
 // Author : Pierre van Houtryve                
 //----------------------------------------------------------------------------//
 //  This file contains the BCModule class, which represents a VM program
-//  that can be executed by the Fox VM. This can be considered the
-//  top-level container for the bytecode.
+//  that can be executed by the Fox VM.
 //----------------------------------------------------------------------------//
 
 #pragma once
@@ -34,7 +33,7 @@ namespace fox {
       const InstructionVector& getInstrsVec() const;
 
       /// Dumps the module to 'out'
-      void dumpModule(std::ostream& out) const;
+      void dump(std::ostream& out) const;
 
       /// \returns the begin iterator for the instruction vector
       InstructionVector::iterator instrs_begin();

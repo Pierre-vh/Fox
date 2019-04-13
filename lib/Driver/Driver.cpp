@@ -110,7 +110,7 @@ bool Driver::processFile(string_view filepath) {
     // Do generation
     auto theModule = gen.genUnit(unit);
     // Dump
-    theModule->dumpModule(out);
+    theModule->dump(out);
   }
 
   bool success = !diagEngine_.hadAnyError();
