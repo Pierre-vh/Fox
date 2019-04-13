@@ -26,11 +26,14 @@ namespace fox {
       /// The number of registers on the register stack
       static constexpr unsigned numStackRegister = 255;
 
-      /// \param bcModule the BCModule to execute
+      /// \param bcModule the bytecode module. This will serve as the context
+      ///        of execution. Constants, Functions and everything else that
+      ///        might be needed during the execution of bytecode will be
+      ///        fetched in that module.
       VM(BCModule& bcModule);
 
-      /// executes/runs the current module
-      void run();
+      /// directly executes a bytecode buffer
+      void run(ArrayRef<Instruction> instrs);
 
       /// \returns the program counter as an index in the module's
       /// Bytecode buffer.

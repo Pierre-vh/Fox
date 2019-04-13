@@ -22,9 +22,11 @@ namespace {
   class VMTest : public ::testing::Test {
     public:
       BCModule theModule;
+      InstructionVector& instrs;
       BCBuilder builder;
 
-      VMTest() : builder(theModule.getInstrsVec()) {}
+      VMTest() : 
+        instrs(theModule.getInstrsVec()), builder(instrs) {}
   };
 }
 
@@ -35,7 +37,7 @@ TEST_F(VMTest, StoreSmallInt) {
   builder.createStoreSmallIntInstr(0, r0Value);
   builder.createBreakInstr();;
   VM vm(theModule);
-  vm.run();
+  vm.run(instrs);
   FoxInt r0 = vm.getRegisterStack()[0];
   FoxInt r1 = vm.getRegisterStack()[1];
   EXPECT_EQ(r0, r0Value);
@@ -71,7 +73,7 @@ TEST_F(VMTest, IntArithmetic) {
   regs[2] = r2;
   regs[3] = r3;
   // Run the code
-  vm.run();
+  vm.run(instrs);
   // Helper to get a register's value as a FoxInt
   auto getReg = [&](std::size_t idx) {
     return static_cast<FoxInt>(regs[idx]);
@@ -122,7 +124,7 @@ TEST_F(VMTest, DoubleArithmetic) {
   regs[3] = llvm::DoubleToBits(r3);
   regs[4] = llvm::DoubleToBits(r4);
   // Run the code
-  vm.run();
+  vm.run(instrs);
   // Helper to get a register's value as a FoxDouble
   auto getReg = [&](std::size_t idx) {
     return llvm::BitsToDouble(vm.getRegisterStack()[idx]);
@@ -161,7 +163,7 @@ TEST_F(VMTest, IntComparison) {
   regs[0] = r0;
   regs[1] = r1;
   // Run the code
-  vm.run();
+  vm.run(instrs);
   // Helper to get a register's value as a FoxInt
   auto getReg = [&](std::size_t idx) {
     return static_cast<FoxInt>(regs[idx]);
@@ -196,7 +198,7 @@ TEST_F(VMTest, DoubleComparison) {
   regs[0] = llvm::DoubleToBits(r0);
   regs[1] = llvm::DoubleToBits(r1);
   // Run the code
-  vm.run();
+  vm.run(instrs);
   // Helper to get a register's value as a FoxDouble
   auto getRegAsDouble = [&](std::size_t idx) {
     return llvm::BitsToDouble(vm.getRegisterStack()[idx]);
@@ -236,7 +238,7 @@ TEST_F(VMTest, LogicOps) {
   regs[0] = r0;
   regs[1] = r1;
   // Run the code
-  vm.run();
+  vm.run(instrs);
   // Helper to get a register's value as a FoxInt
   auto getReg = [&](std::size_t idx) {
     return static_cast<FoxInt>(regs[idx]);
@@ -268,7 +270,7 @@ TEST_F(VMTest, Jump) {
   VM vm(theModule);
   
   // Run the code
-  vm.run();
+  vm.run(instrs);
   // Check that the PC ended up where we expected it to.
   EXPECT_EQ(vm.getPCIndex(), 2u) << "Bad Jump";
 }
@@ -294,7 +296,7 @@ TEST_F(VMTest, JumpIf) {
   regs[0] = r0;
   regs[1] = r1;
   // Run the code
-  vm.run();
+  vm.run(instrs);
   // Check that the PC ended up where we expected it to.
   EXPECT_EQ(vm.getPCIndex(), 3u) << "Bad JumpIf";
 }
@@ -320,7 +322,7 @@ TEST_F(VMTest, JumpIfNot) {
   regs[0] = r0;
   regs[1] = r1;
   // Run the code
-  vm.run();
+  vm.run(instrs);
   // Check that the PC ended up where we expected it to.
   EXPECT_EQ(vm.getPCIndex(), 3u) << "Bad JumpIfNot";
 }
@@ -347,7 +349,7 @@ TEST_F(VMTest, Casts) {
   regs[2] = llvm::DoubleToBits(r2);
   regs[3] = llvm::DoubleToBits(r3);
 
-  vm.run();
+  vm.run(instrs);
   // Helper to get a register's value as a FoxDouble
   auto getRegAsDouble = [&](std::size_t idx) {
     return llvm::BitsToDouble(vm.getRegisterStack()[idx]);
@@ -375,7 +377,7 @@ TEST_F(VMTest, Copy) {
   regs[0] = r0;
   regs[1] = llvm::DoubleToBits(r1);
 
-  vm.run();
+  vm.run(instrs);
   // Helper to get a register's value as a FoxDouble
   auto getRegAsDouble = [&](std::size_t idx) {
     return llvm::BitsToDouble(vm.getRegisterStack()[idx]);

@@ -14,11 +14,10 @@
 
 using namespace fox;
 
-VM::VM(BCModule& bcModule) : bcModule(bcModule) {
-  programCounter_ = bcModule.getInstrsVec().begin();
-}
+VM::VM(BCModule& bcModule) : bcModule(bcModule) {}
 
-void VM::run() {
+void VM::run(ArrayRef<Instruction> instrs) {
+  programCounter_ = instrs.begin();
   Instruction instr;
   do {
     // Fetch the current instruction
