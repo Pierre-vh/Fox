@@ -36,8 +36,18 @@ namespace fox {
   /// Dumps a single instruction to os
   void dumpInstruction(std::ostream& os, Instruction instr);
 
-  /// Dumps an array of instructions to os
-  void dumpInstructions(std::ostream& os, llvm::ArrayRef<Instruction> instrs);
+  /// Dumps an array of instructions to os. Each instruction is dumped like this:
+  /// \verbatim
+  ///   index | Instr args...
+  /// e.g.
+  ///   0   | StoreSmallInt 0 0
+  /// \endverbatim
+  /// \param os the output stream
+  /// \param instrs the instruction vector to dump
+  /// \param linePrefix (optional) the prefix that should be printed before each
+  ///        line.
+  void dumpInstructions(std::ostream& os, llvm::ArrayRef<Instruction> instrs, 
+                        const char* linePrefix = "");
 
   /// An object representing a single Fox instruction.
   ///

@@ -51,10 +51,11 @@ void fox::dumpInstruction(std::ostream& os, Instruction instr) {
   os << '\n';
 }
 
-void fox::dumpInstructions(std::ostream& os, ArrayRef<Instruction> instrs) {
+void fox::dumpInstructions(std::ostream& os, ArrayRef<Instruction> instrs, 
+                           const char* linePrefix) {
   std::size_t count = 0;
   for (auto instr : instrs) {
-    os << " " << (count++) << "\t| ";
+    os << linePrefix << " " << (count++) << "\t| ";
     dumpInstruction(os, instr);
   }
 }
