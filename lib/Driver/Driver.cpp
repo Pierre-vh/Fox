@@ -103,33 +103,30 @@ bool Driver::processFile(string_view filepath) {
     ASTDumper(srcMgr_, out, 1).print(unit);
   }
 
-  // TEST-Only! For now, I only do BCGen if we request
-  //            the bytecode to be dumped.
-  if (canContinue() && getDumpBCGen()) {
-    BCGen gen(ctxt_);
-    // Do generation
-    auto theModule = gen.genUnit(unit);
-    // Dump
-    theModule->dump(out);
-  }
 
-  bool success = !diagEngine_.hadAnyError();
-
-  // (Verify mode) Check that all diags were emitted
+  // (Verify mode) Finish Verification
   if (verify_) {
     assert(dv && "DiagnosticVerifier is null");
-    // In verify mode, success depends on the success of
-    // the verification.
-    success = dv->finish();
+    // Return directly after finishing. We won't do BCGen or execute
+    // anything in verify mode
+    return dv->finish();
+  }
+
+  // For now, only do BCGen if we want to dump BC.
+  if (canContinue() && getDumpBCGen()) {
+    BCModule theModule;
+    BCGen generator(ctxt_, theModule);
+    generator.genUnit(unit);
+    theModule.dump(out);
   }
 
   // Release the memory of the AST
   {
-    auto chrono = createChrono("AST Release");
+    auto chrono = createChrono("ASTContext::reset()");
     ctxt_.reset();
   }
 
-  return success;
+  return !diagEngine_.hadAnyError();
 }
 
 bool Driver::getPrintChrono() const {

@@ -184,7 +184,8 @@ void BCGen::genFunc(BCModule& bcmodule, FuncDecl* func) {
   //  else the error would have been caught by Semantic Analysis)
 }
 
-void BCGen::genGlobalVar(BCBuilder&, VarDecl*) {
+void BCGen::genGlobalVar(BCBuilder&, VarDecl*) {  
+  // assert(var && var->isGlobal());
   fox_unimplemented_feature("BCGen::genGlobalVar");
 }
 
@@ -194,17 +195,14 @@ void BCGen::genLocalDecl(BCBuilder& builder,
   LocalDeclGenerator(*this, builder, regAlloc).generate(decl);
 }
 
-std::unique_ptr<BCModule> BCGen::genUnit(UnitDecl* unit) {
-  assert(unit && "unit is null");
-  // Build the module
-  // TODO: Move this in the BCGen class
-  std::unique_ptr<BCModule> theModule = std::make_unique<BCModule>();
-  // Only gen functions for now.
+void BCGen::genUnit(UnitDecl* unit) {
+  assert(unit && "arg is nullptr");
   for (Decl* decl : unit->getDecls()) {
-    if (FuncDecl* fn = dyn_cast<FuncDecl>(decl)) {
-      genFunc(*theModule, fn);
-      break;
-    }
+    if (FuncDecl* fn = dyn_cast<FuncDecl>(decl))
+      genFunc(theModule, fn);
+    else if (VarDecl* var = dyn_cast<VarDecl>(decl)) 
+      fox_unimplemented_feature("Global Var BCGen");
+    else 
+      fox_unreachable("unknown top level decl kind");
   }
-  return theModule;
 }

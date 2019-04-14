@@ -24,14 +24,18 @@ namespace fox {
 
   class BCGen {
     public:
-      BCGen(ASTContext& ctxt);
+      /// \param ctxt the ASTContext
+      /// \param theModule the BCModule in which bytecode will be emitted.
+      ///        The BCModule is assumed to be empty. The initial data that
+      ///        might be contained inside it will not be read/considered.
+      BCGen(ASTContext& ctxt, BCModule& theModule);
 
-      // Performs codegen on a single unit and returns the
-      // resulting BCModule.
-      std::unique_ptr<BCModule> genUnit(UnitDecl* unit);
+      /// Generates the bytecode of a single unit \p unit
+      void genUnit(UnitDecl* unit);
 
       ASTContext& ctxt;
       DiagnosticEngine& diagEngine;
+      BCModule& theModule;
 
     private:
       // Generates (emits) the bytecode for a GLOBAL VarDecl "var" 

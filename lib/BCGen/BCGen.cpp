@@ -10,4 +10,5 @@
 
 using namespace fox;
 
-BCGen::BCGen(ASTContext& ctxt) : ctxt(ctxt), diagEngine(ctxt.diagEngine) {}
+BCGen::BCGen(ASTContext& ctxt, BCModule& theModule) : 
+  ctxt(ctxt), diagEngine(ctxt.diagEngine), theModule(theModule) {}
