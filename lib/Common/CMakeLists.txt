@@ -1,9 +1,10 @@
 add_source(common_src
-  "DiagnosticEngine.cpp"
   "DiagnosticConsumers.cpp"
-  "UTF8.cpp"
-  "Source.cpp"
-  "Errors.cpp"
+  "DiagnosticEngine.cpp"
   "DiagnosticVerifier.cpp"
+  "Errors.cpp"
   "LinearAllocator.cpp"
+  "QuotedString.cpp"
+  "Source.cpp"
+  "UTF8.cpp"
 )

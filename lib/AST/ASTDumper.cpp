@@ -10,6 +10,7 @@
 #include "Fox/AST/Type.hpp"
 #include "Fox/AST/Types.hpp"
 #include "Fox/Common/Errors.hpp"
+#include "Fox/Common/QuotedString.hpp"
 #include "Fox/Common/SourceManager.hpp"
 #include <sstream>
 #include <iostream>
@@ -121,59 +122,17 @@ void ASTDumper::visitCallExpr(CallExpr* node) {
   }
 }
 
-namespace {
-  void dumpNormalized(char ch, std::ostream& out, bool forChar = true) {
-    switch (ch) {
-      case 0:
-        out << "\\0";
-        break;
-      case '\n':
-        out << "\\n";
-        break;
-      case '\r':
-        out << "\\r";
-        break;
-      case '\t':
-        out << "\\t";
-        break;
-      case '\\':
-        out << "\\\\";
-        break;
-      case '\'':
-        if(forChar)
-          out << "\\'";
-        else 
-          out << "'"; // Don't escape single quotes for strings
-        break;
-      case '\"':
-        if(forChar)
-          out << '"'; // Don't escape double quotes for chars
-        else 
-          out << "\\\"";
-        break;
-      default:
-        out << ch;
-        break;
-    }
-  }
-
-  void dumpNormalized(string_view str, std::ostream& out) {
-    for (char ch : str)
-      dumpNormalized(ch, out, false);
-  }
-}
-
 void ASTDumper::visitCharLiteralExpr(CharLiteralExpr* node) {
   std::string res;
-  dumpLine() << getBasicExprInfo(node) << " '";
-  dumpNormalized(node->getValue(), out);
-  out << "' (" << +(node->getValue()) << ")\n";
+  dumpLine() << getBasicExprInfo(node) << " ";
+  printQuotedChar(node->getValue(), out, '\'');
+  out << " (" << +(node->getValue()) << ")\n";
 }
 
 void ASTDumper::visitStringLiteralExpr(StringLiteralExpr* node) {
-  dumpLine() << getBasicExprInfo(node) << " \"";
-  dumpNormalized(node->getValue(), out);
-  out << "\"\n";
+  dumpLine() << getBasicExprInfo(node) << " ";
+  printQuotedString(node->getValue(), out, '"');
+  out << '\n';
 }
 
 void ASTDumper::visitIntegerLiteralExpr(IntegerLiteralExpr* node) {
