@@ -83,8 +83,20 @@ ArrayRef<FoxDouble> BCModule::getDoubleConstants() const {
   return doubleConstants_;
 }
 
+bool BCModule::empty() const {
+  return functions_.empty()
+      && doubleConstants_.empty()
+      && intConstants_.empty() 
+      && strConstants_.empty();
+}
+
 void BCModule::dump(std::ostream& out) const {
-  out << "----Constants----\n";
+  if (empty()) {
+    out << "[Empty BCModule]\n";
+    return;
+  }
+
+  out << "[Constants]\n";
 
   if(std::size_t size = intConstants_.size()) {
     out << "  [Integers: " << size << " constants]\n";
@@ -103,7 +115,7 @@ void BCModule::dump(std::ostream& out) const {
     out << "  [No Floating-Point Constants]\n";
 
   if(std::size_t size = strConstants_.size()) {
-    out << "  [Strings: " << size << "]\n";
+    out << "  [Strings: " << size << " constants]\n";
     for (std::size_t idx = 0; idx < size; ++idx) {
       out << "    " << idx << "\t| ";
       printQuotedString(strConstants_[idx], out, '"');
@@ -113,10 +125,14 @@ void BCModule::dump(std::ostream& out) const {
   else 
     out << "  [No String Constants]\n";
 
-  out << "----Functions----\n";
-  for (auto& fn : functions_) {
-    // Print a newline before each function dump so it's more readable.
-    out << '\n';
-    fn->dump(out);
+  if (std::size_t size = functions_.size()) {
+    out << "[Functions: " << size << "]\n";
+    for (auto& fn : functions_) {
+      // Print a newline before each function dump so it's more readable.
+      out << '\n';
+      fn->dump(out);
+    }
   }
+  else 
+    out << "[No Functions]\n";
 }

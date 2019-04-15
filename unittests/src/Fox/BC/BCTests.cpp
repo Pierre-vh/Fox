@@ -219,6 +219,95 @@ TEST(BCModuleTest, funcCreation) {
   }
 }
 
+TEST(BCModuleTest, newModulesAreEmpty) {
+  ASSERT_TRUE(BCModule().empty()) 
+    << "newly created modules aren't ""considered empty";
+}
+
+TEST(BCModuleTest, dump) { 
+  BCModule theModule;
+  // Empty modules should display just "[Empty BCModule]" with a newline
+  {
+    std::stringstream ss;
+    theModule.dump(ss);
+    EXPECT_EQ(ss.str(), "[Empty BCModule]\n");
+  }
+  auto createFn = [&](){
+    BCFunction& func = theModule.createFunction();
+    BCBuilder builder = func.createBCBuilder();
+    builder.createBreakInstr();
+    builder.createNoOpInstr();
+    builder.createBreakInstr();
+  };
+  // Add a function to trigger a more detailed dump
+  createFn();
+  {
+    // Check the dump
+    std::stringstream ss;
+    theModule.dump(ss);
+    EXPECT_EQ(ss.str(),
+      "[Constants]\n"
+      "  [No Integer Constants]\n"
+      "  [No Floating-Point Constants]\n"
+      "  [No String Constants]\n"
+      "[Functions: 1]\n"
+      "\n"
+      "Function 0\n"
+      "    0\t| Break\n"
+      "    1\t| NoOp\n"
+      "    2\t| Break\n"
+    );
+  }
+  // Create a few more functions
+  createFn();
+  createFn();
+  // Add a few constants
+  theModule.addIntConstant(42);
+  theModule.addIntConstant(0);
+  theModule.addIntConstant(-42);
+  theModule.addDoubleConstant(3.14);
+  theModule.addDoubleConstant(-3.14);
+  // For strings, use special characters to see if they're correctly displayed
+  theModule.addStringConstant("foobar");
+  // The string must be constructed with an explicit size 
+  // because it contains a '\0'
+  theModule.addStringConstant(std::string("\n\t\r\\'\"\0", 7));
+  {
+    // Check the final dump
+    std::stringstream ss;
+    theModule.dump(ss);
+    EXPECT_EQ(ss.str(),
+      "[Constants]\n"
+      "  [Integers: 3 constants]\n"
+      "    0\t| 42\n"
+      "    1\t| 0\n"
+      "    2\t| -42\n"
+      "  [Floating-Point: 2 constants]\n"
+      "    0\t| 3.14\n"
+      "    1\t| -3.14\n"
+      "  [Strings: 2 constants]\n"
+      "    0\t| \"foobar\"\n"
+      "    1\t| \"\\n\\t\\r\\\\'\\\"\\0\"\n"
+      "[Functions: 3]\n"
+      "\n"
+      "Function 0\n"
+      "    0\t| Break\n"
+      "    1\t| NoOp\n"
+      "    2\t| Break\n"
+      "\n"
+      "Function 1\n"
+      "    0\t| Break\n"
+      "    1\t| NoOp\n"
+      "    2\t| Break\n"
+      "\n"
+      "Function 2\n"
+      "    0\t| Break\n"
+      "    1\t| NoOp\n"
+      "    2\t| Break\n"
+    );
+  }
+}
+
 //----------------------------------------------------------------------------//
 // BCFunction tests
 //----------------------------------------------------------------------------//
@@ -254,7 +343,7 @@ TEST(BCFunctionTest, dump) {
   fn.dump(ss);
   EXPECT_EQ(ss.str(),
     "Function 42\n"
-    "     0\t| NoOp\n"
-    "     1\t| Break\n"
-    "     2\t| JumpIf 1 2\n");
+    "    0\t| NoOp\n"
+    "    1\t| Break\n"
+    "    2\t| JumpIf 1 2\n");
 }
