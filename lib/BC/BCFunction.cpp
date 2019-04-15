@@ -35,7 +35,7 @@ const InstructionVector& BCFunction::getInstructions() const {
 
 void BCFunction::dump(std::ostream& out) const {
   out << "Function " << id_ << "\n";
-  dumpInstructions(out, instrs_, "    ");
+  dumpInstructions(out, instrs_, "   ");
 }
 
 InstructionVector::iterator BCFunction::instrs_begin() {
