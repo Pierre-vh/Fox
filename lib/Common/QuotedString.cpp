@@ -10,7 +10,7 @@
 using namespace fox;
 
 namespace {
-  void printSingleChar(FoxChar ch, std::ostream& out, char delim) {
+  void printSingleChar(char ch, std::ostream& out, char delim) {
     if(ch == (unsigned char)delim)
       out << '\\' << ch;
     else {
@@ -42,11 +42,5 @@ void fox::printQuotedString(string_view str, std::ostream& out, char delim) {
   if(delim) out << delim;
   for (char ch : str) 
     printSingleChar(ch, out, delim);
-  if(delim) out << delim;
-}
-
-void fox::printQuotedChar(FoxChar ch, std::ostream& out, char delim) {
-  if(delim) out << delim;
-  printSingleChar(ch, out, delim);
   if(delim) out << delim;
 }

@@ -6,7 +6,8 @@
 //----------------------------------------------------------------------------//
 // This file contains an utility function used to print a string to a ostream,
 // replacing characters such as '\n' by escapes sequences.
-// This lets the caller print a string without messing up their formatting.
+// This lets the caller print a string that potentially contains special chars
+// without issues
 //----------------------------------------------------------------------------//
 
 #pragma once
@@ -25,14 +26,4 @@ namespace fox {
   ///        If the delimiter is found within \p str, it will
   ///        also be printed with a backslash.
   void printQuotedString(string_view str, std::ostream& os, char delim = 0);
-
-  /// Prints a quoted character, displaying it as an escape sequence if 
-  /// it is a formatting character (\0, \n, etc)
-  /// \param ch the char to print
-  /// \param os the output stream
-  /// \param delim optional the delimiter to use when printing the character
-  ///        default is '\0' (none). 
-  ///        If the delimiter is equal to \p ch, it'll be printed with a 
-  ///        backslash
-  void printQuotedChar(FoxChar ch, std::ostream& out, char delim = 0);
 }

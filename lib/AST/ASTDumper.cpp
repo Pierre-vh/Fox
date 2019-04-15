@@ -12,6 +12,7 @@
 #include "Fox/Common/Errors.hpp"
 #include "Fox/Common/QuotedString.hpp"
 #include "Fox/Common/SourceManager.hpp"
+#include "Fox/Common/UTF8.hpp"
 #include <sstream>
 #include <iostream>
 #include <string>
@@ -125,7 +126,9 @@ void ASTDumper::visitCallExpr(CallExpr* node) {
 void ASTDumper::visitCharLiteralExpr(CharLiteralExpr* node) {
   std::string res;
   dumpLine() << getBasicExprInfo(node) << " ";
-  printQuotedChar(node->getValue(), out, '\'');
+  std::string str;
+  appendFoxChar(node->getValue(), str);
+  printQuotedString(str, out, '\'');
   out << " (" << +(node->getValue()) << ")\n";
 }
 
