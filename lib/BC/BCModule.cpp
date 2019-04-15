@@ -6,6 +6,7 @@
 //----------------------------------------------------------------------------//
 
 #include "Fox/BC/BCModule.hpp"
+#include "Fox/Common/QuotedString.hpp"
 #include "llvm/ADT/ArrayRef.h"
 
 using namespace fox;
@@ -20,12 +21,12 @@ BCFunction& BCModule::createFunction() {
 }
 
 BCFunction& BCModule::getFunction(std::size_t idx) {
-  assert((idx < numFunctions()) && "out of range");
+  assert((idx < numFunctions())&& "out of range");
   return *functions_[idx];
 }
 
-const BCFunction& fox::BCModule::getFunction(std::size_t idx) const {
-  assert((idx < numFunctions()) && "out of range");
+const BCFunction& BCModule::getFunction(std::size_t idx) const {
+  assert((idx < numFunctions())&& "out of range");
   return *functions_[idx];
 }
 
@@ -37,7 +38,83 @@ const BCModule::FunctionVector& BCModule::getFunctions() const {
   return functions_;
 }
 
+std::size_t BCModule::addStringConstant(const std::string& str) {
+  std::size_t idx = strConstants_.size();
+  strConstants_.push_back(str);
+  return idx;
+}
+
+std::string BCModule::getStringConstant(std::size_t idx) const {
+  assert((idx < strConstants_.size()) && "out-of-range");
+  return strConstants_[idx];
+}
+
+ArrayRef<std::string> BCModule::getStringConstants() const {
+  return strConstants_;
+}
+
+std::size_t BCModule::addIntConstant(FoxInt value) {
+  std::size_t idx = intConstants_.size();
+  intConstants_.push_back(value);
+  return idx;
+}
+
+FoxInt BCModule::getIntConstant(std::size_t idx) const {
+  assert((idx < intConstants_.size()) && "out-of-range");
+  return intConstants_[idx];
+}
+
+ArrayRef<FoxInt> BCModule::getIntConstants() const {
+  return intConstants_;
+}
+
+std::size_t BCModule::addDoubleConstant(FoxDouble value) {
+  std::size_t idx = doubleConstants_.size();
+  doubleConstants_.push_back(value);
+  return idx;
+}
+
+FoxDouble BCModule::getDoubleConstant(std::size_t idx) const {
+  assert((idx < doubleConstants_.size()) && "out-of-range");
+  return doubleConstants_[idx];
+}
+
+ArrayRef<FoxDouble> BCModule::getDoubleConstants() const {
+  return doubleConstants_;
+}
+
 void BCModule::dump(std::ostream& out) const {
-  for(auto& fn : functions_)
+  // Dump constants
+  out << "----Constants----\n";
+  //  Ints
+  {
+    std::size_t size = intConstants_.size();
+    out << "  [Ints: " << size << " constants]\n";
+    for (std::size_t idx = 0; idx < size; ++idx) 
+      out << "    " << idx << "\t| " << intConstants_[idx] << '\n';
+  }
+  //  Doubles
+  {
+    std::size_t size = doubleConstants_.size();
+    out << "  [Doubles: " << size << " constants]\n";
+    for (std::size_t idx = 0; idx < size; ++idx) 
+      out << "    " << idx << "\t| " << doubleConstants_[idx] << '\n';
+  }
+  //  Strings
+  {
+    std::size_t size = strConstants_.size();
+    out << "  [Strings: " << size << "]\n";
+    for (std::size_t idx = 0; idx < size; ++idx) {
+      out << "    " << idx << "\t| ";
+      printQuotedString(strConstants_[idx], out, '"');
+      out << '\n';
+    }
+  }
+  // Dump funcs
+  out << "----Functions----\n";
+  for (auto& fn : functions_) {
+    // Print a newline before each function so it's more readable.
+    out << '\n';
     fn->dump(out);
+  }
 }
