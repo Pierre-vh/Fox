@@ -55,10 +55,10 @@ namespace fox {
     constexpr std::size_t max_functions = 0xFFFF;
 
     /// the maximum constant ID possible
-    constexpr constant_id_t max_constant_id = 0xFF;
+    constexpr constant_id_t max_constant_id = 0xFFFF;
 
     /// the maximum function ID possible
-    constexpr func_id_t max_func_id = 0xFF;
+    constexpr func_id_t max_func_id = 0xFFFF;
 
     /// the maximum jump offset possible (positive or negative) for Jump, JumpIf
     /// and JumpIfNot.
