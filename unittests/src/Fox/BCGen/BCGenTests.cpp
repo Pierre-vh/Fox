@@ -106,8 +106,8 @@ TEST_F(BCGenTest, doubleConstantsUniqueness) {
 // adds 'a' at the end of the string for each iteration.
 TEST_F(BCGenTest, stringConstantsUniqueness) {
   static constexpr std::size_t num_constants_to_insert = 256;
-  const std::string beg = "";
-  std::string value = "";
+  const std::string beg = "\0";
+  std::string value = beg;
 
   std::unordered_set<constant_id_t> ids;
   for (std::size_t idx = 0; idx < num_constants_to_insert; ++idx) {

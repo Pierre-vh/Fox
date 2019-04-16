@@ -8,6 +8,7 @@
 #include "Fox/BCGen/BCGen.hpp"
 #include "Fox/AST/ASTContext.hpp"
 #include "Fox/BC/BCModule.hpp"
+#include <string>
 
 using namespace fox;
 
@@ -15,20 +16,20 @@ BCGen::BCGen(ASTContext& ctxt, BCModule& theModule) :
   ctxt(ctxt), diagEngine(ctxt.diagEngine), theModule(theModule) {}
 
 constant_id_t BCGen::getConstantID(string_view strview) {
-  std::string str = strview.to_string();
   // Check if it exists in the map
   auto& map = strConstsMap_;
-  auto it = map.find(str);
+  std::size_t hash = std::hash<string_view>()(strview);
+  auto it = map.find(hash);
   // Found it in the map: return
   if (it != map.end()) return it->second;
   // Else insert it
-  std::size_t rawID = theModule.addStringConstant(str);
+  std::size_t rawID = theModule.addStringConstant(strview);
   // TODO: Replace this by a proper diagnostic
   assert((rawID < bc_limits::max_constant_id)
     && "cannot insert constant: limit of constant_id_t reached");
   // Insert it in the map
   auto kID = static_cast<constant_id_t>(rawID);
-  map.insert({str, kID});
+  map.insert({hash, kID});
   return kID;
 }
 

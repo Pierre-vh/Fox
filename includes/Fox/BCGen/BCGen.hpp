@@ -15,7 +15,6 @@
 #include "Fox/Common/FoxTypes.hpp"
 #include "Fox/Common/string_view.hpp"
 #include <memory>
-#include <string>
 #include <unordered_map>
 
 namespace fox {
@@ -86,7 +85,9 @@ namespace fox {
       class StmtGenerator;
 
       // Constant maps, used to 'unique' constants.
-      std::unordered_map<std::string, constant_id_t> strConstsMap_;
+      // Note: For the string constants map, we store the hash of the string
+      // instead of the string itself to save some space.
+      std::unordered_map<std::size_t, constant_id_t> strConstsMap_;
       std::unordered_map<FoxInt, constant_id_t>      intConstsMap_;
       std::unordered_map<FoxDouble, constant_id_t>   doubleConstsMap_;
   };
