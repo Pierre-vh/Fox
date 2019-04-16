@@ -60,12 +60,8 @@ Basic VM data types and their mappings to Fox types:
         --> This isn't ideal, but it can always be improved later and it does the trick just fine for now.
 
   -> Constants & Constant Table
-    -> BCModule 
-      -> Add support (Done)
-      -> Unit tests: Dump, insertion, etc. (Done)
-    -> BCGen 
-      -> unordered_maps to unique constants, public 'getUniqueConstant' method method. 
-      -> unit test these "getUniqueConstant" methods.
+    -> BCModule (Done)
+    -> BCGen (Done)
     -> Instructions + VM support
       -> LoadIntK, LoadDoubleK, (LoadStrK -> not now)
       -> unit test them

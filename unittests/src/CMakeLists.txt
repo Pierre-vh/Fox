@@ -3,6 +3,7 @@ add_source(unittest_src
   "Support/TestUtils.cpp"
   "Fox/AST/ASTTests.cpp"
   "Fox/BC/BCTests.cpp"
+  "Fox/BCGen/BCGenTests.cpp"
   "Fox/Common/AllocatorsTests.cpp"
   "Fox/Common/DiagnosticsTests.cpp"
   "Fox/Common/DiagnosticVerifierTests.cpp"

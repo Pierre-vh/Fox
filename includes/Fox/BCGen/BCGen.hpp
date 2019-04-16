@@ -11,7 +11,12 @@
 #pragma once
 
 #include "Fox/AST/ASTFwdDecl.hpp"
+#include "Fox/BC/BCUtils.hpp"
+#include "Fox/Common/FoxTypes.hpp"
+#include "Fox/Common/string_view.hpp"
 #include <memory>
+#include <string>
+#include <unordered_map>
 
 namespace fox {
   class ASTContext;
@@ -32,6 +37,18 @@ namespace fox {
 
       /// Generates the bytecode of a single unit \p unit
       void genUnit(UnitDecl* unit);
+
+      /// \returns the unique identifier for the string constant \p str
+      ///          in \ref theModule 's string constants array.
+      constant_id_t getConstantID(string_view strview);
+
+      /// \returns the unique identifier for the int constant \p value
+      ///          in \ref theModule 's int constants array.
+      constant_id_t getConstantID(FoxInt value);
+
+      /// \returns the unique identifier for the double constant \p value
+      ///          in \ref theModule 's double constants array.
+      constant_id_t getConstantID(FoxDouble value);
 
       ASTContext& ctxt;
       DiagnosticEngine& diagEngine;
@@ -68,6 +85,10 @@ namespace fox {
       class LocalDeclGenerator;
       class StmtGenerator;
 
+      // Constant maps, used to 'unique' constants.
+      std::unordered_map<std::string, constant_id_t> strConstsMap_;
+      std::unordered_map<FoxInt, constant_id_t>      intConstsMap_;
+      std::unordered_map<FoxDouble, constant_id_t>   doubleConstsMap_;
   };
 
   // Common base class for every "generator".
