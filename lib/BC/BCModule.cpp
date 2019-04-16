@@ -38,9 +38,9 @@ const BCModule::FunctionVector& BCModule::getFunctions() const {
   return functions_;
 }
 
-std::size_t BCModule::addStringConstant(const std::string& str) {
+std::size_t BCModule::addStringConstant(string_view str) {
   std::size_t idx = strConstants_.size();
-  strConstants_.push_back(str);
+  strConstants_.push_back(str.to_string());
   return idx;
 }
 

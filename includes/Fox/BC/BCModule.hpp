@@ -14,8 +14,9 @@
 #include "Fox/BC/BCUtils.hpp"
 #include "Fox/BC/BCFunction.hpp"
 #include "Fox/BC/Instruction.hpp"
-#include "Fox/Common/LLVM.hpp"
 #include "Fox/Common/FoxTypes.hpp"
+#include "Fox/Common/LLVM.hpp"
+#include "Fox/Common/string_view.hpp"
 #include "llvm/ADT/SmallVector.h"
 #include <memory>
 #include <string>
@@ -51,9 +52,9 @@ namespace fox {
 
       /// Adds a new string constant into the BCModule.
       /// This is simply a push_back operation, it does not unique the constant.
-      /// \param str the string to insert
+      /// \param str the string to insert. it'll be copied in the vector.
       /// \returns the index of the newly inserted constant
-      std::size_t addStringConstant(const std::string& str);
+      std::size_t addStringConstant(string_view str);
       /// \returns the int constant identified by \p idx
       std::string getStringConstant(std::size_t idx) const;
       /// \returns a view of the string constants vector
