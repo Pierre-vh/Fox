@@ -138,7 +138,7 @@ regaddr_t RegisterAllocator::rawAllocateNewRegister() {
   // Else we'll need to allocate a new register, so check
   // if that's possible.
   // TODO: Replace this with a proper diagnostic
-  assert((biggestAllocatedReg_ != max_regaddr) && 
+  assert((biggestAllocatedReg_ != bc_limits::max_regaddr) && 
     "Can't allocate more registers : Register number limit reached "
     "(too much register pressure)");
 

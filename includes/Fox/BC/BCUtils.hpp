@@ -28,8 +28,17 @@ namespace fox {
   /// The type of a register address in an instruction
   using regaddr_t = std::uint8_t;
 
-  /// The maximum register address possible in an instruction
-  constexpr regaddr_t max_regaddr = 0xFF;
+  /// The type of the jump offset value for Jump, JumpIf and
+  /// JumpIfNot.
+  using jump_offset_t = std::int16_t;
+
+  /// The type of a constant 'ID' (the unique identifier of a
+  /// constant of a certain type)
+  using constant_id_t = std::uint16_t;
+
+  /// The type of a function 'ID' (the unique identifier 
+  /// of a function)
+  using func_id_t = std::uint16_t;
 
   /// The underlying type of the 'Opcode' enum
   using opcode_t = std::uint8_t;
@@ -40,20 +49,25 @@ namespace fox {
   /// A Vector of Instructions
   using InstructionVector = llvm::SmallVector<Instruction, 4>;
 
-  /// The type of the jump offset value for Jump, JumpIf and
-  /// JumpIfNot.
-  using jump_offset_t = std::int16_t;
-
   namespace bc_limits {
     /// the maximum number of functions that can be contained
     /// in a single BCModule.
-    static constexpr std::size_t max_functions = 0xFFFF;
+    constexpr std::size_t max_functions = 0xFFFF;
 
-    /// the maximum jump offset possible (positive or negative)
-    /// for Jump, JumpIf and JumpIfNot.
-    static constexpr jump_offset_t max_jump_offset = (1 << 15)-1;
-    /// the minimum jump offset possible (positive or negative)
-    /// for Jump, JumpIf and JumpIfNot.
-    static constexpr jump_offset_t min_jump_offset = -max_jump_offset;
+    /// the maximum constant ID possible
+    constexpr constant_id_t max_constant_id = 0xFF;
+
+    /// the maximum function ID possible
+    constexpr func_id_t max_func_id = 0xFF;
+
+    /// the maximum jump offset possible (positive or negative) for Jump, JumpIf
+    /// and JumpIfNot.
+    constexpr jump_offset_t max_jump_offset = (1 << 15)-1;
+
+    /// the minimum jump offset possible for Jump, JumpIf and JumpIfNot.
+    constexpr jump_offset_t min_jump_offset = -max_jump_offset;
+
+    /// the maximum register address possible.
+    constexpr regaddr_t max_regaddr = 0xFF;
   }
 }
