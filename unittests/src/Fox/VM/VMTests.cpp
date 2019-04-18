@@ -388,3 +388,67 @@ TEST_F(VMTest, Copy) {
   EXPECT_EQ(getReg(2), r0);
   EXPECT_DOUBLE_EQ(getRegAsDouble(3), r1);
 }
+
+TEST_F(VMTest, LoadIntK) {
+  FoxInt k0 = std::numeric_limits<FoxInt>::max();
+  FoxInt k1 = std::numeric_limits<FoxInt>::min();
+  FoxInt k2 = 1;
+
+  // Load the constants into the constant table
+  theModule.addIntConstant(k0);
+  theModule.addIntConstant(k1);
+  theModule.addIntConstant(k2);
+
+  // load k0 into r0
+  builder.createLoadIntKInstr(0, 0);
+  // load k1 into r1
+  builder.createLoadIntKInstr(1, 1);
+  // load k2 into r2
+  builder.createLoadIntKInstr(2, 2);
+  builder.createBreakInstr();
+  // Prepare the VM & Load the code
+  VM vm(theModule);
+
+  // Run the code
+  vm.run(instrs);
+  // Helper to get a register's value as a FoxInt
+  auto getReg = [&](std::size_t idx) {
+    return static_cast<FoxInt>(vm.getRegisterStack()[idx]);
+  };
+  // Check that the values are correct
+  EXPECT_EQ(getReg(0), k0);
+  EXPECT_EQ(getReg(1), k1);
+  EXPECT_EQ(getReg(2), k2);
+}
+
+TEST_F(VMTest, LoadDoubleK) {
+  FoxDouble k0 = std::numeric_limits<FoxDouble>::max();
+  FoxDouble k1 = std::numeric_limits<FoxDouble>::min();
+  FoxDouble k2 = 0.3333333333;
+
+  // Load the constants into the constant table
+  theModule.addDoubleConstant(k0);
+  theModule.addDoubleConstant(k1);
+  theModule.addDoubleConstant(k2);
+
+  // load k0 into r0
+  builder.createLoadDoubleKInstr(0, 0);
+  // load k1 into r1
+  builder.createLoadDoubleKInstr(1, 1);
+  // load k2 into r2
+  builder.createLoadDoubleKInstr(2, 2);
+  builder.createBreakInstr();
+  // Prepare the VM & Load the code
+  VM vm(theModule);
+
+  // Run the code
+  vm.run(instrs);
+  // Helper to get a register's value as a FoxDouble
+  auto getReg = [&](std::size_t idx) {
+    return llvm::BitsToDouble(vm.getRegisterStack()[idx]);
+  };
+  // Check that the values are correct
+  EXPECT_EQ(getReg(0), k0);
+  EXPECT_EQ(getReg(1), k1);
+  EXPECT_EQ(getReg(2), k2);
+}

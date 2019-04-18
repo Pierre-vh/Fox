@@ -62,9 +62,7 @@ Basic VM data types and their mappings to Fox types:
   -> Constants & Constant Table
     -> BCModule (Done)
     -> BCGen (Done)
-    -> Instructions + VM support
-      -> LoadIntK, LoadDoubleK, (LoadStrK -> not now)
-      -> unit test them
+    -> Instructions + VM support (Done)
 
   -> Implement the rest of ExprGenerator
     -> Double & Double operations

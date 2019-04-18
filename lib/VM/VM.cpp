@@ -14,7 +14,7 @@
 
 using namespace fox;
 
-VM::VM(BCModule& bcModule) : bcModule(bcModule) {}
+VM::VM(BCModule& theModule) : bcModule(theModule) {}
 
 void VM::run(ArrayRef<Instruction> instrs) {
   setupIterators(instrs);
@@ -199,6 +199,16 @@ void VM::run(ArrayRef<Instruction> instrs) {
       case Opcode::Copy:
         // Copy dest src : dest = src
         setReg(instr.Copy.dest, getReg(instr.Copy.src));
+        continue;
+      case Opcode::LoadIntK:
+        // Copies the integer constant 'kID' into the register 'dest'
+        setReg(instr.LoadIntK.dest, 
+               bcModule.getIntConstant(instr.LoadIntK.kID));
+        continue;
+      case Opcode::LoadDoubleK:
+        // Copies the double constant 'kID' into the register 'dest'
+        setReg(instr.LoadDoubleK.dest, 
+               bcModule.getDoubleConstant(instr.LoadDoubleK.kID));
         continue;
       default:
         fox_unreachable("illegal or unimplemented instruction found");

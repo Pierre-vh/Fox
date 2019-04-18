@@ -57,10 +57,17 @@
 SIMPLE_INSTR(NoOp)
 SIMPLE_INSTR(Break)
 
-// Stores D (a signed 16 bit int) in register A
+// Storing & Loading Values
+  // Stores value (a signed 16 bit int) in register dest
 BINARY_INSTR(StoreSmallInt, dest, regaddr_t, value, std::int16_t)
+  // dest = src
+UNARY_REG_OP(Copy)
+  // Loads the integer constant identified by 'kID' into the register 'dest'
+BINARY_INSTR(LoadIntK, dest, regaddr_t, kID, constant_id_t)
+  // Loads the double constant identified by 'kID' into the register 'dest'
+BINARY_INSTR(LoadDoubleK, dest, regaddr_t, kID, constant_id_t)
 
-// Arithmetic : a = b (op) c. Result's type is the type of the operand.
+// Arithmetic : dest = lhs (op) rhs. Result's type is the type of the operand.
 BINARY_REG_OP(AddInt)       // Int Addition
 BINARY_REG_OP(AddDouble)    // Double Addition
 BINARY_REG_OP(SubInt)       // Int Substraction
@@ -103,10 +110,7 @@ UNARY_INSTR(Jump, offset, jump_offset_t)
 UNARY_REG_OP(IntToDouble) // Converts an int to a double
 UNARY_REG_OP(DoubleToInt) // Converts a double to an int
 
-// Other
-UNARY_REG_OP(Copy) // A = B
-
-LAST_INSTR(Copy)
+LAST_INSTR(DoubleToInt)
 
 //----------------------------------------------------------------------------//
 
