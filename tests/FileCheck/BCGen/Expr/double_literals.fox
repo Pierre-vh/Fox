@@ -1,0 +1,19 @@
+// RUN: %fox-dump-bcgen | %filecheck
+
+// CHECK:       [Floating-Point: 3 constants]
+// CHECK-NEXT:    0   | 0
+// CHECK-NEXT:    1   | 3.333333333333
+// CHECK-NEXT:    2   | -3333333.33333333
+
+// CHECK: Function 0
+func foo() {
+  // CHECK-NEXT:  LoadDoubleK 0 0
+  0.0;
+  // CHECK-NEXT:  LoadDoubleK 0 0
+  -0.0;
+  // CHECK-NEXT:  LoadDoubleK 0 1
+  3.333333333333;
+  // CHECK-NEXT:  LoadDoubleK 0 2
+  -3333333.33333333;
+  // CHECK-EMPTY:
+}

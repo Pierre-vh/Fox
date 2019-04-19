@@ -378,16 +378,18 @@ class BCGen::ExprGenerator : public Generator,
     RegisterValue visitIntegerLiteralExpr(IntegerLiteralExpr* expr, 
                                           bool asNegative = false) {
       RegisterValue dest = regAlloc.allocateTemporary();
-      auto value = asNegative ? -expr->getValue() : expr->getValue();
+      FoxInt value = asNegative ? -expr->getValue() : expr->getValue();
       emitStoreIntConstant(dest, value);
       return dest;
     }
 
-    RegisterValue visitDoubleLiteralExpr(DoubleLiteralExpr*, 
-                                         bool /*asNegative*/ = false) { 
-      // Needs the constant table since 16 bits floats aren't a thing
-      // (= no StoreSmallFloat)
-      fox_unimplemented_feature("DoubleLiteralExpr BCGen");
+    RegisterValue visitDoubleLiteralExpr(DoubleLiteralExpr* expr, 
+                                         bool asNegative = false) { 
+      RegisterValue dest = regAlloc.allocateTemporary();
+      FoxDouble value = asNegative ? -expr->getValue() : expr->getValue();
+      auto kID = bcGen.getConstantID(value);
+      builder.createLoadDoubleKInstr(dest.getAddress(), kID);
+      return dest;
     }
 
     RegisterValue visitBoolLiteralExpr(BoolLiteralExpr* expr) { 
