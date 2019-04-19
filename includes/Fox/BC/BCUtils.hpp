@@ -69,5 +69,13 @@ namespace fox {
 
     /// the maximum register address possible.
     constexpr regaddr_t max_regaddr = 0xFF;
+    
+    /// the minimum value that can be stored in a register using
+    /// StoreSmallInt
+    constexpr std::int16_t storeSmallInt_max = (1 << 15)-1;
+
+    /// the minimum value that can be stored in a register using
+    /// StoreSmallInt
+    constexpr std::int16_t storeSmallInt_min = -storeSmallInt_max;
   }
 }

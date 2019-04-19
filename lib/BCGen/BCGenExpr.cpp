@@ -103,10 +103,10 @@ class BCGen::ExprGenerator : public Generator,
     // Emit an instruction to store the constant 'val' into the register
     // 'reg'.
     void emitStoreIntConstant(const RegisterValue& dest, FoxInt val) {
-      constexpr auto int16_min = std::numeric_limits<std::int16_t>::min(),
-                     int16_max = std::numeric_limits<std::int16_t>::max();
-      // Check if the value fits in a int16. In that case, emit a StoreSmallInt
-      if ((val >= int16_min) && (val <= int16_max)) {
+      auto ssi_min = bc_limits::storeSmallInt_min;
+      auto ssi_max = bc_limits::storeSmallInt_max;
+      // Check if the value can be stored using StoreSmallInt
+      if ((val >= ssi_min) && (val <= ssi_max)) {
         builder.createStoreSmallIntInstr(dest.getAddress(), val);
         return;
       }
