@@ -7,9 +7,11 @@
 // This is the entry point of the command line tool.
 //----------------------------------------------------------------------------//
 
-#include <iostream>
 #include "Fox/Driver/Driver.hpp"
 #include "Fox/Common/Version.hpp"
+#include <iostream>
+#include <iomanip>
+
 #ifdef _WIN32
   #include <Windows.h>
 #endif
@@ -59,6 +61,8 @@ int cliMain(int argc, char *argv[]) {
 }
 
 int main(int argc, char *argv[]) {
+  // Display doubles with full precision
+  std::cout << std::setprecision(15);
   // On MSVC, setup the leak-checking tool.
   #if CAN_LEAK_CHECK_ON_MSVC
     _CrtSetDbgFlag ( _CRTDBG_ALLOC_MEM_DF | _CRTDBG_LEAK_CHECK_DF );
