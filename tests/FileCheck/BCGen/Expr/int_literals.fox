@@ -1,0 +1,28 @@
+// RUN: %fox-dump-bcgen | %filecheck
+
+// CHECK:       [Integers: 4 constants]
+// CHECK-NEXT:    0   | 9223372036854775800
+// CHECK-NEXT:    1   | -9223372036854775800
+// CHECK-NEXT:    2   | 32768
+// CHECK-NEXT:    3   | -32768
+
+// CHECK: Function 0
+func foo() {
+  // CHECK-NEXT:  StoreSmallInt 0 -32767
+  -32767;
+  // CHECK-NEXT:  StoreSmallInt 0 32767
+  32767;
+  // CHECK-NEXT:  StoreSmallInt 0 42
+  42;
+  // CHECK-NEXT:  StoreSmallInt 0 0
+  0;
+  // CHECK-NEXT:  LoadIntK 0 0
+  9223372036854775800;
+  // CHECK-NEXT:  LoadIntK 0 1
+  -9223372036854775800;
+  // CHECK-NEXT:  LoadIntK 0 2
+  32768;
+  // CHECK-NEXT:  LoadIntK 0 3
+  -32768;
+  // CHECK-EMPTY:
+}

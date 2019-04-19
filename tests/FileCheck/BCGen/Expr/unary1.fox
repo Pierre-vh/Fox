@@ -2,8 +2,7 @@
 
 func foo() {
   -+-+-3;
-  // CHECK:       StoreSmallInt 0 3
-  // CHECK-NEXT:  NegInt 0 0
+  // CHECK:       StoreSmallInt 0 -3
   // CHECK-NEXT:  NegInt 0 0
   // CHECK-NEXT:  NegInt 0 0
 }

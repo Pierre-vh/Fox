@@ -110,10 +110,9 @@ class BCGen::ExprGenerator : public Generator,
         builder.createStoreSmallIntInstr(dest.getAddress(), val);
         return;
       }
-      // Else, for now, do nothing because I need the constant table to 
-      // emit constants large than that.
-      fox_unimplemented_feature("Emission & Storage of constants larger than "
-        "16 bits");
+      // Else, store the constant in the constant table and emit a LoadIntK
+      auto kId = bcGen.getConstantID(val);
+      builder.createLoadIntKInstr(dest.getAddress(), kId);
     }
 
     // Generates the adequate instruction(s) to perform a binary
@@ -295,9 +294,21 @@ class BCGen::ExprGenerator : public Generator,
 
       Expr* subExpr = expr->getExpr();
 
+      // When we have an unary minus, and the child is int, bool or double literal, 
+      // directly emit the literal with a negative
+      // value instead of generating a NegInt or something.
+      if (expr->getOp() == UnOp::Minus) {
+        if (auto intLit = dyn_cast<IntegerLiteralExpr>(subExpr))
+          return visitIntegerLiteralExpr(intLit,    /*asNegative*/ true);
+
+        if (auto doubleLit = dyn_cast<DoubleLiteralExpr>(subExpr))
+          return visitDoubleLiteralExpr(doubleLit,  /*asNegative*/ true);
+      }
+      // Else compile it normally
+
       RegisterValue childReg = visit(subExpr);
 
-      // No-op
+      // Handle unary plus directly as it's a no-op
       if(expr->getOp() == UnOp::Plus) return childReg;
 
       regaddr_t childAddr = childReg.getAddress();
@@ -364,14 +375,16 @@ class BCGen::ExprGenerator : public Generator,
       return value;
     }
 
-    RegisterValue visitIntegerLiteralExpr(IntegerLiteralExpr* expr) {
-      // Store the integer in a new register.
-      RegisterValue value = regAlloc.allocateTemporary();
-      emitStoreIntConstant(value, expr->getValue());
-      return value;
+    RegisterValue visitIntegerLiteralExpr(IntegerLiteralExpr* expr, 
+                                          bool asNegative = false) {
+      RegisterValue dest = regAlloc.allocateTemporary();
+      auto value = asNegative ? -expr->getValue() : expr->getValue();
+      emitStoreIntConstant(dest, value);
+      return dest;
     }
 
-    RegisterValue visitDoubleLiteralExpr(DoubleLiteralExpr*) { 
+    RegisterValue visitDoubleLiteralExpr(DoubleLiteralExpr*, 
+                                         bool /*asNegative*/ = false) { 
       // Needs the constant table since 16 bits floats aren't a thing
       // (= no StoreSmallFloat)
       fox_unimplemented_feature("DoubleLiteralExpr BCGen");
