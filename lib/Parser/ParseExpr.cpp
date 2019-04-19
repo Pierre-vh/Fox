@@ -104,7 +104,7 @@ namespace {
     // to std::string
     std::istringstream iss(tok.str.to_string());
     FoxInt tmp;
-    if(iss >> tmp) return tmp;
+    if (iss >> tmp) return tmp;
     engine.report(DiagID::err_while_inter_int_lit, tok.range);
     return 0;
   }
@@ -117,7 +117,7 @@ namespace {
     // to std::string
     std::istringstream iss(tok.str.to_string());
     FoxDouble tmp;
-    if(iss >> tmp) return tmp;
+    if (iss >> tmp) return tmp;
     engine.report(DiagID::err_while_inter_double_lit, tok.range);
     return 0.0;
   }
@@ -207,7 +207,7 @@ Parser::createStringLiteralExprFromToken(const Token& tok) {
   std::string normalized = normalizeString(tok.str);
   string_view str;
   // If it's not empty, allocate a copy of it in the ASTContext.
-  if(normalized.size()) str = ctxt.allocateCopy(normalized);
+  if (normalized.size()) str = ctxt.allocateCopy(normalized);
   // Create the node and return it.
   return StringLiteralExpr::create(ctxt, str, tok.range);
 }
@@ -333,13 +333,13 @@ Parser::Result<Expr*> Parser::parsePrimary() {
   // = <literal>
   if (auto lit = parseLiteral())
     return lit;
-  else if(lit.isError())
+  else if (lit.isError())
     return Result<Expr*>::Error();
 
   // = <decl_call>
   if (auto declcall = parseDeclRef())
     return declcall;
-  else if(declcall.isError())
+  else if (declcall.isError())
     return Result<Expr*>::Error();
 
   // = '(' <expr> ')'
@@ -384,7 +384,7 @@ Parser::Result<Expr*> Parser::parseExponentExpr() {
     // <prefix_expr>
     auto rhs = parsePrefixExpr();
     if (!rhs) {
-      if(rhs.isNotFound())
+      if (rhs.isNotFound())
         reportErrorExpected(DiagID::expected_expr);
         
       return Result<Expr*>::Error();
@@ -409,7 +409,7 @@ Parser::Result<Expr*> Parser::parsePrefixExpr() {
         UnaryExpr::create(ctxt, uop.get(), prefixexpr.get(),opRange));
     }
     else {
-      if(prefixexpr.isNotFound())
+      if (prefixexpr.isNotFound())
         reportErrorExpected(DiagID::expected_expr);
 
       return Result<Expr*>::Error();
@@ -496,7 +496,7 @@ Parser::Result<Expr*> Parser::parseBinaryExpr(unsigned precedence) {
 		// Check for validity : we need a rhs. if we don't have one, 
     // we have an error ! 
     if (!rhsResult) {
-      if(rhsResult.isNotFound())
+      if (rhsResult.isNotFound())
         reportErrorExpected(DiagID::expected_expr);
       return Result<Expr*>::Error();
     }
@@ -524,7 +524,7 @@ Parser::Result<Expr*> Parser::parseExpr() {
   if (auto op = parseAssignOp(opRange)) {
     auto rhs = parseExpr();
     if (!rhs) {
-      if(rhs.isNotFound())
+      if (rhs.isNotFound())
         reportErrorExpected(DiagID::expected_expr);
       return Result<Expr*>::Error();
     }
@@ -547,7 +547,7 @@ Parser::Result<Expr*> Parser::parseParensExpr() {
   if (auto expr = parseExpr())
     rtr = expr.get();
   else  {
-    if(expr.isNotFound())
+    if (expr.isNotFound())
       reportErrorExpected(DiagID::expected_expr);
 
     if (!skipUntilDeclStmtOr(TokenKind::RParen))
