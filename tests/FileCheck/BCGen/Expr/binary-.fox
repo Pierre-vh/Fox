@@ -1,0 +1,76 @@
+// RUN: %fox-dump-bcgen | %filecheck
+
+// CHECK:   Function 0
+func intBinOps() {
+  // CHECK-NEXT:  StoreSmallInt 0 0
+  let a : int = 0;
+  // CHECK-NEXT:  StoreSmallInt 1 0
+  let b : int = 0;
+  // CHECK-NEXT:  AddInt 2 0 1
+  a+b;
+  // CHECK-NEXT:  SubInt 2 0 1
+  a-b;
+  // CHECK-NEXT:  DivInt 2 0 1
+  a/b;
+  // CHECK-NEXT:  MulInt 2 0 1
+  a*b;
+  // CHECK-NEXT:  ModInt 2 0 1
+  a%b;
+  // CHECK-NEXT:  PowInt 2 0 1
+  a**b;
+  // CHECK-NEXT:  LEInt 2 0 1
+  a<=b;
+  // CHECK-NEXT:  LEInt 2 1 0
+  a>=b;
+  // CHECK-NEXT:  LTInt 2 0 1
+  a<b;
+  // CHECK-NEXT:  LEInt 2 0 1
+  // CHECK-NEXT:  LNot  2 2
+  a>b;
+  // CHECK-NEXT:  EqInt 2 0 1
+  a==b;
+  // CHECK-NEXT:  EqInt 0 0 1
+  // CHECK-NEXT:  LNot  0 0
+  a!=b;
+  // CHECK-NEXT:  StoreSmallInt 0 1
+  // CHECK-NEXT:  StoreSmallInt 1 0
+  // CHECK-NEXT:  LOr 0 0 1
+  true || false;
+  // CHECK-NEXT:  StoreSmallInt 0 1
+  // CHECK-NEXT:  StoreSmallInt 1 1
+  // CHECK-NEXT:  LAnd 0 0 1
+  true && true;
+}
+
+// CHECK:   Function 1
+func floatingBinOps() {
+  // CHECK-NEXT:  LoadDoubleK 0 0
+  let a : double = 0.0;
+  // CHECK-NEXT:  LoadDoubleK 1 0
+  let b : double = 0.0;
+  // CHECK-NEXT:  AddDouble 2 0 1
+  a+b;
+  // CHECK-NEXT:  SubDouble 2 0 1
+  a-b;
+  // CHECK-NEXT:  DivDouble 2 0 1
+  a/b;
+  // CHECK-NEXT:  MulDouble 2 0 1
+  a*b;
+  // CHECK-NEXT:  ModDouble 2 0 1
+  a%b;
+  // CHECK-NEXT:  PowDouble 2 0 1
+  a**b;
+  // CHECK-NEXT:  LEDouble 2 0 1
+  a<=b;
+  // CHECK-NEXT:  GEDouble 2 0 1
+  a>=b;
+  // CHECK-NEXT:  LTDouble 2 0 1
+  a<b;
+  // CHECK-NEXT:  GTDouble 2 0 1
+  a>b;
+  // CHECK-NEXT:  EqDouble 2 0 1
+  a==b;
+  // CHECK-NEXT:  EqDouble 0 0 1
+  // CHECK-NEXT:  LNot  0 0
+  a!=b;
+}

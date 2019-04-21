@@ -116,7 +116,61 @@ class BCGen::ExprGenerator : public Generator,
     }
 
     // Generates the adequate instruction(s) to perform a binary
-    // operation on integers or boolean operands.
+    // operation on doubles
+    void emitDoubleBinaryExpr(BinOp op, regaddr_t dst, regaddr_t lhs, 
+                                                       regaddr_t rhs) {
+      assert((lhs != rhs) && "lhs and rhs are identical");
+      // Emit
+      switch (op) {
+        case BinOp::Add:  // +
+          builder.createAddDoubleInstr(dst, lhs, rhs);
+          break;
+        case BinOp::Sub:  // -
+          builder.createSubDoubleInstr(dst, lhs, rhs);
+          break;
+        case BinOp::Mul:  // *
+          builder.createMulDoubleInstr(dst, lhs, rhs);
+          break;
+        case BinOp::Div:  // /
+          builder.createDivDoubleInstr(dst, lhs, rhs);
+          break;
+        case BinOp::Mod:  // %
+          builder.createModDoubleInstr(dst, lhs, rhs);
+          break;
+        case BinOp::Pow:  // **
+          builder.createPowDoubleInstr(dst, lhs, rhs);
+          break;
+        case BinOp::LE:   // <=
+          builder.createLEDoubleInstr(dst, lhs, rhs);
+          break;
+        case BinOp::GE:   // >=
+          builder.createGEDoubleInstr(dst, lhs, rhs);
+          break;
+        case BinOp::LT:   // <
+          builder.createLTDoubleInstr(dst, lhs, rhs);
+          break;
+        case BinOp::GT:   // >
+          builder.createGTDoubleInstr(dst, lhs, rhs);
+          break;
+        case BinOp::Eq:   // ==
+          builder.createEqDoubleInstr(dst, lhs, rhs);
+          break;
+        case BinOp::NEq:  // !=
+          // != isn't implemented in the vm, it's just implemented
+          // as !(a == b). This requires 2 instructions.
+          builder.createEqDoubleInstr(dst, lhs, rhs);
+          builder.createLNotInstr(dst, dst);
+          break;
+        case BinOp::LAnd: // &&
+        case BinOp::LOr:  // ||
+          fox_unreachable("cannot apply these operators on doubles");
+        default:
+          fox_unreachable("Unhandled binary operation kind");
+      }
+    }
+
+    // Generates the adequate instruction(s) to perform a binary
+    // operation on integers or booleans.
     void emitIntegerOrBoolBinaryOp(BinOp op, regaddr_t dst, 
                                   regaddr_t lhs, regaddr_t rhs) {
       assert((lhs != rhs) && "lhs and rhs are identical");
@@ -147,6 +201,7 @@ class BCGen::ExprGenerator : public Generator,
           // For >=, it's not implemented in the VM, but
           // (a >= b) is the same as (b <= a)
           builder.createLEIntInstr(dst, rhs, lhs);
+          break;
         case BinOp::LT:   // <
           builder.createLTIntInstr(dst, lhs, rhs);
           break;
@@ -206,8 +261,7 @@ class BCGen::ExprGenerator : public Generator,
       if (lhsType->isDoubleType()) {
         assert(expr->getRHS()->getType()->isDoubleType()
           && "Inconsistent Operands");
-        // TODO
-        fox_unimplemented_feature("BCGen of BinaryExprs with Double operands");
+        emitDoubleBinaryExpr(expr->getOp(), dstAddr, lhsAddr, rhsAddr);
       }
       // Integer or Boolean expressions
       else if (isIntOrBool(lhsType)) {

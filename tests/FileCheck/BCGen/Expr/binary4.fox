@@ -20,7 +20,6 @@ func foo() {
   // CHECK-NEXT:  StoreSmallInt 2 3
   // CHECK-NEXT:  StoreSmallInt 3 4
   // CHECK-NEXT:  LEInt 2 3 2
-  // CHECK-NEXT:  LTInt 2 2 3
   // CHECK-NEXT:  LAnd 1 1 2
   // CHECK-NEXT:  LOr 0 0 1
   // CHECK-NEXT:  StoreSmallInt 1 3
