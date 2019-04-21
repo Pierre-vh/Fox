@@ -246,10 +246,7 @@ TEST(BCModuleTest, dump) {
     std::stringstream ss;
     theModule.dump(ss);
     EXPECT_EQ(ss.str(),
-      "[Constants]\n"
-      "  [No Integer Constants]\n"
-      "  [No Floating-Point Constants]\n"
-      "  [No String Constants]\n"
+      "[No Constants]\n"
       "[Functions: 1]\n"
       "\n"
       "Function 0\n"

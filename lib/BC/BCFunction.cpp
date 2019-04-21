@@ -35,6 +35,9 @@ const InstructionVector& BCFunction::getInstructions() const {
 
 void BCFunction::dump(std::ostream& out) const {
   out << "Function " << id_ << "\n";
+  if(instrs_.empty())
+    out << "   <empty>\n";
+  else
   dumpInstructions(out, instrs_, "   ");
 }
 

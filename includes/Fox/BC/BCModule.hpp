@@ -80,8 +80,11 @@ namespace fox {
       /// \returns a view of the double constants vector
       ArrayRef<FoxDouble> getDoubleConstants() const;
 
-      /// \returns true if the module is empty/fresh
+      /// \returns true if the module is completely empty
       bool empty() const;
+
+      /// \returns true if the module does not contain any constant
+      bool empty_constants() const;
 
       /// Dumps the module to 'out'
       void dump(std::ostream& out) const;

@@ -85,46 +85,56 @@ ArrayRef<FoxDouble> BCModule::getDoubleConstants() const {
 
 bool BCModule::empty() const {
   return functions_.empty()
-      && doubleConstants_.empty()
+      && empty_constants();
+}
+
+bool BCModule::empty_constants() const {
+  return doubleConstants_.empty()
       && intConstants_.empty() 
       && strConstants_.empty();
 }
 
 void BCModule::dump(std::ostream& out) const {
+  // If the module is empty, just print [Empty BCModule] and move on.
   if (empty()) {
     out << "[Empty BCModule]\n";
     return;
   }
-
-  out << "[Constants]\n";
-
-  if(std::size_t size = intConstants_.size()) {
-    out << "  [Integers: " << size << " constants]\n";
-    for (std::size_t idx = 0; idx < size; ++idx) 
-      out << "    " << idx << "\t| " << intConstants_[idx] << '\n';
+  // Dump constants
+  if (empty_constants()) {
+    out << "[No Constants]\n";
   }
-  else 
-    out << "  [No Integer Constants]\n";
+  else {
+    out << "[Constants]\n";
 
-  if(std::size_t size = doubleConstants_.size()) {
-    out << "  [Floating-Point: " << size << " constants]\n";
-    for (std::size_t idx = 0; idx < size; ++idx) 
-      out << "    " << idx << "\t| " << doubleConstants_[idx] << '\n';
-  }
-  else 
-    out << "  [No Floating-Point Constants]\n";
-
-  if(std::size_t size = strConstants_.size()) {
-    out << "  [Strings: " << size << " constants]\n";
-    for (std::size_t idx = 0; idx < size; ++idx) {
-      out << "    " << idx << "\t| ";
-      printQuotedString(strConstants_[idx], out, '"');
-      out << '\n';
+    if(std::size_t size = intConstants_.size()) {
+      out << "  [Integers: " << size << " constants]\n";
+      for (std::size_t idx = 0; idx < size; ++idx) 
+        out << "    " << idx << "\t| " << intConstants_[idx] << '\n';
     }
-  }
-  else 
-    out << "  [No String Constants]\n";
+    else 
+      out << "  [No Integer Constants]\n";
 
+    if(std::size_t size = doubleConstants_.size()) {
+      out << "  [Floating-Point: " << size << " constants]\n";
+      for (std::size_t idx = 0; idx < size; ++idx) 
+        out << "    " << idx << "\t| " << doubleConstants_[idx] << '\n';
+    }
+    else 
+      out << "  [No Floating-Point Constants]\n";
+
+    if(std::size_t size = strConstants_.size()) {
+      out << "  [Strings: " << size << " constants]\n";
+      for (std::size_t idx = 0; idx < size; ++idx) {
+        out << "    " << idx << "\t| ";
+        printQuotedString(strConstants_[idx], out, '"');
+        out << '\n';
+      }
+    }
+    else 
+      out << "  [No String Constants]\n";
+  }
+  // Dump functions
   if (std::size_t size = functions_.size()) {
     out << "[Functions: " << size << "]\n";
     for (auto& fn : functions_) {
