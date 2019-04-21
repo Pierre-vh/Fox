@@ -46,27 +46,16 @@ Basic VM data types and their mappings to Fox types:
   -> CodeGen of Statements except ReturnStmt (Done)
   > BCModule/BCModuleBuilder rework part 2 : Functions (Done)
 
-  -> Destination register for ExprGenerator: Require a destination register for an expression.
-     If present, the result must be stored there. 
-     Will be needed for calling functions to setup the call
-     IDEA: Use Optional<RegisterValue> with an alias "OptDestReg" (rename it later to something better)
-        have a function like "useDestOrRecycle(dest, {a, b, c})"
-        so for instance in genNumericOrBoolBinaryExpr, this
-          RegisterValue dstReg = tryReuseRegisters({lhsReg, rhsReg});
-        will become
-          RegisterValue dstReg = chooseDestReg(dest, {lhsReg, rhsReg})
-        chooseReg = Chooses a register. If Optional<RegisterValue> has a value, it is used, else
-        recycles one Register of the list with the smallest number possible. else allocates a new temporary
-        --> This isn't ideal, but it can always be improved later and it does the trick just fine for now.
-
   -> Constants & Constant Table
     -> BCModule (Done)
     -> BCGen (Done)
     -> Instructions + VM support (Done)
 
-  -> Implement the rest of ExprGenerator
-    -> Double & Double operations
-    -> Assignements (AssignExprGenerator)
+  -> BCGen for Double literals & Double exprs (Done)
+
+  -> Destination register for ExprGenerator: Require a destination register for an expression.
+     If present, the result must be stored there. 
+     Will be needed for calling functions to setup the call
 
   -> Codegen of functions & return statements
     -> Don't forget to add support of ParamDecl/References to ParamDecl in RegisterAllocator 
