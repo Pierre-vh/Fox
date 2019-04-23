@@ -16,7 +16,7 @@ using namespace fox;
 
 VM::VM(BCModule& theModule) : bcModule(theModule) {}
 
-void VM::run(ArrayRef<Instruction> instrs) {
+VM::reg_t* VM::run(ArrayRef<Instruction> instrs) {
   setupIterators(instrs);
   Instruction instr;
   do {
@@ -32,7 +32,7 @@ void VM::run(ArrayRef<Instruction> instrs) {
         continue;
       case Opcode::Break:
         // Break: stop the execution of the program.
-        return;
+        return nullptr;
       case Opcode::StoreSmallInt:
         // StoreSmallInt dest value: Stores value in dest (value: int16)
         setReg(instr.StoreSmallInt.dest, instr.StoreSmallInt.value);
@@ -215,6 +215,8 @@ void VM::run(ArrayRef<Instruction> instrs) {
     }
     #undef TRIVIAL_TAC_BINOP_IMPL
   } while(++curInstr_);
+  fox_unreachable("execution did not terminate correctly: "
+    "reached the end of the buffer before a return instr");
 }
 
 std::size_t VM::getPCIndex() const {
@@ -225,11 +227,11 @@ const Instruction* VM::getPC() const {
   return curInstr_;
 }
 
-ArrayRef<std::uint64_t> VM::getRegisterStack() const {
+ArrayRef<VM::reg_t> VM::getRegisterStack() const {
   return regStack_;
 }
 
-MutableArrayRef<std::uint64_t> VM::getRegisterStack() {
+MutableArrayRef<VM::reg_t> VM::getRegisterStack() {
   return regStack_;
 }
 

@@ -23,6 +23,9 @@ namespace fox {
   class BCModule;
   class VM {
     public:
+      /// The type of a register
+      using reg_t = std::uint64_t;
+
       /// The number of registers on the register stack
       static constexpr unsigned numStackRegister = 255;
 
@@ -32,8 +35,11 @@ namespace fox {
       ///        fetched in that module.
       VM(BCModule& bcModule);
 
-      /// directly executes a bytecode buffer
-      void run(ArrayRef<Instruction> instrs);
+      /// Executes a bytecode buffer \p instrs.
+      /// \returns a pointer to the register containing the return value
+      /// of the executed bytecode. nullptr if there is no return value
+      /// (void)
+      reg_t* run(ArrayRef<Instruction> instrs);
 
       /// \returns the program counter as an index in the module's
       /// Bytecode buffer.
@@ -44,17 +50,17 @@ namespace fox {
       const Instruction* getPC() const;
 
       /// \returns a view of the register stack
-      ArrayRef<std::uint64_t> getRegisterStack() const;
+      ArrayRef<reg_t> getRegisterStack() const;
 
       /// \returns a mutable view of the register stack
-      MutableArrayRef<std::uint64_t> getRegisterStack();
+      MutableArrayRef<reg_t> getRegisterStack();
 
       /// The Bytecode module executed by this VM instance.
       BCModule& bcModule;
 
     private:
       // Returns the raw value of the register idx.
-      std::uint64_t getReg(regaddr_t idx) {
+      reg_t getReg(regaddr_t idx) {
         assert((idx < numStackRegister) && "out-of-range");
         return regStack_[idx];
       }
@@ -110,6 +116,6 @@ namespace fox {
       const Instruction* curInstr_ = nullptr;
 
       // The registers
-      std::array<std::uint64_t, numStackRegister> regStack_ = {0};
+      std::array<reg_t, numStackRegister> regStack_ = {0};
   };
 }
