@@ -344,3 +344,21 @@ RegisterValue::RegisterValue(RegisterAllocator* regAlloc, const VarDecl* var) :
 void RegisterValue::kill() {
   regAllocAndKind_.setPointer(nullptr);
 }
+
+bool fox::operator==(const RegisterValue& lhs, const RegisterValue& rhs) {
+  using Kind = RegisterValue::Kind;
+  // Both are dead -> equal
+  if(!lhs.isAlive() && !rhs.isAlive()) return true;
+  // One is dead, the other isn't -> not equal
+  if(!(lhs.isAlive() && rhs.isAlive()))
+    return false;
+  // Different kinds: not equal
+  if(lhs.getKind() != rhs.getKind())
+    return false;
+  // Now just compare addresses
+  return lhs.getAddress() == rhs.getAddress();
+}
+
+bool fox::operator!=(const RegisterValue& lhs, const RegisterValue& rhs) {
+  return !(lhs == rhs);
+}

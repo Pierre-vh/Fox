@@ -219,6 +219,11 @@ namespace fox {
       /// Frees the register and kills this RegisterValue.
       void free();
 
+      friend bool operator==(const RegisterValue& lhs, 
+                             const RegisterValue& rhs);
+      friend bool operator!=(const RegisterValue& lhs,
+                             const RegisterValue& rhs);
+
       /// Disable the copy constructor and copy
       /// assignement operator.
       RegisterValue(const RegisterValue&) = delete;
