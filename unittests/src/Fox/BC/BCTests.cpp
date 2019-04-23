@@ -165,9 +165,9 @@ TEST(BCBuilderTest, createdInstrIterators) {
   EXPECT_EQ(c->DivDouble.lhs, 2u);
   EXPECT_EQ(c->DivDouble.rhs, 3u);
   // Insert a few instructions, then tests the iterators again
-  builder.createBreakInstr();
+  builder.createRetVoidInstr();
   builder.createNoOpInstr();
-  auto last = builder.createBreakInstr();
+  auto last = builder.createRetVoidInstr();
   // a
   EXPECT_EQ(a->opcode, Opcode::Jump);
   EXPECT_EQ(a->Jump.offset, 30000);
@@ -181,20 +181,20 @@ TEST(BCBuilderTest, createdInstrIterators) {
   EXPECT_EQ(c->DivDouble.lhs, 2u);
   EXPECT_EQ(c->DivDouble.rhs, 3u);
   // ++c should be the break instr
-  EXPECT_EQ((++c)->opcode, Opcode::Break);
+  EXPECT_EQ((++c)->opcode, Opcode::RetVoid);
 }
 
 TEST(BCBuilderTest, orderIsRespected) {
   // Create some instructions in the builder
   InstructionVector instrs;
   BCBuilder builder(instrs);
-  builder.createBreakInstr();
+  builder.createRetVoidInstr();
   builder.createNoOpInstr();
   builder.createAddIntInstr(0, 0, 0);
   builder.createAddDoubleInstr(0, 0, 0);
   // Create a vector of the expected opcodes
   SmallVector<Opcode, 4> expectedOps;
-  expectedOps.push_back(Opcode::Break);
+  expectedOps.push_back(Opcode::RetVoid);
   expectedOps.push_back(Opcode::NoOp);
   expectedOps.push_back(Opcode::AddInt);
   expectedOps.push_back(Opcode::AddDouble);
@@ -235,9 +235,9 @@ TEST(BCModuleTest, dump) {
   auto createFn = [&](){
     BCFunction& func = theModule.createFunction();
     BCBuilder builder = func.createBCBuilder();
-    builder.createBreakInstr();
+    builder.createRetVoidInstr();
     builder.createNoOpInstr();
-    builder.createBreakInstr();
+    builder.createRetVoidInstr();
   };
   // Add a function to trigger a more detailed dump
   createFn();
@@ -250,9 +250,9 @@ TEST(BCModuleTest, dump) {
       "[Functions: 1]\n"
       "\n"
       "Function 0\n"
-      "    0\t| Break\n"
+      "    0\t| RetVoid\n"
       "    1\t| NoOp\n"
-      "    2\t| Break\n"
+      "    2\t| RetVoid\n"
     );
   }
   // Create a few more functions
@@ -288,19 +288,19 @@ TEST(BCModuleTest, dump) {
       "[Functions: 3]\n"
       "\n"
       "Function 0\n"
-      "    0\t| Break\n"
+      "    0\t| RetVoid\n"
       "    1\t| NoOp\n"
-      "    2\t| Break\n"
+      "    2\t| RetVoid\n"
       "\n"
       "Function 1\n"
-      "    0\t| Break\n"
+      "    0\t| RetVoid\n"
       "    1\t| NoOp\n"
-      "    2\t| Break\n"
+      "    2\t| RetVoid\n"
       "\n"
       "Function 2\n"
-      "    0\t| Break\n"
+      "    0\t| RetVoid\n"
       "    1\t| NoOp\n"
-      "    2\t| Break\n"
+      "    2\t| RetVoid\n"
     );
   }
 }
@@ -319,10 +319,11 @@ TEST(BCFunctionTest, builder) {
   auto builder = fn.createBCBuilder();
   // Create some instrs
   builder.createNoOpInstr();
-  builder.createBreakInstr();
+  builder.createRetVoidInstr();
   builder.createJumpIfInstr(0, 0);
   // Check that they're in the buffer
-  SmallVector<Opcode, 4> expected = { Opcode::NoOp, Opcode::Break, Opcode::JumpIf};
+  SmallVector<Opcode, 4> expected = 
+    { Opcode::NoOp, Opcode::RetVoid, Opcode::JumpIf};
   ASSERT_EQ(fn.numInstructions(), expected.size());
   for (std::size_t idx = 0, size = expected.size(); idx < size; ++idx)
     EXPECT_EQ(fn.getInstructions()[idx].opcode, expected[idx]);
@@ -333,7 +334,7 @@ TEST(BCFunctionTest, dump) {
   auto builder = fn.createBCBuilder();
   // Create some instrs
   builder.createNoOpInstr();
-  builder.createBreakInstr();
+  builder.createRetVoidInstr();
   builder.createJumpIfInstr(1, 2);
   // Check that the dump is correct
   std::stringstream ss;
@@ -341,6 +342,6 @@ TEST(BCFunctionTest, dump) {
   EXPECT_EQ(ss.str(),
     "Function 42\n"
     "    0\t| NoOp\n"
-    "    1\t| Break\n"
+    "    1\t| RetVoid\n"
     "    2\t| JumpIf 1 2\n");
 }

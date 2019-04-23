@@ -34,7 +34,7 @@ TEST_F(VMTest, StoreSmallInt) {
   FoxInt r1Value = 24000;
   builder.createStoreSmallIntInstr(1, r1Value);
   builder.createStoreSmallIntInstr(0, r0Value);
-  builder.createBreakInstr();;
+  builder.createRetVoidInstr();;
   VM vm(theModule);
   vm.run(instrs);
   FoxInt r0 = vm.getRegisterStack()[0];
@@ -62,7 +62,7 @@ TEST_F(VMTest, IntArithmetic) {
   builder.createPowIntInstr(9, 2, 0);
   // r10 = -r2 = 16384
   builder.createNegIntInstr(10, 2);
-  builder.createBreakInstr();
+  builder.createRetVoidInstr();
   // Prepare the VM & Load the code
   VM vm(theModule);
   // Load the initial values
@@ -112,7 +112,7 @@ TEST_F(VMTest, DoubleArithmetic) {
   builder.createPowDoubleInstr(10, 0, 4);
   // r11 = -r2      --> 42.42
   builder.createNegDoubleInstr(11, 2);
-  builder.createBreakInstr();
+  builder.createRetVoidInstr();
   // Prepare the VM & Load the code
   VM vm(theModule);
 
@@ -153,7 +153,7 @@ TEST_F(VMTest, IntComparison) {
   builder.createLEIntInstr(3, 0, 1);
   // r4 = (r1 < r1) --> false (0)
   builder.createLTIntInstr(4, 1, 1);
-  builder.createBreakInstr();
+  builder.createRetVoidInstr();
   // Prepare the VM & Load the code
   VM vm(theModule);
 
@@ -189,7 +189,7 @@ TEST_F(VMTest, DoubleComparison) {
   builder.createGEDoubleInstr(5, 1, 0);
   // r6 = r1 > r1  --> false (0)
   builder.createGTDoubleInstr(6, 1, 1);
-  builder.createBreakInstr();
+  builder.createRetVoidInstr();
   // Prepare the VM & Load the code
   VM vm(theModule);
 
@@ -228,7 +228,7 @@ TEST_F(VMTest, LogicOps) {
   builder.createLNotInstr(4, 1);
   // r5 != r0 --> 1
   builder.createLNotInstr(5, 0);
-  builder.createBreakInstr();
+  builder.createRetVoidInstr();
   // Prepare the VM & Load the code
   VM vm(theModule);
 
@@ -260,10 +260,10 @@ TEST_F(VMTest, Jump) {
     // 3 Jump -2
     // 4 Break
   builder.createJumpInstr(2);
-  builder.createBreakInstr();
-  builder.createBreakInstr();
+  builder.createRetVoidInstr();
+  builder.createRetVoidInstr();
   builder.createJumpInstr(-2);
-  builder.createBreakInstr();
+  builder.createRetVoidInstr();
 
   // Prepare the VM
   VM vm(theModule);
@@ -284,8 +284,8 @@ TEST_F(VMTest, JumpIf) {
     // 3 Break    // PC should end up here
   builder.createJumpIfInstr(0, 1);
   builder.createJumpIfInstr(1, 1);
-  builder.createBreakInstr();
-  builder.createBreakInstr();
+  builder.createRetVoidInstr();
+  builder.createRetVoidInstr();
 
   // Prepare the VM
   VM vm(theModule);
@@ -309,9 +309,9 @@ TEST_F(VMTest, JumpIfNot) {
     // 1 JumpIfNot r1 1  // won't jump since r1 = 1
     // 3 Break    // PC should end up here
   builder.createJumpIfNotInstr(0, 1);
-  builder.createBreakInstr();
+  builder.createRetVoidInstr();
   builder.createJumpIfNotInstr(1, 1);
-  builder.createBreakInstr();
+  builder.createRetVoidInstr();
 
   // Prepare the VM
   VM vm(theModule);
@@ -340,7 +340,7 @@ TEST_F(VMTest, Casts) {
   builder.createDoubleToIntInstr(6, 2);
   // IntToDouble r7 r1 -> r7 = 3
   builder.createDoubleToIntInstr(7, 3);
-  builder.createBreakInstr();
+  builder.createRetVoidInstr();
   VM vm(theModule);
   auto regs = vm.getRegisterStack();
   regs[0] = r0;
@@ -370,7 +370,7 @@ TEST_F(VMTest, Copy) {
   builder.createCopyInstr(2, 0);
   // Copy r3 r1 -> r3 = r1
   builder.createCopyInstr(3, 1);
-  builder.createBreakInstr();
+  builder.createRetVoidInstr();
   VM vm(theModule);
   auto regs = vm.getRegisterStack();
   regs[0] = r0;
@@ -405,7 +405,7 @@ TEST_F(VMTest, LoadIntK) {
   builder.createLoadIntKInstr(1, 1);
   // load k2 into r2
   builder.createLoadIntKInstr(2, 2);
-  builder.createBreakInstr();
+  builder.createRetVoidInstr();
   // Prepare the VM & Load the code
   VM vm(theModule);
 
@@ -437,7 +437,7 @@ TEST_F(VMTest, LoadDoubleK) {
   builder.createLoadDoubleKInstr(1, 1);
   // load k2 into r2
   builder.createLoadDoubleKInstr(2, 2);
-  builder.createBreakInstr();
+  builder.createRetVoidInstr();
   // Prepare the VM & Load the code
   VM vm(theModule);
 
@@ -451,4 +451,25 @@ TEST_F(VMTest, LoadDoubleK) {
   EXPECT_EQ(getReg(0), k0);
   EXPECT_EQ(getReg(1), k1);
   EXPECT_EQ(getReg(2), k2);
+}
+
+TEST_F(VMTest, RetRetVoid) {
+  // f1 = just a RetVoid
+  BCFunction& f1 = theModule.createFunction();
+  f1.createBCBuilder().createRetVoidInstr();
+  VM vm(theModule);
+  EXPECT_EQ(vm.run(f1), nullptr) << "RetVoid returned something non-null";
+  // f2 = stores something in r1 and and returns 
+  // the value in r1
+  BCFunction& f2 = theModule.createFunction();
+  {
+    BCBuilder builder = f2.createBCBuilder();
+    builder.createStoreSmallIntInstr(1, 526);
+    builder.createRetInstr(1);
+  }
+  // Compare pointers and values
+  auto retptr = vm.run(f2);
+  auto regstack = vm.getRegisterStack();
+  ASSERT_EQ(retptr, regstack.data()+1);
+  EXPECT_EQ(*retptr, 526);
 }

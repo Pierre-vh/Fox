@@ -21,6 +21,7 @@
 namespace fox {
   struct Instruction;
   class BCModule;
+  class BCFunction;
   class VM {
     public:
       /// The type of a register
@@ -34,6 +35,12 @@ namespace fox {
       ///        might be needed during the execution of bytecode will be
       ///        fetched in that module.
       VM(BCModule& bcModule);
+
+      /// Executes a function \p func
+      /// \returns a pointer to the register containing the return value
+      /// of the executed bytecode. nullptr if there is no return value
+      /// (void)
+      reg_t* run(BCFunction& func);
 
       /// Executes a bytecode buffer \p instrs.
       /// \returns a pointer to the register containing the return value
@@ -50,24 +57,37 @@ namespace fox {
       const Instruction* getPC() const;
 
       /// \returns a view of the register stack
+      /// Note: this might be invalidated if a reallocation occurs.
+      /// Do not trust the pointer after code has been run, functions
+      /// have been called, etc.
       ArrayRef<reg_t> getRegisterStack() const;
 
       /// \returns a mutable view of the register stack
+      /// Note: this might be invalidated if a reallocation occurs.
+      /// Do not trust the pointer after code has been run, functions
+      /// have been called, etc.
       MutableArrayRef<reg_t> getRegisterStack();
 
       /// The Bytecode module executed by this VM instance.
       BCModule& bcModule;
 
     private:
-      // Returns the raw value of the register idx.
+      /// \returns the raw register at address \p idx in the current
+      /// window.
       reg_t getReg(regaddr_t idx) {
         assert((idx < numStackRegister) && "out-of-range");
         return regStack_[idx];
       }
 
-      // Returns the value of the register "idx" reinterpreted as
-      // a value of type Ty. 
-      // Only available for types whose size is less or equal to 8 Bytes
+      /// \returns the address of the register at \p idx in the current
+      /// window.
+      reg_t* getRegPtr(regaddr_t idx) {
+        return regStack_.data()+idx;
+      }
+
+      /// \returns the value of the register \p idx reinterpreted as
+      /// a value of type Ty. 
+      /// Only available for types whose size is less or equal to 8 Bytes
       template<typename Ty>
       Ty getReg(regaddr_t idx) {
         static_assert(sizeof(Ty) <= 8,

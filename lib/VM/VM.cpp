@@ -8,6 +8,7 @@
 #include "Fox/VM/VM.hpp"
 #include "Fox/BC/Instruction.hpp"
 #include "Fox/BC/BCModule.hpp"
+#include "Fox/BC/BCFunction.hpp"
 #include "Fox/Common/Errors.hpp"
 #include <cmath>
 #include <iterator>
@@ -15,6 +16,12 @@
 using namespace fox;
 
 VM::VM(BCModule& theModule) : bcModule(theModule) {}
+
+VM::reg_t* VM::run(BCFunction& func) {
+  // Will be completed later. I'll need to setup the 
+  // call and handle the return value correctly.
+  return run(func.getInstructions());
+}
 
 VM::reg_t* VM::run(ArrayRef<Instruction> instrs) {
   setupIterators(instrs);
@@ -30,9 +37,6 @@ VM::reg_t* VM::run(ArrayRef<Instruction> instrs) {
       case Opcode::NoOp: 
         // NoOp: no-op: do nothing.
         continue;
-      case Opcode::Break:
-        // Break: stop the execution of the program.
-        return nullptr;
       case Opcode::StoreSmallInt:
         // StoreSmallInt dest value: Stores value in dest (value: int16)
         setReg(instr.StoreSmallInt.dest, instr.StoreSmallInt.value);
@@ -210,6 +214,10 @@ VM::reg_t* VM::run(ArrayRef<Instruction> instrs) {
         setReg(instr.LoadDoubleK.dest, 
                bcModule.getDoubleConstant(instr.LoadDoubleK.kID));
         continue;
+      case Opcode::RetVoid:
+        return nullptr;
+      case Opcode::Ret:
+        return getRegPtr(instr.Ret.reg);
       default:
         fox_unreachable("illegal or unimplemented instruction found");
     }

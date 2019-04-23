@@ -55,7 +55,6 @@
 //----------------------------------------------------------------------------//
 
 SIMPLE_INSTR(NoOp)
-SIMPLE_INSTR(Break)
 
 // Storing & Loading Values
   // Stores value (a signed 16 bit int) in register dest
@@ -68,20 +67,20 @@ BINARY_INSTR(LoadIntK, dest, regaddr_t, kID, constant_id_t)
 BINARY_INSTR(LoadDoubleK, dest, regaddr_t, kID, constant_id_t)
 
 // Arithmetic : dest = lhs (op) rhs. Result's type is the type of the operand.
-BINARY_REG_OP(AddInt)       // Int Addition
-BINARY_REG_OP(AddDouble)    // Double Addition
-BINARY_REG_OP(SubInt)       // Int Substraction
-BINARY_REG_OP(SubDouble)    // Double Substraction
-BINARY_REG_OP(MulInt)       // Int Multiplication
-BINARY_REG_OP(MulDouble)    // Double Multiplication
-BINARY_REG_OP(DivInt)       // Int Division
-BINARY_REG_OP(DivDouble)    // Double Division
-BINARY_REG_OP(ModInt)       // Int Modulo
-BINARY_REG_OP(ModDouble)    // Double Modulo
-BINARY_REG_OP(PowInt)       // Int exponentiation
-BINARY_REG_OP(PowDouble)    // Double exponentiation
-UNARY_REG_OP(NegInt)        // Int unary minus
-UNARY_REG_OP(NegDouble)     // Double unary minus
+BINARY_REG_OP(AddInt)    // Int Addition
+BINARY_REG_OP(AddDouble) // Double Addition
+BINARY_REG_OP(SubInt)    // Int Substraction
+BINARY_REG_OP(SubDouble) // Double Substraction
+BINARY_REG_OP(MulInt)    // Int Multiplication
+BINARY_REG_OP(MulDouble) // Double Multiplication
+BINARY_REG_OP(DivInt)    // Int Division
+BINARY_REG_OP(DivDouble) // Double Division
+BINARY_REG_OP(ModInt)    // Int Modulo
+BINARY_REG_OP(ModDouble) // Double Modulo
+BINARY_REG_OP(PowInt)    // Int exponentiation
+BINARY_REG_OP(PowDouble) // Double exponentiation
+UNARY_REG_OP(NegInt)     // Int unary minus
+UNARY_REG_OP(NegDouble)  // Double unary minus
 
 // Comparisons a = b (cond) c. Result is always an int (1 for true, 0 for false)
 BINARY_REG_OP(EqInt)      // Int Equality
@@ -94,8 +93,8 @@ BINARY_REG_OP(GEDouble)   // Double Greater or Equal
 BINARY_REG_OP(GTDouble)   // Double Greater Than
 
 // Other arithmetic/logic ops that operate on raw values
-BINARY_REG_OP(LAnd)     // Logical AND
-BINARY_REG_OP(LOr)      // Logical OR
+BINARY_REG_OP(LAnd) // Logical AND
+BINARY_REG_OP(LOr)  // Logical OR
 UNARY_REG_OP(LNot)  // Logical NOT
 
 // Jumps
@@ -110,7 +109,10 @@ UNARY_INSTR(Jump, offset, jump_offset_t)
 UNARY_REG_OP(IntToDouble) // Converts an int to a double
 UNARY_REG_OP(DoubleToInt) // Converts a double to an int
 
-LAST_INSTR(DoubleToInt)
+SIMPLE_INSTR(RetVoid)
+UNARY_INSTR(Ret, reg, regaddr_t)
+
+LAST_INSTR(Ret)
 
 //----------------------------------------------------------------------------//
 
