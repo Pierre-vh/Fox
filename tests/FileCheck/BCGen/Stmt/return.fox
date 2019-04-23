@@ -1,0 +1,14 @@
+// RUN: %fox-dump-bcgen | %filecheck
+
+// CHECK:       Function 0
+func foo() : int {
+  // CHECK-NEXT:  StoreSmallInt 0 42
+  // CHECK-NEXT:  Ret 0
+  return 42;
+}
+
+// CHECK:       Function 1
+func bar() {
+  // CHECK-NEXT:  RetVoid
+  return;
+}

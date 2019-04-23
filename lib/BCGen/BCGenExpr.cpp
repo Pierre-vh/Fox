@@ -419,6 +419,9 @@ class BCGen::ExprGenerator : public Generator,
 
     RegisterValue visitCallExpr(CallExpr*) { 
       // Needs functions and calls implemented in the VM.
+      // NOTE: What will happen when the function returns void?
+      // -> Have no destination RegisterValue, return an invalid one
+      // Maybe it's naive but it should work just fine in the beginning.
       fox_unimplemented_feature("CallExpr BCGen");
     }
 

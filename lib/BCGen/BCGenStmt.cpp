@@ -266,8 +266,17 @@ class BCGen::StmtGenerator : public Generator,
         .fixJumpInstr(skipBodyJump);
     }
 
-    void visitReturnStmt(ReturnStmt*) {
-      fox_unimplemented_feature("ReturnStmt BCGen");
+    void visitReturnStmt(ReturnStmt* stmt) {
+      RegisterValue reg;
+      // Compile the Expr if needed
+      if(Expr* expr = stmt->getExpr())
+        reg = bcGen.genExpr(builder, regAlloc, expr);
+      // If we actually have a return value, use a 'Ret'
+      if(reg)
+        builder.createRetInstr(reg.getAddress());
+      // Else just use a RetVoid
+      else
+        builder.createRetVoidInstr();
     }
 };
 
