@@ -27,61 +27,63 @@ namespace fox {
   class VarDecl;
   class LoopContext;
 
-  // The (per function) register allocator. It manages allocation
-  // a freeing of registers, striving to reuse registers (at smaller indexes)
-  // and making register management as efficient as possible.
+  /// The RegisterAllocator. Usually one of these is created for each
+  /// function. The role of this class is to track free and used
+  /// register and assign registers to variables and temporaries.
+  /// It strives to use as little registers as possible.
   class alignas(8) RegisterAllocator {
     public:
-      // Preparation/Prologue methods
+      /// Preparation/Prologue methods
 
-      // Initializes or Increments the use count of "var" in this
-      // RegisterAllocator.
+      /// Initializes a variable \p var in this RegisterAllocator.
+      /// If \p var has already been initialized, increments its use count.
       void addUsage(const VarDecl* var);
 
-      // Usage/Register allocation methods
+      /// Usage/Register allocation methods
 
-      // Returns a RegisterValue managing a use of "var". When the RV dies,
-      // the usage count of "var" is decremented, potentially
-      // freeing it if it reaches zero.
-      //
-      // This asserts that this is the first usage (the declaration) of
-      // var.
-      //
-      // Optionally, an hint can be provided. (Hint should be a register
-      // where .canRecycle() returns true). When possible,
-      // this method will recycle the hint, storing the variable inside
-      // hint instead of allocating a new register for it.
+      /// Initializes a known variable \p var. \p var must be known by this 
+      /// RegisterAllocator (= initialized using \ref addUsage in the
+      /// prologue phase)
+      ///
+      /// \returns a RegisterValue managing a use of "var". When the RV dies,
+      /// the usage count of "var" is decremented, potentially
+      /// freeing it if it reaches zero.
+      ///
+      /// Optionally, a hint \p hint can be passed. It should be a recyclable
+      /// register. If \p hint is non null, this method will reuse its register
+      /// instead of allocating a new one for \p var.
       RegisterValue initVar(const VarDecl* var, RegisterValue* hint = nullptr);
-
-      // Returns a RegisterValue managing a use of "var". When the RV dies,
-      // the usage count of "var" is decremented, potentially
-      // freeing it if it reaches zero.
-      //
-      // This asserts that Var has already been declared (that it has an 
-      // address) and that it is alive.
+      
+      /// Use an already declared variable \p var. \p var must have been 
+      /// initialized through \p useVar already.
+      ///
+      /// \returns a RegisterValue managing a use of "var". When the RV dies,
+      /// the usage count of "var" is decremented, potentially
+      /// freeing it if it reaches zero.
       RegisterValue useVar(const VarDecl* var);
 
-      // Allocates a new temporary register, returning a RegisterValue 
-      // managing the register. Once the RegisterValue dies, the register
-      // is freed.
+      /// Allocates a new temporary register
+      ///
+      /// \returns a RegisterValue  managing the register. 
+      /// Once the RegisterValue dies, the register is freed.
       RegisterValue allocateTemporary();
 
-      // Recycle a register that's about to die, transforming it into
-      // a temporar that has the same address.
+      /// Recycle a register that's about to die, transforming it into
+      /// a temporary that has the same address.
       RegisterValue recycle(RegisterValue value);
       
-      // Returns the number of registers currently in use
+      /// \returns the number of registers currently in use
       regaddr_t numbersOfRegisterInUse() const;
 
     private:
       friend RegisterValue;
       friend LoopContext;
 
-      // The data of a VarDecl known by this RegisterAllocator.
-      // This contains 2 fields: the (optional ) address of the variable
-      //  (none if unassigned), and the variable's use count.
-      // When the use count reaches 0, the register occupied by the variable
-      // is freed.
+      /// The data of a VarDecl known by this RegisterAllocator.
+      /// This contains 2 fields: the (optional ) address of the variable
+      /// (llvm::None if unassigned), and the variable's use count.
+      /// When the use count reaches 0, the register occupied by the variable
+      /// is freed.
       struct VarData {
         bool hasAddress() const {
           return addr.hasValue();
@@ -90,93 +92,99 @@ namespace fox {
         llvm::Optional<regaddr_t> addr;
         std::size_t useCount;
       };
-
+      
+      /// The type of the hashmap used to track known variables and map them
+      /// to their \ref VarData
       using KnownVarsMap = std::unordered_map<const VarDecl*, VarData>;
 
-      // Returns true if we are inside a loop (if we have an active LoopContext)
+      /// \returns true if we are inside a loop (if we have an active LoopContext)
       bool isInLoop() const;
 
-      // Performs some actions related to the destruction of a LoopContext.
-      //    - Perform some checks : The use count of all variables in declaredIn
-      //      should have reached zero.
-      //    - Frees every register occupied by the variables in declaredIn
+      /// Performs some actions related to the destruction of a LoopContext.
+      ///    - Runs some checks : The use count of all variables declared in
+      ///      the loop should have reached zero.
+      ///    - Frees the registers in the delayedFrees register.
       void actOnEndOfLoopContext(LoopContext& lc);
 
-      // This method will take care of recycling 'value', returning
-      // its address.
-      // This should be used carefully as it returns the raw register
-      // address. If address number is lost and freeRegister is never called,
-      // the register will never be freed (like a memory leak)
+      /// Recycles a register address \p value and returns it.
+      /// This must be used carefully because if the return value is lost, the
+      /// register will 'leak' just like a memory leak.
       regaddr_t rawRecycleRegister(RegisterValue value);
 
-      // Forgets a known variable, removing it from the set of known variables and
-      // (optionally) removing it from the current LoopContext if it belongs
-      // in it.
-      // NOTE: This deletes the VarData of the variable
-      // NOTE: This DOES NOT free the register occupied by the variable.
+      /// Forgets a known variable, removing it from the set of known variables and
+      /// (optionally) removing it from the current LoopContext if it belongs
+      /// in it.
+      /// NOTE: This deletes the VarData of the variable
+      /// NOTE: This DOES NOT free the register occupied by the variable.
       void forgetVariable(KnownVarsMap::iterator iter);
 
-      // Allocates a new register.
-      // This should be used carefully as it returns the raw register
-      // address. If that address is lost and freeRegister is never called,
-      // the register will never be freed (like a memory leak)
+      /// Allocates a new register.
+      /// \returns the address of the allocated register.
+      /// This should be used carefully as it returns the raw register
+      /// address. If that address is lost and freeRegister is never called,
+      /// the register will never be freed (like a memory leak)
       regaddr_t rawAllocateNewRegister();
 
-      // Marks the register 'reg' as being free and available again.
+      /// Marks the register 'reg' as being free and available again.
+      /// This will either decrement the \ref biggestAllocatedReg_ variable
+      /// or add the register to the \ref freeRegisters_ set.
       void markRegisterAsFreed(regaddr_t reg);
 
-      // Returns the register in which "var" is stored.
-      // NOTE: This assert that we have assigned a register to this
-      //       variable. It will NOT assign a register to that
-      //       var if it doesn't have one. 
-      //       (It just reads data)
+      /// \returns the register address in which "var" is stored.
+      /// NOTE: This assert that we have assigned a register to this
+      ///       variable. It will NOT assign a register to that
+      ///       var if it doesn't have one.  (It just reads data)
       regaddr_t getRegisterOfVar(const VarDecl* var) const;
 
-      // Decrements the use count of "var", potentially freeing
-      // it if its use count reaches 0
+      /// Decrements the use count of \p var, potentially freeing
+      /// it if its use count reaches 0.
+      /// If \p isAlreadyDead is true the variable's use count must
+      /// be zero.
       void release(const VarDecl* var, bool isAlreadyDead = false);
 
-      // Returns true if we can recycle the register occupied by this
-      // variable
+      /// \returns true if we can recycle the register occupied by this
+      /// variable
       bool canRecycle(const VarDecl* var) const;
 
-      // This method tries to remove elements from the freeRegisters_
-      // set by decrementing biggestAllocatedReg_.
-      //
-      // It is called every register allocation, in the future, this
-      // may also be called before setting up a call to minimize
-      // register usage.
+      /// This method tries to remove elements from the freeRegisters_
+      /// set by decrementing biggestAllocatedReg_.
+      ///
+      /// It is called every register allocation, in the future, this
+      /// may also be called before setting up a call to minimize
+      /// register usage.
       void compactFreeRegisterSet();
 
-      // The address of the 'highest' allocated register + 1
-      //
-      // e.g. if we have allocated 5 registers, this value will be set to 6.
+      /// The address of the 'highest' allocated register + 1
+      ///
+      /// e.g. if we have allocated 5 registers, this value will be set to 6.
       regaddr_t biggestAllocatedReg_ = 0;
 
-      // The set of free registers, sorted from the highest to the lowest one.
+      /// The set of free registers, sorted from the highest to the lowest one.
       std::set<regaddr_t, std::greater<regaddr_t> > freeRegisters_;
 
-      // The set of variables known by this RegisterAllocator.
+      /// The set of variables known by this RegisterAllocator.
       KnownVarsMap knownVars_;
-      // The current LoopContext
+      /// The current LoopContext
       LoopContext* curLoopContext_ = nullptr;
   };
 
-  // The register value, representing (maybe shared) ownership
-  // of a single register number. It has semantics similar to std::unique_ptr.
-  //
-  // When destroyed, this class frees the register it is managing (or, in the
-  // future, decreases its use count)
+  /// The register value, representing (maybe shared) ownership
+  /// of a single register address. It has semantics similar to a 
+  /// std::unique_ptr.
+  ///
+  /// When destroyed, this class frees the register it is managing
+  /// (if it's a temporary) or releases it (decrements its use count) 
+  /// (if it's a variable)
   class RegisterValue {
     using kind_t = std::uint8_t;
     public:
       enum class Kind : kind_t {
-        // For RegisterValues that manage temporary variables, freeing the
-        // register when they're destroyed.
+        /// For RegisterValues that manage temporary variables, freeing the
+        /// register when they're destroyed.
         Temporary,
-        // For RegisterValues that manage a reference to a variable and
-        // will decrement the usage counter of that Var (potentially freeing the
-        // register if it reaches 0) when destroyed
+        /// For RegisterValues that manage a reference to a variable and
+        /// will decrement the usage counter of that Var (potentially freeing the
+        /// register if it reaches 0) when destroyed
         Var,
 
         last_kind = Var
@@ -190,30 +198,29 @@ namespace fox {
 
       RegisterValue& operator=(RegisterValue&& other);
 
-      // Returns the 'address' of the register managed by this Registervalue.
+      /// \returns the 'address' of the register managed by this Registervalue.
       regaddr_t getAddress() const;
 
-      // Returns true if this RegisterValue is still alive and
-      // working.
+      /// \returns true if this RegisterValue is still 'alive'
       bool isAlive() const;
 
-      // Returns true if getKind() == Kind::Temporary
+      /// \returns true if getKind() == Kind::Temporary
       bool isTemporary() const;
-      // Returns true if getKind() == Kind::Var
+      /// \returns true if getKind() == Kind::Var
       bool isVar() const;
 
-      // Returns true if this RegisterValue can be recycled by
-      // RegisterAllocator::recycle or RegisterAllocator::initVar
+      /// \returns true if this RegisterValue can be recycled by
+      /// RegisterAllocator::recycle or RegisterAllocator::initVar
       bool canRecycle() const;
 
-      // Calls isAlive()
+      /// calls \ref isAlive
       explicit operator bool() const;
 
-      // Frees the register and kills this RegisterValue.
+      /// Frees the register and kills this RegisterValue.
       void free();
 
-      // Disable the copy constructor and copy
-      // assignement operator.
+      /// Disable the copy constructor and copy
+      /// assignement operator.
       RegisterValue(const RegisterValue&) = delete;
       RegisterValue& operator=(const RegisterValue&) = delete;
 
@@ -223,20 +230,20 @@ namespace fox {
       RegisterAllocator* getRegisterAllocator();
       const RegisterAllocator* getRegisterAllocator() const;
 
-      // Constructor for 'Temporary' RegisterValues
+      /// Constructor for 'Temporary' RegisterValues
       RegisterValue(RegisterAllocator* regAlloc, regaddr_t reg);
 
-      // Constructor for 'Var' RegisterValues
+      /// Constructor for 'Var' RegisterValues
       RegisterValue(RegisterAllocator* regAlloc, const VarDecl* var);
 
-      // "Kills" this RegisterValue, making it useless/ineffective.
-      // Used by the move constructor/assignement operator.
-      //
-      // This should be used carefully because this will not
-      // free the register. Use "free()" for that!
+      /// "Kills" this RegisterValue, making it useless/ineffective.
+      /// Used by the move constructor/assignement operator.
+      ///
+      /// This should be used carefully because this will not
+      /// free the register. Use "free()" for that!
       void kill();
 
-      // The number of bits used to store the Kind in regAllocAndKind_
+      /// The number of bits used to store the Kind in regAllocAndKind_
       static constexpr unsigned kindBits = 1;
 
       static_assert(static_cast<kind_t>(Kind::last_kind) <= kindBits,
