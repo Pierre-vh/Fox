@@ -13,6 +13,8 @@
 #include "Fox/AST/ASTVisitor.hpp"
 #include "Fox/AST/ASTWalker.hpp"
 #include "Fox/Common/FoxTypes.hpp"
+#include "Fox/Common/LLVM.hpp"
+#include "llvm/ADT/Optional.h"
 
 using namespace fox;
 
@@ -22,10 +24,12 @@ using namespace fox;
 
 // The actual class responsible for generating the bytecode of expressions
 class BCGen::ExprGenerator : public Generator,
-                             ExprVisitor<ExprGenerator, RegisterValue> {
-  using Visitor = ExprVisitor<ExprGenerator, RegisterValue>;
+                             ExprVisitor<ExprGenerator, RegisterValue, 
+                                         /*args*/ RegisterValue> {
+  using Visitor = ExprVisitor<ExprGenerator, RegisterValue, RegisterValue>;
   friend Visitor;
   public:
+
     ExprGenerator(BCGen& gen, BCBuilder& builder, 
                   RegisterAllocator& regAlloc) : Generator(gen, builder),
                   regAlloc(regAlloc) {}
@@ -65,25 +69,33 @@ class BCGen::ExprGenerator : public Generator,
       return false;
     }
 
-    // If 'reg' can be recycled, recycle it, else, return a new 
-    // temporary register.
-    RegisterValue tryReuseRegister(RegisterValue& reg) {
-      if(reg.canRecycle())
-        return regAlloc.recycle(std::move(reg));
+    /// Chooses a destination register for a function: uses dest if valid,
+    /// else allocates a new temporary.
+    RegisterValue getDestReg(RegisterValue dest) {
+      if(dest) 
+        return dest;
       return regAlloc.allocateTemporary();
     }
 
-    // If possible, recycle a live temporary register from the list.
-    // (note: this method will always prefer the smallest register numbers)
-    // Else, it returns a new temporary register.
+    /// Chooses a destination register for an expression
+    ///  -> Uses \p dest when it's non null
+    ///  -> Else, uses the best recyclable RV in \p hints 
+    ///     (uses the one with the lowest address possible)
+    ///  -> Else allocates a new temporary
+    ///
+    /// After execution, the hint that has been recycled will be dead
+    /// (=evaluate to false) and other hints will be left untouched.
     RegisterValue 
-    tryReuseRegisters(reference_initializer_list<RegisterValue> regs) {
+    getDestReg(RegisterValue dest, 
+                  reference_initializer_list<RegisterValue> hints) {
+      if(dest) return dest;
+      
       RegisterValue* best = nullptr;
-      for (auto& reg : regs) {
-        if (reg.get().canRecycle()) {
+      for (auto& hint : hints) {
+        if (hint.get().canRecycle()) {
           // Can this become our best candidate?
-          if((!best) || (best->getAddress() > reg.get().getAddress())) 
-            best = &(reg.get());
+          if((!best) || (best->getAddress() > hint.get().getAddress())) 
+            best = &(hint.get());
         }
       }
 
@@ -235,7 +247,8 @@ class BCGen::ExprGenerator : public Generator,
 
     // Generates the code for a BinaryExpr whose type is a Numeric or
     // Boolean Binary Expr.
-    RegisterValue genNumericOrBoolBinaryExpr(BinaryExpr* expr) {
+    RegisterValue genNumericOrBoolBinaryExpr(BinaryExpr* expr, 
+                                             RegisterValue dest) {
       assert((expr->getType()->isNumericOrBool()));
       assert((expr->getLHS()->getType()->isNumericOrBool())
           && (expr->getRHS()->getType()->isNumericOrBool()));
@@ -250,9 +263,8 @@ class BCGen::ExprGenerator : public Generator,
       regaddr_t rhsAddr = rhsReg.getAddress();
       assert(rhsReg && "Generated a dead register for the RHS");
       
-      // Decide on which register to use for the destination, maybe reusing
-      // the lhs or rhs.
-      RegisterValue dstReg = tryReuseRegisters({lhsReg, rhsReg});
+      // Choose the destination register
+      RegisterValue dstReg = getDestReg(std::move(dest), {lhsReg, rhsReg});
       regaddr_t dstAddr = dstReg.getAddress();
 
       // Dispatch to the appropriate generator function
@@ -278,21 +290,50 @@ class BCGen::ExprGenerator : public Generator,
     //------------------------------------------------------------------------//
     // "visit" methods 
     // 
-    // Theses methods will perfom the actual tasks required to emit
+    // These methods will perfom the actual tasks required to emit
     // the bytecode for an Expr.
+    // They take a RegisterValue as argument. It's the destination register
+    // but it can be omitted (pass a RegisterValue()), however when it is
+    // present EVERY visitXXX method MUST store the result of the expression
+    // inside it. This is enforced by an assertion in visit() in debug mode.
+    // NOTE: For now it's unused, but it'll be used when generating assignements
+    // to optimize them whenever possible.
     //------------------------------------------------------------------------//
 
-    RegisterValue visitBinaryExpr(BinaryExpr* expr) { 
+    RegisterValue visit(Expr* expr, RegisterValue dest) {
+      #ifndef NDEBUG
+        // In debug mode, check that the destination is respected
+        regaddr_t expectedAddr = dest ? dest.getAddress() : 0;
+        RegisterValue resultRV = Visitor::visit(expr, std::move(dest));
+        if (dest) {
+          assert((expectedAddr == resultRV.getAddress())
+          && "A destination register was provided but was not respected");
+        }
+        return resultRV;
+      #else 
+        return Visitor::visit(expr, std::move(dest));
+      #endif
+    }
+
+    RegisterValue visit(Expr* expr) {
+      // Directly use Visitor::visit so we bypass the useless checks
+      // in visit(Expr*, RegisterValue)
+      return Visitor::visit(expr, RegisterValue());
+    }
+
+    RegisterValue 
+    visitBinaryExpr(BinaryExpr* expr, RegisterValue dest) { 
       assert((expr->getOp() != BinOp::Invalid)
         && "BinaryExpr with OpKind::Invalid past semantic analysis");
       if(expr->isAssignement())
         fox_unimplemented_feature("Assignement BinaryExpr BCGen");
       if (expr->getType()->isNumericOrBool())
-        return genNumericOrBoolBinaryExpr(expr);
+        return genNumericOrBoolBinaryExpr(expr, std::move(dest));
       fox_unimplemented_feature("Non-numeric BinaryExpr BCGen");
     }
 
-    RegisterValue visitCastExpr(CastExpr* expr) {
+    RegisterValue 
+    visitCastExpr(CastExpr* expr, RegisterValue dest) {
       // Visit the child
       Expr* subExpr = expr->getExpr();
       RegisterValue childReg = visit(subExpr);
@@ -305,7 +346,7 @@ class BCGen::ExprGenerator : public Generator,
       Type subTy = subExpr->getType();
       regaddr_t childRegAddr = childReg.getAddress();
 
-      RegisterValue dstReg = tryReuseRegister(childReg);
+      RegisterValue dstReg = getDestReg(std::move(dest), {childReg});
 
       assert(dstReg && "no destination register selected");
       regaddr_t dstRegAddr = dstReg.getAddress();
@@ -342,7 +383,8 @@ class BCGen::ExprGenerator : public Generator,
       return dstReg;
     }
 
-    RegisterValue visitUnaryExpr(UnaryExpr* expr) { 
+    RegisterValue 
+    visitUnaryExpr(UnaryExpr* expr, RegisterValue dest) { 
       assert((expr->getOp() != UnOp::Invalid)
         && "UnaryExpr with OpKind::Invalid past semantic analysis");
 
@@ -353,10 +395,12 @@ class BCGen::ExprGenerator : public Generator,
       // value instead of generating a NegInt or something.
       if (expr->getOp() == UnOp::Minus) {
         if (auto intLit = dyn_cast<IntegerLiteralExpr>(subExpr))
-          return visitIntegerLiteralExpr(intLit,    /*asNegative*/ true);
+          return visitIntegerLiteralExpr(intLit, RegisterValue(), 
+                                                  /*asNegative*/ true);
 
         if (auto doubleLit = dyn_cast<DoubleLiteralExpr>(subExpr))
-          return visitDoubleLiteralExpr(doubleLit,  /*asNegative*/ true);
+          return visitDoubleLiteralExpr(doubleLit, RegisterValue(), 
+                                                  /*asNegative*/ true);
       }
       // Else compile it normally
 
@@ -367,7 +411,7 @@ class BCGen::ExprGenerator : public Generator,
 
       regaddr_t childAddr = childReg.getAddress();
 
-      RegisterValue destReg = tryReuseRegister(childReg);
+      RegisterValue destReg = getDestReg(std::move(dest), {childReg});
       regaddr_t destAddr = destReg.getAddress();
 
       // Unary LNot '!' is always applied on booleans, so we
@@ -393,31 +437,43 @@ class BCGen::ExprGenerator : public Generator,
       return destReg;
     }
 
-    RegisterValue visitArraySubscriptExpr(ArraySubscriptExpr*) { 
+    RegisterValue 
+    visitArraySubscriptExpr(ArraySubscriptExpr*, RegisterValue) { 
       // Needs Arrays implemented in the VM.
       fox_unimplemented_feature("ArraySubscriptExpr BCGen");
     }
 
-    RegisterValue visitMemberOfExpr(MemberOfExpr*) { 
+    RegisterValue 
+    visitMemberOfExpr(MemberOfExpr*, RegisterValue) { 
       // Unused for now.
       fox_unimplemented_feature("MemberOfExpr BCGen");
     }
 
-    RegisterValue visitDeclRefExpr(DeclRefExpr* expr) { 
+    RegisterValue 
+    visitDeclRefExpr(DeclRefExpr* expr, RegisterValue dest) { 
       ValueDecl* decl = expr->getDecl();
       // Reference to Global declarations
       if(!decl->isLocal())
         fox_unimplemented_feature("Global DeclRefExpr BCGen");
       // Reference to Local Variables
-      if(VarDecl* var = dyn_cast<VarDecl>(decl))
-        return regAlloc.useVar(var);
+      if (VarDecl* var = dyn_cast<VarDecl>(decl)) {
+        RegisterValue varReg = regAlloc.useVar(var);
+        if (dest && (dest != varReg)) {
+          // If we have a destination register, emit a Copy instr so the result
+          // is located in the dest reg (as requested).
+          builder.createCopyInstr(dest.getAddress(), varReg.getAddress());
+          return dest;
+        }
+        return varReg;
+      }
       // Reference to Parameter decls
       if(ParamDecl* param = dyn_cast<ParamDecl>(decl))
         fox_unimplemented_feature("ParamDecl DeclRefExpr BCGen");
       fox_unimplemented_feature("Unknown Local Decl Kind");
     }
 
-    RegisterValue visitCallExpr(CallExpr*) { 
+    RegisterValue
+    visitCallExpr(CallExpr*, RegisterValue) { 
       // Needs functions and calls implemented in the VM.
       // NOTE: What will happen when the function returns void?
       // -> Have no destination RegisterValue, return an invalid one
@@ -425,54 +481,60 @@ class BCGen::ExprGenerator : public Generator,
       fox_unimplemented_feature("CallExpr BCGen");
     }
 
-    RegisterValue visitCharLiteralExpr(CharLiteralExpr* expr) { 
-      // Store the character as an integer in a new register.
-      RegisterValue value = regAlloc.allocateTemporary();
-      emitStoreIntConstant(value, expr->getValue());
-      return value;
+    RegisterValue 
+    visitCharLiteralExpr(CharLiteralExpr* expr, RegisterValue dest) { 
+      dest = getDestReg(std::move(dest));
+      emitStoreIntConstant(dest, expr->getValue());
+      return dest;
     }
 
-    RegisterValue visitIntegerLiteralExpr(IntegerLiteralExpr* expr, 
-                                          bool asNegative = false) {
-      RegisterValue dest = regAlloc.allocateTemporary();
+    RegisterValue 
+    visitIntegerLiteralExpr(IntegerLiteralExpr* expr, RegisterValue dest,
+                            bool asNegative = false) {
+      dest = getDestReg(std::move(dest));
       FoxInt value = asNegative ? -expr->getValue() : expr->getValue();
       emitStoreIntConstant(dest, value);
       return dest;
     }
 
-    RegisterValue visitDoubleLiteralExpr(DoubleLiteralExpr* expr, 
-                                         bool asNegative = false) { 
-      RegisterValue dest = regAlloc.allocateTemporary();
+    RegisterValue 
+    visitDoubleLiteralExpr(DoubleLiteralExpr* expr, RegisterValue dest,
+                           bool asNegative = false) { 
+      dest = getDestReg(std::move(dest));
       FoxDouble value = asNegative ? -expr->getValue() : expr->getValue();
       auto kID = bcGen.getConstantID(value);
       builder.createLoadDoubleKInstr(dest.getAddress(), kID);
       return dest;
     }
 
-    RegisterValue visitBoolLiteralExpr(BoolLiteralExpr* expr) { 
-      // Store the boolean as an integer in a new register.
-      RegisterValue value = regAlloc.allocateTemporary();
-      emitStoreIntConstant(value, expr->getValue());
-      return value;
+    RegisterValue 
+    visitBoolLiteralExpr(BoolLiteralExpr* expr, RegisterValue dest) { 
+      dest = getDestReg(std::move(dest));
+      emitStoreIntConstant(dest, expr->getValue());
+      return dest;
     }
 
-    RegisterValue visitStringLiteralExpr(StringLiteralExpr*) { 
+    RegisterValue 
+    visitStringLiteralExpr(StringLiteralExpr*, RegisterValue) { 
       // Needs strings implemented in the VM
       fox_unimplemented_feature("StringLiteralExpr BCGen");
     }
 
-    RegisterValue visitArrayLiteralExpr(ArrayLiteralExpr*) {
+    RegisterValue 
+    visitArrayLiteralExpr(ArrayLiteralExpr*, RegisterValue) {
       // Needs array implemented in the VM
       fox_unimplemented_feature("ArrayLiteralExpr BCGen");
     }
 
     // ErrorExprs shouldn't be found in BCGen.
-    RegisterValue visitErrorExpr(ErrorExpr*) { 
+    RegisterValue 
+    visitErrorExpr(ErrorExpr*, RegisterValue) { 
       fox_unreachable("ErrorExpr found past semantic analysis");
     }
 
     // UnresolvedDeclRefExprs shouldn't be found in BCGen.
-    RegisterValue visitUnresolvedDeclRefExpr(UnresolvedDeclRefExpr*) { 
+    RegisterValue 
+    visitUnresolvedDeclRefExpr(UnresolvedDeclRefExpr*, RegisterValue) { 
       fox_unreachable("UnresolvedDeclRefExpr found past semantic analysis");
     }
 
