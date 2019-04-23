@@ -51,7 +51,7 @@ Basic VM data types and their mappings to Fox types:
     -> BCGen (Done)
     -> Instructions + VM support (Done)
 
-  -> BCGen of Double literals & expressions
+  -> BCGen of Double literals & expressions (Done)
 
   -> Destination register for ExprGenerator: Require a destination register for an expression.
      If present, the result must be stored there. 
@@ -79,8 +79,9 @@ Basic VM data types and their mappings to Fox types:
 
   -> Common "Object" base
   -> ArrayObject: Always dynamically sized, essentially just a SmallVector (will maybe even inherit from it). Has a "isReference" flag.
-  -> Strings: Similar to ArrayObject. I think they'll also be dynamically sized, but that's subject to change.
- 
+  -> Strings: Similar to ArrayObject. I think they'll also be dynamically sized & mutable, but that's
+     subject to change.
+
   Note: In the future, I'll probably have a UserObject (structs) and a TupleObject (tuples).
 
 ---- Getting feature-complete (with the current feature set) ----
