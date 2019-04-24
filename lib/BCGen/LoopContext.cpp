@@ -23,6 +23,6 @@ LoopContext::~LoopContext() {
   regAlloc.actOnEndOfLoopContext(*this);
 }
 
-bool LoopContext::isVarDeclaredInside(const VarDecl* var) const {
-  return (varsInLoop_.find(var) != varsInLoop_.end());
+bool LoopContext::isDeclaredInside(const ValueDecl* decl) const {
+  return (declsInLoop_.find(decl) != declsInLoop_.end());
 }

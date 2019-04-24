@@ -59,7 +59,7 @@ Basic VM data types and their mappings to Fox types:
 
   -> Codegen of functions & return statements
     -> RegisterAllocator::initFunctionParams (impl and use it)
-      -> RegisterAllocator: use 'const ValueDecl*' instead of 'const VarDecl*'
+      -> RegisterAllocator: use 'const ValueDecl*' instead of 'const VarDecl*' (Done)
       -> ParamDecl DeclRef support in AssignementGenerator and ExprGenerator
     -> Function Calls:
       -> BCFunction: "needsCopyInOut()" + optional llvm::BitVector as parameter for a

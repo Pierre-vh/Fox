@@ -16,7 +16,7 @@
 
 namespace fox {
   class RegisterAllocator;
-  class VarDecl;
+  class ValueDecl;
   // The LoopContext is a data structure that should be used when
   // compiling loops.
   // It is a very important part of the codegen process for loops because
@@ -30,16 +30,16 @@ namespace fox {
     private:
       friend RegisterAllocator;
 
-      // Returns true if 'var' was declared inside this loop
-      bool isVarDeclaredInside(const VarDecl* var) const;
+      // Returns true if \p decl was declared inside this loop
+      bool isDeclaredInside(const ValueDecl* decl) const;
 
-      // The set of variables declared inside this loop. 
-      // These are the only variables that can be destroyed when inside
-      // the loop.
-      std::unordered_set<const VarDecl*> varsInLoop_;
-      // The set of variables declared outside the loop that 'died'
+      // The set of decls declared inside this loop. 
+      // These are the only Decls that can be destroyed when their
+      // use count reaches zero while we are in this LoopContext.
+      std::unordered_set<const ValueDecl*> declsInLoop_;
+      // The set of Decls declared outside the loop that 'died'
       // while inside the loop. 
-      std::unordered_set<const VarDecl*> delayedReleases_;
+      std::unordered_set<const ValueDecl*> delayedReleases_;
       LoopContext* previousLC_= nullptr;
   };
 }

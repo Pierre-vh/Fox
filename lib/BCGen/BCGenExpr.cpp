@@ -532,7 +532,7 @@ class BCGen::ExprGenerator : public Generator,
         fox_unimplemented_feature("Global DeclRefExpr BCGen");
       // Reference to Local Variables
       if (VarDecl* var = dyn_cast<VarDecl>(decl)) {
-        RegisterValue varReg = regAlloc.useVar(var);
+        RegisterValue varReg = regAlloc.useDecl(var);
         if (dest && (dest != varReg)) {
           // If we have a destination register, emit a Copy instr so the result
           // is located in the dest reg (as requested).
@@ -672,7 +672,7 @@ visitDeclRefExpr(DeclRefExpr* expr, Expr* source, BinOp op) {
   VarDecl* var = dyn_cast<VarDecl>(expr->getDecl());
   assert(var && "Unhandled Assignee Decl Kind");
   // Gen the RHS with the LHS's address as destination register.
-  return exprGen.generate(source, regAlloc.useVar(var));
+  return exprGen.generate(source, regAlloc.useDecl(var));
 }
 
 RegisterValue BCGen::AssignementGenerator::

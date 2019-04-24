@@ -24,29 +24,31 @@ namespace llvm {
 
 namespace fox {
   class RegisterValue;
+  class ValueDecl;
   class VarDecl;
   class LoopContext;
 
   /// The RegisterAllocator. Usually one of these is created for each
   /// function. The role of this class is to track free and used
-  /// register and assign registers to variables and temporaries.
-  /// It strives to use as little registers as possible.
+  /// register and assign registers to declarations and temporaries.
   class alignas(8) RegisterAllocator {
     public:
+      ///--------------------------------------------------------------------///
       /// Preparation/Prologue methods
+      ///--------------------------------------------------------------------///
 
       /// Initializes a variable \p var in this RegisterAllocator.
       /// If \p var has already been initialized, increments its use count.
       void addUsage(const VarDecl* var);
 
+      ///--------------------------------------------------------------------///
       /// Usage/Register allocation methods
+      ///--------------------------------------------------------------------///
 
-      /// Initializes a known variable \p var. \p var must be known by this 
-      /// RegisterAllocator (= initialized using \ref addUsage in the
-      /// prologue phase)
+      /// Initializes a known variable \p var
       ///
-      /// \returns a RegisterValue managing a use of "var". When the RV dies,
-      /// the usage count of "var" is decremented, potentially
+      /// \returns a RegisterValue managing a use of \p var. When the RV dies,
+      /// the usage count of \p var is decremented, potentially
       /// freeing it if it reaches zero.
       ///
       /// Optionally, a hint \p hint can be passed. It should be a recyclable
@@ -54,13 +56,12 @@ namespace fox {
       /// instead of allocating a new one for \p var.
       RegisterValue initVar(const VarDecl* var, RegisterValue* hint = nullptr);
       
-      /// Use an already declared variable \p var. \p var must have been 
-      /// initialized through \p useVar already.
+      /// Use an already declared/initialized Decl \p decl
       ///
-      /// \returns a RegisterValue managing a use of "var". When the RV dies,
-      /// the usage count of "var" is decremented, potentially
+      /// \returns a RegisterValue managing a use of the decl. When the RV dies,
+      /// the usage count of the decl is decremented, potentially
       /// freeing it if it reaches zero.
-      RegisterValue useVar(const VarDecl* var);
+      RegisterValue useDecl(const ValueDecl* decl);
 
       /// Allocates a new temporary register
       ///
@@ -79,12 +80,13 @@ namespace fox {
       friend RegisterValue;
       friend LoopContext;
 
-      /// The data of a VarDecl known by this RegisterAllocator.
-      /// This contains 2 fields: the (optional ) address of the variable
-      /// (llvm::None if unassigned), and the variable's use count.
-      /// When the use count reaches 0, the register occupied by the variable
+      /// The data of a ValueDecl known by this RegisterAllocator.
+      /// This contains 2 fields: the (optional ) address of the decl
+      /// (llvm::None if unassigned), and the decl's use count.
+      /// When the use count reaches 0, the register occupied by the decl
       /// is freed.
-      struct VarData {
+      /// Decl here is a ValueDecl, usually a VarDecl or ParamDecl.
+      struct DeclData {
         bool hasAddress() const {
           return addr.hasValue();
         }
@@ -93,9 +95,9 @@ namespace fox {
         std::size_t useCount;
       };
       
-      /// The type of the hashmap used to track known variables and map them
-      /// to their \ref VarData
-      using KnownVarsMap = std::unordered_map<const VarDecl*, VarData>;
+      /// The type of the hashmap used to track known declarations and map them
+      /// to their \ref DeclData
+      using KnownDeclsMap = std::unordered_map<const ValueDecl*, DeclData>;
 
       /// \returns true if we are inside a loop (if we have an active LoopContext)
       bool isInLoop() const;
@@ -111,12 +113,12 @@ namespace fox {
       /// register will 'leak' just like a memory leak.
       regaddr_t rawRecycleRegister(RegisterValue value);
 
-      /// Forgets a known variable, removing it from the set of known variables and
+      /// Forgets a known decl, removing it from the set of known decls and
       /// (optionally) removing it from the current LoopContext if it belongs
       /// in it.
-      /// NOTE: This deletes the VarData of the variable
-      /// NOTE: This DOES NOT free the register occupied by the variable.
-      void forgetVariable(KnownVarsMap::iterator iter);
+      /// NOTE: This deletes the DeclData of the decl
+      /// NOTE: This DOES NOT free the register occupied by the decl.
+      void forgetDecl(KnownDeclsMap::iterator iter);
 
       /// Allocates a new register.
       /// \returns the address of the allocated register.
@@ -130,21 +132,19 @@ namespace fox {
       /// or add the register to the \ref freeRegisters_ set.
       void markRegisterAsFreed(regaddr_t reg);
 
-      /// \returns the register address in which "var" is stored.
+      /// \returns the register address in which \p decl is stored.
       /// NOTE: This assert that we have assigned a register to this
-      ///       variable. It will NOT assign a register to that
-      ///       var if it doesn't have one.  (It just reads data)
-      regaddr_t getRegisterOfVar(const VarDecl* var) const;
+      ///       decl.
+      regaddr_t getRegisterOfDecl(const ValueDecl* decl) const;
 
-      /// Decrements the use count of \p var, potentially freeing
-      /// it if its use count reaches 0.
-      /// If \p isAlreadyDead is true the variable's use count must
+      /// Decrements the use count of \p decl, potentially freeing
+      /// its register if its use count reaches 0.
+      /// If \p isAlreadyDead is true the decl's use count must
       /// be zero.
-      void release(const VarDecl* var, bool isAlreadyDead = false);
+      void release(const ValueDecl* decl, bool isAlreadyDead = false);
 
-      /// \returns true if we can recycle the register occupied by this
-      /// variable
-      bool canRecycle(const VarDecl* var) const;
+      /// \returns true if we can recycle the register occupied by \p decl
+      bool canRecycle(const ValueDecl* decl) const;
 
       /// This method tries to remove elements from the freeRegisters_
       /// set by decrementing biggestAllocatedReg_.
@@ -162,8 +162,8 @@ namespace fox {
       /// The set of free registers, sorted from the highest to the lowest one.
       std::set<regaddr_t, std::greater<regaddr_t> > freeRegisters_;
 
-      /// The set of variables known by this RegisterAllocator.
-      KnownVarsMap knownVars_;
+      /// The set of declarations known by this RegisterAllocator.
+      KnownDeclsMap knownDecls_;
       /// The current LoopContext
       LoopContext* curLoopContext_ = nullptr;
   };
@@ -182,12 +182,12 @@ namespace fox {
         /// For RegisterValues that manage temporary variables, freeing the
         /// register when they're destroyed.
         Temporary,
-        /// For RegisterValues that manage a reference to a variable and
-        /// will decrement the usage counter of that Var (potentially freeing the
+        /// For RegisterValues that manage a reference to a declaration and
+        /// will decrement the usage count of that decl (potentially freeing the
         /// register if it reaches 0) when destroyed
-        Var,
+        DeclRef,
 
-        last_kind = Var
+        last_kind = DeclRef
       };
 
       RegisterValue() = default;
@@ -207,7 +207,7 @@ namespace fox {
       /// \returns true if getKind() == Kind::Temporary
       bool isTemporary() const;
       /// \returns true if getKind() == Kind::Var
-      bool isVar() const;
+      bool isDeclRef() const;
 
       /// \returns true if this RegisterValue can be recycled by
       /// RegisterAllocator::recycle or RegisterAllocator::initVar
@@ -238,8 +238,8 @@ namespace fox {
       /// Constructor for 'Temporary' RegisterValues
       RegisterValue(RegisterAllocator* regAlloc, regaddr_t reg);
 
-      /// Constructor for 'Var' RegisterValues
-      RegisterValue(RegisterAllocator* regAlloc, const VarDecl* var);
+      /// Constructor for 'DeclRef' RegisterValues
+      RegisterValue(RegisterAllocator* regAlloc, const ValueDecl* decl);
 
       /// "Kills" this RegisterValue, making it useless/ineffective.
       /// Used by the move constructor/assignement operator.
@@ -256,7 +256,7 @@ namespace fox {
 
       llvm::PointerIntPair<RegisterAllocator*, kindBits, Kind> regAllocAndKind_;
       union {
-        const VarDecl* varDecl = nullptr;
+        const ValueDecl* decl = nullptr;
         regaddr_t tempRegAddress;
       } data_;
   };

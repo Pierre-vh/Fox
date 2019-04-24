@@ -6,6 +6,7 @@
 //----------------------------------------------------------------------------//
 
 #include "Registers.hpp"
+#include "Fox/AST/Decl.hpp"
 #include "Fox/Common/Errors.hpp"
 #include "LoopContext.hpp"
 #include <utility>
@@ -17,17 +18,17 @@ using namespace fox;
 //----------------------------------------------------------------------------//
 
 void RegisterAllocator::addUsage(const VarDecl* var) {
-  ++(knownVars_[var].useCount);
+  ++(knownDecls_[var].useCount);
 }
 
 RegisterValue 
 RegisterAllocator::initVar(const VarDecl* var, RegisterValue* hint) {
   // Search for the var
-  auto it = knownVars_.find(var);
-  assert((it != knownVars_.end()) && "Unknown Variable!");
+  auto it = knownDecls_.find(var);
+  assert((it != knownDecls_.end()) && "Unknown Variable!");
 
   // Assert that the variable has not been initialized yet
-  VarData& data = it->second;
+  DeclData& data = it->second;
   assert(!data.hasAddress() && "Var has already been initialized:"
     "(initVar already called for this variable)");
 
@@ -43,23 +44,24 @@ RegisterAllocator::initVar(const VarDecl* var, RegisterValue* hint) {
   // If we're in a loop, notify the LoopContext that this variable
   // was declared inside it.
   if (isInLoop())
-    curLoopContext_->varsInLoop_.insert(var);
+    curLoopContext_->declsInLoop_.insert(var);
 
   // Return a RegisterValue managing this Var
   return RegisterValue(this, var);
 }
 
-RegisterValue RegisterAllocator::useVar(const VarDecl* var) {
+RegisterValue RegisterAllocator::useDecl(const ValueDecl* decl) {
+#ifndef NDEBUG
   // Search for the var
-  auto it = knownVars_.find(var);
-  assert((it != knownVars_.end()) && "Unknown Variable!");
+  auto it = knownDecls_.find(decl);
+  assert((it != knownDecls_.end()) && "Unknown Decl!");
 
   // Assert that the variable has been assigned a register.
-  assert(it->second.hasAddress() && "Var has not been initialized "
+  assert(it->second.hasAddress() && "Decl has not been initialized "
     "(initVar not called for this variable)");
-
-  // Return a RegisterValue managing this Var
-  return RegisterValue(this, var);
+#endif
+  // Return a RegisterValue managing a use of this Decl.
+  return RegisterValue(this, decl);
 }
 
 RegisterValue RegisterAllocator::allocateTemporary() {
@@ -82,14 +84,14 @@ bool RegisterAllocator::isInLoop() const {
 }
 
 void RegisterAllocator::actOnEndOfLoopContext(LoopContext& lc) {
-  // Assert that all variables declared inside this LC have been
+  // Assert that all decls declared inside this LC have been
   // released.
-  assert((lc.varsInLoop_.size() == 0)
-    && "Some variables declared inside the loop were still alive "
+  assert((lc.declsInLoop_.size() == 0)
+    && "Some Decls declared inside the loop were still alive "
        "at the destruction of the LoopContext");
-  // Release every variable in the "delayedFrees" set
-  for (auto var : lc.delayedReleases_) 
-    release(var, /*alreadyDead*/ true);
+  // Release every decl in the delayedReleases set
+  for (auto decl : lc.delayedReleases_) 
+    release(decl, /*alreadyDead*/ true);
 }
 
 regaddr_t RegisterAllocator::rawRecycleRegister(RegisterValue value) {
@@ -98,8 +100,8 @@ regaddr_t RegisterAllocator::rawRecycleRegister(RegisterValue value) {
   switch (value.getKind()) {
     // Nothing to do for temporaries
     case RegisterValue::Kind::Temporary: break;
-    case RegisterValue::Kind::Var:
-      forgetVariable(knownVars_.find(value.data_.varDecl));
+    case RegisterValue::Kind::DeclRef:
+      forgetDecl(knownDecls_.find(value.data_.decl));
       break;
     default:
       fox_unreachable("Unknown RegisterValue::Kind");
@@ -108,19 +110,19 @@ regaddr_t RegisterAllocator::rawRecycleRegister(RegisterValue value) {
   return addr;
 }
 
-void RegisterAllocator::forgetVariable(KnownVarsMap::iterator iter) {
-  assert((iter != knownVars_.end()) && "unknown var");
+void RegisterAllocator::forgetDecl(KnownDeclsMap::iterator iter) {
+  assert((iter != knownDecls_.end()) && "unknown decl");
 
   // Remove it from the current LoopContext if needed
   if (isInLoop()) {
-    auto& lc_knownVars = curLoopContext_->varsInLoop_;
-    auto lc_iter = lc_knownVars.find(iter->first);
-    if(lc_iter != lc_knownVars.end())
-      lc_knownVars.erase(lc_iter);
+    auto& knownDecls_ = curLoopContext_->declsInLoop_;
+    auto lc_iter = knownDecls_.find(iter->first);
+    if(lc_iter != knownDecls_.end())
+      knownDecls_.erase(lc_iter);
   }
 
-  // Remove it from the set of known variables
-  knownVars_.erase(iter);
+  // Remove it from the set of known declarations
+  knownDecls_.erase(iter);
 }
 
 regaddr_t RegisterAllocator::rawAllocateNewRegister() {
@@ -166,55 +168,56 @@ void RegisterAllocator::markRegisterAsFreed(regaddr_t reg) {
   }
 }
 
-regaddr_t RegisterAllocator::getRegisterOfVar(const VarDecl* var) const {
-  // Search for the var
-  auto it = knownVars_.find(var);
-  assert((it != knownVars_.end()) && "Unknown Variable!");
+regaddr_t RegisterAllocator::getRegisterOfDecl(const ValueDecl* decl) const {
+  // Search for the decl
+  auto it = knownDecls_.find(decl);
+  assert((it != knownDecls_.end()) && "Unknown Decl!");
   // If this function is called, we should have a register reserved for this 
-  // variable
-  assert(it->second.hasAddress() && "Variable doesn't have an address!");
-  assert(it->second.useCount && "Variable is dead");
+  // decl
+  assert(it->second.hasAddress() && "Decl doesn't have an address!");
+  assert(it->second.useCount && "Decl is dead");
   return it->second.addr.getValue();
 }
 
-void RegisterAllocator::release(const VarDecl* var, bool isAlreadyDead) {
-  // Search for the var and fetch its data
-  auto it = knownVars_.find(var);
-  assert((it != knownVars_.end()) && "Unknown Variable!");
-  VarData& data = it->second;
+void RegisterAllocator::release(const ValueDecl* decl, bool isAlreadyDead) {
+  // Search for the Decl and fetch its data
+  auto it = knownDecls_.find(decl);
+  assert((it != knownDecls_.end()) && "Unknown Decl!");
+  DeclData& data = it->second;
 
   // Decrement the use count (if needed)
   if(isAlreadyDead) assert(data.useCount == 0);
   else {
-    assert((data.useCount != 0) && "Variable is already dead");
+    assert((data.useCount != 0) && "Decl is already dead");
     --(data.useCount);
   }
 
-  // Check if the variable is dead
+  // Check if the Decl is dead
   if (data.useCount == 0) {
-    // In loops, we can't free variables declared outside the loop
+    // In loops, we can't free registers used by Decls declared 
+    // outside the loop
     if (isInLoop()) {
-      if (!curLoopContext_->isVarDeclaredInside(var)) {
+      if (!curLoopContext_->isDeclaredInside(decl)) {
         // Delay the release until the end of the LC's lifetime.
-        curLoopContext_->delayedReleases_.insert(var);
+        curLoopContext_->delayedReleases_.insert(decl);
         return;
       }
     }
     // Free its register
     markRegisterAsFreed(data.addr.getValue());
-    // Forget the variable
-    forgetVariable(it);
+    // Forget the Decl
+    forgetDecl(it);
   }
 }
 
-bool RegisterAllocator::canRecycle(const VarDecl* var) const {
+bool RegisterAllocator::canRecycle(const ValueDecl* decl) const {
   if (isInLoop()) {
-    // Can only recycle vars declared inside this LC
-    if(!curLoopContext_->isVarDeclaredInside(var))
+    // Can only recycle decls declared inside this LC
+    if(!curLoopContext_->isDeclaredInside(decl))
       return false;
   }
-  auto it = knownVars_.find(var);
-  assert((it != knownVars_.end()) && "Unknown Variable!");
+  auto it = knownDecls_.find(decl);
+  assert((it != knownDecls_.end()) && "Unknown Decl!");
   return (it->second.useCount == 1);
 }
 
@@ -267,13 +270,13 @@ regaddr_t RegisterValue::getAddress() const {
   switch (getKind()) {
     case Kind::Temporary:
       return data_.tempRegAddress;
-    case Kind::Var:
+    case Kind::DeclRef:
       // Normally, having to lookup in the map each time shouldn't be a
       // big deal since the result of getAddress is usually saved
       // and lookup in hashmaps are pretty cheap. If it turns out to
       // be a performance issue, cache the address in the RegisterValue
       // directly, even if it increases its size.
-      return getRegisterAllocator()->getRegisterOfVar(data_.varDecl);
+      return getRegisterAllocator()->getRegisterOfDecl(data_.decl);
     default:
       fox_unreachable("unknown RegisterValue::Kind");
   }
@@ -288,8 +291,8 @@ bool RegisterValue::isTemporary() const {
   return (getKind() == Kind::Temporary);
 }
 
-bool RegisterValue::isVar() const {
-  return (getKind() == Kind::Var);
+bool RegisterValue::isDeclRef() const {
+  return (getKind() == Kind::DeclRef);
 }
 
 bool RegisterValue::canRecycle() const {
@@ -297,8 +300,8 @@ bool RegisterValue::canRecycle() const {
   switch (getKind()) {
     case Kind::Temporary:
       return true;
-    case Kind::Var:
-      return getRegisterAllocator()->canRecycle(data_.varDecl);
+    case Kind::DeclRef:
+      return getRegisterAllocator()->canRecycle(data_.decl);
     default:
       fox_unreachable("unknown RegisterValue::Kind");
   }
@@ -314,8 +317,8 @@ void RegisterValue::free() {
     case Kind::Temporary:
       getRegisterAllocator()->markRegisterAsFreed(data_.tempRegAddress);
       break;
-    case Kind::Var:
-      getRegisterAllocator()->release(data_.varDecl);
+    case Kind::DeclRef:
+      getRegisterAllocator()->release(data_.decl);
       break;
     default:
       fox_unreachable("unknown RegisterValue::Kind");
@@ -336,9 +339,10 @@ RegisterValue::RegisterValue(RegisterAllocator* regAlloc, regaddr_t reg) :
   data_.tempRegAddress = reg;
 }
 
-RegisterValue::RegisterValue(RegisterAllocator* regAlloc, const VarDecl* var) :
-  regAllocAndKind_(regAlloc, Kind::Var) {
-  data_.varDecl = var;
+RegisterValue::RegisterValue(RegisterAllocator* regAlloc, 
+                             const ValueDecl* decl) :
+  regAllocAndKind_(regAlloc, Kind::DeclRef) {
+  data_.decl = decl;
 }
 
 void RegisterValue::kill() {
