@@ -1,0 +1,17 @@
+// RUN: %fox-dump-bcgen | %filecheck
+
+// CHECK:   Function 0
+func foo() {
+  var x : int;
+  // CHECK-NEXT: StoreSmallInt 0 0
+  x = 0;
+  // CHECK-NEXT: StoreSmallInt 0 -50
+  x = -50;
+  // CHECK-NEXT: StoreSmallInt 0 50
+  x = 50;
+  // These shouldn't generate anything
+  x = x;
+  x = x = x;
+  // CHECK-NEXT: StoreSmallInt 0 42
+  x = 42;
+}

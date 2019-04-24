@@ -81,6 +81,7 @@ namespace fox {
 
       class Generator;
       class ExprGenerator;
+      class AssignementGenerator;
       class LocalDeclGenerator;
       class StmtGenerator;
 
