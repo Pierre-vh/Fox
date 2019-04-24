@@ -13,6 +13,11 @@ using namespace fox;
 
 BCFunction::BCFunction(std::size_t id) : id_(id) {}
 
+BCFunction::BCFunction(std::size_t id, ParamCopyMap paramCopyMap)
+  : id_(id), paramCopyMap_(paramCopyMap) {
+  needsCopyAfterReturn_ = paramCopyMap_.any();
+}
+
 std::size_t BCFunction::getID() const {
   return id_;
 }
@@ -33,10 +38,33 @@ const InstructionVector& BCFunction::getInstructions() const {
   return instrs_;
 }
 
+const BCFunction::ParamCopyMap& BCFunction::getParamCopyMap() const {
+  return paramCopyMap_;
+}
+
+bool BCFunction::needsCopyAfterReturn() const {
+  return needsCopyAfterReturn_;
+}
+
 void BCFunction::dump(std::ostream& out) const {
   out << "Function " << id_ << "\n";
+  // Dump the paramCopyMap_ if it contains something
+  if (paramCopyMap_.size()) {
+    out << "  PCM: ";
+
+    std::size_t pcm_size = paramCopyMap_.size();
+    bool first = true;
+    for (std::size_t idx = 0; idx < pcm_size; ++idx) {
+      if(first) first = false;
+      else out << "-";
+      out << paramCopyMap_[idx] ? "1" : "0";
+    }
+
+    out << '\n';
+  }
+
   if(instrs_.empty())
-    out << "   <empty>\n";
+    out << "    <empty>\n";
   else
   dumpInstructions(out, instrs_, "   ");
 }

@@ -12,6 +12,7 @@
 #include "Fox/BC/BCUtils.hpp"
 #include "Fox/BC/Instruction.hpp"
 #include "Fox/Common/LLVM.hpp"
+#include "llvm/ADT/BitVector.h"
 #include "llvm/ADT/SmallVector.h"
 #include <iosfwd>
 
@@ -20,7 +21,17 @@ namespace fox {
 
   class BCFunction {
     public:
+      /// The map of parameters of the function that need to be
+      /// copied after returning from the function.
+      /// 0 = Does not need to be copied back after the function
+      ///     has returned.
+      /// 1 = needs to
+      /// TODO: Find a better name for this
+      using ParamCopyMap = llvm::BitVector;
+      
       BCFunction(std::size_t id);
+      BCFunction(std::size_t id, ParamCopyMap paramCopyMap);
+
       BCFunction(const BCFunction&) = delete;
       BCFunction& operator=(const BCFunction&) = delete;
 
@@ -38,6 +49,13 @@ namespace fox {
       /// \returns a constant reference to the instruction buffer
       const InstructionVector& getInstructions() const;
 
+      /// \returns the ParamCopyMap
+      const ParamCopyMap& getParamCopyMap() const;
+
+      /// \returns true if, after this function returns, we need to
+      ///          copy some parameters back into the caller's stack.
+      bool needsCopyAfterReturn() const;
+
       /// Dumps the module to 'out'
       void dump(std::ostream& out) const;
 
@@ -53,5 +71,10 @@ namespace fox {
     private:
       InstructionVector instrs_;
       const std::size_t id_ = 0;
+
+
+      const ParamCopyMap paramCopyMap_;
+      // Set to true if any bit in paramMap_ is set to true
+      bool needsCopyAfterReturn_ = false;
   };
 }

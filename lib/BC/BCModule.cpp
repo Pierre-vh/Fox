@@ -15,8 +15,8 @@ std::size_t BCModule::numFunctions() const {
   return functions_.size();
 }
 
-BCFunction& BCModule::createFunction() {
-  functions_.push_back(std::make_unique<BCFunction>(numFunctions()));
+BCFunction& BCModule::createFunction(BCFunction::ParamCopyMap pcm) {
+  functions_.push_back(std::make_unique<BCFunction>(numFunctions(), pcm));
   return *functions_.back();
 }
 

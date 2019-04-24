@@ -161,25 +161,57 @@ namespace {
 // BCGen Entrypoints
 //----------------------------------------------------------------------------//
 
+using ParamCopyMap = BCFunction::ParamCopyMap;
+
+namespace {
+  using ParamCopyMap = BCFunction::ParamCopyMap;
+
+  ParamCopyMap
+  genParamCopyMap(ParamList* params, ArrayRef<const ParamDecl*> unusedParams) {
+    ParamCopyMap map;
+    if(!params) 
+      return map;
+    // iterate over the parameters
+    auto up_it = unusedParams.begin();
+    for (ParamDecl* param: *params) {
+      // If the parameter is unused = 0
+      if ((up_it != unusedParams.end()) && 
+          (param == *up_it)) {
+        ++up_it;
+        map.push_back(false);
+        continue;
+      }
+      // The value of the bit is true if the parameter is mutable, false
+      // otherwise.
+      map.push_back(param->isMut());
+    }
+    return map;
+  }
+}
+
 void BCGen::genFunc(BCModule& bcmodule, FuncDecl* func) {
   assert(func && "func is null");
   assert((bcmodule.numFunctions() < bc_limits::max_functions)
     && "Cannot create function: too many functions in the module");
-  // Create the function
-  BCFunction& fn = bcmodule.createFunction();
+  // Get the (maybe null) parameter list
+  ParamList* params = func->getParams();
   // Create the RegisterAllocator for this Function
-  RegisterAllocator regAlloc(func->getParams());
+  RegisterAllocator regAlloc(params);
+
   // Do the prologue so classes like the RegisterAllocator
   // can be given enough information to correctly generate the bytecode.
   FuncGenPrologue(regAlloc).doPrologue(func);
+
   // Let the RegisterAllocator cleanup unused parameters
   SmallVector<const ParamDecl*, 4> unusedParams;
-  regAlloc.freeUnusedParameters(func->getParams(), unusedParams);
-  // TODO: Use unusedParams as a guide to generate the mutable param map
-  // (don't consider a register mutable if it's unused (= part of this vec))
-  // Create a builder
+  regAlloc.freeUnusedParameters(params, unusedParams);
+
+  // Create the function
+  auto pcm = genParamCopyMap(params, unusedParams);
+  BCFunction& fn = bcmodule.createFunction(pcm);
+  // Create the builder
   BCBuilder builder = fn.createBCBuilder();
-  // For now, only gen the body.
+  // Gen the body.
   genStmt(builder, regAlloc, func->getBody());
   // TODO: Once we can gen the function properly, check that the last instruction
   // emitted was a Return, if it wasn't, insert a return void instruction.

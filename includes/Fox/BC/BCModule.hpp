@@ -37,7 +37,8 @@ namespace fox {
 
       /// Creates a new function stored in this module.
       /// \returns a reference to the created function
-      BCFunction& createFunction();
+      BCFunction& 
+      createFunction(BCFunction::ParamCopyMap pcm = BCFunction::ParamCopyMap());
 
       /// \returns a reference to the function in this module with ID \p idx
       BCFunction& getFunction(std::size_t idx);
