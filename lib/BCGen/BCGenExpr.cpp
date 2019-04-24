@@ -530,21 +530,15 @@ class BCGen::ExprGenerator : public Generator,
       // Reference to Global declarations
       if(!decl->isLocal())
         fox_unimplemented_feature("Global DeclRefExpr BCGen");
-      // Reference to Local Variables
-      if (VarDecl* var = dyn_cast<VarDecl>(decl)) {
-        RegisterValue varReg = regAlloc.useDecl(var);
-        if (dest && (dest != varReg)) {
-          // If we have a destination register, emit a Copy instr so the result
-          // is located in the dest reg (as requested).
-          builder.createCopyInstr(dest.getAddress(), varReg.getAddress());
-          return dest;
-        }
-        return varReg;
+      // Reference to local decls
+      RegisterValue varReg = regAlloc.useDecl(decl);
+      if (dest && (dest != varReg)) {
+        // If we have a destination register, emit a Copy instr so the result
+        // is located in the dest reg (as requested).
+        builder.createCopyInstr(dest.getAddress(), varReg.getAddress());
+        return dest;
       }
-      // Reference to Parameter decls
-      if(ParamDecl* param = dyn_cast<ParamDecl>(decl))
-        fox_unimplemented_feature("ParamDecl DeclRefExpr BCGen");
-      fox_unimplemented_feature("Unknown Local Decl Kind");
+      return varReg;
     }
 
     RegisterValue
