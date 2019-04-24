@@ -1,0 +1,42 @@
+// RUN: %fox-dump-bcgen | %filecheck
+
+// CHECK: Function 0
+func foo(x : int, y : int) {
+    // CHECK-NEXT:  StoreSmallInt 0 0
+    let x : int = 0;
+}
+
+// CHECK: Function 1
+func bar(x : int, y : int) {
+    // CHECK-NEXT:  StoreSmallInt 0 0
+    let x : int = 0;
+    // CHECK-NEXT:  StoreSmallInt 2 1
+    // CHECK-NEXT:  AddInt 1 1 2
+    y+1;
+    // CHECK-NEXT:  StoreSmallInt 1 36
+    let y : int = 36;
+    x;
+}
+
+// CHECK: Function 2
+func baz(x : mut int, y : int) {
+    x; // x is used at least once so its register will be kept alive the 
+       // whole time.
+    // CHECK-NEXT:  StoreSmallInt 2 16
+    let x : int = 16; // even when shadowed
+    y;
+    // CHECK-NEXT: StoreSmallInt 1 1
+    // CHECK-NEXT: StoreSmallInt 2 1
+    // CHECK-NEXT: AddInt 1 1 2
+    let y : int = 1+1; // however this should overwrite y's register
+}
+
+// CHECK: Function 3
+func ass(x : mut int) {
+    // CHECK-NEXT: StoreSmallInt 0 42
+    x = 42;
+    // CHECK-NEXT: StoreSmallInt 1 16
+    var x : int = 16;
+    // CHECK-NEXT: StoreSmallInt 1 84
+    x = 84;
+}
