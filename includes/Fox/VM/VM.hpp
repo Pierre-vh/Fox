@@ -48,12 +48,12 @@ namespace fox {
       /// (void)
       reg_t* run(ArrayRef<Instruction> instrs);
 
-      /// \returns the program counter as an index in the module's
-      /// Bytecode buffer.
+      /// \returns the program counter as an index in the currently
+      /// (or previously) executed function's bytecode buffer.
       std::size_t getPCIndex() const;
 
-      /// \returns the program counter as a pointer into the module's
-      /// instruction buffeR.
+      /// \returns the program counter as a pointer in the currently
+      /// (or previously) executed function's bytecode buffer.
       const Instruction* getPC() const;
 
       /// \returns a view of the register stack
