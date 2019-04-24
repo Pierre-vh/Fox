@@ -58,10 +58,17 @@ Basic VM data types and their mappings to Fox types:
   -> BCGen of Assignements (Done)
 
   -> Codegen of functions & return statements
-    -> RegisterAllocator Support for ParamDecl
-    -> BCGen support for ParamDecl: Prologue, DeclRef, etc;
-    -> Function Calls:
-      -> BCFunction: PCM (Done)
+    -> RegisterAllocator Support for ParamDecl (Done)
+    -> BCGen support for ParamDecl: Prologue, DeclRef, etc (Done)
+    -> BCFunction: PCM (Done)
+    -> VM:
+      -> implement the register window (function reg stack) & call stack
+      -> run(BCFunction&, ArrayRef<regaddr_t> args)
+        -> Fetch arg ptrs & store them (if .needCopyAfterReturn())
+        -> Copy args into the first n registers of the new stack
+        -> Run BC
+        -> (if needed) copy the args back
+        -> return the return value
       -> Instructions:
         -> BeginCall <func id>
         -> PushArg <reg>
