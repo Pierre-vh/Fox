@@ -58,12 +58,23 @@ namespace fox {
     Instruction() = default;
     Instruction(Opcode op) : opcode(op) {}
 
-    /// \returns true if this instruction is any kind of jump.
+    /// \returns true if this instruction is any kind of jump instr
     bool isAnyJump() const {
       switch (opcode) {
         case Opcode::Jump:
         case Opcode::JumpIf:
         case Opcode::JumpIfNot:
+          return true;
+        default:
+          return false;
+      }
+    }
+
+    /// \returns true if this instruction is any kind of return instr
+    bool isAnyRet() const {
+      switch (opcode) {
+        case Opcode::Ret:
+        case Opcode::RetVoid:
           return true;
         default:
           return false;

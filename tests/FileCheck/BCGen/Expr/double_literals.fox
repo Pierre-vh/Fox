@@ -15,5 +15,4 @@ func foo() {
   3.333333333333;
   // CHECK-NEXT:  LoadDoubleK 0 2
   -3333333.33333333;
-  // CHECK-EMPTY:
 }

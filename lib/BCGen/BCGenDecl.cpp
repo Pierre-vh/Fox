@@ -209,14 +209,16 @@ void BCGen::genFunc(BCModule& bcmodule, FuncDecl* func) {
   // Create the function
   auto pcm = genParamCopyMap(params, unusedParams);
   BCFunction& fn = bcmodule.createFunction(pcm);
+
   // Create the builder
   BCBuilder builder = fn.createBCBuilder();
   // Gen the body.
   genStmt(builder, regAlloc, func->getBody());
-  // TODO: Once we can gen the function properly, check that the last instruction
-  // emitted was a Return, if it wasn't, insert a return void instruction.
-  // (we can assert that the function's return type is void because
-  //  else the error would have been caught by Semantic Analysis)
+
+  // Check if the last instruction inserted was indeed a Ret instr.
+  // If it wasn't, or if the function is empty, insert a RetVoid
+  if (builder.empty() || (!builder.getLastInstrIter()->isAnyRet()))
+    builder.createRetVoidInstr();
 }
 
 void BCGen::genGlobalVar(BCBuilder&, VarDecl*) {  

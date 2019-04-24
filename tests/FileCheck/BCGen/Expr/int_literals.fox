@@ -24,5 +24,4 @@ func foo() {
   32768;
   // CHECK-NEXT:  LoadIntK 0 3
   -32768;
-  // CHECK-EMPTY:
 }
