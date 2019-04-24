@@ -17,8 +17,42 @@ using namespace fox;
 // RegisterAllocator
 //----------------------------------------------------------------------------//
 
-void RegisterAllocator::addUsage(const VarDecl* var) {
-  ++(knownDecls_[var].useCount);
+RegisterAllocator::RegisterAllocator(ParamList* params) {
+  if(!params) return; // Nothing to do
+  assert((biggestAllocatedReg_ == 0) 
+    && "incorrect starting value for biggestAllocatedReg_");
+  for (ParamDecl* param : *params) {
+    assert((biggestAllocatedReg_ != bc_limits::max_regaddr) && 
+      "Can't allocate more registers : Register number limit reached "
+      "(too much register pressure) because a function has too many params");
+    DeclData& data = knownDecls_[param];
+    // This doesn't count as an usage of the ParamDecl, so set useCount to 0
+    data.useCount = 0;
+    // Assign a register address equal to the index of the param
+    data.addr = biggestAllocatedReg_++;
+    // We cannot free the registers used by mutable parameters
+    data.canFree = !param->isMut();
+  }
+}
+
+void RegisterAllocator::addUsage(const ValueDecl* decl) {
+  ++(knownDecls_[decl].useCount);
+}
+
+void RegisterAllocator::
+freeUnusedParameters(ParamList* params, 
+                     SmallVectorImpl<const ParamDecl*>& unused) {
+  if(!params) return;
+  for (ParamDecl* param : *params) {
+    auto it = knownDecls_.find(param);
+    assert((it != knownDecls_.end()) && "unknown param");
+    DeclData& dd = it->second;
+    if(dd.useCount != 0) continue;
+    // Variable is unused, free it.
+    release(param, /*alreadyDead*/ true, /*freeProtected*/ true);
+    // Add it to the unused vector
+    unused.push_back(param);
+  }
 }
 
 RegisterValue 
@@ -179,7 +213,9 @@ regaddr_t RegisterAllocator::getRegisterOfDecl(const ValueDecl* decl) const {
   return it->second.addr.getValue();
 }
 
-void RegisterAllocator::release(const ValueDecl* decl, bool isAlreadyDead) {
+void RegisterAllocator::release(const ValueDecl* decl, 
+                                bool isAlreadyDead, 
+                                bool freeProtected) {
   // Search for the Decl and fetch its data
   auto it = knownDecls_.find(decl);
   assert((it != knownDecls_.end()) && "Unknown Decl!");
@@ -194,6 +230,8 @@ void RegisterAllocator::release(const ValueDecl* decl, bool isAlreadyDead) {
 
   // Check if the Decl is dead
   if (data.useCount == 0) {
+    // Don't free it if we're not allowed to.
+    if(!freeProtected && !data.canFree) return;
     // In loops, we can't free registers used by Decls declared 
     // outside the loop
     if (isInLoop()) {
@@ -203,6 +241,7 @@ void RegisterAllocator::release(const ValueDecl* decl, bool isAlreadyDead) {
         return;
       }
     }
+    // Check if we are freeing a ParamDecl
     // Free its register
     markRegisterAsFreed(data.addr.getValue());
     // Forget the Decl

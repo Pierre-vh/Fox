@@ -26,6 +26,8 @@ namespace fox {
   class RegisterValue;
   class ValueDecl;
   class VarDecl;
+  class ParamList;
+  class ParamDecl;
   class LoopContext;
 
   /// The RegisterAllocator. Usually one of these is created for each
@@ -33,13 +35,34 @@ namespace fox {
   /// register and assign registers to declarations and temporaries.
   class alignas(8) RegisterAllocator {
     public:
+      /// Default Constructor
+      RegisterAllocator() = default;
+
+      /// Constructor for functions that have parameters.
+      /// The Parameters in ParamList will be given a register based on
+      /// their index. So the first parameters in \p params will be assigned
+      /// \p r0, etc.
+      /// Registers occupied by mutable parameters will *never* be freed
+      /// and will be kept alive until the end of the function so copy in/out
+      /// can happen.
+      /// \p params the list of parameters of the function, maybe nullptr.
+      RegisterAllocator(ParamList* params);
+
       ///--------------------------------------------------------------------///
       /// Preparation/Prologue methods
       ///--------------------------------------------------------------------///
 
-      /// Initializes a variable \p var in this RegisterAllocator.
-      /// If \p var has already been initialized, increments its use count.
-      void addUsage(const VarDecl* var);
+      /// Increments the use count of \p decl
+      void addUsage(const ValueDecl* decl);
+
+      /// Once prologue is done and all usages have been registered, free
+      /// the registers occupied by the parameters in \p params that are n
+      /// never used.
+      /// NOTE: This will also free the registers used by mutable
+      /// parameters since they are not used anymore.
+      /// The list of unused parameters will be contained in \p unused
+      void freeUnusedParameters(ParamList* params, 
+                                SmallVectorImpl<const ParamDecl*>& unused);
 
       ///--------------------------------------------------------------------///
       /// Usage/Register allocation methods
@@ -93,6 +116,9 @@ namespace fox {
 
         llvm::Optional<regaddr_t> addr;
         std::size_t useCount;
+        // Set to false if we cannot free the register used
+        // by this decl, even when the use count reached zero
+        bool canFree = true;
       };
       
       /// The type of the hashmap used to track known declarations and map them
@@ -141,7 +167,11 @@ namespace fox {
       /// its register if its use count reaches 0.
       /// If \p isAlreadyDead is true the decl's use count must
       /// be zero.
-      void release(const ValueDecl* decl, bool isAlreadyDead = false);
+      /// If \p freeProtected is true variables that have .canFree set
+      /// to false will still be freed.
+      void release(const ValueDecl* decl, 
+                   bool isAlreadyDead = false, 
+                   bool freeProtected = false);
 
       /// \returns true if we can recycle the register occupied by \p decl
       bool canRecycle(const ValueDecl* decl) const;
