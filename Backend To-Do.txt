@@ -61,8 +61,7 @@ Basic VM data types and their mappings to Fox types:
     -> RegisterAllocator Support for ParamDecl
     -> BCGen support for ParamDecl: Prologue, DeclRef, etc;
     -> Function Calls:
-      -> BCFunction: "needsCopyInOut()" + optional llvm::BitVector as parameter for a
-         map of parameters
+      -> BCFunction: PCM (Done)
       -> Instructions:
         -> BeginCall <func id>
         -> PushArg <reg>
