@@ -663,10 +663,8 @@ visitDeclRefExpr(DeclRefExpr* expr, Expr* source, BinOp op) {
   // So, if in the future I add +=, -=, etc. this doesn't fail
   // silently.
   assert((op == BinOp::Assign) && "Unsupported assignement type");
-  VarDecl* var = dyn_cast<VarDecl>(expr->getDecl());
-  assert(var && "Unhandled Assignee Decl Kind");
   // Gen the RHS with the LHS's address as destination register.
-  return exprGen.generate(source, regAlloc.useDecl(var));
+  return exprGen.generate(source, regAlloc.useDecl(expr->getDecl()));
 }
 
 RegisterValue BCGen::AssignementGenerator::
