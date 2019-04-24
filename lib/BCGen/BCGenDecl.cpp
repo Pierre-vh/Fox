@@ -125,7 +125,7 @@ namespace {
       }
 
       void visitParamDecl(ParamDecl*) {
-        fox_unimplemented_feature("FuncGenPrologue for ParamDecls");
+        fox_unreachable("ParamDecl found inside a FuncDecl");
       }
 
       void visitVarDecl(VarDecl* decl) {
@@ -146,10 +146,8 @@ namespace {
             fox_unimplemented_feature("FuncGenPrologue for DeclRefExpr "
               "of non-local VarDecls");
         }
-        else if (ParamDecl* param = dyn_cast<ParamDecl>(decl)) { 
-          fox_unimplemented_feature("FuncGenPrologue for DeclRefExpr "
-            "of ParamDecls");
-        }
+        else if (ParamDecl* param = dyn_cast<ParamDecl>(decl))
+          regAlloc.addUsage(param);
         // else, ignore.
       }
 
@@ -170,10 +168,15 @@ void BCGen::genFunc(BCModule& bcmodule, FuncDecl* func) {
   // Create the function
   BCFunction& fn = bcmodule.createFunction();
   // Create the RegisterAllocator for this Function
-  RegisterAllocator regAlloc;
+  RegisterAllocator regAlloc(func->getParams());
   // Do the prologue so classes like the RegisterAllocator
   // can be given enough information to correctly generate the bytecode.
   FuncGenPrologue(regAlloc).doPrologue(func);
+  // Let the RegisterAllocator cleanup unused parameters
+  SmallVector<const ParamDecl*, 4> unusedParams;
+  regAlloc.freeUnusedParameters(func->getParams(), unusedParams);
+  // TODO: Use unusedParams as a guide to generate the mutable param map
+  // (don't consider a register mutable if it's unused (= part of this vec))
   // Create a builder
   BCBuilder builder = fn.createBCBuilder();
   // For now, only gen the body.
