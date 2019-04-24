@@ -58,9 +58,8 @@ Basic VM data types and their mappings to Fox types:
   -> BCGen of Assignements (Done)
 
   -> Codegen of functions & return statements
-    -> RegisterAllocator::initFunctionParams (impl and use it)
-      -> RegisterAllocator: use 'const ValueDecl*' instead of 'const VarDecl*' (Done)
-      -> ParamDecl DeclRef support in AssignementGenerator and ExprGenerator
+    -> RegisterAllocator Support for ParamDecl
+    -> BCGen support for ParamDecl: Prologue, DeclRef, etc;
     -> Function Calls:
       -> BCFunction: "needsCopyInOut()" + optional llvm::BitVector as parameter for a
          map of parameters
@@ -120,3 +119,11 @@ Basic VM data types and their mappings to Fox types:
       Add a "-log-regalloc" option and use write FileCheck tests based on that option.
 
   -> Properly diagnose out of range jumps in BCGen::StmtGenerator::calculateJumpOffset
+
+  -> When a mut ParamDecl is never written to 
+     (= never at the top level of the lhs of an assignement)
+     consider it as non mutable, so free it and don't Copy it In/Out
+    I can add this directly to the FuncGenPrologue phase so it's used only by
+    BCGen, or I can detect this at semantic analysis and add a new flag to ParamDecl
+    "isWrittenTo" or something like that
+    
