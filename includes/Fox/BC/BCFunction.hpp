@@ -29,7 +29,14 @@ namespace fox {
       /// TODO: Find a better name for this
       using ParamCopyMap = llvm::BitVector;
       
+      /// Creates a BCFunction that does not take any parameter
+      /// \param id the ID of the function
       BCFunction(std::size_t id);
+
+      /// Creates a BCFunction that takes parameters. 
+      /// Information about parameters is stored in \p paramCopyMap
+      /// \param id the ID of the function
+      /// \param paramCopyMap the 'Param Copy Map' of this function
       BCFunction(std::size_t id, ParamCopyMap paramCopyMap);
 
       BCFunction(const BCFunction&) = delete;
@@ -71,7 +78,6 @@ namespace fox {
     private:
       InstructionVector instrs_;
       const std::size_t id_ = 0;
-
 
       const ParamCopyMap paramCopyMap_;
       // Set to true if any bit in paramMap_ is set to true

@@ -70,9 +70,8 @@ Basic VM data types and their mappings to Fox types:
         -> (if needed) copy the args back
         -> return the return value
       -> Instructions:
-        -> BeginCall <func id>
-        -> PushArg <reg>
-        -> Call <dest> / CallVoid
+        -> LoadFunc <dest> <id>
+        -> Call <base> <dest> / CallVoid <base>
         -- Unit tests 
     -> CallExpr compilation
 
