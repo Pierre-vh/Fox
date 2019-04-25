@@ -191,7 +191,7 @@ namespace {
 
 void BCGen::genFunc(BCModule& bcmodule, FuncDecl* func) {
   assert(func && "func is null");
-  assert((bcmodule.numFunctions() < bc_limits::max_functions)
+  assert((bcmodule.numFunctions() <= bc_limits::max_functions)
     && "Cannot create function: too many functions in the module");
   // Get the (maybe null) parameter list
   ParamList* params = func->getParams();
