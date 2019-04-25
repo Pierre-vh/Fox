@@ -37,6 +37,9 @@ namespace fox {
       VM(BCModule& bcModule);
 
       /// Executes a function \p func with parameters \p args.
+      /// For several reasons, this is an entry point intended for external
+      /// use only. Mainly because it copies the \p args and does not
+      /// slide the register window.
       /// \p args must be null, or its size must match func.numParameters()
       /// \returns a pointer to the register containing the return value
       /// of the executed bytecode. nullptr if there is no return value
@@ -44,6 +47,9 @@ namespace fox {
       reg_t* call(BCFunction& func, MutableArrayRef<reg_t> args);
 
       /// Executes a function \p func
+      /// For several reasons, this is an entry point intended for external
+      /// use only. Mainly because it copies the \p args and does not
+      /// slide the register window.
       /// \returns a pointer to the register containing the return value
       /// of the executed bytecode. nullptr if there is no return value
       /// (void)
