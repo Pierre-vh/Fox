@@ -252,7 +252,7 @@ ParamDecl* ParamList::get(std::size_t idx) const {
   return getArray()[idx];
 }
 
-std::size_t ParamList::getNumParams() const {
+std::size_t ParamList::size() const {
   return numParams_;
 }
 
@@ -319,6 +319,10 @@ void FuncDecl::setParams(ParamList* params) {
 
 bool FuncDecl::hasParams() const {
   return (bool)params_;
+}
+
+std::size_t FuncDecl::numParams() const {
+  return params_ ? params_->size() : 0;
 }
 
 Type FuncDecl::getValueType() const {

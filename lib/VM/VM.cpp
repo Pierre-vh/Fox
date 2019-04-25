@@ -23,25 +23,22 @@ VM::VM(BCModule& theModule) : bcModule(theModule) {
 
 VM::reg_t* VM::call(BCFunction& func, MutableArrayRef<reg_t> args) {
   assert((func.numParams() == args.size())
-    && "Incorrect number of parameters");
-  /// Copy the args into the callee's frame
-  {
+    && "Incorrect number of arguments for the function");
+  /// Copy the args into the frame
+  if(args.size()) {
     regaddr_t k = 0;
     for (auto arg : args)
       setReg(k++, arg);
   }
   /// Run the bytecode
   reg_t* rtr = run(func.getInstructions());
-  /// TODO: Copy Out
+  /// Copy them back into the args if needed
+  if(args.size()) {
+    for (regaddr_t k = 0; k < args.size(); k++)
+      args[k] = getReg(k);
+  }
   return rtr;
 }
-
-// TODO: When calling inside run() below, it'll setup the
-// register window, handling potential reallocations and then do
-// something like 
-// auto fn = getReg<BCFunction&>(instr.Call.base)
-// auto argsPtr = getRegPtr(instr.Call.base+1)
-// call(fn, {argsPtr, fn.numParams()});
 
 VM::reg_t* VM::run(ArrayRef<Instruction> instrs) {
   setupIterators(instrs);

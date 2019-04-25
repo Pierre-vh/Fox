@@ -11,13 +11,8 @@
 
 using namespace fox;
 
-BCFunction::BCFunction(std::size_t id) : id_(id) {}
-
-BCFunction::BCFunction(std::size_t id, ParamCopyMap paramCopyMap)
-  : id_(id), paramCopyMap_(paramCopyMap), 
-    numParams_(paramCopyMap.size()) {
-  needsCopyAfterReturn_ = paramCopyMap_.any();
-}
+BCFunction::BCFunction(std::size_t id, std::size_t numParams) 
+  : id_(id), numParams_(numParams) {}
 
 std::size_t BCFunction::numInstructions() const {
   return instrs_.size();
@@ -29,20 +24,6 @@ BCBuilder BCFunction::createBCBuilder() {
 
 void BCFunction::dump(std::ostream& out) const {
   out << "Function " << id_ << "\n";
-  // Dump the paramCopyMap_ if it contains something
-  if (paramCopyMap_.size()) {
-    out << "  PCM: ";
-
-    std::size_t pcm_size = paramCopyMap_.size();
-    bool first = true;
-    for (std::size_t idx = 0; idx < pcm_size; ++idx) {
-      if(first) first = false;
-      else out << "-";
-      out << paramCopyMap_[idx] ? "1" : "0";
-    }
-
-    out << '\n';
-  }
 
   if(instrs_.empty())
     out << "    <empty>\n";

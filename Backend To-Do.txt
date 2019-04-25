@@ -62,16 +62,19 @@ Basic VM data types and their mappings to Fox types:
     -> BCGen support for ParamDecl: Prologue, DeclRef, etc (Done)
     -> BCFunction: PCM (Done)
     -> VM:
-      -> implement the register window (function reg stack) & call stack
+      -> implement the register window (Done)
       -> run(BCFunction&, ArrayRef<regaddr_t> args)
-        -> Finish Copy After Return
-        -> Unit Tests
+        -> Impl (Done)
+        -> Test
+      -> Maybe impl a basic call stack (is it needed? probably not for now)
       -> Instructions:
         -> LoadFunc <dest> <id>
         -> Call <base> <dest> / CallVoid <base>
             -> these should setup the call frame, ensure we have enough regs, etc
         -- Unit tests 
     -> CallExpr compilation
+      -> For mutable parameters, after the call, emit assignements of the
+         param's register to the expression passed as parameter.
 
 ---- Implementation of Object types ----
   Note: At first, objects won't be freed. I'll use a leak-forever allocator (LinearAllocator).
@@ -91,6 +94,7 @@ Basic VM data types and their mappings to Fox types:
   -> Codegen of global variables
   -> Intrinsics/FFI
   -> Basic debug information & trivial exception system (for proper error management).
+  -> Growable register stack
   -> Properly diagnose maximum register pressure exceeded:
     > When the RegisterAllocator runs out of registers, it should call a handler (a BCGen method?)
       that will emit a diagnostic when possible, or at least tell something like (just a suggestion)

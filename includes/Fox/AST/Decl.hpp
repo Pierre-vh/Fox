@@ -243,7 +243,7 @@ namespace fox {
 
       ArrayRef<ParamDecl*> getArray() const;
       ParamDecl* get(std::size_t idx) const;
-      std::size_t getNumParams() const;
+      std::size_t size() const;
 
       using iterator = ArrayRef<ParamDecl*>::iterator;
 
@@ -296,6 +296,8 @@ namespace fox {
       ParamList* getParams() const;
       /// \returns true if this function has a ParamList.
       bool hasParams() const;
+      /// \returns the number of parameters this function has
+      std::size_t numParams() const;
 
       /// (Re)calculates the ValueDecl type for this FuncDecl
       void calculateValueType();

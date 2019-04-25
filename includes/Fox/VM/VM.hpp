@@ -37,22 +37,15 @@ namespace fox {
       VM(BCModule& bcModule);
 
       /// Executes a function \p func with parameters \p args.
-      /// For several reasons, this is an entry point intended for external
-      /// use only. Mainly because it copies the \p args and does not
-      /// slide the register window.
+      /// This is intended as an entry point for clients, and not as an internal
+      /// method to handle function calls (mainly because it copies arguments
+      /// and doesn't slide the register window)
       /// \p args must be null, or its size must match func.numParameters()
       /// \returns a pointer to the register containing the return value
       /// of the executed bytecode. nullptr if there is no return value
       /// (void)
-      reg_t* call(BCFunction& func, MutableArrayRef<reg_t> args);
-
-      /// Executes a function \p func
-      /// \returns a pointer to the register containing the return value
-      /// of the executed bytecode. nullptr if there is no return value
-      /// (void)
-      reg_t* call(BCFunction& func) {
-        return call(func, MutableArrayRef<reg_t>());
-      }
+      reg_t* call(BCFunction& func, 
+                  MutableArrayRef<reg_t> args = MutableArrayRef<reg_t>());
 
       /// Executes a bytecode buffer \p instrs.
       /// \returns a pointer to the register containing the return value
@@ -107,7 +100,7 @@ namespace fox {
         return static_cast<Ty>(baseReg_[idx]);
       }
 
-      // Special overload of the templated getReg for doubles, becauses
+      // Special overload of the templated getReg for doubles, because
       // doubles can't be just reinterpret-cast'd. 
       template<>
       FoxDouble getReg<FoxDouble>(regaddr_t idx) {
@@ -129,7 +122,7 @@ namespace fox {
         baseReg_[idx] = static_cast<std::uint64_t>(value);
       }
 
-      // Special overload of the templated setReg for doubles, becauses
+      // Special overload of the templated setReg for doubles, because
       // doubles can't be just reinterpret-cast'd. 
       template<>
       void setReg<FoxDouble>(regaddr_t idx, FoxDouble value) {

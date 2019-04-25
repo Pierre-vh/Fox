@@ -12,7 +12,6 @@
 #include "Fox/BC/BCUtils.hpp"
 #include "Fox/BC/Instruction.hpp"
 #include "Fox/Common/LLVM.hpp"
-#include "llvm/ADT/BitVector.h"
 #include "llvm/ADT/SmallVector.h"
 #include <iosfwd>
 
@@ -21,25 +20,10 @@ namespace fox {
 
   class BCFunction {
     public:
-      /// The map of parameters of the function that need to be
-      /// copied after returning from the function.
-      /// 0 = Does not need to be copied back after the function
-      ///     has returned.
-      /// 1 = needs to
-      /// TODO: Find a better name for this
-      using ParamCopyMap = llvm::BitVector;
-      
-      /// Creates a BCFunction that does not take any parameter
+      /// Creates a BCFunction
       /// \param id the ID of the function
-      BCFunction(std::size_t id);
-
-      /// Creates a BCFunction that takes parameters. 
-      /// Information about parameters is stored in \p paramCopyMap
-      /// The number of parameter that the function takes will be 
-      /// calculated using \p paramCopyMap .size()
-      /// \param id the ID of the function
-      /// \param paramCopyMap the 'Param Copy Map' of this function
-      BCFunction(std::size_t id, ParamCopyMap paramCopyMap);
+      /// \param numParams the number of parameters the function takes
+      BCFunction(std::size_t id, std::size_t numParams = 0);
 
       BCFunction(const BCFunction&) = delete;
       BCFunction& operator=(const BCFunction&) = delete;
@@ -70,17 +54,6 @@ namespace fox {
         return instrs_;
       }
 
-      /// \returns the ParamCopyMap
-      const ParamCopyMap& getParamCopyMap() const {
-        return paramCopyMap_;
-      }
-
-      /// \returns true if, after this function returns, we need to
-      ///          copy some parameters back into the caller's stack.
-      bool needsCopyAfterReturn() const {
-        return needsCopyAfterReturn_;
-      }
-
       /// Dumps the module to 'out'
       void dump(std::ostream& out) const;
 
@@ -97,8 +70,5 @@ namespace fox {
       InstructionVector instrs_;
       const std::size_t id_ = 0;
       const std::size_t numParams_ = 0;
-      const ParamCopyMap paramCopyMap_;
-      // Set to true if any bit in paramMap_ is set to true
-      bool needsCopyAfterReturn_ = false;
   };
 }

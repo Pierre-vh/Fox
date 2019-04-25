@@ -1,14 +1,12 @@
 // RUN: %fox-dump-bcgen | %filecheck
 
 // CHECK: Function 0
-// CHECK-NEXT:  PCM: 0-0
 func foo(x : int, y : int) {
     // CHECK-NEXT:  StoreSmallInt 0 0
     let x : int = 0;
 }
 
 // CHECK: Function 1
-// CHECK-NEXT:  PCM: 0-0
 func bar(x : int, y : int) {
     // CHECK-NEXT:  StoreSmallInt 0 0
     let x : int = 0;
@@ -21,7 +19,6 @@ func bar(x : int, y : int) {
 }
 
 // CHECK: Function 2
-// CHECK-NEXT:  PCM: 1-0
 func baz(x : mut int, y : int) {
     x; // x is used at least once so its register will be kept alive the 
        // whole time.
@@ -35,7 +32,6 @@ func baz(x : mut int, y : int) {
 }
 
 // CHECK: Function 3
-// CHECK-NEXT:  PCM: 1
 func ass(x : mut int) {
     // CHECK-NEXT: StoreSmallInt 0 42
     x = 42;
@@ -46,10 +42,7 @@ func ass(x : mut int) {
 }
 
 // CHECK: Function 4
-// CHECK-NEXT:  PCM: 0-0-0
 func unusedmut(x: mut int, y: mut double, z: mut double) {
-    // None of the parameters are used, so the PCM should be 000
-    // and the register should be stolen by x
     // CHECK-NEXT: StoreSmallInt 0 42
     let x : int = 42;
 }

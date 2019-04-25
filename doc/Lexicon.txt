@@ -1,5 +1,4 @@
-//TODO: Complete this a bit more
-Sema:
+[Sema]
   > Primitive Type:
     int, float, bool, string, char, void
   > Local Declaration
@@ -7,16 +6,9 @@ Sema:
     You can use ->isLocal() on any Decl to know if it's a local declaration or not.
     If it's a local declaration, getFuncDecl() will return a pointer to the FuncDecl
     the declaration lives in.
-  > Parameter Copy Map (PCM)
-    The PCM is generated in the BCGen phase and consumed by the VM when executing the
-    function.
-    It's a map/vector of bits, and when a bit is set to 1 it means that the
-    register at its index should be copied back into the caller's register stack
-    when the function returns.
-    Naturally, the PCM does not control the copy of arguments into the callee's register stack
-    because it's always done.
-    e.g.
-        PCM: 0-1-0
-        -> r0 will not be copied
-        -> r1 will be copied
-        -> r2 will not be copied
+[VM]
+  > Register Window
+    The range of registers that a function can use. r0 is the beginning of the window,
+         and r255 the end of it.
+  > Register Stack
+    The array of registers shared by every function

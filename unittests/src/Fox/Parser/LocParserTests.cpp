@@ -79,7 +79,7 @@ TEST_F(LocTests, FuncAndArgDecl) {
   // Now, test the parameters
   ASSERT_TRUE(func->hasParams());
   ParamList& params = *func->getParams();
-  ASSERT_EQ(params.getNumParams(), 2u);
+  ASSERT_EQ(params.size(), 2u);
 
   // Extract each arg individually
   ParamDecl* arg1 = params[0];

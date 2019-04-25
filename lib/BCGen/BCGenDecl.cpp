@@ -161,34 +161,6 @@ namespace {
 // BCGen Entrypoints
 //----------------------------------------------------------------------------//
 
-using ParamCopyMap = BCFunction::ParamCopyMap;
-
-namespace {
-  using ParamCopyMap = BCFunction::ParamCopyMap;
-
-  ParamCopyMap
-  genParamCopyMap(ParamList* params, ArrayRef<const ParamDecl*> unusedParams) {
-    ParamCopyMap map;
-    if(!params) 
-      return map;
-    // iterate over the parameters
-    auto up_it = unusedParams.begin();
-    for (ParamDecl* param: *params) {
-      // If the parameter is unused = 0
-      if ((up_it != unusedParams.end()) && 
-          (param == *up_it)) {
-        ++up_it;
-        map.push_back(false);
-        continue;
-      }
-      // The value of the bit is true if the parameter is mutable, false
-      // otherwise.
-      map.push_back(param->isMut());
-    }
-    return map;
-  }
-}
-
 void BCGen::genFunc(BCModule& bcmodule, FuncDecl* func) {
   assert(func && "func is null");
   assert((bcmodule.numFunctions() <= bc_limits::max_functions)
@@ -207,8 +179,7 @@ void BCGen::genFunc(BCModule& bcmodule, FuncDecl* func) {
   regAlloc.freeUnusedParameters(params, unusedParams);
 
   // Create the function
-  auto pcm = genParamCopyMap(params, unusedParams);
-  BCFunction& fn = bcmodule.createFunction(pcm);
+  BCFunction& fn = bcmodule.createFunction(func->numParams());
 
   // Create the builder
   BCBuilder builder = fn.createBCBuilder();
