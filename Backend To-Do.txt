@@ -64,14 +64,12 @@ Basic VM data types and their mappings to Fox types:
     -> VM:
       -> implement the register window (function reg stack) & call stack
       -> run(BCFunction&, ArrayRef<regaddr_t> args)
-        -> Fetch arg ptrs & store them (if .needCopyAfterReturn())
-        -> Copy args into the first n registers of the new stack
-        -> Run BC
-        -> (if needed) copy the args back
-        -> return the return value
+        -> Finish Copy After Return
+        -> Unit Tests
       -> Instructions:
         -> LoadFunc <dest> <id>
         -> Call <base> <dest> / CallVoid <base>
+            -> these should setup the call frame, ensure we have enough regs, etc
         -- Unit tests 
     -> CallExpr compilation
 

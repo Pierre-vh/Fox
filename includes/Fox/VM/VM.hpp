@@ -36,11 +36,20 @@ namespace fox {
       ///        fetched in that module.
       VM(BCModule& bcModule);
 
+      /// Executes a function \p func with parameters \p args.
+      /// \p args must be null, or its size must match func.numParameters()
+      /// \returns a pointer to the register containing the return value
+      /// of the executed bytecode. nullptr if there is no return value
+      /// (void)
+      reg_t* call(BCFunction& func, MutableArrayRef<reg_t> args);
+
       /// Executes a function \p func
       /// \returns a pointer to the register containing the return value
       /// of the executed bytecode. nullptr if there is no return value
       /// (void)
-      reg_t* run(BCFunction& func);
+      reg_t* call(BCFunction& func) {
+        return call(func, MutableArrayRef<reg_t>());
+      }
 
       /// Executes a bytecode buffer \p instrs.
       /// \returns a pointer to the register containing the return value
@@ -76,13 +85,13 @@ namespace fox {
       /// window.
       reg_t getReg(regaddr_t idx) {
         assert((idx < numStackRegister) && "out-of-range");
-        return regStack_[idx];
+        return baseReg_[idx];
       }
 
       /// \returns the address of the register at \p idx in the current
       /// window.
       reg_t* getRegPtr(regaddr_t idx) {
-        return regStack_.data()+idx;
+        return baseReg_+idx;
       }
 
       /// \returns the value of the register \p idx reinterpreted as
@@ -92,22 +101,19 @@ namespace fox {
       Ty getReg(regaddr_t idx) {
         static_assert(sizeof(Ty) <= 8,
           "Can't cast a register to a type larger than 64 bits");
-        assert((idx < numStackRegister) && "out-of-range");
-        return static_cast<Ty>(regStack_[idx]);
+        return static_cast<Ty>(baseReg_[idx]);
       }
 
       // Special overload of the templated getReg for doubles, becauses
       // doubles can't be just reinterpret-cast'd. 
       template<>
       FoxDouble getReg<FoxDouble>(regaddr_t idx) {
-        assert((idx < numStackRegister) && "out-of-range");
-        return llvm::BitsToDouble(regStack_[idx]);
+        return llvm::BitsToDouble(baseReg_[idx]);
       }
 
       // Sets the value of the register "idx" to value.
       void setReg(regaddr_t idx, std::uint64_t value) {
-        assert((idx < numStackRegister) && "out-of-range");
-        regStack_[idx] = value;
+        baseReg_[idx] = value;
       }
 
       // Sets the value of the register "idx" to 
@@ -117,16 +123,14 @@ namespace fox {
       void setReg(regaddr_t idx, Ty value) {
         static_assert(sizeof(Ty) <= 8,
           "Can't put a type larger than 64 bits in a register");
-        assert((idx < numStackRegister) && "out-of-range");
-        regStack_[idx] = static_cast<std::uint64_t>(value);
+        baseReg_[idx] = static_cast<std::uint64_t>(value);
       }
 
       // Special overload of the templated setReg for doubles, becauses
       // doubles can't be just reinterpret-cast'd. 
       template<>
       void setReg<FoxDouble>(regaddr_t idx, FoxDouble value) {
-        assert((idx < numStackRegister) && "out-of-range");
-        regStack_[idx] = llvm::DoubleToBits(value);
+        baseReg_[idx] = llvm::DoubleToBits(value);
       }
 
       void setupIterators(ArrayRef<Instruction> instrs);
@@ -135,7 +139,9 @@ namespace fox {
       const Instruction* instrsBeg_ = nullptr;
       const Instruction* curInstr_ = nullptr;
 
-      // The registers
+      // The register stack
       std::array<reg_t, numStackRegister> regStack_ = {0};
+      // The base register (rO) of the current function's register window.
+      reg_t* baseReg_ = nullptr;
   };
 }

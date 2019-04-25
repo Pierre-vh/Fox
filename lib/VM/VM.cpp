@@ -15,13 +15,33 @@
 
 using namespace fox;
 
-VM::VM(BCModule& theModule) : bcModule(theModule) {}
-
-VM::reg_t* VM::run(BCFunction& func) {
-  // Will be completed later. I'll need to setup the 
-  // call and handle the return value correctly.
-  return run(func.getInstructions());
+VM::VM(BCModule& theModule) : bcModule(theModule) {
+  /// The base register will simply be the first register in the
+  /// stack.
+  baseReg_ = regStack_.data();
 }
+
+VM::reg_t* VM::call(BCFunction& func, MutableArrayRef<reg_t> args) {
+  assert((func.numParams() == args.size())
+    && "Incorrect number of parameters");
+  /// Copy the args into the callee's frame
+  {
+    regaddr_t k = 0;
+    for (auto arg : args)
+      setReg(k++, arg);
+  }
+  /// Run the bytecode
+  reg_t* rtr = run(func.getInstructions());
+  /// TODO: Copy Out
+  return rtr;
+}
+
+// TODO: When calling inside run() below, it'll setup the
+// register window, handling potential reallocations and then do
+// something like 
+// auto fn = getReg<BCFunction&>(instr.Call.base)
+// auto argsPtr = getRegPtr(instr.Call.base+1)
+// call(fn, {argsPtr, fn.numParams()});
 
 VM::reg_t* VM::run(ArrayRef<Instruction> instrs) {
   setupIterators(instrs);

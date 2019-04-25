@@ -458,7 +458,7 @@ TEST_F(VMTest, RetRetVoid) {
   BCFunction& f1 = theModule.createFunction();
   f1.createBCBuilder().createRetVoidInstr();
   VM vm(theModule);
-  EXPECT_EQ(vm.run(f1), nullptr) << "RetVoid returned something non-null";
+  EXPECT_EQ(vm.call(f1), nullptr) << "RetVoid returned something non-null";
   // f2 = stores something in r1 and and returns 
   // the value in r1
   BCFunction& f2 = theModule.createFunction();
@@ -468,7 +468,7 @@ TEST_F(VMTest, RetRetVoid) {
     builder.createRetInstr(1);
   }
   // Compare pointers and values
-  auto retptr = vm.run(f2);
+  auto retptr = vm.call(f2);
   auto regstack = vm.getRegisterStack();
   ASSERT_EQ(retptr, regstack.data()+1);
   EXPECT_EQ(*retptr, 526);
