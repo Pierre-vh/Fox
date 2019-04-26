@@ -473,3 +473,30 @@ TEST_F(VMTest, RetRetVoid) {
   ASSERT_EQ(retptr, regstack.data()+1);
   EXPECT_EQ(*retptr, 526);
 }
+
+TEST_F(VMTest, runFuncWithArgs) {
+  using reg_t = VM::reg_t;
+  // Create a function that takes 3 parameters
+  // Parameters should be in r0, r1 and r2
+  BCFunction& fn = theModule.createFunction(3);
+  BCBuilder builder = fn.createBCBuilder();
+  // Create a few instructions so r0 = r1 + r2
+  // and r1 = r1 + r2
+  // the return r2
+  builder.createAddIntInstr(0, 1, 2);
+  builder.createAddIntInstr(1, 1, 2);
+  builder.createRetInstr(2);
+
+  VM vm(theModule);
+  // Initial values: -5, 0, 5
+  FoxInt a0 = -5;
+  FoxInt a1 = 0;
+  FoxInt a2 = 5;
+  reg_t args[3] = {reg_t(a0), reg_t(a1), reg_t(a2)};
+  reg_t* result = vm.call(fn, args);
+  // Check that the call went as expected
+  ASSERT_NE(result, nullptr) << "result is null";
+  EXPECT_EQ(FoxInt(*result), a2);
+  EXPECT_EQ(FoxInt(args[0]), a1 + a2);
+  EXPECT_EQ(FoxInt(args[1]), a1 + a2);
+}
