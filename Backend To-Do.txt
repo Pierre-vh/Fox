@@ -65,9 +65,11 @@ Basic VM data types and their mappings to Fox types:
     -> Add unused parameters detection in semantic analysis (Done)
     -> RegisterAllocator should ignore unused parameters (Done)
     -> FuncDecl::numUsedParams() (Done)
+    -> BCGen::getBCFunction(FuncDecl*) (Done)
 
     -> CallExpr compilation
       -> RegisterAllocator "getRegistersForCall(SmallVectorImpl<RegisterValue>& dest, std::size_t n)"
+      -> FuncDecl DeclRefExpr BCGen
       -> Compile the callee and args in registers rX -> rX+n
         -> Only compile used paramters 
         -> Compile unused ones to temporaries and discard the result

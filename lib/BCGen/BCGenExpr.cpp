@@ -527,7 +527,14 @@ class BCGen::ExprGenerator : public Generator,
     RegisterValue 
     visitDeclRefExpr(DeclRefExpr* expr, RegisterValue dest) { 
       ValueDecl* decl = expr->getDecl();
-      // Reference to Global declarations
+      // References to Functions
+      if (FuncDecl* func = dyn_cast<FuncDecl>(decl)) {
+        auto fID = static_cast<func_id_t>(bcGen.getBCFunction(func).getID());
+        dest = getDestReg(std::move(dest));
+        builder.createLoadFuncInstr(dest.getAddress(), fID);
+        return dest;
+      }
+      // Reference to Global variables
       if(!decl->isLocal())
         fox_unimplemented_feature("Global DeclRefExpr BCGen");
       // Reference to local decls

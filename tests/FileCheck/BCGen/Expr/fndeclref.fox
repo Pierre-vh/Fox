@@ -1,0 +1,34 @@
+// RUN: %fox-dump-bcgen | %filecheck
+
+// CHECK:   Function 0
+func foo() {
+  // CHECK-NEXT: LoadFunc 0 0
+  foo;
+  // CHECK-NEXT: LoadFunc 0 1
+  bar;
+  // CHECK-NEXT: LoadFunc 0 2
+  baz;
+  // CHECK-NEXT: RetVoid
+}
+
+// CHECK:   Function 1
+func bar() {
+  // CHECK-NEXT: LoadFunc 0 0
+  foo;
+  // CHECK-NEXT: LoadFunc 0 1
+  bar;
+  // CHECK-NEXT: LoadFunc 0 2
+  baz;
+  // CHECK-NEXT: RetVoid
+}
+
+// CHECK:   Function 2
+func baz() {
+  // CHECK-NEXT: LoadFunc 0 0
+  foo;
+  // CHECK-NEXT: LoadFunc 0 1
+  bar;
+  // CHECK-NEXT: LoadFunc 0 2
+  baz;
+  // CHECK-NEXT: RetVoid
+}
