@@ -356,6 +356,10 @@ class Sema::ExprChecker : Checker, ExprVisitor<ExprChecker, Expr*>,  ASTWalker {
         }
       }
 
+      // If we're referring to a ParamDecl, mark it as being used.
+      if(ParamDecl* param = dyn_cast<ParamDecl>(found))
+        param->setIsUsed();
+
       // Create the resolved DeclRef.
       DeclRefExpr* resolved = 
         DeclRefExpr::create(ctxt, found, udre->getSourceRange());

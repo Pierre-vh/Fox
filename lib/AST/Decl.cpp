@@ -224,6 +224,14 @@ Type ParamDecl::getValueType() const {
   return typeLoc_.getType();
 }
 
+void ParamDecl::setIsUsed(bool value) {
+  used_ = value;
+}
+
+bool ParamDecl::isUsed() const {
+  return used_;
+}
+
 SourceRange ParamDecl::getSourceRange() const {
   return SourceRange(getIdentifierRange().getBeginLoc(), typeLoc_.getEndLoc());
 }
@@ -231,7 +239,7 @@ SourceRange ParamDecl::getSourceRange() const {
 ParamDecl::ParamDecl(DeclContext* dc, Identifier id, SourceRange idRange, 
   TypeLoc type, bool isMut):
   ValueDecl(DeclKind::ParamDecl, dc, id, idRange), typeLoc_(type), 
-  isMut_(isMut) {}
+  isMut_(isMut), used_(false) {}
 
 //----------------------------------------------------------------------------//
 // ParamList

@@ -210,6 +210,11 @@ namespace fox {
       /// if present.
       Type getValueType() const;
 
+      /// Marks this parameter as being used at least once
+      void setIsUsed(bool value = true);
+      /// \returns true if this parameter is used at least once
+      bool isUsed() const;
+
       SourceRange getSourceRange() const;
 
       static bool classof(const Decl* decl) {
@@ -221,6 +226,7 @@ namespace fox {
         TypeLoc type, bool isMut);
 
       const bool isMut_ : 1;
+      bool used_ : 1;
       TypeLoc typeLoc_;
   };
 

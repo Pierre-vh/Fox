@@ -243,7 +243,8 @@ void ASTDumper::visitVarDecl(VarDecl* node) {
 }
 
 void ASTDumper::visitParamDecl(ParamDecl* node) {
-  dumpLine() << getValueDeclInfo(node) << "\n";
+  dumpLine() << getValueDeclInfo(node) 
+             << (node->isUsed() ? "" : " (unused)") << "\n";
 }
 
 void ASTDumper::visitFuncDecl(FuncDecl* node) {
