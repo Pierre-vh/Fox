@@ -28,6 +28,7 @@ namespace fox {
       BCFunction(const BCFunction&) = delete;
       BCFunction& operator=(const BCFunction&) = delete;
 
+      /// FIXME: Should this return a func_id_t?
       /// \returns the unique identifier of this function
       std::size_t getID() const {
         return id_;

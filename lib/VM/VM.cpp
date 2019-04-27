@@ -41,11 +41,11 @@ VM::reg_t* VM::call(BCFunction& func, MutableArrayRef<reg_t> args) {
 }
 
 VM::reg_t* VM::run(ArrayRef<Instruction> instrs) {
-  setupIterators(instrs);
+  setupPC(instrs);
   Instruction instr;
   do {
     // Fetch the current instruction
-    instr = *curInstr_;
+    instr = *pc_;
     // Macros used to implement repetitive operations
     #define TRIVIAL_TAC_BINOP_IMPL(ID, TYPE, OP)\
       setReg(instr.ID.dest,\
@@ -195,17 +195,17 @@ VM::reg_t* VM::run(ArrayRef<Instruction> instrs) {
         // JumpIf condReg offset : Add offset (int16) to pc 
         //    if condReg != 0
         if(getReg(instr.JumpIf.condReg))
-          curInstr_ += instr.JumpIf.offset;
+          pc_ += instr.JumpIf.offset;
         continue;
       case Opcode::JumpIfNot:
         // JumpIfNot condReg offset : Add offset (int16) to pc 
         //    if condReg == 0
         if(!getReg(instr.JumpIfNot.condReg))
-          curInstr_ += instr.JumpIfNot.offset;
+          pc_ += instr.JumpIfNot.offset;
         continue;
       case Opcode::Jump:
         // Jump offset: Add offset (int16) to pc
-        curInstr_ += instr.Jump.offset;
+        pc_ += instr.Jump.offset;
         continue;
       case Opcode::IntToDouble:
         // IntToDouble dest srrhs: dest = (src as FoxDouble) (srrhs: FoxInt)
@@ -235,21 +235,43 @@ VM::reg_t* VM::run(ArrayRef<Instruction> instrs) {
         return nullptr;
       case Opcode::Ret:
         return getRegPtr(instr.Ret.reg);
+      case Opcode::LoadFunc:
+        // LoadFunc dest func : loads a reference to the function with the
+        //  ID 'func' in 'dest'.
+        setReg(instr.LoadFunc.dest, 
+               &(bcModule.getFunction(instr.LoadFunc.func)));
+        continue;
+      case Opcode::CallVoid:
+        // CallVoid base : calls a function located in 'base'.
+        //  Args are in subsequent registers.
+        callFunc(instr.CallVoid.base);
+        continue;
+      case Opcode::Call:
+      {
+        // CallVoid base dest : calls a function located in 'base'
+        //  Args are in subsequent registers.
+        //  Stores the result in 'dest'
+        reg_t* result = callFunc(instr.CallVoid.base);
+        assert(result && "function returning void called with "
+          "'Call' and not 'CallVoid'");
+        setReg(instr.Call.dest, *result);
+        continue;
+      }
       default:
         fox_unreachable("illegal or unimplemented instruction found");
     }
     #undef TRIVIAL_TAC_BINOP_IMPL
-  } while(++curInstr_);
+  } while(++pc_);
   fox_unreachable("execution did not terminate correctly: "
     "reached the end of the buffer before a return instr");
 }
 
 std::size_t VM::getPCIndex() const {
-  return std::distance(instrsBeg_, curInstr_);
+  return std::distance(instrsBeg_, pc_);
 }
 
 const Instruction* VM::getPC() const {
-  return curInstr_;
+  return pc_;
 }
 
 ArrayRef<VM::reg_t> VM::getRegisterStack() const {
@@ -260,6 +282,42 @@ MutableArrayRef<VM::reg_t> VM::getRegisterStack() {
   return regStack_;
 }
 
-void VM::setupIterators(ArrayRef<Instruction> instrs) {
-  instrsBeg_ = curInstr_ = instrs.begin();
+VM::reg_t* VM::callFunc(regaddr_t base) {
+  // Fetch a pointer to the base
+  reg_t* basePtr = getRegPtr(base);
+  // Fetch the BCFunction
+  BCFunction* fn = *reinterpret_cast<BCFunction**>(basePtr);
+  assert(fn && "func is null");
+
+  ///////////////////////////////////////////////////////////////////
+  // TODO: Realloc the stack if needed (the func needs more regs than
+  // what we can provide)
+  ///////////////////////////////////////////////////////////////////
+
+  // Backup the instrBeg and curInstr ptrs
+
+  // Backup the current register window position
+  reg_t* previousBase = baseReg_;
+  // Slide the window so it begins at basePtr+1
+  baseReg_ = basePtr+1;
+
+  // Backup the current program counter and the instrsBeg_
+  // pointer.
+  // TODO: Automate this, make it more elegant and less error prone
+  auto oldPC = pc_;
+  auto oldIBeg = instrsBeg_;
+
+  // Run
+  reg_t* rtrReg = run(fn->getInstructions());
+
+  // Restore the window, PC and instrBeg pointers
+  baseReg_ = previousBase;
+  pc_ = oldPC;
+  oldIBeg = instrsBeg_;
+
+  return rtrReg;
+}
+
+void VM::setupPC(ArrayRef<Instruction> instrs) {
+  instrsBeg_ = pc_ = instrs.begin();
 }

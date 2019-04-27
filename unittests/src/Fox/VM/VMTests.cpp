@@ -500,3 +500,59 @@ TEST_F(VMTest, runFuncWithArgs) {
   EXPECT_EQ(FoxInt(args[0]), a1 + a2);
   EXPECT_EQ(FoxInt(args[1]), a1 + a2);
 }
+
+TEST_F(VMTest, loadFunc) {
+  BCFunction& fn = theModule.createFunction();
+  BCBuilder builder = fn.createBCBuilder();
+  ASSERT_EQ(fn.getID(), 0u);
+  builder.createLoadFuncInstr(0, 0);
+  builder.createRetVoidInstr();
+  VM vm(theModule);
+  vm.call(fn);
+  // Helper to get a register's value as a BCFunction*
+  auto getReg = [&](std::size_t idx) {
+    return reinterpret_cast<BCFunction*>(vm.getRegisterStack()[idx]);
+  };
+  // Check that the function was loaded correctly
+  EXPECT_EQ(getReg(0), &fn);
+}
+
+TEST_F(VMTest, call) {
+  // Create 2 functions, f0 and f1
+  // f0 just calls f1
+  BCFunction& f0 = theModule.createFunction();
+  ASSERT_EQ(f0.getID(), 0u);
+  FoxInt r1 = 4;
+  FoxInt r2 = 8;
+  {
+    BCBuilder builder = f0.createBCBuilder();
+    // Setup the call so r0 = base = ref to f1
+    // args are in r1 and r2
+    // r3 will contain the return value.
+    builder.createLoadFuncInstr(0, 1);
+    builder.createStoreSmallIntInstr(1, r1);
+    builder.createStoreSmallIntInstr(2, r2);
+    builder.createCallInstr(0, 3);
+    builder.createRetVoidInstr();
+  }
+  // f1 multiplies its parameters by two and returns their sum.
+  BCFunction& f1 = theModule.createFunction();
+  ASSERT_EQ(f1.getID(), 1u);
+  {
+    BCBuilder builder = f1.createBCBuilder();
+    builder.createAddIntInstr(0, 0, 0);
+    builder.createAddIntInstr(1, 1, 1);
+    builder.createAddIntInstr(2, 0, 1);
+    builder.createRetInstr(2);
+  }
+  // Test
+  VM vm(theModule);
+  vm.call(f0);
+  // Helper to get a register's value as a FoxInt
+  auto getReg = [&](std::size_t idx) {
+    return static_cast<FoxInt>(vm.getRegisterStack()[idx]);
+  };
+  EXPECT_EQ(getReg(1), r1*2)            << "incorrect value for r1";
+  EXPECT_EQ(getReg(2), r2*2)            << "incorrect value for r2";
+  EXPECT_EQ(getReg(3), (r1*2) + (r2*2)) << "incorrect return value";
+}

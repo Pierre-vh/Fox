@@ -112,6 +112,13 @@ UNARY_REG_OP(DoubleToInt) // Converts a double to an int
 SIMPLE_INSTR(RetVoid)
 UNARY_INSTR(Ret, reg, regaddr_t)
 
+// Stores a reference to a function 'func' in register 'dest'
+BINARY_INSTR(LoadFunc, dest, regaddr_t, func, func_id_t)
+// Calls a function in register 'base' and places the return value in 'dest'
+BINARY_INSTR(Call, base, regaddr_t, dest, regaddr_t) 
+// Calls a function in register 'base' and discards the return value
+UNARY_INSTR(CallVoid, base, regaddr_t) 
+
 LAST_INSTR(Ret)
 
 //----------------------------------------------------------------------------//

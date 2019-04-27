@@ -77,6 +77,13 @@ namespace fox {
       BCModule& bcModule;
 
     private:
+      /// Internal method to handle calls to a function
+      /// \param base the base register of the call
+      /// \returns a pointer to the register containing the return value
+      /// of the executed bytecode. nullptr if there is no return value
+      /// (void)
+      reg_t* callFunc(regaddr_t base);
+
       /// \returns the raw register at address \p idx in the current
       /// window.
       reg_t getReg(regaddr_t idx) {
@@ -129,11 +136,19 @@ namespace fox {
         baseReg_[idx] = llvm::DoubleToBits(value);
       }
 
-      void setupIterators(ArrayRef<Instruction> instrs);
+      // Special overload of setReg for pointer types
+      template<typename Ty>
+      void setReg(regaddr_t idx, Ty* ptr) {
+        baseReg_[idx] = reinterpret_cast<std::intptr_t>(ptr);
+      }
+
+      /// setups the program counter so it starts at the beginning of
+      /// \p instrs
+      void setupPC(ArrayRef<Instruction> instrs);
 
       // The program counter
       const Instruction* instrsBeg_ = nullptr;
-      const Instruction* curInstr_ = nullptr;
+      const Instruction* pc_ = nullptr;
 
       // The register stack
       std::array<reg_t, numStackRegister> regStack_ = {0};
