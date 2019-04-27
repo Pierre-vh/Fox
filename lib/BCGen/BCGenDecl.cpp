@@ -163,8 +163,6 @@ namespace {
 
 void BCGen::genFunc(FuncDecl* func) {
   assert(func && "func is null");
-  assert((theModule.numFunctions() <= bc_limits::max_functions)
-    && "Cannot create function: too many functions in the module");
   // Get the (maybe null) parameter list
   ParamList* params = func->getParams();
   // Create the RegisterAllocator for this Function
@@ -205,7 +203,9 @@ BCFunction& BCGen::getBCFunction(FuncDecl* func) {
     if(it != funcs_.end())
       return it->second;
   }
-  // Function doesn't exist yet, create it.
+  // a BCFunction for this FuncDecl* was not created yet so create it
+  assert((theModule.numFunctions() <= bc_limits::max_functions)
+    && "Cannot create function: too many functions in the module");
   BCFunction& fn = theModule.createFunction(func->numUsedParams());
   funcs_.insert({func, fn});
   return fn;
