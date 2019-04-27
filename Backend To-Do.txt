@@ -61,19 +61,16 @@ Basic VM data types and their mappings to Fox types:
     -> RegisterAllocator Support for ParamDecl (Done)
     -> BCGen support for ParamDecl: Prologue, DeclRef, etc (Done)
     -> BCFunction: PCM (Done)
-    -> VM:
-      -> implement the register window (Done)
-      -> run(BCFunction&, ArrayRef<regaddr_t> args)
-        -> Impl (Done)
-        -> Test
-      -> Maybe impl a basic call stack (is it needed? probably not for now)
-      -> Instructions:
-        -> LoadFunc <dest> <id>
-        -> Call <base> <dest> / CallVoid <base>
-            -> these should setup the call frame, ensure we have enough regs, etc
-        -- Unit tests 
+    -> VM Instructions (LoadFunc, Call and CallVoid) (Done)
+
+    -> Add unused parameters detection in semantic analysis
+    -> RegisterAllocator should ignore unused parameters
+
     -> CallExpr compilation
-      -> For mutable parameters, after the call, emit assignements of the
+      -> RegisterAllocator "getRegistersForCall(SmallVectorImpl<RegisterValue>& dest, std::size_t n)"
+      -> Compile the callee and args in registers rX -> rX+n
+      -> Emit the Call/CallVoid instr
+      -> For (used) mutable parameters, after the call, emit assignements of the
          param's register to the expression passed as parameter.
 
 ---- Implementation of Object types ----
