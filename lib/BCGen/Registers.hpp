@@ -35,19 +35,31 @@ namespace fox {
   /// register and assign registers to declarations and temporaries.
   class alignas(8) RegisterAllocator {
     public:
-      /// Default Constructor
-      RegisterAllocator() = default;
-
-      /// Constructor for functions that have parameters.
-      /// The Parameters in ParamList will be given a register based on
-      /// their index. So the first parameters in \p params will be assigned
-      /// \p r0, etc.
+      /// Constructor for functions that may have parameters.
+      ///
+      /// The USED (param->isUsed() == true) parameters in ParamList 
+      /// will be assigned a register based on their position in the list.
+      /// Examples:
+      /// \verbatim
+      ///  foo(a: int, b: int, c: int) (b is unused)
+      ///             a will be placed in r0
+      ///             b will be ignored 
+      ///             c will be placed in r1
+      ///
+      ///  bar(a: int, b: int, c: int) (all are used)
+      ///             a will be placed in r0
+      ///             b will be placed in r1
+      ///             c will be placed in r2
+      /// \endverbatim
+      ///
+      ///
       /// Registers occupied by mutable parameters will *never* be freed
-      /// and will be kept alive until the end of the function so copy in/out
-      /// can happen.
-      /// NOTE: As an optimization, unused params are ignored.
+      /// and will be kept alive until the end of the function so copy out
+      /// can happen without issues.
+      ///
+      ///
       /// \p params the list of parameters of the function, maybe nullptr.
-      RegisterAllocator(ParamList* params);
+      RegisterAllocator(ParamList* params = nullptr);
 
       ///--------------------------------------------------------------------///
       /// Preparation/Prologue methods
