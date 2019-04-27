@@ -21,6 +21,8 @@ namespace fox {
   class ASTContext;
   class DiagnosticEngine;
   class BCBuilder;
+  class BCFunction;
+  class FuncDecl;
   class BCModule;
   class Expr;
   class RegisterAllocator;
@@ -58,7 +60,7 @@ namespace fox {
       void genGlobalVar(BCBuilder& builder, VarDecl* var);
 
       // Generates (emits) the bytecode for a function declaration "func" 
-      void genFunc(BCModule& bcmodule, FuncDecl* func);
+      void genFunc(FuncDecl* func);
 
       // Generates (emits) the bytecode for a statement "stmt"
       void genStmt(BCBuilder& builder, 
@@ -79,11 +81,17 @@ namespace fox {
       void genLocalDecl(BCBuilder& builder, 
                         RegisterAllocator& regAlloc, Decl* decl);
 
+      /// \returns the BCFunction object for a FuncDecl*
+      BCFunction& getBCFunction(FuncDecl* func);
+
       class Generator;
       class ExprGenerator;
       class AssignementGenerator;
       class LocalDeclGenerator;
       class StmtGenerator;
+
+      // The map of functions to BCFunction&
+      std::unordered_map<FuncDecl*, BCFunction&> funcs_;
 
       // Constant maps, used to 'unique' constants.
       // Note: For the string constants map, we store the hash of the string

@@ -161,9 +161,9 @@ namespace {
 // BCGen Entrypoints
 //----------------------------------------------------------------------------//
 
-void BCGen::genFunc(BCModule& bcmodule, FuncDecl* func) {
+void BCGen::genFunc(FuncDecl* func) {
   assert(func && "func is null");
-  assert((bcmodule.numFunctions() <= bc_limits::max_functions)
+  assert((theModule.numFunctions() <= bc_limits::max_functions)
     && "Cannot create function: too many functions in the module");
   // Get the (maybe null) parameter list
   ParamList* params = func->getParams();
@@ -174,10 +174,8 @@ void BCGen::genFunc(BCModule& bcmodule, FuncDecl* func) {
   // can be given enough information to correctly generate the bytecode.
   FuncGenPrologue(regAlloc).doPrologue(func);
 
-  // Create the function
-  // We use numUsedParams instead of numParams because the register
-  // allocator ignores unused params, it doesn't even give them a register.
-  BCFunction& fn = bcmodule.createFunction(func->numUsedParams());
+  // Fetch the BCFunction
+  BCFunction& fn = getBCFunction(func);
 
   // Create the builder
   BCBuilder builder = fn.createBCBuilder();
@@ -201,11 +199,23 @@ void BCGen::genLocalDecl(BCBuilder& builder,
   LocalDeclGenerator(*this, builder, regAlloc).generate(decl);
 }
 
+BCFunction& BCGen::getBCFunction(FuncDecl* func) {
+  {
+    auto it = funcs_.find(func);
+    if(it != funcs_.end())
+      return it->second;
+  }
+  // Function doesn't exist yet, create it.
+  BCFunction& fn = theModule.createFunction(func->numUsedParams());
+  funcs_.insert({func, fn});
+  return fn;
+}
+
 void BCGen::genUnit(UnitDecl* unit) {
   assert(unit && "arg is nullptr");
   for (Decl* decl : unit->getDecls()) {
     if (FuncDecl* fn = dyn_cast<FuncDecl>(decl))
-      genFunc(theModule, fn);
+      genFunc(fn);
     else if (VarDecl* var = dyn_cast<VarDecl>(decl)) 
       fox_unimplemented_feature("Global Var BCGen");
     else 
