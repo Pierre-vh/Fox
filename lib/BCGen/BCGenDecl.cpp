@@ -174,10 +174,6 @@ void BCGen::genFunc(BCModule& bcmodule, FuncDecl* func) {
   // can be given enough information to correctly generate the bytecode.
   FuncGenPrologue(regAlloc).doPrologue(func);
 
-  // Let the RegisterAllocator cleanup unused parameters
-  SmallVector<const ParamDecl*, 4> unusedParams;
-  regAlloc.freeUnusedParameters(params, unusedParams);
-
   // Create the function
   BCFunction& fn = bcmodule.createFunction(func->numParams());
 

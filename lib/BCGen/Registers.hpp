@@ -45,6 +45,7 @@ namespace fox {
       /// Registers occupied by mutable parameters will *never* be freed
       /// and will be kept alive until the end of the function so copy in/out
       /// can happen.
+      /// NOTE: As an optimization, unused params are ignored.
       /// \p params the list of parameters of the function, maybe nullptr.
       RegisterAllocator(ParamList* params);
 
@@ -54,15 +55,6 @@ namespace fox {
 
       /// Increments the use count of \p decl
       void addUsage(const ValueDecl* decl);
-
-      /// Once prologue is done and all usages have been registered, free
-      /// the registers occupied by the parameters in \p params that are n
-      /// never used.
-      /// NOTE: This will also free the registers used by mutable
-      /// parameters since they are not used anymore.
-      /// The list of unused parameters will be contained in \p unused
-      void freeUnusedParameters(ParamList* params, 
-                                SmallVectorImpl<const ParamDecl*>& unused);
 
       ///--------------------------------------------------------------------///
       /// Usage/Register allocation methods
@@ -167,11 +159,7 @@ namespace fox {
       /// its register if its use count reaches 0.
       /// If \p isAlreadyDead is true the decl's use count must
       /// be zero.
-      /// If \p freeProtected is true variables that have .canFree set
-      /// to false will still be freed.
-      void release(const ValueDecl* decl, 
-                   bool isAlreadyDead = false, 
-                   bool freeProtected = false);
+      void release(const ValueDecl* decl, bool isAlreadyDead = false);
 
       /// \returns true if we can recycle the register occupied by \p decl
       bool canRecycle(const ValueDecl* decl) const;

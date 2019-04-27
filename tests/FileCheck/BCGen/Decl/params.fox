@@ -8,12 +8,12 @@ func foo(x : int, y : int) {
 
 // CHECK: Function 1
 func bar(x : int, y : int) {
-    // CHECK-NEXT:  StoreSmallInt 0 0
+    // CHECK-NEXT:  StoreSmallInt 1 0
     let x : int = 0;
     // CHECK-NEXT:  StoreSmallInt 2 1
-    // CHECK-NEXT:  AddInt 1 1 2
+    // CHECK-NEXT:  AddInt 0 0 2
     y+1;
-    // CHECK-NEXT:  StoreSmallInt 1 36
+    // CHECK-NEXT:  StoreSmallInt 0 36
     let y : int = 36;
     x;
 }
