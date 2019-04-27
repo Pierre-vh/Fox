@@ -1,9 +1,36 @@
 // RUN: %fox-dump-ast | %filecheck
 
 
+// CHECK:       FuncDecl {{0x([[:alnum:]]{8,16})}} {{.*}} easy '() -> void' (0 params, 0 used)
+func easy() {}
+
 // CHECK:       FuncDecl {{0x([[:alnum:]]{8,16})}} {{.*}} foo '(int, int) -> int' (2 params, 1 used)
 // CHECK-NEXT:    ParamDecl {{0x([[:alnum:]]{8,16})}} {{.*}} x 'int'
 // CHECK-NEXT:    ParamDecl {{0x([[:alnum:]]{8,16})}} {{.*}} y 'int' (unused)
 func foo(x: int, y : int) : int {
   return x;
+}
+
+// CHECK:       FuncDecl {{0x([[:alnum:]]{8,16})}} {{.*}} bar '(int, int, int) -> int' (3 params, 1 used)
+// CHECK-NEXT:    ParamDecl {{0x([[:alnum:]]{8,16})}} {{.*}} x 'int'
+// CHECK-NEXT:    ParamDecl {{0x([[:alnum:]]{8,16})}} {{.*}} y 'int' (unused)
+// CHECK-NEXT:    ParamDecl {{0x([[:alnum:]]{8,16})}} {{.*}} z 'int' (unused)
+func bar(x: int, y : int, z: int) : int {
+  return x;
+}
+
+// CHECK:       FuncDecl {{0x([[:alnum:]]{8,16})}} {{.*}} baz '(int, int, int) -> int' (3 params, 2 used)
+// CHECK-NEXT:    ParamDecl {{0x([[:alnum:]]{8,16})}} {{.*}} x 'int'
+// CHECK-NEXT:    ParamDecl {{0x([[:alnum:]]{8,16})}} {{.*}} y 'int' (unused)
+// CHECK-NEXT:    ParamDecl {{0x([[:alnum:]]{8,16})}} {{.*}} z 'int'
+func baz(x: int, y : int, z: int) : int {
+  return x+z;
+}
+
+// CHECK:       FuncDecl {{0x([[:alnum:]]{8,16})}} {{.*}} boo '(int, int, int) -> int' (3 params, 3 used)
+// CHECK-NEXT:    ParamDecl {{0x([[:alnum:]]{8,16})}} {{.*}} x 'int'
+// CHECK-NEXT:    ParamDecl {{0x([[:alnum:]]{8,16})}} {{.*}} y 'int'
+// CHECK-NEXT:    ParamDecl {{0x([[:alnum:]]{8,16})}} {{.*}} z 'int'
+func boo(x: int, y : int, z: int) : int {
+  return x+y+z;
 }
