@@ -62,9 +62,8 @@ Basic VM data types and their mappings to Fox types:
     -> BCGen support for ParamDecl: Prologue, DeclRef, etc (Done)
     -> BCFunction: PCM (Done)
     -> VM Instructions (LoadFunc, Call and CallVoid) (Done)
-
-    -> Add unused parameters detection in semantic analysis
-    -> RegisterAllocator should ignore unused parameters
+    -> Add unused parameters detection in semantic analysis (Done)
+    -> RegisterAllocator should ignore unused parameters (Done)
 
     -> CallExpr compilation
       -> RegisterAllocator "getRegistersForCall(SmallVectorImpl<RegisterValue>& dest, std::size_t n)"
