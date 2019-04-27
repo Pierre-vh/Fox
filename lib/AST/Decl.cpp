@@ -333,6 +333,16 @@ std::size_t FuncDecl::numParams() const {
   return params_ ? params_->size() : 0;
 }
 
+std::size_t FuncDecl::numUsedParams() const {
+  if (params_) {
+    std::size_t tot = 0;
+    for (ParamDecl* param : *params_) 
+      if(param->isUsed()) ++tot;
+    return tot;
+  }
+  return 0;
+}
+
 Type FuncDecl::getValueType() const {
   return valueType_;
 }

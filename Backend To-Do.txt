@@ -64,10 +64,14 @@ Basic VM data types and their mappings to Fox types:
     -> VM Instructions (LoadFunc, Call and CallVoid) (Done)
     -> Add unused parameters detection in semantic analysis (Done)
     -> RegisterAllocator should ignore unused parameters (Done)
+    -> FuncDecl::numUsedParams() (Done)
 
     -> CallExpr compilation
       -> RegisterAllocator "getRegistersForCall(SmallVectorImpl<RegisterValue>& dest, std::size_t n)"
       -> Compile the callee and args in registers rX -> rX+n
+        -> Only compile used paramters 
+        -> Compile unused ones to temporaries and discard the result
+        Note: this optimisation depends on the RegisterAllocator ignoring unused params, so note that.
       -> Emit the Call/CallVoid instr
       -> For (used) mutable parameters, after the call, emit assignements of the
          param's register to the expression passed as parameter.

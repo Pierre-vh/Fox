@@ -175,7 +175,9 @@ void BCGen::genFunc(BCModule& bcmodule, FuncDecl* func) {
   FuncGenPrologue(regAlloc).doPrologue(func);
 
   // Create the function
-  BCFunction& fn = bcmodule.createFunction(func->numParams());
+  // We use numUsedParams instead of numParams because the register
+  // allocator ignores unused params, it doesn't even give them a register.
+  BCFunction& fn = bcmodule.createFunction(func->numUsedParams());
 
   // Create the builder
   BCBuilder builder = fn.createBCBuilder();

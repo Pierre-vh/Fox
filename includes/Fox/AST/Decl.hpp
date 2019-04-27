@@ -304,6 +304,9 @@ namespace fox {
       bool hasParams() const;
       /// \returns the number of parameters this function has
       std::size_t numParams() const;
+      /// \returns the number of parameter this function has that are
+      ///   actually used.
+      std::size_t numUsedParams() const;
 
       /// (Re)calculates the ValueDecl type for this FuncDecl
       void calculateValueType();

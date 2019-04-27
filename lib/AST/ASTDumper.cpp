@@ -248,7 +248,9 @@ void ASTDumper::visitParamDecl(ParamDecl* node) {
 }
 
 void ASTDumper::visitFuncDecl(FuncDecl* node) {
-  dumpLine() << getValueDeclInfo(node) << "\n";
+  dumpLine() << getValueDeclInfo(node) 
+    << " (" << node->numParams() << " params, " 
+    << node->numUsedParams() << " used)\n";
 
   if (ParamList* params = node->getParams()) {
     for (auto decl : *params) {

@@ -1,7 +1,7 @@
 // RUN: %fox-dump-ast | %filecheck
 
 
-// CHECK:       FuncDecl {{0x([[:alnum:]]{8,16})}} {{.*}} foo '(int, int) -> int'
+// CHECK:       FuncDecl {{0x([[:alnum:]]{8,16})}} {{.*}} foo '(int, int) -> int' (2 params, 1 used)
 // CHECK-NEXT:    ParamDecl {{0x([[:alnum:]]{8,16})}} {{.*}} x 'int'
 // CHECK-NEXT:    ParamDecl {{0x([[:alnum:]]{8,16})}} {{.*}} y 'int' (unused)
 func foo(x: int, y : int) : int {
