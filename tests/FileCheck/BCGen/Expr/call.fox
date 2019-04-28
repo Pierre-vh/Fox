@@ -1,0 +1,25 @@
+// RUN: %fox-dump-bcgen | %filecheck
+
+// CHECK:   Function 0
+func foo(x: mut int, y: mut int) : int {
+  // CHECK-NEXT:  LoadFunc 0 0
+  // CHECK-NEXT:  LoadFunc 3 0
+  // CHECK-NEXT:  StoreSmallInt 4 1
+  // CHECK-NEXT:  StoreSmallInt 5 2
+  // CHECK-NEXT:  Call 3 1
+  // CHECK-NEXT:  LoadFunc 3 0
+  // CHECK-NEXT:  StoreSmallInt 4 3
+  // CHECK-NEXT:  StoreSmallInt 5 4
+  // CHECK-NEXT:  Call 3 2
+  // CHECK-NEXT:  Call 0 3
+  // CHECK-NEXT:  Ret 3
+  return foo(foo(1, 2), foo(3, 4));
+}
+
+// CHECK:   Function 1
+func bar() {
+  // CHECK-NEXT:  LoadFunc 0 1
+  // CHECK-NEXT:  CallVoid 0
+  // CHECK-NEXT:  RetVoid
+  return bar();
+}

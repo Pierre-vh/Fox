@@ -48,16 +48,14 @@ class BCGen::AssignementGenerator : public Generator,
     /// Generates the bytecode for an assignement expression \p expr
     RegisterValue generate(BinaryExpr* expr);
 
-    /// Generates the bytecode to assign the value in \p src to
-    /// \p dest.
-    RegisterValue generate(Expr* dest, RegisterValue src);
-
     /// The AssignementGenerator 'Gen' function. This is a 'thunk'
     /// function that can do many things. What the thunk does
     /// depends on the entry point used.
     /// Its signature is (RegisterValue) -> RegisterValue
     /// The goal is to place the thing we need to assign in the
     /// register passed as parameter and return the parameter.
+    /// FIXME: This was used for a previous version of BCGen, but is
+    ///        now borderline useless. Maybe remove it?
     using GenFunc = AGGenFunc;
 
   private:
@@ -598,29 +596,11 @@ class BCGen::ExprGenerator : public Generator,
         assert(!dest 
           && "CallExpr has void type, but is expected to return a result");
         builder.createCallVoidInstr(baseAddr);
+        return RegisterValue();
       }
       // Else just use 'Call'.
-      else {
-        dest = getDestReg(std::move(dest));
-        builder.createCallInstr(baseAddr, dest.getAddress());
-      }
-
-      // Perform copy-after-return for the mutable arguments.
-      // This will simply copy the value in the arg register back
-      // into the LValue used as argument.
-      Type calleeTy = expr->getCallee()->getType();
-      FunctionType* fnTy = calleeTy->getRValue()->getAs<FunctionType>();
-      assert(fnTy && "callee doesn't have a function type");
-      assert((exprs.size()-1) == fnTy->numParams());
-      {
-        std::size_t k = 1;
-        AssignementGenerator assignGen(bcGen, builder, *this);
-        for (auto param : fnTy->getParams()) {
-          if (param.isMut())
-            assignGen.generate(exprs[k], std::move(regs[k]));
-          ++k;
-        }
-      }
+      dest = getDestReg(std::move(dest));
+      builder.createCallInstr(baseAddr, dest.getAddress());
       return dest;
     }
 
@@ -699,20 +679,6 @@ RegisterValue BCGen::AssignementGenerator::generate(BinaryExpr* expr) {
     return exprGen.generate(expr->getRHS(), std::move(dest));
   };
   return visit(expr->getLHS(), genFunc, expr->getOp());
-}
-
-RegisterValue 
-BCGen::AssignementGenerator::generate(Expr* dest, RegisterValue src) {
-  assert(src && "must provide a source register");
-  // for this entry point, the generator function will create a copy
-  // instruction so that the value in src is copied in dest.
-  auto genFunc = [&](RegisterValue destReg) {
-    assert(destReg && "destReg is invalid");
-    if(destReg != src)
-      builder.createCopyInstr(destReg.getAddress(), src.getAddress());
-    return destReg;
-  };
-  return visit(dest, genFunc, BinOp::Assign);
 }
 
 RegisterValue BCGen::AssignementGenerator::

@@ -646,6 +646,8 @@ class Sema::ExprChecker : Checker, ExprVisitor<ExprChecker, Expr*>,  ASTWalker {
             hasArgTypeMismatch = true;
             continue;
           }
+          /*  
+          // if I re-enable this, re-add the test in test/VerifyMode/Sema/Expr/call.fox
           // If the parameter is mutable, check that we have an assignable expression.
           if (param.isMut()) {
             if (!argType->isAssignable()) {
@@ -653,6 +655,7 @@ class Sema::ExprChecker : Checker, ExprVisitor<ExprChecker, Expr*>,  ASTWalker {
                                 arg->getSourceRange());
             }
           }
+          */
         }
 
         if (hasArgTypeMismatch) {

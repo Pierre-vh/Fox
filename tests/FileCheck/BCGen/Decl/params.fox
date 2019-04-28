@@ -20,14 +20,13 @@ func bar(x : int, y : int) {
 
 // CHECK: Function 2
 func baz(x : mut int, y : int) {
-    x; // x is used at least once so its register will be kept alive the 
-       // whole time.
-    // CHECK-NEXT:  StoreSmallInt 2 16
-    let x : int = 16; // even when shadowed
+    x;
+    // CHECK-NEXT:  StoreSmallInt 0 16
+    let x : int = 16;
     y;
+    // CHECK-NEXT: StoreSmallInt 0 1
     // CHECK-NEXT: StoreSmallInt 1 1
-    // CHECK-NEXT: StoreSmallInt 2 1
-    // CHECK-NEXT: AddInt 1 1 2
+    // CHECK-NEXT: AddInt 0 0 1
     let y : int = 1+1; // however this should overwrite y's register
 }
 
@@ -35,14 +34,14 @@ func baz(x : mut int, y : int) {
 func ass(x : mut int) {
     // CHECK-NEXT: StoreSmallInt 0 42
     x = 42;
-    // CHECK-NEXT: StoreSmallInt 1 16
+    // CHECK-NEXT: StoreSmallInt 0 16
     var x : int = 16;
-    // CHECK-NEXT: StoreSmallInt 1 84
+    // CHECK-NEXT: StoreSmallInt 0 84
     x = 84;
 }
 
 // CHECK: Function 4
 func unusedmut(x: mut int, y: mut double, z: mut double) {
-    // CHECK-NEXT: StoreSmallInt 3 42
+    // CHECK-NEXT: StoreSmallInt 0 42
     let x : int = 42;
 }

@@ -26,12 +26,10 @@ RegisterAllocator::RegisterAllocator(ParamList* params) {
       "Can't allocate more registers : Register number limit reached "
       "(too much register pressure) because a function has too many params");
     DeclData& data = knownDecls_[param];
-    // This doesn't count as an usage of the ParamDecl, so set useCount to 0
+    // This doesn't count as an usage of the ParamDecl, init useCount with 0
     data.useCount = 0;
     // Assign a register address equal to the index of the param
     data.addr = biggestAllocatedReg_++;
-    // We cannot free the registers used by mutable parameters
-    data.canFree = !param->isMut();
   }
 
   // Release unused, non mut parameters.
@@ -40,7 +38,7 @@ RegisterAllocator::RegisterAllocator(ParamList* params) {
   // at the end of the previous loop might decrement biggestAllocatedReg_
   // which would mess up the register addresses.
   for (ParamDecl* param : *params) {
-    if(!param->isUsed() && !param->isMut())
+    if(!param->isUsed())
       release(param, /*isAlreadyDead*/ true);
   }
 }
@@ -238,8 +236,6 @@ void RegisterAllocator::release(const ValueDecl* decl,
 
   // Check if the Decl is dead
   if (data.useCount == 0) {
-    // Don't free it if we're not allowed to.
-    if(!data.canFree) return;
     // In loops, we can't free registers used by Decls declared 
     // outside the loop
     if (isInLoop()) {

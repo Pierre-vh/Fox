@@ -82,9 +82,3 @@ func inExprs() {
 
   let n : [int] = takesArrayReturnsArray([1,2,3]);
 }
-
-func mutInt(foo: mut int) {
-  let bar : int = 0;
-  mutInt(0);    // expect-error: cannot pass unassignable expression as 'mut' argument
-  mutInt(bar);  // expect-error: cannot pass unassignable expression as 'mut' argument
-}

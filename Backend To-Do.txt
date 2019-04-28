@@ -66,11 +66,7 @@ Basic VM data types and their mappings to Fox types:
     -> RegisterAllocator should ignore unused parameters (Done)
     -> FuncDecl::numUsedParams() (Done)
     -> BCGen::getBCFunction(FuncDecl*) (Done)
-
-    -> CallExpr compilation (In progress)
-      -> BUG: The way I emit the copy back is problematic (triggers an assert) since I use dead decls. 
-              I need to prolong their lifetime when they're used as mut parameters.
-      -> Do unit tests once it's solved
+    -> CallExpr compilation (Done)
 
 ---- Implementation of Object types ----
   Note: At first, objects won't be freed. I'll use a leak-forever allocator (LinearAllocator).

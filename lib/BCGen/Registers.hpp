@@ -39,10 +39,8 @@ namespace fox {
       ///
       /// The parameters in ParamList will be assigned a register based 
       /// on their position in the list.
-      ///
-      /// Registers occupied by mutable parameters will *never* be freed
-      /// and will be kept alive until the end of the function so copy out
-      /// can happen without issues.
+      /// Parameters are treated like normal variables and will be freed
+      /// after their last use.
       ///
       ///
       /// \p params the list of parameters of the function, maybe nullptr.
@@ -115,9 +113,6 @@ namespace fox {
 
         llvm::Optional<regaddr_t> addr;
         std::size_t useCount;
-        // Set to false if we cannot free the register used
-        // by this decl, even when the use count reached zero
-        bool canFree = true;
       };
       
       /// The type of the hashmap used to track known declarations and map them
