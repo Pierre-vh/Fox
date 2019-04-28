@@ -67,16 +67,10 @@ Basic VM data types and their mappings to Fox types:
     -> FuncDecl::numUsedParams() (Done)
     -> BCGen::getBCFunction(FuncDecl*) (Done)
 
-    -> CallExpr compilation
-      -> RegisterAllocator "getRegistersForCall(SmallVectorImpl<RegisterValue>& dest, std::size_t n)"
-      -> FuncDecl DeclRefExpr BCGen
-      -> Compile the callee and args in registers rX -> rX+n
-        -> Only compile used paramters 
-        -> Compile unused ones to temporaries and discard the result
-        Note: this optimisation depends on the RegisterAllocator ignoring unused params, so note that.
-      -> Emit the Call/CallVoid instr
-      -> For (used) mutable parameters, after the call, emit assignements of the
-         param's register to the expression passed as parameter.
+    -> CallExpr compilation (In progress)
+      -> BUG: The way I emit the copy back is problematic (triggers an assert) since I use dead decls. 
+              I need to prolong their lifetime when they're used as mut parameters.
+      -> Do unit tests once it's solved
 
 ---- Implementation of Object types ----
   Note: At first, objects won't be freed. I'll use a leak-forever allocator (LinearAllocator).
@@ -135,4 +129,4 @@ Basic VM data types and their mappings to Fox types:
     I can add this directly to the FuncGenPrologue phase so it's used only by
     BCGen, or I can detect this at semantic analysis and add a new flag to ParamDecl
     "isWrittenTo" or something like that
-    
+   

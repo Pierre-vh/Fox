@@ -12,6 +12,7 @@
 #include "Fox/AST/Types.hpp"
 #include "Fox/AST/ASTVisitor.hpp"
 #include "Fox/AST/ASTWalker.hpp"
+#include "Fox/AST/Types.hpp"
 #include "Fox/Common/FoxTypes.hpp"
 #include "Fox/Common/LLVM.hpp"
 #include "llvm/ADT/Optional.h"
@@ -27,10 +28,13 @@ using UnOp = UnaryExpr::OpKind;
 // AssignementGenerator : Declaration
 //----------------------------------------------------------------------------// 
 
+using AGGenFunc = std::function<RegisterValue(RegisterValue)>;
+
 class BCGen::AssignementGenerator : public Generator,
                              ExprVisitor<AssignementGenerator, RegisterValue,
-                                                               Expr*, BinOp> {
-  using Visitor = ExprVisitor<AssignementGenerator, RegisterValue, Expr*, BinOp>;
+                                                            AGGenFunc, BinOp> {
+  using Visitor = ExprVisitor<AssignementGenerator, RegisterValue, 
+                                                    AGGenFunc, BinOp>;
   friend Visitor;
   public:  
     AssignementGenerator(BCGen& gen, BCBuilder& builder, 
@@ -41,31 +45,42 @@ class BCGen::AssignementGenerator : public Generator,
     /// The RegisterAllocator associted with the exprGenerator
     RegisterAllocator& regAlloc;
   
-    /// Entry point of the AssignementGenerator: generates the bytecode
-    /// for an assignement expression \p expr
+    /// Generates the bytecode for an assignement expression \p expr
     RegisterValue generate(BinaryExpr* expr);
+
+    /// Generates the bytecode to assign the value in \p src to
+    /// \p dest.
+    RegisterValue generate(Expr* dest, RegisterValue src);
+
+    /// The AssignementGenerator 'Gen' function. This is a 'thunk'
+    /// function that can do many things. What the thunk does
+    /// depends on the entry point used.
+    /// Its signature is (RegisterValue) -> RegisterValue
+    /// The goal is to place the thing we need to assign in the
+    /// register passed as parameter and return the parameter.
+    using GenFunc = AGGenFunc;
 
   private:
     RegisterValue
-    visitBinaryExpr(BinaryExpr* expr, Expr* source, BinOp op);
+    visitBinaryExpr(BinaryExpr* expr, GenFunc gen, BinOp op);
     RegisterValue
-    visitCastExpr(CastExpr* expr, Expr* source, BinOp op);
+    visitCastExpr(CastExpr* expr, GenFunc gen, BinOp op);
     RegisterValue
-    visitUnaryExpr(UnaryExpr* expr, Expr* source, BinOp op);
+    visitUnaryExpr(UnaryExpr* expr, GenFunc gen, BinOp op);
     RegisterValue
-    visitArraySubscriptExpr(ArraySubscriptExpr* expr, Expr* source, BinOp op);
+    visitArraySubscriptExpr(ArraySubscriptExpr* expr, GenFunc gen, BinOp op);
     RegisterValue
-    visitMemberOfExpr(MemberOfExpr* expr, Expr* source, BinOp op);
+    visitMemberOfExpr(MemberOfExpr* expr, GenFunc gen, BinOp op);
     RegisterValue
-    visitDeclRefExpr(DeclRefExpr* expr, Expr* source, BinOp op);
+    visitDeclRefExpr(DeclRefExpr* expr, GenFunc gen, BinOp op);
     RegisterValue
-    visitUnresolvedDeclRefExpr(UnresolvedDeclRefExpr* expr, Expr* source, BinOp op);
+    visitUnresolvedDeclRefExpr(UnresolvedDeclRefExpr* expr, GenFunc gen, BinOp op);
     RegisterValue
-    visitCallExpr(CallExpr* expr, Expr* source, BinOp op);
+    visitCallExpr(CallExpr* expr, GenFunc gen, BinOp op);
     RegisterValue
-    visitAnyLiteralExpr(AnyLiteralExpr* expr, Expr* source, BinOp op);
+    visitAnyLiteralExpr(AnyLiteralExpr* expr, GenFunc gen, BinOp op);
     RegisterValue
-    visitErrorExpr(ErrorExpr* expr, Expr* source, BinOp op);
+    visitErrorExpr(ErrorExpr* expr, GenFunc gen, BinOp op);
 };
 
 //----------------------------------------------------------------------------//
@@ -549,12 +564,64 @@ class BCGen::ExprGenerator : public Generator,
     }
 
     RegisterValue
-    visitCallExpr(CallExpr*, RegisterValue) { 
-      // Needs functions and calls implemented in the VM.
-      // NOTE: What will happen when the function returns void?
-      // -> Have no destination RegisterValue, return an invalid one
-      // Maybe it's naive but it should work just fine in the beginning.
-      fox_unimplemented_feature("CallExpr BCGen");
+    visitCallExpr(CallExpr* expr, RegisterValue dest) { 
+      // The list of expressions to compile, in order.
+      SmallVector<Expr*, 8> exprs;
+      exprs.reserve(1 + expr->numArgs());
+      
+      // First, the callee
+      exprs.push_back(expr->getCallee());
+      // Then the args
+      {
+        ArrayRef<Expr*> args = expr->getArgs();
+        exprs.append(args.begin(), args.end());
+      }
+
+      // Reserve the registers
+      SmallVector<RegisterValue, 8> regs;
+      regs.reserve(exprs.size());
+      regAlloc.allocateCallRegisters(regs, exprs.size());
+
+      // Save the 'base' reg addr.
+      regaddr_t baseAddr = regs.front().getAddress();
+
+      // Compile the expressions
+      assert(exprs.size() == regs.size());
+      for (std::size_t k = 0, size = regs.size(); k < size; ++k) {
+        // Move the registers out so the function can use them, but store
+        // them back after.
+        regs[k] = visit(exprs[k], std::move(regs[k]));
+      }
+
+      // Use CallVoid for void functions
+      if (expr->getType()->isVoidType()) {
+        assert(!dest 
+          && "CallExpr has void type, but is expected to return a result");
+        builder.createCallVoidInstr(baseAddr);
+      }
+      // Else just use 'Call'.
+      else {
+        dest = getDestReg(std::move(dest));
+        builder.createCallInstr(baseAddr, dest.getAddress());
+      }
+
+      // Perform copy-after-return for the mutable arguments.
+      // This will simply copy the value in the arg register back
+      // into the LValue used as argument.
+      Type calleeTy = expr->getCallee()->getType();
+      FunctionType* fnTy = calleeTy->getRValue()->getAs<FunctionType>();
+      assert(fnTy && "callee doesn't have a function type");
+      assert((exprs.size()-1) == fnTy->numParams());
+      {
+        std::size_t k = 1;
+        AssignementGenerator assignGen(bcGen, builder, *this);
+        for (auto param : fnTy->getParams()) {
+          if (param.isMut())
+            assignGen.generate(exprs[k], std::move(regs[k]));
+          ++k;
+        }
+      }
+      return dest;
     }
 
     RegisterValue 
@@ -626,32 +693,51 @@ AssignementGenerator(BCGen& gen, BCBuilder& builder, ExprGenerator& exprGen)
 
 RegisterValue BCGen::AssignementGenerator::generate(BinaryExpr* expr) {
   assert(expr->isAssignement() && "Not an Assignement");
-  return visit(expr->getLHS(), expr->getRHS(), expr->getOp());
+  // for this entry point, the generator function simply calls the
+  // exprGen to generate the RHS into the desired register.
+  auto genFunc = [&](RegisterValue dest) {
+    return exprGen.generate(expr->getRHS(), std::move(dest));
+  };
+  return visit(expr->getLHS(), genFunc, expr->getOp());
+}
+
+RegisterValue 
+BCGen::AssignementGenerator::generate(Expr* dest, RegisterValue src) {
+  assert(src && "must provide a source register");
+  // for this entry point, the generator function will create a copy
+  // instruction so that the value in src is copied in dest.
+  auto genFunc = [&](RegisterValue destReg) {
+    assert(destReg && "destReg is invalid");
+    if(destReg != src)
+      builder.createCopyInstr(destReg.getAddress(), src.getAddress());
+    return destReg;
+  };
+  return visit(dest, genFunc, BinOp::Assign);
 }
 
 RegisterValue BCGen::AssignementGenerator::
-visitBinaryExpr(BinaryExpr*, Expr*, BinOp) {
+visitBinaryExpr(BinaryExpr*, GenFunc, BinOp) {
   // Shouldn't be possible in LHS of an Assignement 
   //    Reason: BinaryExprs cannot produce LValues
   fox_unreachable("Unhandled Assignement: Cannot Assign to a BinaryExpr");
 }
 
 RegisterValue BCGen::AssignementGenerator::
-visitCastExpr(CastExpr*, Expr*, BinOp) {
+visitCastExpr(CastExpr*, GenFunc, BinOp) {
   // Shouldn't be possible in LHS of an Assignement 
   //    Reason: CastExprs cannot produce LValues
   fox_unreachable("Unhandled Assignement: Cannot Assign to a CastExpr");
 }
 
 RegisterValue BCGen::AssignementGenerator::
-visitUnaryExpr(UnaryExpr*, Expr*, BinOp) {
+visitUnaryExpr(UnaryExpr*, GenFunc, BinOp) {
   // Shouldn't be possible in LHS of an Assignement 
   //    Reason: UnaryExprs cannot produce LValues
   fox_unreachable("Unhandled Assignement: Cannot Assign to a UnaryExpr");
 }
 
 RegisterValue BCGen::AssignementGenerator::
-visitArraySubscriptExpr(ArraySubscriptExpr*, Expr*, BinOp) {
+visitArraySubscriptExpr(ArraySubscriptExpr*, GenFunc, BinOp) {
   // VM doesn't support arrays yet
   fox_unimplemented_feature("ArraySubscript Assignement");
   // -> Gen the Subscripted Expression (SSE) using exprGen
@@ -660,29 +746,28 @@ visitArraySubscriptExpr(ArraySubscriptExpr*, Expr*, BinOp) {
 }
 
 RegisterValue BCGen::AssignementGenerator::
-visitMemberOfExpr(MemberOfExpr*, Expr*, BinOp) {
+visitMemberOfExpr(MemberOfExpr*, GenFunc, BinOp) {
   // VM doesn't support objects yet
   fox_unimplemented_feature("MemberOfExpr Assignement");}
 
 RegisterValue BCGen::AssignementGenerator::
-visitDeclRefExpr(DeclRefExpr* expr, Expr* source, BinOp op) {
+visitDeclRefExpr(DeclRefExpr* expr, GenFunc gen, BinOp op) {
   // Assert that the only assignement possible is a vanilla one '='.
   // So, if in the future I add +=, -=, etc. this doesn't fail
   // silently.
   assert((op == BinOp::Assign) && "Unsupported assignement type");
-  // Gen the RHS with the LHS's address as destination register.
-  return exprGen.generate(source, regAlloc.useDecl(expr->getDecl()));
+  return gen(regAlloc.useDecl(expr->getDecl()));
 }
 
 RegisterValue BCGen::AssignementGenerator::
-visitCallExpr(CallExpr*, Expr*, BinOp) {
+visitCallExpr(CallExpr*, GenFunc, BinOp) {
   // Shouldn't be possible in LHS of an Assignement 
   //    Reason: CallExprs cannot produce LValues
   fox_unreachable("Unhandled Assignement: Cannot Assign to a CallExpr");
 }
 
 RegisterValue BCGen::AssignementGenerator::
-visitAnyLiteralExpr(AnyLiteralExpr*, Expr*, BinOp) {
+visitAnyLiteralExpr(AnyLiteralExpr*, GenFunc, BinOp) {
   // Shouldn't be possible in LHS of an Assignement 
   //    Reason: Literals cannot produce LValues
   fox_unreachable("Unhandled Assignement: "
@@ -690,12 +775,12 @@ visitAnyLiteralExpr(AnyLiteralExpr*, Expr*, BinOp) {
 }
 
 RegisterValue BCGen::AssignementGenerator::
-visitErrorExpr(ErrorExpr*, Expr*, BinOp) {
+visitErrorExpr(ErrorExpr*, GenFunc, BinOp) {
   fox_unreachable("ErrorExpr found past Semantic Analysis");
 }
 
 RegisterValue BCGen::AssignementGenerator::
-visitUnresolvedDeclRefExpr(UnresolvedDeclRefExpr*, Expr*, BinOp) {
+visitUnresolvedDeclRefExpr(UnresolvedDeclRefExpr*, GenFunc, BinOp) {
   fox_unreachable("UnresolvedDeclRef found past Semantic Analysis");
 }
 

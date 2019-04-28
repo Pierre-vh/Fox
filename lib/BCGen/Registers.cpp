@@ -25,8 +25,6 @@ RegisterAllocator::RegisterAllocator(ParamList* params) {
     assert((biggestAllocatedReg_ != bc_limits::max_regaddr) && 
       "Can't allocate more registers : Register number limit reached "
       "(too much register pressure) because a function has too many params");
-    // Don't bother giving a register to unused parameters
-    if(!param->isUsed()) continue;
     DeclData& data = knownDecls_[param];
     // This doesn't count as an usage of the ParamDecl, so set useCount to 0
     data.useCount = 0;
@@ -34,6 +32,16 @@ RegisterAllocator::RegisterAllocator(ParamList* params) {
     data.addr = biggestAllocatedReg_++;
     // We cannot free the registers used by mutable parameters
     data.canFree = !param->isMut();
+  }
+
+  // Release unused, non mut parameters.
+  // This must be done as a separate loop to ensure that the parameters
+  // are given a register address based on their index. Calling release()
+  // at the end of the previous loop might decrement biggestAllocatedReg_
+  // which would mess up the register addresses.
+  for (ParamDecl* param : *params) {
+    if(!param->isUsed() && !param->isMut())
+      release(param, /*isAlreadyDead*/ true);
   }
 }
 
@@ -86,6 +94,21 @@ RegisterValue RegisterAllocator::useDecl(const ValueDecl* decl) {
 
 RegisterValue RegisterAllocator::allocateTemporary() {
   return RegisterValue(this, rawAllocateNewRegister());
+}
+
+void
+RegisterAllocator::allocateCallRegisters(SmallVectorImpl<RegisterValue>& dest, 
+                                         std::size_t num) {
+  assert((num > 0) && "can't allocate 0 registers");
+  // First step, compact the free register set.
+  compactFreeRegisterSet();
+  // Now gives N registers by incrementing biggestAllocatedReg_ N times.
+  for (std::size_t k = 0; k < num; ++k) {
+    assert((biggestAllocatedReg_ != bc_limits::max_regaddr) && 
+      "Can't allocate more registers for this call : "
+      "Register number limit reached (too much register pressure)");
+    dest.push_back(RegisterValue(this, biggestAllocatedReg_++));
+  }
 }
 
 RegisterValue RegisterAllocator::recycle(RegisterValue value) {

@@ -37,21 +37,8 @@ namespace fox {
     public:
       /// Constructor for functions that may have parameters.
       ///
-      /// The USED (param->isUsed() == true) parameters in ParamList 
-      /// will be assigned a register based on their position in the list.
-      /// Examples:
-      /// \verbatim
-      ///  foo(a: int, b: int, c: int) (b is unused)
-      ///             a will be placed in r0
-      ///             b will be ignored 
-      ///             c will be placed in r1
-      ///
-      ///  bar(a: int, b: int, c: int) (all are used)
-      ///             a will be placed in r0
-      ///             b will be placed in r1
-      ///             c will be placed in r2
-      /// \endverbatim
-      ///
+      /// The parameters in ParamList will be assigned a register based 
+      /// on their position in the list.
       ///
       /// Registers occupied by mutable parameters will *never* be freed
       /// and will be kept alive until the end of the function so copy out
@@ -95,6 +82,14 @@ namespace fox {
       /// \returns a RegisterValue  managing the register. 
       /// Once the RegisterValue dies, the register is freed.
       RegisterValue allocateTemporary();
+
+      /// Allocates \p num contiguous registers for a function call.
+      /// The registers will be placed in \p dest.
+      /// The registers will always be at the end of the register window,
+      /// in the highest numbers, to prevent the callee from overwriting
+      /// variables or other used registers.
+      void allocateCallRegisters(SmallVectorImpl<RegisterValue>& dest, 
+                                 std::size_t num);
 
       /// Recycle a register that's about to die, transforming it into
       /// a temporary that has the same address.
