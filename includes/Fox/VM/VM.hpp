@@ -11,6 +11,7 @@
 #pragma once
 
 #include "Fox/BC/BCUtils.hpp"
+#include "Fox/Common/Builtins.hpp"
 #include "Fox/Common/FoxTypes.hpp"
 #include "Fox/Common/LLVM.hpp"
 #include "llvm/ADT/ArrayRef.h"
@@ -93,6 +94,9 @@ namespace fox {
       /// of the executed bytecode. nullptr if there is no return value
       /// (void)
       Register* callFunc(regaddr_t base);
+
+      /// Internal method to run a builtin function in the current window.
+      Register callBuiltinFunc(BuiltinID id);
 
       /// \returns a reference to the register at address \p idx in the current
       /// register window.
