@@ -1,4 +1,5 @@
 add_source(common_src
+  "Builtins.cpp"
   "DiagnosticConsumers.cpp"
   "DiagnosticEngine.cpp"
   "DiagnosticVerifier.cpp"

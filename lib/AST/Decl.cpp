@@ -379,6 +379,34 @@ SourceRange FuncDecl::getSourceRange() const {
 }
 
 //----------------------------------------------------------------------------//
+// BuiltinFuncDecl
+//----------------------------------------------------------------------------//
+
+BuiltinFuncDecl* BuiltinFuncDecl::get(ASTContext&, BuiltinID) {
+  // TODO
+  return nullptr;
+}
+
+SourceRange BuiltinFuncDecl::getSourceRange() const {
+  // No SourceRange available since this is implicit.
+  return SourceRange();
+}
+
+Type BuiltinFuncDecl::getValueType() const {
+  // TODO
+  return Type();
+}
+
+BuiltinID BuiltinFuncDecl::getBuiltinID() const {
+  return bID_;
+}
+
+BuiltinFuncDecl::BuiltinFuncDecl(ASTContext& ctxt, DeclContext* dc, 
+                                 BuiltinID id) : 
+  ValueDecl(DeclKind::BuiltinFuncDecl, dc, 
+            ctxt.getIdentifier(id), SourceRange()) {}
+
+//----------------------------------------------------------------------------//
 // VarDecl
 //----------------------------------------------------------------------------//
 

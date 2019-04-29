@@ -173,6 +173,10 @@ namespace {
         return true;
       }
 
+      bool visitBuiltinFuncDecl(BuiltinFuncDecl* decl) {
+        return decl;
+      }
+
       bool visitUnitDecl(UnitDecl* decl) {
         for (Decl* elem : decl->getDecls()) {
           if (!doIt(elem))

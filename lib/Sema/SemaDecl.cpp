@@ -258,6 +258,10 @@ class Sema::DeclChecker : Checker, DeclVisitor<DeclChecker, void> {
       FuncFlowChecker(decl, diagEngine).check();
     }
 
+    void visitBuiltinFuncDecl(BuiltinFuncDecl*) {
+      fox_unreachable("shouldn't be typechecked");
+    }
+
     void visitUnitDecl(UnitDecl* unit) {
       // Tell Sema that we're inside this unit's DC
       auto dcGuard = sema.enterDeclCtxtRAII(unit);

@@ -69,8 +69,13 @@ class BCGen::LocalDeclGenerator : public Generator,
     void visitParamDecl(ParamDecl*) {
       fox_unimplemented_feature("ParamDecl BCGen");
     }
+
     void visitFuncDecl(FuncDecl*) {
       return fox_unreachable("FuncDecl found at the local level");
+    }
+
+    void visitBuiltinFuncDecl(BuiltinFuncDecl*) {
+      return fox_unreachable("BuiltinFuncDecl shouldn't be BCGen'd");
     }
 };
 
@@ -126,6 +131,10 @@ namespace {
 
       void visitParamDecl(ParamDecl*) {
         fox_unreachable("ParamDecl found inside a FuncDecl");
+      }
+
+      void visitBuiltinFuncDecl(BuiltinFuncDecl*) {
+        return fox_unreachable("BuiltinFuncDecl shouldn't be BCGen'd");
       }
 
       void visitVarDecl(VarDecl* decl) {

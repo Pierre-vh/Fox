@@ -69,6 +69,16 @@ Identifier ASTContext::getIdentifier(string_view str) {
   return Identifier(str.data());
 }
 
+Identifier ASTContext::getIdentifier(BuiltinID id) {
+  switch (id) {
+    #define BUILTIN(FUNC, FOX) case BuiltinID::FUNC:\
+      return getIdentifier(#FOX);
+    #include "Fox/Common/Builtins.def"
+    default:
+      fox_unreachable("unknown BuiltinID");
+  }
+}
+
 string_view ASTContext::allocateCopy(string_view str) {
   std::size_t size = str.size();
   assert(size > 0 && "string is empty");

@@ -68,6 +68,13 @@ Basic VM data types and their mappings to Fox types:
     -> BCGen::getBCFunction(FuncDecl*) (Done)
     -> CallExpr compilation (Done)
 
+---- Implementation of Builtin Functions ----
+    -> Basic Scaffolding (done)
+    -> BuiltinFuncDecl (Done)
+    -> ASTContext::loadBuiltins() ... etc
+    -> Name Binding
+    -> BCGen
+
 ---- Implementation of Object types ----
   Note: At first, objects won't be freed. I'll use a leak-forever allocator (LinearAllocator).
     GC will come later when the language is officially "feature-complete", because writing a good, reliable

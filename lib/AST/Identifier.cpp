@@ -7,6 +7,7 @@
 
 #include "Fox/AST/Identifier.hpp"
 #include "Fox/Common/Errors.hpp"
+#include "Fox/Common/Builtins.hpp"
 #include "llvm/ADT/Hashing.h"
 #include <ostream>
 

@@ -268,6 +268,11 @@ void ASTDumper::visitFuncDecl(FuncDecl* node) {
   }
 }
 
+void ASTDumper::visitBuiltinFuncDecl(BuiltinFuncDecl* node) {
+  dumpLine() << getValueDeclInfo(node) 
+             << " " << to_string(node->getBuiltinID()) << "\n";
+}
+
 bool ASTDumper::isDebug() const {
   return debug_;
 }

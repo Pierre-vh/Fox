@@ -13,6 +13,7 @@
 #include "ASTAligns.hpp"
 #include "Type.hpp"
 #include "Identifier.hpp"
+#include "Fox/Common/Builtins.hpp"
 #include "llvm/Support/TrailingObjects.h"
 #include "llvm/ADT/ArrayRef.h"
 #include "llvm/ADT/PointerUnion.h"
@@ -271,7 +272,7 @@ namespace fox {
 
       std::size_t numParams_ = 0;
   };
-  
+
   /// FuncDecl
   ///    A function declaration
   class FuncDecl final: public DeclContext, public ValueDecl {
@@ -332,6 +333,31 @@ namespace fox {
       TypeLoc returnTypeLoc_;
       ParamList* params_ = nullptr;
       CompoundStmt* body_ = nullptr;
+  };
+    
+  /// BuiltinFuncDecl
+  ///    A builtin function 'declaration'. This isn't declared
+  ///    by the user, but is used to allow builtin function to
+  ///    naturally mix with other Fox declarations.
+  class BuiltinFuncDecl final : public ValueDecl {
+    public:
+      /// \returns the unique BuiltinFuncDecl for the Builtin with id \p id
+      /// in the context \p ctxt
+      static BuiltinFuncDecl* get(ASTContext& ctxt, BuiltinID id);
+
+      /// \returns the invalid SourceRange (SourceRange())
+      SourceRange getSourceRange() const;
+
+      /// \returns the FunctionType of this builtin
+      Type getValueType() const;
+
+      /// \returns the BuiltinID of this BuiltinFuncDecl
+      BuiltinID getBuiltinID() const;
+
+    private:
+      BuiltinFuncDecl(ASTContext& ctxt, DeclContext* dc, BuiltinID id);
+
+      BuiltinID bID_ = BuiltinID::invalid;
   };
 
   /// VarDecl

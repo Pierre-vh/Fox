@@ -11,9 +11,10 @@
 
 #include "Identifier.hpp"
 #include "ASTFwdDecl.hpp"
+#include "Fox/Common/Builtins.hpp"
+#include "Fox/Common/LLVM.hpp"
 #include "Fox/Common/LinearAllocator.hpp"
 #include "Fox/Common/string_view.hpp"
-#include "Fox/Common/LLVM.hpp"
 #include "llvm/ADT/SmallVector.h"
 #include <unordered_map>
 #include <unordered_set>
@@ -60,6 +61,11 @@ namespace fox {
 			/// \param str an identifier string
       /// \returns the unique "Identifier" object for this string.
 			Identifier getIdentifier(string_view str);
+
+      /// \param id the builtin id
+      /// \returns the unique "Identifier" object for the builtin 
+      ///          with id \p id
+      Identifier getIdentifier(BuiltinID id);
 
       /// \param str a string
       /// \returns a NULL-TERMINATED version of this string, allocated 

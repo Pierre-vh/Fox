@@ -1,0 +1,24 @@
+//----------------------------------------------------------------------------//
+// This file is part of the Fox project.        
+// See the LICENSE.txt file at the root of the project for license information.            
+// File : Builtins.def                      
+// Author : Pierre van Houtryve                
+//----------------------------------------------------------------------------//
+//  x-macros for macro-metaprogramming with builtin functions
+//----------------------------------------------------------------------------//
+
+/// The 'main' builtin macro:
+///   FUNC is the name of the function in the fox::builtin namespace
+///   FOX is the name the function should have in Fox code
+#ifndef BUILTIN
+  #define BUILTIN(FUNC, FOX)
+#endif 
+
+//----------------------------------------------------------------------------//
+
+BUILTIN(printInt, printInt)
+BUILTIN(printBool, printBool)
+
+//----------------------------------------------------------------------------//
+
+#undef BUILTIN

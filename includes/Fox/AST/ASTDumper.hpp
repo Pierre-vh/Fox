@@ -85,6 +85,7 @@ namespace fox {
       void visitVarDecl(VarDecl* node);
       void visitParamDecl(ParamDecl* node);
       void visitFuncDecl(FuncDecl* node);
+      void visitBuiltinFuncDecl(BuiltinFuncDecl* node);
 
       bool isDebug() const;
 
