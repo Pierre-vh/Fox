@@ -198,7 +198,7 @@ To-Do:
 
 Other things that aren't part of the main pipeline:
   High priority:
-    > If 'mut' has not impact on the caller, remove FunctionTypeParam and others to 
+    > If 'mut' has no impact on the caller, remove FunctionTypeParam and others to 
       greatly simplify FunctionType;
 
     > Implement "lex on demand" + Improve the parser
