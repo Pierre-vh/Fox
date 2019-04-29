@@ -72,7 +72,11 @@ Basic VM data types and their mappings to Fox types:
     -> Basic Scaffolding (done)
     -> BuiltinFuncDecl (Done)
     -> ASTContext::lookupBuiltin (Done)
-    -> Name Binding
+    -> Name Binding (Done)
+      -> Fix tests that aren't passing
+      -> DiagnosticVerifier will need an update to expect diagnostics at any line,
+         maybe using '@?' 
+      -> Write more tests
     -> BCGen
 
 ---- Implementation of Object types ----

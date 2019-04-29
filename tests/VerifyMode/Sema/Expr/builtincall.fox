@@ -1,0 +1,10 @@
+// RUN: %fox-verify
+// expect-note@-2: 'printInt' is a builtin function with type '(int) -> void'
+// expect-note@-2: 'printBool' is a builtin function with type '(bool) -> void'
+
+func builtinCall() {
+  printInt(1);
+  printBool(false);
+  printInt("foo"); // expect-error: cannot call 'printInt' with arguments of type '(string)'
+  printBool('c');  // expect-error: cannot call 'printBool' with arguments of type '(char)'
+}
