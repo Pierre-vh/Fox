@@ -63,6 +63,12 @@ class Sema::ExprChecker : Checker, ExprVisitor<ExprChecker, Expr*>,  ASTWalker {
 
       if(!Sema::isWellFormed(declType)) return;
 
+      if (isa<BuiltinFuncDecl>(decl)) {
+        diagEngine.report(DiagID::is_a_builtin_func_with_type, SourceRange())
+          .addArg(id).addArg(declType);
+        return;
+      }
+
       assert(id && range && "ill formed ValueDecl");
       diagEngine.report(DiagID::declared_here_with_type, range)
         .addArg(id).addArg(declType);

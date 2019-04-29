@@ -68,6 +68,8 @@ WARNING(useless_redundant_cast,
 
 NOTE(declared_here_with_type,
   "'%0' declared here with type '%1'")
+NOTE(is_a_builtin_func_with_type,
+  "'%0' is a builtin function with type '%1'")
 NOTE(first_decl_seen_here,
   "first declaration of '%0' seen here")
 NOTE(is_a_builtin_func,

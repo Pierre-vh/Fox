@@ -99,6 +99,7 @@ void ASTDumper::visitDeclRefExpr(DeclRefExpr* node) {
   dumpLine() << getBasicExprInfo(node) << " "
     << ref->getIdentifier() << " "
     << makeKeyPairDump("decl", (void*)node->getDecl())
+    << (isa<BuiltinFuncDecl>(node->getDecl()) ? " (builtin)" : "")
     << "\n";
 }
 
