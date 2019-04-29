@@ -395,10 +395,12 @@ BuiltinID BuiltinFuncDecl::getBuiltinID() const {
   return bID_;
 }
 
-BuiltinFuncDecl::BuiltinFuncDecl(ASTContext& ctxt, DeclContext* dc, 
-                                 BuiltinID id) : 
-  ValueDecl(DeclKind::BuiltinFuncDecl, dc, 
-            ctxt.getIdentifier(id), SourceRange()) {}
+BuiltinFuncDecl::BuiltinFuncDecl(ASTContext& ctxt, BuiltinID id) : 
+  ValueDecl(DeclKind::BuiltinFuncDecl, nullptr, 
+            ctxt.getIdentifier(id), SourceRange()) {
+  /// BuiltinFuncDecls are always checked
+  setCheckState(CheckState::Checked);
+}
 
 //----------------------------------------------------------------------------//
 // VarDecl
