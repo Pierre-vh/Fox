@@ -82,6 +82,8 @@ Basic VM data types and their mappings to Fox types:
     -> Finish: implement correctly most of the builtin functions desired
           double underscore before the name, have a few of them that do calculations &
           return something to unit test further.
+    -> Big code review: I Wrote a ton of code related to builtins, better review it
+       now and rewrite messy code.
 
 ---- Implementation of Object types ----
   Note: At first, objects won't be freed. I'll use a leak-forever allocator (LinearAllocator).
