@@ -374,6 +374,14 @@ class Sema::DeclChecker : Checker, DeclVisitor<DeclChecker, void> {
           candidate = decl;
           continue;
         }
+
+        // If the current candidate is a Builtin, but this isn't a builtin,
+        // this is automatically considered better.
+        if (isa<BuiltinFuncDecl>(candidate) && !isa<BuiltinFuncDecl>(decl)) {
+          candidate = decl;
+          continue;
+        }
+
         SourceLoc candLoc = candidate->getBeginLoc();
         // if this decl has been declared after the candidate, it
         // becomes the new candidate
