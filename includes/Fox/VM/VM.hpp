@@ -53,12 +53,7 @@ namespace fox {
       /// (void)
       reg_t* run(ArrayRef<Instruction> instrs);
 
-      /// \returns the program counter as an index in the currently
-      /// (or previously) executed function's bytecode buffer.
-      std::size_t getPCIndex() const;
-
-      /// \returns the program counter as a pointer in the currently
-      /// (or previously) executed function's bytecode buffer.
+      /// \returns the program counter
       const Instruction* getPC() const;
 
       /// \returns a view of the register stack
@@ -142,17 +137,12 @@ namespace fox {
         baseReg_[idx] = reinterpret_cast<std::intptr_t>(ptr);
       }
 
-      /// setups the program counter so it starts at the beginning of
-      /// \p instrs
-      void setupPC(ArrayRef<Instruction> instrs);
-
-      // The program counter
-      const Instruction* instrsBeg_ = nullptr;
+      /// The Program Counter
       const Instruction* pc_ = nullptr;
 
-      // The register stack
+      /// The register stack
       std::array<reg_t, numStackRegister> regStack_ = {0};
-      // The base register (rO) of the current function's register window.
+      /// The base register (rO) of the current function's register window.
       reg_t* baseReg_ = nullptr;
   };
 }

@@ -271,7 +271,7 @@ TEST_F(VMTest, Jump) {
   // Run the code
   vm.run(instrs);
   // Check that the PC ended up where we expected it to.
-  EXPECT_EQ(vm.getPCIndex(), 2u) << "Bad Jump";
+  EXPECT_EQ(vm.getPC(), instrs.begin()+2) << "Bad Jump";
 }
 
 TEST_F(VMTest, JumpIf) {
@@ -297,7 +297,7 @@ TEST_F(VMTest, JumpIf) {
   // Run the code
   vm.run(instrs);
   // Check that the PC ended up where we expected it to.
-  EXPECT_EQ(vm.getPCIndex(), 3u) << "Bad JumpIf";
+  EXPECT_EQ(vm.getPC(), instrs.begin()+3u) << "Bad JumpIf";
 }
 
 TEST_F(VMTest, JumpIfNot) {
@@ -323,7 +323,7 @@ TEST_F(VMTest, JumpIfNot) {
   // Run the code
   vm.run(instrs);
   // Check that the PC ended up where we expected it to.
-  EXPECT_EQ(vm.getPCIndex(), 3u) << "Bad JumpIfNot";
+  EXPECT_EQ(vm.getPC(), instrs.begin()+3u) << "Bad JumpIfNot";
 }
 
 

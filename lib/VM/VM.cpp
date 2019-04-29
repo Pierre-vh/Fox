@@ -41,7 +41,7 @@ VM::reg_t* VM::call(BCFunction& func, MutableArrayRef<reg_t> args) {
 }
 
 VM::reg_t* VM::run(ArrayRef<Instruction> instrs) {
-  setupPC(instrs);
+  pc_ = instrs.begin();
   Instruction instr;
   do {
     // Fetch the current instruction
@@ -266,10 +266,6 @@ VM::reg_t* VM::run(ArrayRef<Instruction> instrs) {
     "reached the end of the buffer before a return instr");
 }
 
-std::size_t VM::getPCIndex() const {
-  return std::distance(instrsBeg_, pc_);
-}
-
 const Instruction* VM::getPC() const {
   return pc_;
 }
@@ -303,21 +299,14 @@ VM::reg_t* VM::callFunc(regaddr_t base) {
 
   // Backup the current program counter and the instrsBeg_
   // pointer.
-  // TODO: Automate this, make it more elegant and less error prone
   auto oldPC = pc_;
-  auto oldIBeg = instrsBeg_;
 
   // Run
   reg_t* rtrReg = run(fn->getInstructions());
 
-  // Restore the window, PC and instrBeg pointers
+  // Restore the window and pc pointers
   baseReg_ = previousBase;
   pc_ = oldPC;
-  oldIBeg = instrsBeg_;
 
   return rtrReg;
-}
-
-void VM::setupPC(ArrayRef<Instruction> instrs) {
-  instrsBeg_ = pc_ = instrs.begin();
 }
