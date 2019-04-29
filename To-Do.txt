@@ -198,6 +198,8 @@ To-Do:
 
 Other things that aren't part of the main pipeline:
   High priority:
+    > DiagnosticVerifier should be updated to support a diag at any line
+  
     > If 'mut' has no impact on the caller, remove FunctionTypeParam and others to 
       greatly simplify FunctionType;
 
