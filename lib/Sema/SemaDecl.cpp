@@ -307,7 +307,7 @@ class Sema::DeclChecker : Checker, DeclVisitor<DeclChecker, void> {
         return false;  // else, don't ignore.
       };
       sema.doUnqualifiedLookup(lookupResult, id, decl->getBeginLoc(),
-                                    options);
+                               options);
       // If there are no matches, this cannot be a redecl
       if (lookupResult.size() == 0)
         return;
@@ -352,10 +352,10 @@ class Sema::DeclChecker : Checker, DeclVisitor<DeclChecker, void> {
         // Skip unchecked and illegal redeclarations
         if(decl->isUnchecked()) continue;
         if(decl->isIllegalRedecl()) continue;
-        // Skip non-implicit declarations that were declared before
+        // Skip non-implicit declarations that were declared after
         // this position.
-        if(!isa<BuiltinFuncDecl>(decl)
-         && decl->getBeginLoc().comesBefore(loc))
+        if(!isa<BuiltinFuncDecl>(decl) 
+          && !decl->getBeginLoc().comesBefore(loc))
           continue;
         candidates.push_back(decl);
       }

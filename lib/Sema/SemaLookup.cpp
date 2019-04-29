@@ -153,7 +153,8 @@ void Sema::doUnqualifiedLookup(LookupResult& results, Identifier id,
   }
 
   // Remove shadowed decls from the results set.
-  removeShadowedDecls(results.getDecls());
+  if(results.size() > 1)
+    removeShadowedDecls(results.getDecls());
 }
 
 //----------------------------------------------------------------------------//
