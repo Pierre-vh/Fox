@@ -58,6 +58,10 @@ namespace fox {
       /// Resets the ASTContext, calling cleanups and freeing the AST.
       void reset();
 
+      /// Lookup function for builtins: places a pointer to
+      /// every builtin with the Identifier \p id in \p results
+      void lookupBuiltin(Identifier id, SmallVectorImpl<ValueDecl*>& results);
+
 			/// \param str an identifier string
       /// \returns the unique "Identifier" object for this string.
 			Identifier getIdentifier(string_view str);

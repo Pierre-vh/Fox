@@ -49,3 +49,22 @@ TEST_F(BuiltinsTest, builtinIdentifier) {
   EXPECT_EQ(ctxt.getIdentifier(BuiltinID::printInt),
             ctxt.getIdentifier(BuiltinID::printInt));
 }
+
+TEST_F(BuiltinsTest, builtinLookup) {
+  auto printBool = ctxt.getIdentifier(BuiltinID::printBool);
+  auto printInt = ctxt.getIdentifier(BuiltinID::printInt);
+  {
+    SmallVector<ValueDecl*, 4> results;
+    ctxt.lookupBuiltin(printBool, results);
+    ASSERT_EQ(results.size(), 1u) 
+      << "Incorrect number of results for " << printBool.getStr();
+    EXPECT_EQ(results.front(), BuiltinFuncDecl::get(ctxt, BuiltinID::printBool));
+  }
+  {
+    SmallVector<ValueDecl*, 4> results;
+    ctxt.lookupBuiltin(printInt, results);
+    ASSERT_EQ(results.size(), 1u) 
+      << "Incorrect number of results for " << printInt.getStr();
+    EXPECT_EQ(results.front(), BuiltinFuncDecl::get(ctxt, BuiltinID::printInt));
+  }
+}

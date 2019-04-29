@@ -398,8 +398,7 @@ BuiltinFuncDecl::BuiltinFuncDecl(ASTContext& ctxt, BuiltinID id) :
 
 void BuiltinFuncDecl::load(ASTContext& ctxt, BuiltinID id) {
   BuiltinFuncDecl*& entry = ctxt.builtinFuncs_[id];
-  assert(!entry && "builtin loaded twice");
-  entry = new(ctxt) BuiltinFuncDecl(ctxt, id);
+  if(!entry) entry = new(ctxt) BuiltinFuncDecl(ctxt, id);
 }
 
 //----------------------------------------------------------------------------//

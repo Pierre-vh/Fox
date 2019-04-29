@@ -6,7 +6,7 @@
 //----------------------------------------------------------------------------//
 
 #include "Fox/AST/ASTContext.hpp"
-#include "Fox/Common/DiagnosticEngine.hpp"
+#include "Fox/AST/Decl.hpp"
 #include <cstring>
 
 using namespace fox;
@@ -51,6 +51,16 @@ void ASTContext::reset() {
 
   // Reset the allocator, freeing it's memory.
   permaAllocator_.reset();
+}
+
+void ASTContext::lookupBuiltin(Identifier id, 
+                               SmallVectorImpl<ValueDecl*>& results) {
+  /// FIXME: This could be greatly improved I think.
+  /// Especially since this is going to be called fairly often
+  /// (at nearly every lookup)
+  #define BUILTIN(FUNC, FOX) if(id.getStr() == #FOX)\
+    results.push_back(BuiltinFuncDecl::get(*this, BuiltinID::FUNC));
+  #include "Fox/Common/Builtins.def"
 }
 
 Identifier ASTContext::getIdentifier(string_view str) {

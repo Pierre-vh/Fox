@@ -71,7 +71,7 @@ Basic VM data types and their mappings to Fox types:
 ---- Implementation of Builtin Functions ----
     -> Basic Scaffolding (done)
     -> BuiltinFuncDecl (Done)
-    -> ASTContext::loadBuiltins() ... etc
+    -> ASTContext::lookupBuiltin (Done)
     -> Name Binding
     -> BCGen
 
