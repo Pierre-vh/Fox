@@ -350,6 +350,16 @@ namespace {
     fn(RegCast<Args>::template from_reg(*(args++))...);
     return VM::Register();
   }
+
+  template<typename Rtr>
+  VM::Register callBuiltinImpl(VM::Register*, Rtr(*fn)()) {
+    return RegCast<Rtr>::template from_reg(fn());
+  }
+
+  VM::Register callBuiltinImpl(VM::Register*, void(*fn)()) {
+    fn();
+    return VM::Register();
+  }
 }
 
 VM::Register VM::callBuiltinFunc(BuiltinID id) {
