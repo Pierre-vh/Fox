@@ -4,7 +4,8 @@
 // File : VM.hpp                    
 // Author : Pierre van Houtryve                
 //----------------------------------------------------------------------------//
-//  This contains the Fox Virtual Machine (VM), which runs Fox bytecode
+//  This contains interface to the Fox Virtual Machine (VM), which executes
+//  Fox Bytecode.
 //----------------------------------------------------------------------------//
 
 #pragma once
@@ -13,7 +14,6 @@
 #include "Fox/Common/FoxTypes.hpp"
 #include "Fox/Common/LLVM.hpp"
 #include "llvm/ADT/ArrayRef.h"
-#include "llvm/Support/MathExtras.h"
 #include <cstdint>
 #include <cstddef>
 #include <array>
@@ -24,8 +24,23 @@ namespace fox {
   class BCFunction;
   class VM {
     public:
-      /// The type of a register
-      using reg_t = std::uint64_t;
+      /// Untagged union representing a single register value.
+      /// This is exactly 8 bytes (64 Bits) in size.
+      union Register {
+        Register() : raw(0) {}
+        Register(std::uint64_t raw) : raw(raw) {}
+        Register(FoxInt v) : intVal(v) {}
+        Register(FoxDouble v) : doubleVal(v) {}
+        Register(BCFunction* v) : func(v) {}
+
+        std::uint64_t raw;
+        FoxInt intVal;
+        FoxDouble doubleVal;
+        BCFunction* func;
+      };
+
+      static_assert(sizeof(Register) == 8,
+        "The size of a Register is not 64 Bits");
 
       /// The number of registers on the register stack
       static constexpr unsigned numStackRegister = 255;
@@ -44,14 +59,14 @@ namespace fox {
       /// \returns a pointer to the register containing the return value
       /// of the executed bytecode. nullptr if there is no return value
       /// (void)
-      reg_t* call(BCFunction& func, 
-                  MutableArrayRef<reg_t> args = MutableArrayRef<reg_t>());
+      Register* call(BCFunction& func, 
+                  MutableArrayRef<Register> args = MutableArrayRef<Register>());
 
       /// Executes a bytecode buffer \p instrs.
       /// \returns a pointer to the register containing the return value
       /// of the executed bytecode. nullptr if there is no return value
       /// (void)
-      reg_t* run(ArrayRef<Instruction> instrs);
+      Register* run(ArrayRef<Instruction> instrs);
 
       /// \returns the program counter
       const Instruction* getPC() const;
@@ -60,13 +75,13 @@ namespace fox {
       /// Note: this might be invalidated if a reallocation occurs.
       /// Do not trust the pointer after code has been run, functions
       /// have been called, etc.
-      ArrayRef<reg_t> getRegisterStack() const;
+      ArrayRef<Register> getRegisterStack() const;
 
       /// \returns a mutable view of the register stack
       /// Note: this might be invalidated if a reallocation occurs.
       /// Do not trust the pointer after code has been run, functions
       /// have been called, etc.
-      MutableArrayRef<reg_t> getRegisterStack();
+      MutableArrayRef<Register> getRegisterStack();
 
       /// The Bytecode module executed by this VM instance.
       BCModule& bcModule;
@@ -77,72 +92,27 @@ namespace fox {
       /// \returns a pointer to the register containing the return value
       /// of the executed bytecode. nullptr if there is no return value
       /// (void)
-      reg_t* callFunc(regaddr_t base);
+      Register* callFunc(regaddr_t base);
 
-      /// \returns the raw register at address \p idx in the current
-      /// window.
-      reg_t getReg(regaddr_t idx) {
+      /// \returns a reference to the register at address \p idx in the current
+      /// register window.
+      Register& getReg(regaddr_t idx) {
         assert((idx < numStackRegister) && "out-of-range");
         return baseReg_[idx];
       }
 
       /// \returns the address of the register at \p idx in the current
       /// window.
-      reg_t* getRegPtr(regaddr_t idx) {
+      Register* getRegPtr(regaddr_t idx) {
         return baseReg_+idx;
-      }
-
-      /// \returns the value of the register \p idx reinterpreted as
-      /// a value of type Ty. 
-      /// Only available for types whose size is less or equal to 8 Bytes
-      template<typename Ty>
-      Ty getReg(regaddr_t idx) {
-        static_assert(sizeof(Ty) <= 8,
-          "Can't cast a register to a type larger than 64 bits");
-        return static_cast<Ty>(baseReg_[idx]);
-      }
-
-      // Special overload of the templated getReg for doubles, because
-      // doubles can't be just reinterpret-cast'd. 
-      template<>
-      FoxDouble getReg<FoxDouble>(regaddr_t idx) {
-        return llvm::BitsToDouble(baseReg_[idx]);
-      }
-
-      // Sets the value of the register "idx" to value.
-      void setReg(regaddr_t idx, std::uint64_t value) {
-        baseReg_[idx] = value;
-      }
-
-      // Sets the value of the register "idx" to 
-      // static_cast<std::uint64_t>(value).
-      // Only available for types whose size is less or equal to 8 Bytes
-      template<typename Ty>
-      void setReg(regaddr_t idx, Ty value) {
-        static_assert(sizeof(Ty) <= 8,
-          "Can't put a type larger than 64 bits in a register");
-        baseReg_[idx] = static_cast<std::uint64_t>(value);
-      }
-
-      // Special overload of the templated setReg for doubles, because
-      // doubles can't be just reinterpret-cast'd. 
-      template<>
-      void setReg<FoxDouble>(regaddr_t idx, FoxDouble value) {
-        baseReg_[idx] = llvm::DoubleToBits(value);
-      }
-
-      // Special overload of setReg for pointer types
-      template<typename Ty>
-      void setReg(regaddr_t idx, Ty* ptr) {
-        baseReg_[idx] = reinterpret_cast<std::intptr_t>(ptr);
       }
 
       /// The Program Counter
       const Instruction* pc_ = nullptr;
 
       /// The register stack
-      std::array<reg_t, numStackRegister> regStack_ = {0};
+      std::array<Register, numStackRegister> regStack_;
       /// The base register (rO) of the current function's register window.
-      reg_t* baseReg_ = nullptr;
+      Register* baseReg_ = nullptr;
   };
 }

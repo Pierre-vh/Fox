@@ -21,15 +21,15 @@ VM::VM(BCModule& theModule) : bcModule(theModule) {
   baseReg_ = regStack_.data();
 }
 
-VM::reg_t* VM::call(BCFunction& func, MutableArrayRef<reg_t> args) {
+VM::Register* VM::call(BCFunction& func, MutableArrayRef<Register> args) {
   /// Copy the args into registers r0 -> rN
   if(args.size()) {
     regaddr_t k = 0;
     for (auto arg : args)
-      setReg(k++, arg);
+      getReg(k++) = arg;
   }
   /// Run the bytecode
-  reg_t* rtr = run(func.getInstructions());
+  Register* rtr = run(func.getInstructions());
   /// Copy the args back if needed
   if(args.size()) {
     for (regaddr_t k = 0; k < args.size(); k++)
@@ -38,167 +38,171 @@ VM::reg_t* VM::call(BCFunction& func, MutableArrayRef<reg_t> args) {
   return rtr;
 }
 
-VM::reg_t* VM::run(ArrayRef<Instruction> instrs) {
+VM::Register* VM::run(ArrayRef<Instruction> instrs) {
   pc_ = instrs.begin();
   Instruction instr;
   do {
     // Fetch the current instruction
     instr = *pc_;
     // Macros used to implement repetitive operations
-    #define TRIVIAL_TAC_BINOP_IMPL(ID, TYPE, OP)\
-      setReg(instr.ID.dest,\
-      getReg<TYPE>(instr.ID.lhs) OP getReg<TYPE>(instr.ID.rhs))
+    #define TRIVIAL_TAC_BINOP_IMPL(ID, MEMB, OP)\
+      getReg(instr.ID.dest).MEMB = \
+      getReg(instr.ID.lhs).MEMB OP getReg(instr.ID.rhs).MEMB
+    #define TRIVIAL_TAC_COMP_IMPL(ID, MEMB, OP)\
+      getReg(instr.ID.dest).raw = \
+      getReg(instr.ID.lhs).MEMB OP getReg(instr.ID.rhs).MEMB
     switch (instr.opcode) {
       case Opcode::NoOp: 
         // NoOp: no-op: do nothing.
         continue;
       case Opcode::StoreSmallInt:
         // StoreSmallInt dest value: Stores value in dest (value: int16)
-        setReg(instr.StoreSmallInt.dest, instr.StoreSmallInt.value);
+        getReg(instr.StoreSmallInt.dest).intVal = instr.StoreSmallInt.value;
         continue;
       case Opcode::AddInt: 
         // AddInt dest lhs rhs: dest = lhs + rhs (FoxInts)
-        TRIVIAL_TAC_BINOP_IMPL(AddInt, FoxInt, +);
+        TRIVIAL_TAC_BINOP_IMPL(AddInt, intVal, +);
         continue;
       case Opcode::AddDouble:
         // AddDouble dest lhs rhs: dest = lhs + rhs (FoxDoubles)
-        TRIVIAL_TAC_BINOP_IMPL(AddDouble, FoxDouble, +);
+        TRIVIAL_TAC_BINOP_IMPL(AddDouble, doubleVal, +);
         continue;
       case Opcode::SubInt:
         // SubInt dest lhs rhs: dest = lhs - rhs (FoxInts)
-        TRIVIAL_TAC_BINOP_IMPL(SubInt, FoxInt, -);
+        TRIVIAL_TAC_BINOP_IMPL(SubInt, intVal, -);
         continue;
       case Opcode::SubDouble:
         // SubDouble dest lhs rhs: dest = lhs - rhs (FoxDoubles)
-        TRIVIAL_TAC_BINOP_IMPL(SubDouble, FoxDouble, -);
+        TRIVIAL_TAC_BINOP_IMPL(SubDouble, doubleVal, -);
         continue;
       case Opcode::MulInt:
         // DivInt dest lhs rhs: dest = lhs * rhs (FoxInts)
-        TRIVIAL_TAC_BINOP_IMPL(MulInt, FoxInt, *);
+        TRIVIAL_TAC_BINOP_IMPL(MulInt, intVal, *);
         continue;
       case Opcode::MulDouble:
         // SubDouble dest lhs rhs: dest = lhs * rhs (FoxDoubles)
-        TRIVIAL_TAC_BINOP_IMPL(MulDouble, FoxDouble, *);
+        TRIVIAL_TAC_BINOP_IMPL(MulDouble, doubleVal, *);
         continue;
       case Opcode::DivInt:
         // DivInt dest lhs rhs: dest = lhs / rhs (FoxInts)
         // TO-DO: Handle division by zero with something else than an assert
-        assert(getReg<FoxInt>(instr.DivInt.rhs) && "division by zero");
-        TRIVIAL_TAC_BINOP_IMPL(DivInt, FoxInt, /);
+        assert(getReg(instr.DivInt.rhs).intVal && "division by zero");
+        TRIVIAL_TAC_BINOP_IMPL(DivInt, intVal, /);
         continue;
       case Opcode::DivDouble:
         // SubDouble dest lhs rhs: dest = lhs / rhs (FoxDoubles)
         // TO-DO: Handle division by zero with something else than an assert
-        assert(getReg<FoxDouble>(instr.DivDouble.rhs) && "division by zero");
-        TRIVIAL_TAC_BINOP_IMPL(DivDouble, FoxDouble, /);
+        assert(getReg(instr.DivDouble.rhs).doubleVal && "division by zero");
+        TRIVIAL_TAC_BINOP_IMPL(DivDouble, doubleVal, /);
         continue;
       case Opcode::ModInt:
         // ModInt dest lhs rhs: dest = lhs % rhs (FoxInts)
         // TO-DO: Handle modulo by zero with something else than an assert
-        assert(getReg<FoxInt>(instr.ModInt.rhs) && "Modulo by zero");
-        TRIVIAL_TAC_BINOP_IMPL(ModInt, FoxInt, %);
+        assert(getReg(instr.ModInt.rhs).intVal && "Modulo by zero");
+        TRIVIAL_TAC_BINOP_IMPL(ModInt, intVal, %);
         continue;
       case Opcode::ModDouble:
         // ModDouble dest lhs rhs: dest = lhs % rhs (FoxDoubles)
         // TO-DO: Handle modulo by zero with something else than an assert
-        assert(getReg<FoxDouble>(instr.ModDouble.rhs) && "Modulo by zero");
-        setReg(instr.ModDouble.dest, static_cast<FoxDouble>(
+        assert(getReg(instr.ModDouble.rhs).doubleVal && "Modulo by zero");
+        getReg(instr.ModDouble.dest).doubleVal = static_cast<FoxDouble>(
           std::fmod(
-            getReg<FoxDouble>(instr.ModDouble.lhs), 
-            getReg<FoxDouble>(instr.ModDouble.rhs)
+            getReg(instr.ModDouble.lhs).doubleVal, 
+            getReg(instr.ModDouble.rhs).doubleVal
           )
-        ));
+        );
         continue;
       case Opcode::PowInt:
         // PowInt dest lhs rhs: dest = pow(lhs, rhs) (FoxInts)
-        setReg(instr.PowInt.dest, static_cast<FoxInt>(
+        getReg(instr.PowInt.dest).intVal = static_cast<FoxInt>(
           std::pow(
-            getReg<FoxInt>(instr.PowInt.lhs), 
-            getReg<FoxInt>(instr.PowInt.rhs)
+            getReg(instr.PowInt.lhs).intVal, 
+            getReg(instr.PowInt.rhs).intVal
           )
-        ));
+        );
         continue;
       case Opcode::PowDouble:
         // PowDouble dest lhs rhs: dest = pow(lhs, rhs) (FoxDoubles)
-        setReg(instr.PowDouble.dest, static_cast<FoxDouble>(
+        getReg(instr.PowDouble.dest).doubleVal = static_cast<FoxDouble>(
           std::pow(
-            getReg<FoxDouble>(instr.PowDouble.lhs), 
-            getReg<FoxDouble>(instr.PowDouble.rhs)
+            getReg(instr.PowDouble.lhs).doubleVal, 
+            getReg(instr.PowDouble.rhs).doubleVal
           )
-        ));
+        );
         continue;
       case Opcode::NegInt:
         // NegInt dest src : dest = -src (FoxInts)
-        setReg(instr.NegInt.dest, -getReg<FoxInt>(instr.NegInt.src));
+        getReg(instr.NegInt.dest).intVal = -getReg(instr.NegInt.src).intVal;
         continue;
       case Opcode::NegDouble:
         // NegDouble dest src : dest = -src (FoxDoubles)
-        setReg(instr.NegInt.dest, -getReg<FoxDouble>(instr.NegInt.src));
+        getReg(instr.NegDouble.dest).doubleVal = 
+          -getReg(instr.NegDouble.src).doubleVal;
         continue;
       case Opcode::EqInt:
         // EqInt dest lhs rhs: dest = (lhs == rhs) 
         //          (lhs/rhs: FoxInts, dest: raw)
-        TRIVIAL_TAC_BINOP_IMPL(EqInt, FoxInt, ==);
+        TRIVIAL_TAC_COMP_IMPL(EqInt, intVal, ==);
         continue;
       case Opcode::LEInt:
         // LEInt dest lhs rhs: dest = (lhs <= rhs) 
         //          (lhs/rhs: FoxInts, dest: raw)
-        TRIVIAL_TAC_BINOP_IMPL(LEInt, FoxInt, <=);
+        TRIVIAL_TAC_COMP_IMPL(LEInt, intVal, <=);
         continue;
       case Opcode::LTInt:
         // LTInt dest lhs rhs: dest = (lhs < rhs) 
         //          (lhs/rhs: FoxInts, dest: raw)
-        TRIVIAL_TAC_BINOP_IMPL(LTInt, FoxInt, <);
+        TRIVIAL_TAC_COMP_IMPL(LTInt, intVal, <);
         continue;
       case Opcode::EqDouble:
         // EqDouble dest lhs rhs: dest = (lhs == rhs) 
         //          (lhs/rhs: FoxDoubles, dest: raw)
-        TRIVIAL_TAC_BINOP_IMPL(EqDouble, FoxDouble, ==);
+        TRIVIAL_TAC_COMP_IMPL(EqDouble, doubleVal, ==);
         continue;
       case Opcode::LEDouble:
         // LEDouble dest lhs rhs: dest = (lhs <= rhs) 
         //          (lhs/rhs: FoxDoubles, dest: raw)
-        TRIVIAL_TAC_BINOP_IMPL(LEDouble, FoxDouble, <=);
+        TRIVIAL_TAC_COMP_IMPL(LEDouble, doubleVal, <=);
         continue;
       case Opcode::LTDouble:
         // LTDouble dest lhs rhs: dest = (lhs < rhs) 
         //          (lhs/rhs: FoxDoubles, dest: raw)
-        TRIVIAL_TAC_BINOP_IMPL(LTDouble, FoxDouble, <);
+        TRIVIAL_TAC_COMP_IMPL(LTDouble, doubleVal, <);
         continue;
       case Opcode::GEDouble:
         // GEDouble dest lhs rhs: dest = (lhs >= rhs) 
         //          (lhs/rhs: FoxDoubles, dest: raw)
-        TRIVIAL_TAC_BINOP_IMPL(GEDouble, FoxDouble, >=);
+        TRIVIAL_TAC_COMP_IMPL(GEDouble, doubleVal, >=);
         continue;
       case Opcode::GTDouble:
         // GTDouble dest lhs rhs: dest = (lhs > rhs) 
         //          (lhs/rhs: FoxDoubles, dest: raw)
-        TRIVIAL_TAC_BINOP_IMPL(GTDouble, FoxDouble, >);
+        TRIVIAL_TAC_COMP_IMPL(GTDouble, doubleVal, >);
         continue;
       case Opcode::LOr:
         // LOr dest lhs rhs: dest = (lhs || rhs) (raw registers)
-        setReg(instr.LOr.dest, 
-              (getReg(instr.LOr.lhs) || getReg(instr.LOr.rhs)));
+        getReg(instr.LOr.dest).raw =
+          (getReg(instr.LOr.lhs).raw || getReg(instr.LOr.rhs).raw);
         continue;
       case Opcode::LAnd:
         // LAnd dest lhs rhs: dest = (lhs && rhs) (raw registers)
-        setReg(instr.LAnd.dest, 
-              (getReg(instr.LAnd.lhs) && getReg(instr.LAnd.rhs)));
+        getReg(instr.LAnd.dest).raw =
+          (getReg(instr.LAnd.lhs).raw && getReg(instr.LAnd.rhs).raw);
         continue;
       case Opcode::LNot:
-        // LNot dest srrhs: dest = !src
-        setReg(instr.LNot.dest, !getReg(instr.LNot.src));
+        // LNot dest src: dest = !src
+        getReg(instr.LNot.dest).raw = !getReg(instr.LNot.src).raw;
         continue;
       case Opcode::JumpIf:
         // JumpIf condReg offset : Add offset (int16) to pc 
         //    if condReg != 0
-        if(getReg(instr.JumpIf.condReg))
+        if(getReg(instr.JumpIf.condReg).raw)
           pc_ += instr.JumpIf.offset;
         continue;
       case Opcode::JumpIfNot:
         // JumpIfNot condReg offset : Add offset (int16) to pc 
         //    if condReg == 0
-        if(!getReg(instr.JumpIfNot.condReg))
+        if(!getReg(instr.JumpIfNot.condReg).raw)
           pc_ += instr.JumpIfNot.offset;
         continue;
       case Opcode::Jump:
@@ -206,28 +210,28 @@ VM::reg_t* VM::run(ArrayRef<Instruction> instrs) {
         pc_ += instr.Jump.offset;
         continue;
       case Opcode::IntToDouble:
-        // IntToDouble dest srrhs: dest = (src as FoxDouble) (src FoxInt)
-        setReg(instr.IntToDouble.dest, 
-               FoxDouble(getReg<FoxInt>(instr.IntToDouble.src)));
+        // IntToDouble dest src: dest = (src as FoxDouble) (src FoxInt)
+        getReg(instr.IntToDouble.dest).doubleVal =
+          FoxDouble(getReg(instr.IntToDouble.src).intVal);
         continue;
       case Opcode::DoubleToInt:
-        // DoubleToInt dest srrhs: dest = (src as FoxInt) (src: FoxDouble)
-        setReg(instr.DoubleToInt.dest, 
-               FoxInt(getReg<FoxDouble>(instr.DoubleToInt.src)));
+        // DoubleToInt dest src: dest = (src as FoxInt) (src: FoxDouble)
+        getReg(instr.DoubleToInt.dest).intVal =
+          FoxInt(getReg(instr.DoubleToInt.src).doubleVal);
         continue;
       case Opcode::Copy:
         // Copy dest src : dest = src
-        setReg(instr.Copy.dest, getReg(instr.Copy.src));
+        getReg(instr.Copy.dest).raw = getReg(instr.Copy.src).raw;
         continue;
       case Opcode::LoadIntK:
         // Copies the integer constant 'kID' into the register 'dest'
-        setReg(instr.LoadIntK.dest, 
-               bcModule.getIntConstant(instr.LoadIntK.kID));
+        getReg(instr.LoadIntK.dest).intVal =
+          bcModule.getIntConstant(instr.LoadIntK.kID);
         continue;
       case Opcode::LoadDoubleK:
         // Copies the double constant 'kID' into the register 'dest'
-        setReg(instr.LoadDoubleK.dest, 
-               bcModule.getDoubleConstant(instr.LoadDoubleK.kID));
+        getReg(instr.LoadDoubleK.dest).doubleVal =
+          bcModule.getDoubleConstant(instr.LoadDoubleK.kID);
         continue;
       case Opcode::RetVoid:
         return nullptr;
@@ -236,8 +240,8 @@ VM::reg_t* VM::run(ArrayRef<Instruction> instrs) {
       case Opcode::LoadFunc:
         // LoadFunc dest func : loads a reference to the function with the
         //  ID 'func' in 'dest'.
-        setReg(instr.LoadFunc.dest, 
-               &(bcModule.getFunction(instr.LoadFunc.func)));
+        getReg(instr.LoadFunc.dest).func =
+          &(bcModule.getFunction(instr.LoadFunc.func));
         continue;
       case Opcode::CallVoid:
         // CallVoid base : calls a function located in 'base'.
@@ -249,16 +253,17 @@ VM::reg_t* VM::run(ArrayRef<Instruction> instrs) {
         // CallVoid base dest : calls a function located in 'base'
         //  Args are in subsequent registers.
         //  Stores the result in 'dest'
-        reg_t* result = callFunc(instr.CallVoid.base);
+        Register* result = callFunc(instr.CallVoid.base);
         assert(result && "function returning void called with "
           "'Call' and not 'CallVoid'");
-        setReg(instr.Call.dest, *result);
+        getReg(instr.Call.dest) = *result;
         continue;
       }
       default:
         fox_unreachable("illegal or unimplemented instruction found");
     }
     #undef TRIVIAL_TAC_BINOP_IMPL
+    #undef TRIVIAL_TAC_COMP_IMPL
   } while(++pc_);
   fox_unreachable("execution did not terminate correctly: "
     "reached the end of the buffer before a return instr");
@@ -268,17 +273,17 @@ const Instruction* VM::getPC() const {
   return pc_;
 }
 
-ArrayRef<VM::reg_t> VM::getRegisterStack() const {
+ArrayRef<VM::Register> VM::getRegisterStack() const {
   return regStack_;
 }
 
-MutableArrayRef<VM::reg_t> VM::getRegisterStack() {
+MutableArrayRef<VM::Register> VM::getRegisterStack() {
   return regStack_;
 }
 
-VM::reg_t* VM::callFunc(regaddr_t base) {
+VM::Register* VM::callFunc(regaddr_t base) {
   // Fetch a pointer to the base
-  reg_t* basePtr = getRegPtr(base);
+  Register* basePtr = getRegPtr(base);
   // Fetch the BCFunction
   BCFunction* fn = *reinterpret_cast<BCFunction**>(basePtr);
   assert(fn && "func is null");
@@ -291,7 +296,7 @@ VM::reg_t* VM::callFunc(regaddr_t base) {
   // Backup the instrBeg and curInstr ptrs
 
   // Backup the current register window position
-  reg_t* previousBase = baseReg_;
+  Register* previousBase = baseReg_;
   // Slide the window so it begins at basePtr+1
   baseReg_ = basePtr+1;
 
@@ -300,7 +305,7 @@ VM::reg_t* VM::callFunc(regaddr_t base) {
   auto oldPC = pc_;
 
   // Run
-  reg_t* rtrReg = run(fn->getInstructions());
+  Register* rtrReg = run(fn->getInstructions());
 
   // Restore the window and pc pointers
   baseReg_ = previousBase;

@@ -12,7 +12,6 @@
 #include "Fox/BC/BCBuilder.hpp"
 #include "Fox/BC/BCModule.hpp"
 #include "Fox/VM/VM.hpp"
-#include "llvm/Support/MathExtras.h"
 #include "Fox/Common/FoxTypes.hpp"
 #include <sstream>
 
@@ -37,8 +36,8 @@ TEST_F(VMTest, StoreSmallInt) {
   builder.createRetVoidInstr();;
   VM vm(theModule);
   vm.run(instrs);
-  FoxInt r0 = vm.getRegisterStack()[0];
-  FoxInt r1 = vm.getRegisterStack()[1];
+  FoxInt r0 = vm.getRegisterStack()[0].intVal;
+  FoxInt r1 = vm.getRegisterStack()[1].intVal;
   EXPECT_EQ(r0, r0Value);
   EXPECT_EQ(r1, r1Value);
 }
@@ -67,15 +66,15 @@ TEST_F(VMTest, IntArithmetic) {
   VM vm(theModule);
   // Load the initial values
   auto regs = vm.getRegisterStack();
-  regs[0] = r0;
-  regs[1] = r1;
-  regs[2] = r2;
-  regs[3] = r3;
+  regs[0].intVal = r0;
+  regs[1].intVal = r1;
+  regs[2].intVal = r2;
+  regs[3].intVal = r3;
   // Run the code
   vm.run(instrs);
   // Helper to get a register's value as a FoxInt
   auto getReg = [&](std::size_t idx) {
-    return static_cast<FoxInt>(regs[idx]);
+    return regs[idx].intVal;
   };
   // Check the initial values
   ASSERT_EQ(getReg(0), r0);
@@ -117,16 +116,16 @@ TEST_F(VMTest, DoubleArithmetic) {
   VM vm(theModule);
 
   auto regs = vm.getRegisterStack();
-  regs[0] = llvm::DoubleToBits(r0);
-  regs[1] = llvm::DoubleToBits(r1);
-  regs[2] = llvm::DoubleToBits(r2);
-  regs[3] = llvm::DoubleToBits(r3);
-  regs[4] = llvm::DoubleToBits(r4);
+  regs[0].doubleVal = r0;
+  regs[1].doubleVal = r1;
+  regs[2].doubleVal = r2;
+  regs[3].doubleVal = r3;
+  regs[4].doubleVal = r4;
   // Run the code
   vm.run(instrs);
   // Helper to get a register's value as a FoxDouble
   auto getReg = [&](std::size_t idx) {
-    return llvm::BitsToDouble(vm.getRegisterStack()[idx]);
+    return vm.getRegisterStack()[idx].doubleVal;
   };
   // Check the initial values
   ASSERT_EQ(getReg(0), r0);
@@ -165,7 +164,7 @@ TEST_F(VMTest, IntComparison) {
   vm.run(instrs);
   // Helper to get a register's value as a FoxInt
   auto getReg = [&](std::size_t idx) {
-    return static_cast<FoxInt>(regs[idx]);
+    return regs[idx].intVal;
   };
   // Check the initial values
   ASSERT_EQ(getReg(0), r0);
@@ -194,27 +193,27 @@ TEST_F(VMTest, DoubleComparison) {
   VM vm(theModule);
 
   auto regs = vm.getRegisterStack();
-  regs[0] = llvm::DoubleToBits(r0);
-  regs[1] = llvm::DoubleToBits(r1);
+  regs[0].doubleVal = r0;
+  regs[1].doubleVal = r1;
   // Run the code
   vm.run(instrs);
   // Helper to get a register's value as a FoxDouble
   auto getRegAsDouble = [&](std::size_t idx) {
-    return llvm::BitsToDouble(vm.getRegisterStack()[idx]);
+    return vm.getRegisterStack()[idx].doubleVal;
   };
   // Helper to get a raw register value
   auto getReg = [&](std::size_t idx) {
-    return vm.getRegisterStack()[idx];
+    return vm.getRegisterStack()[idx].raw;
   };
   // Check the initial values
   ASSERT_EQ(getRegAsDouble(0), r0);
   ASSERT_EQ(getRegAsDouble(1), r1);
   // Check the computed values
-  EXPECT_DOUBLE_EQ(getReg(2), 1)  << "Bad EqDouble";
-  EXPECT_DOUBLE_EQ(getReg(3), 1)  << "Bad LEDouble";
-  EXPECT_DOUBLE_EQ(getReg(4), 0)  << "Bad LTDouble";
-  EXPECT_DOUBLE_EQ(getReg(5), 1)  << "Bad GEDouble";
-  EXPECT_DOUBLE_EQ(getReg(6), 0)  << "Bad GTDouble";
+  EXPECT_DOUBLE_EQ(getReg(2), true)  << "Bad EqDouble";
+  EXPECT_DOUBLE_EQ(getReg(3), true)  << "Bad LEDouble";
+  EXPECT_DOUBLE_EQ(getReg(4), false)  << "Bad LTDouble";
+  EXPECT_DOUBLE_EQ(getReg(5), true)  << "Bad GEDouble";
+  EXPECT_DOUBLE_EQ(getReg(6), false)  << "Bad GTDouble";
 }
 
 TEST_F(VMTest, LogicOps) {
@@ -240,7 +239,7 @@ TEST_F(VMTest, LogicOps) {
   vm.run(instrs);
   // Helper to get a register's value as a FoxInt
   auto getReg = [&](std::size_t idx) {
-    return static_cast<FoxInt>(regs[idx]);
+    return regs[idx].intVal;
   };
   // Check the initial values
   ASSERT_EQ(getReg(0), r0);
@@ -343,24 +342,24 @@ TEST_F(VMTest, Casts) {
   builder.createRetVoidInstr();
   VM vm(theModule);
   auto regs = vm.getRegisterStack();
-  regs[0] = r0;
-  regs[1] = r1;
-  regs[2] = llvm::DoubleToBits(r2);
-  regs[3] = llvm::DoubleToBits(r3);
+  regs[0].intVal = r0;
+  regs[1].intVal = r1;
+  regs[2].doubleVal = r2;
+  regs[3].doubleVal = r3;
 
   vm.run(instrs);
   // Helper to get a register's value as a FoxDouble
-  auto getRegAsDouble = [&](std::size_t idx) {
-    return llvm::BitsToDouble(vm.getRegisterStack()[idx]);
+  auto getDbl = [&](std::size_t idx) {
+    return vm.getRegisterStack()[idx].doubleVal;
   };
   // Helper to get a raw register value
-  auto getReg = [&](std::size_t idx) {
-    return vm.getRegisterStack()[idx];
+  auto getInt = [&](std::size_t idx) {
+    return vm.getRegisterStack()[idx].intVal;
   };
-  EXPECT_DOUBLE_EQ(getRegAsDouble(4), 42000.00);
-  EXPECT_DOUBLE_EQ(getRegAsDouble(5), -42.00);
-  EXPECT_EQ(getReg(6), -3);
-  EXPECT_EQ(getReg(7), 3);
+  EXPECT_DOUBLE_EQ(getDbl(4), FoxDouble(r0));
+  EXPECT_DOUBLE_EQ(getDbl(5), FoxDouble(r1));
+  EXPECT_EQ(getInt(6), FoxInt(r2));
+  EXPECT_EQ(getInt(7), FoxInt(r3));
 }
 
 TEST_F(VMTest, Copy) {
@@ -373,17 +372,17 @@ TEST_F(VMTest, Copy) {
   builder.createRetVoidInstr();
   VM vm(theModule);
   auto regs = vm.getRegisterStack();
-  regs[0] = r0;
-  regs[1] = llvm::DoubleToBits(r1);
+  regs[0].intVal = r0;
+  regs[1].doubleVal = r1;
 
   vm.run(instrs);
   // Helper to get a register's value as a FoxDouble
   auto getRegAsDouble = [&](std::size_t idx) {
-    return llvm::BitsToDouble(vm.getRegisterStack()[idx]);
+    return vm.getRegisterStack()[idx].doubleVal;
   };
   // Helper to get a raw register value
   auto getReg = [&](std::size_t idx) {
-    return static_cast<FoxInt>(vm.getRegisterStack()[idx]);
+    return vm.getRegisterStack()[idx].intVal;
   };
   EXPECT_EQ(getReg(2), r0);
   EXPECT_DOUBLE_EQ(getRegAsDouble(3), r1);
@@ -413,7 +412,7 @@ TEST_F(VMTest, LoadIntK) {
   vm.run(instrs);
   // Helper to get a register's value as a FoxInt
   auto getReg = [&](std::size_t idx) {
-    return static_cast<FoxInt>(vm.getRegisterStack()[idx]);
+    return vm.getRegisterStack()[idx].intVal;
   };
   // Check that the values are correct
   EXPECT_EQ(getReg(0), k0);
@@ -445,7 +444,7 @@ TEST_F(VMTest, LoadDoubleK) {
   vm.run(instrs);
   // Helper to get a register's value as a FoxDouble
   auto getReg = [&](std::size_t idx) {
-    return llvm::BitsToDouble(vm.getRegisterStack()[idx]);
+    return vm.getRegisterStack()[idx].doubleVal;
   };
   // Check that the values are correct
   EXPECT_EQ(getReg(0), k0);
@@ -471,11 +470,11 @@ TEST_F(VMTest, RetRetVoid) {
   auto retptr = vm.call(f2);
   auto regstack = vm.getRegisterStack();
   ASSERT_EQ(retptr, regstack.data()+1);
-  EXPECT_EQ(*retptr, 526);
+  EXPECT_EQ(retptr->intVal, 526);
 }
 
 TEST_F(VMTest, runFuncWithArgs) {
-  using reg_t = VM::reg_t;
+  using Register = VM::Register;
   // Create a function that takes 3 parameters
   // Parameters should be in r0, r1 and r2
   BCFunction& fn = theModule.createFunction();
@@ -492,13 +491,13 @@ TEST_F(VMTest, runFuncWithArgs) {
   FoxInt a0 = -5;
   FoxInt a1 = 0;
   FoxInt a2 = 5;
-  reg_t args[3] = {reg_t(a0), reg_t(a1), reg_t(a2)};
-  reg_t* result = vm.call(fn, args);
+  Register args[3] = {a0, a1, a2};
+  Register* result = vm.call(fn, args);
   // Check that the call went as expected
   ASSERT_NE(result, nullptr) << "result is null";
-  EXPECT_EQ(FoxInt(*result), a2);
-  EXPECT_EQ(FoxInt(args[0]), a1 + a2);
-  EXPECT_EQ(FoxInt(args[1]), a1 + a2);
+  EXPECT_EQ(result->intVal, a2);
+  EXPECT_EQ(args[0].intVal, a1 + a2);
+  EXPECT_EQ(args[1].intVal, a1 + a2);
 }
 
 TEST_F(VMTest, loadFunc) {
@@ -511,7 +510,7 @@ TEST_F(VMTest, loadFunc) {
   vm.call(fn);
   // Helper to get a register's value as a BCFunction*
   auto getReg = [&](std::size_t idx) {
-    return reinterpret_cast<BCFunction*>(vm.getRegisterStack()[idx]);
+    return vm.getRegisterStack()[idx].func;
   };
   // Check that the function was loaded correctly
   EXPECT_EQ(getReg(0), &fn);
@@ -550,7 +549,7 @@ TEST_F(VMTest, call) {
   vm.call(f0);
   // Helper to get a register's value as a FoxInt
   auto getReg = [&](std::size_t idx) {
-    return static_cast<FoxInt>(vm.getRegisterStack()[idx]);
+    return vm.getRegisterStack()[idx].intVal;
   };
   EXPECT_EQ(getReg(1), r1*2)            << "incorrect value for r1";
   EXPECT_EQ(getReg(2), r2*2)            << "incorrect value for r2";
