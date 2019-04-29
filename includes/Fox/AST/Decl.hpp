@@ -83,9 +83,6 @@ namespace fox {
       LLVM_ATTRIBUTE_RETURNS_NONNULL
       DeclContext* getClosestDeclContext() const;
 
-      /// Returns the ASTContext in which this Decl lives.
-      ASTContext& getASTContext() const;
-
       /// Returns the range of this Decl, if it has one.
       SourceRange getSourceRange() const;
 

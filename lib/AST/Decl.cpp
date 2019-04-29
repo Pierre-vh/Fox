@@ -45,12 +45,6 @@ DeclContext* Decl::getClosestDeclContext() const {
   return getDeclContext();
 }
 
-ASTContext& Decl::getASTContext() const {
-  auto* closest = getClosestDeclContext();
-  assert(closest && "should never return nullptr!");
-  return closest->getASTContext();
-}
-
 namespace {
   template<typename Rtr, typename Class>
   constexpr bool isOverridenFromDecl(Rtr (Class::*)() const) {
