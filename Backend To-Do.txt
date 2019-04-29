@@ -72,10 +72,16 @@ Basic VM data types and their mappings to Fox types:
     -> Basic Scaffolding (done)
     -> BuiltinFuncDecl (Done)
     -> ASTContext::lookupBuiltin (Done)
-    -> Name Binding (Done)
-      -> Fix tests that aren't passing
-      -> Write more tests
+    -> Name Binding/Sema (Done)
+    -> VM
+      -> CallBuiltin (Done)
+      -> FunctionReference type : llvm::PointerUnion<BCFunction*, /*pointer embedded int for the BuiltinID*/>
+      -> LoadBuiltin instruction + callFunc handling
     -> BCGen
+    -> Unit tests, tons of them!
+    -> Finish: implement correctly most of the builtin functions desired
+          double underscore before the name, have a few of them that do calculations &
+          return something to unit test further.
 
 ---- Implementation of Object types ----
   Note: At first, objects won't be freed. I'll use a leak-forever allocator (LinearAllocator).
