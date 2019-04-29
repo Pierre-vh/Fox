@@ -70,5 +70,7 @@ NOTE(declared_here_with_type,
   "'%0' declared here with type '%1'")
 NOTE(first_decl_seen_here,
   "first declaration of '%0' seen here")
+NOTE(is_a_builtin_func,
+  "'%0' is a builtin function")
 NOTE(potential_candidate_here,
   "potential candidate found here")

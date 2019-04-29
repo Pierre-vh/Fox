@@ -54,14 +54,14 @@ TEST_F(BuiltinsTest, builtinLookup) {
   auto printBool = ctxt.getIdentifier(BuiltinID::printBool);
   auto printInt = ctxt.getIdentifier(BuiltinID::printInt);
   {
-    SmallVector<ValueDecl*, 4> results;
+    SmallVector<BuiltinFuncDecl*, 4> results;
     ctxt.lookupBuiltin(printBool, results);
     ASSERT_EQ(results.size(), 1u) 
       << "Incorrect number of results for " << printBool.getStr();
     EXPECT_EQ(results.front(), BuiltinFuncDecl::get(ctxt, BuiltinID::printBool));
   }
   {
-    SmallVector<ValueDecl*, 4> results;
+    SmallVector<BuiltinFuncDecl*, 4> results;
     ctxt.lookupBuiltin(printInt, results);
     ASSERT_EQ(results.size(), 1u) 
       << "Incorrect number of results for " << printInt.getStr();

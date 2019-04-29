@@ -63,7 +63,8 @@ namespace fox {
         // There's room for 1 more CheckStates. If this enum is updated
         // beyond 4 elements, increase the size of its bitfield.
       };
-      /// Returns the kind of Decl this is.
+
+      /// \returns the kind of Decl this is.
       DeclKind getKind() const;
 
       /// Return the DeclContext in which this Decl is referenced.

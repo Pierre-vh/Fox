@@ -162,7 +162,7 @@ class Sema::DeclChecker : Checker, DeclVisitor<DeclChecker, void> {
           DiagID::invalid_param_redecl : DiagID::invalid_var_redecl;
       }
       // Invalid function redeclaration
-      else if (isa<FuncDecl>(original) && isa<FuncDecl>(redecl))
+      else if (isAnyFunc(original) && isAnyFunc(redecl))
         return DiagID::invalid_redecl;
       // Redecl as a different kind of symbol
       else
@@ -182,9 +182,19 @@ class Sema::DeclChecker : Checker, DeclVisitor<DeclChecker, void> {
       diagEngine
         .report(diagID, redecl->getIdentifierRange())
         .addArg(id);
-      diagEngine
-        .report(DiagID::first_decl_seen_here, original->getIdentifierRange())
-        .addArg(id);
+      noteFirstDeclHere(original);
+    }
+
+    void noteFirstDeclHere(NamedDecl* decl) {
+      if (isa<BuiltinFuncDecl>(decl)) {
+        diagEngine.report(DiagID::is_a_builtin_func, SourceRange())
+          .addArg(decl->getIdentifier());
+      }
+      else {
+        diagEngine
+          .report(DiagID::first_decl_seen_here, decl->getIdentifierRange())
+          .addArg(decl->getIdentifier());
+      }
     }
 
     // Diagnoses an incompatible variable initializer.
@@ -338,10 +348,15 @@ class Sema::DeclChecker : Checker, DeclVisitor<DeclChecker, void> {
       SmallVector<NamedDecl*, 4> candidates; 
       candidates.reserve(decls.size());
       for (NamedDecl* decl : decls) {
+        // Skip unchecked and illegal redeclarations
         if(decl->isUnchecked()) continue;
         if(decl->isIllegalRedecl()) continue;
-        if(decl->getBeginLoc().comesBefore(loc))
-          candidates.push_back(decl);
+        // Skip non-implicit declarations that were declared before
+        // this position.
+        if(!isa<BuiltinFuncDecl>(decl)
+         && decl->getBeginLoc().comesBefore(loc))
+          continue;
+        candidates.push_back(decl);
       }
 
       // Maybe we already have our result
@@ -370,6 +385,11 @@ class Sema::DeclChecker : Checker, DeclVisitor<DeclChecker, void> {
     // Return true if decl is a VarDecl or ParamDecl
     bool isVarOrParamDecl(NamedDecl* decl) {
       return isa<ParamDecl>(decl) || isa<VarDecl>(decl);
+    }
+
+    // Return true if decl is a FuncDecl or BuiltinFuncDecl
+    bool isAnyFunc(NamedDecl* decl) {
+      return isa<BuiltinFuncDecl>(decl) || isa<FuncDecl>(decl);
     }
 
 };

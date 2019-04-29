@@ -54,7 +54,7 @@ void ASTContext::reset() {
 }
 
 void ASTContext::lookupBuiltin(Identifier id, 
-                               SmallVectorImpl<ValueDecl*>& results) {
+                               SmallVectorImpl<BuiltinFuncDecl*>& results) {
   /// FIXME: This could be greatly improved I think.
   /// Especially since this is going to be called fairly often
   /// (at nearly every lookup)

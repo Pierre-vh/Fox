@@ -9,6 +9,7 @@
 //----------------------------------------------------------------------------//
 
 #include "Fox/Sema/Sema.hpp"
+#include "Fox/AST/ASTContext.hpp"
 #include "Fox/AST/DeclContext.hpp"
 #include "Fox/AST/Decl.hpp"
 #include <functional>
@@ -92,12 +93,11 @@ void Sema::doUnqualifiedLookup(LookupResult& results, Identifier id,
   assert(currentDeclContext 
     && "No DeclContext available?");
 
-  // Handle results
   auto handleResult = [&](NamedDecl* decl) {
     // If we should ignore this result, do so and continue looking.
     if(shouldIgnore(decl)) return;
 
-    // If this var is checking, set checkingvar and ignore it.
+    // If this decl is being checked, set checkingvar and ignore it.
     if (decl->isChecking()) {
       assert(!checkingVar && "2 vars are already in the 'checking' state");
       checkingVar = decl;
@@ -143,6 +143,14 @@ void Sema::doUnqualifiedLookup(LookupResult& results, Identifier id,
   // Add the checkingVar to the result set if it's empty.
   if(results.isEmpty() && checkingVar)
     results.addResult(checkingVar);
+
+  // Lookup builtin functions
+  {
+    SmallVector<BuiltinFuncDecl*, 8> builtinResults;
+    ctxt.lookupBuiltin(id, builtinResults);
+    for(auto builtin : builtinResults)
+      results.addResult(builtin);
+  }
 
   // Remove shadowed decls from the results set.
   removeShadowedDecls(results.getDecls());

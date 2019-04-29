@@ -60,7 +60,8 @@ namespace fox {
 
       /// Lookup function for builtins: places a pointer to
       /// every builtin with the Identifier \p id in \p results
-      void lookupBuiltin(Identifier id, SmallVectorImpl<ValueDecl*>& results);
+      void lookupBuiltin(Identifier id, 
+                         SmallVectorImpl<BuiltinFuncDecl*>& results);
 
 			/// \param str an identifier string
       /// \returns the unique "Identifier" object for this string.
