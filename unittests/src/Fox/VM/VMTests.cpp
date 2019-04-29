@@ -158,8 +158,8 @@ TEST_F(VMTest, IntComparison) {
 
   // Load the initial values
   auto regs = vm.getRegisterStack();
-  regs[0] = r0;
-  regs[1] = r1;
+  regs[0].intVal = r0;
+  regs[1].intVal = r1;
   // Run the code
   vm.run(instrs);
   // Helper to get a register's value as a FoxInt
@@ -233,8 +233,8 @@ TEST_F(VMTest, LogicOps) {
 
   // Load the initial values
   auto regs = vm.getRegisterStack();
-  regs[0] = r0;
-  regs[1] = r1;
+  regs[0].intVal = r0;
+  regs[1].intVal = r1;
   // Run the code
   vm.run(instrs);
   // Helper to get a register's value as a FoxInt
@@ -291,8 +291,8 @@ TEST_F(VMTest, JumpIf) {
   
   // Setup initial values
   auto regs = vm.getRegisterStack();
-  regs[0] = r0;
-  regs[1] = r1;
+  regs[0].intVal = r0;
+  regs[1].intVal = r1;
   // Run the code
   vm.run(instrs);
   // Check that the PC ended up where we expected it to.
@@ -317,8 +317,8 @@ TEST_F(VMTest, JumpIfNot) {
   
   // Setup initial values
   auto regs = vm.getRegisterStack();
-  regs[0] = r0;
-  regs[1] = r1;
+  regs[0].intVal = r0;
+  regs[1].intVal = r1;
   // Run the code
   vm.run(instrs);
   // Check that the PC ended up where we expected it to.
