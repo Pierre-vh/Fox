@@ -28,11 +28,11 @@ namespace fox {
       /// Untagged union representing a single register value.
       /// This is exactly 8 bytes (64 Bits) in size.
       union Register {
-        Register() : raw(0) {}
+        Register()                  : raw(0) {}
         Register(std::uint64_t raw) : raw(raw) {}
-        Register(FoxInt v) : intVal(v) {}
-        Register(FoxDouble v) : doubleVal(v) {}
-        Register(BCFunction* v) : func(v) {}
+        Register(FoxInt v)          : intVal(v) {}
+        Register(FoxDouble v)       : doubleVal(v) {}
+        Register(BCFunction* v)     : func(v) {}
 
         std::uint64_t raw;
         FoxInt intVal;

@@ -315,99 +315,50 @@ VM::Register* VM::callFunc(regaddr_t base) {
 }
 
 namespace {
-  // Template machinery to call builtins
+  /// Utility class used to convert a given type to a VM::Register or
+  /// a VM::Register to a given type, while only allowing a restricted 
+  /// set of types.
   template<typename Ty>
-  struct ConvertReg {
-    static void set(Ty&, VM::Register) {
+  struct RegCast {
+    static Ty from_reg(const VM::Register&) {
       static_assert(false, "This type is not supported by the Fox FFI!");
     }
 
-    static VM::Register get(const Ty&) {
+    static VM::Register to_reg(const Ty&) {
       static_assert(false, "This type is not supported by the Fox FFI!");
     }
   };
-  #define REG_CONVERT(TYPE, SET_IMPL, GET_IMPL)\
-  template<> struct ConvertReg<TYPE>\
-    { static void set(TYPE& dest, VM::Register reg) { SET_IMPL; } \
-      static VM::Register get(const TYPE& value) { GET_IMPL; } }
-  REG_CONVERT(FoxInt,      dest = reg.intVal, value);
-  REG_CONVERT(FoxDouble,   dest = reg.doubleVal, value);
-  REG_CONVERT(bool,        dest = reg.raw, value);
-  REG_CONVERT(FoxChar,     dest = reg.raw, value);
+
+  #define REG_CONVERT(TYPE, FROM_EXPR, TO_EXPR)\
+  template<> struct RegCast<TYPE>\
+    { static TYPE from_reg(const VM::Register& reg) { return FROM_EXPR; } \
+      static VM::Register to_reg(const TYPE& value) { return TO_EXPR; } }
+  REG_CONVERT(FoxInt    , reg.intVal     , value);
+  REG_CONVERT(FoxDouble , reg.doubleVal  , value);
+  REG_CONVERT(bool      , reg.raw        , std::uint64_t(value));
+  REG_CONVERT(FoxChar   , reg.raw        , std::uint64_t(value));
   #undef REG_CONVERT
-
-  namespace detail
-  {
-      template<int... Is>
-      struct seq { };
-
-      template<int N, int... Is>
-      struct gen_seq : gen_seq<N - 1, N - 1, Is...> { };
-
-      template<int... Is>
-      struct gen_seq<0, Is...> : seq<Is...> { };
-
-      template<typename T, typename F, int... Is>
-      void for_each(T&& t, F f, seq<Is...>) {
-        auto l = { (f(std::get<Is>(t)), 0)... };
-      }
-  }
-
-  template<typename... Ts, typename F>
-  void for_each_in_tuple(std::tuple<Ts...>& t, F f) {
-    detail::for_each(t, f, detail::gen_seq<sizeof...(Ts)>());
-  }
-
-  struct Functor {
-    VM::Register* reg;
-
-    template<typename T>
-    void operator()(T& val) {
-      ConvertReg<T>::set(val, *(reg++));
-    }
-  };
-
-  template<typename Rtr, typename ... Args> 
-  VM::Register doCall(Rtr(*fn)(Args...), const std::tuple<Args...>& args) {
-    return ConvertReg<Rtr>::get(fn(std::get<Args>(args)...));
-  }
-
-  template<typename ... Args> 
-  VM::Register doCall(void(*fn)(Args...), const std::tuple<Args...>& args) {
-    fn(std::get<Args>(args)...);
-    return VM::Register();
-  }
-
-  VM::Register callBuiltinImpl(VM::Register*, void(*fn)()) {
-    fn();
-    return VM::Register();
-  }
 
   template<typename Rtr, typename ... Args>
   VM::Register callBuiltinImpl(VM::Register* args, Rtr(*fn)(Args...)) {
-    using ArgTupleType = std::tuple<Args...>;
-    ArgTupleType argTuple;
-    Functor functor;
-    functor.reg = args;
-    for_each_in_tuple(argTuple, functor);
-    return doCall(fn, argTuple);
+    auto rtr = fn(RegCast<Args>::template from_reg<Args>(*(args++))...);
+    return RegCast<Rtr>::template from_reg(rtr);
   }
 
-  template<typename Rtr>
-  VM::Register callBuiltinImpl(VM::Register*, Rtr(*fn)()) {
-    fn();
-    return doCall(fn);
+  template<typename ... Args>
+  VM::Register callBuiltinImpl(VM::Register* args, void(*fn)(Args...)) {
+    fn(RegCast<Args>::template from_reg(*(args++))...);
+    return VM::Register();
   }
 }
 
 VM::Register VM::callBuiltinFunc(BuiltinID id) {
   switch (id) {
-    #define BUILTIN(FUNC, FOX) case BuiltinID::FUNC:\
-    callBuiltinImpl(getRegPtr(0), builtin::FUNC); break;
+    #define BUILTIN(FUNC, FOX)\
+      case BuiltinID::FUNC:   \
+        return callBuiltinImpl(getRegPtr(0), builtin::FUNC);
     #include "Fox/Common/Builtins.def"
     default:
       fox_unreachable("Unknown BuiltinID");
   }
-  /// TODO
-  return VM::Register();
 }
