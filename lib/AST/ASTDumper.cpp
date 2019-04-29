@@ -94,13 +94,13 @@ void ASTDumper::visitMemberOfExpr(MemberOfExpr* node) {
 
 void ASTDumper::visitDeclRefExpr(DeclRefExpr* node) {
   NamedDecl* ref = node->getDecl();
-  // FIXME: should work with invalid/ill formed ASTs
   assert(ref && "no referenced decl");
   dumpLine() << getBasicExprInfo(node) << " "
     << ref->getIdentifier() << " "
-    << makeKeyPairDump("decl", (void*)node->getDecl())
-    << (isa<BuiltinFuncDecl>(node->getDecl()) ? " (builtin)" : "")
-    << "\n";
+    << makeKeyPairDump("decl", (void*)node->getDecl());
+  if (auto* builtin = dyn_cast<BuiltinFuncDecl>(node->getDecl())) 
+    out << " (Builtin '" << to_string(builtin->getBuiltinID()) << "')";
+  out << "\n";
 }
 
 void ASTDumper::visitUnresolvedDeclRefExpr(UnresolvedDeclRefExpr* node) {
