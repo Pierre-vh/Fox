@@ -1,0 +1,4 @@
+// RUN: %fox-verify
+
+func printInt(x: int) {} // expect-error: invalid redeclaration of 'printInt'
+                         // expect-note@-3: 'printInt' is a builtin function
