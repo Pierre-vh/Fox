@@ -13,6 +13,7 @@ using namespace fox;
 
 const char* fox::to_string(BuiltinID id) {
   switch (id) {
+    case BuiltinID::invalid: return "<invalid>";
     #define BUILTIN(FUNC, FOX) case BuiltinID::FUNC: return #FUNC;
     #include "Fox/Common/Builtins.def"
     default:
