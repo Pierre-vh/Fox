@@ -84,7 +84,7 @@ Basic VM data types and their mappings to Fox types:
           return something to unit test further.
     -> Big code review: I Wrote a ton of code related to builtins, better review it
        now and rewrite messy code.
-            
+            -> Improve ASTContext::lookupBuiltin. Try to cache it in a lookup map at least.
     -> Unit test for Ambiguous Builtins (check that they're all unique)
 
 ---- Implementation of Object types ----
