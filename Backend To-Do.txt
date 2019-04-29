@@ -84,7 +84,8 @@ Basic VM data types and their mappings to Fox types:
           return something to unit test further.
     -> Big code review: I Wrote a ton of code related to builtins, better review it
        now and rewrite messy code.
-
+        -> Reduce the numbers of translation units in which Builtins.hpp is
+    -> It'd be great to have a way to protect (or detect) conflicting builtins. Maybe through an assertion?
 ---- Implementation of Object types ----
   Note: At first, objects won't be freed. I'll use a leak-forever allocator (LinearAllocator).
     GC will come later when the language is officially "feature-complete", because writing a good, reliable

@@ -183,8 +183,17 @@ class Sema::ExprChecker : Checker, ExprVisitor<ExprChecker, Expr*>,  ASTWalker {
       // for each candidate.
       assert(results.isAmbiguous());
       for(auto result : results) {
-        diagEngine.report(DiagID::potential_candidate_here, 
-          result->getIdentifierRange());
+        if (auto* builtin = dyn_cast<BuiltinFuncDecl>(result)) {
+          diagEngine
+            .report(DiagID::potential_candidate_is_builtin, range.getFileID())
+            .addArg(builtin->getIdentifier())
+            .addArg(builtin->getValueType());
+
+        }
+        else {
+          diagEngine.report(DiagID::potential_candidate_here, 
+            result->getIdentifierRange());
+        }
       }
     }
 

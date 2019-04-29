@@ -76,3 +76,5 @@ NOTE(is_a_builtin_func,
   "'%0' is a builtin function")
 NOTE(potential_candidate_here,
   "potential candidate found here")
+NOTE(potential_candidate_is_builtin,
+  "potential candidate is builtin function '%0' of type '%1'")
