@@ -392,9 +392,12 @@ BuiltinFuncDecl* BuiltinFuncDecl::get(ASTContext& ctxt, BuiltinID id) {
 BuiltinFuncDecl::BuiltinFuncDecl(ASTContext& ctxt, BuiltinID id) : 
   ValueDecl(DeclKind::BuiltinFuncDecl, nullptr, 
             ctxt.getIdentifier(id), SourceRange()), 
-  type_(getTypeOfBuiltin(ctxt, id)) {
+  type_(getTypeOfBuiltin(ctxt, id)), bID_(id) {
   /// BuiltinFuncDecls are always checked
   setCheckState(CheckState::Checked);
+  /// Instantiated BuiltinFuncDecls cannot have an 'invalid' BuiltinID.
+  assert((id != BuiltinID::invalid) && 
+    "Creating a BuiltinFuncDecl with an invalid BuiltinID");
 }
 
 void BuiltinFuncDecl::load(ASTContext& ctxt, BuiltinID id) {
