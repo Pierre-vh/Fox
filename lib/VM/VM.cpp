@@ -206,12 +206,12 @@ VM::reg_t* VM::run(ArrayRef<Instruction> instrs) {
         pc_ += instr.Jump.offset;
         continue;
       case Opcode::IntToDouble:
-        // IntToDouble dest srrhs: dest = (src as FoxDouble) (srrhs: FoxInt)
+        // IntToDouble dest srrhs: dest = (src as FoxDouble) (src FoxInt)
         setReg(instr.IntToDouble.dest, 
                FoxDouble(getReg<FoxInt>(instr.IntToDouble.src)));
         continue;
       case Opcode::DoubleToInt:
-        // DoubleToInt dest srrhs: dest = (src as FoxInt) (srrhs: FoxDouble)
+        // DoubleToInt dest srrhs: dest = (src as FoxInt) (src: FoxDouble)
         setReg(instr.DoubleToInt.dest, 
                FoxInt(getReg<FoxDouble>(instr.DoubleToInt.src)));
         continue;
@@ -284,8 +284,8 @@ VM::reg_t* VM::callFunc(regaddr_t base) {
   assert(fn && "func is null");
 
   ///////////////////////////////////////////////////////////////////
-  // TODO: Realloc the stack if needed (the func needs more regs than
-  // what we can provide)
+  // TODO: Realloc the stack if needed ( if the func needs more regs
+  // than what's available on the regStack)
   ///////////////////////////////////////////////////////////////////
 
   // Backup the instrBeg and curInstr ptrs
