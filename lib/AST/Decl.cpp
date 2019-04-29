@@ -5,6 +5,7 @@
 // Author : Pierre van Houtryve                
 //----------------------------------------------------------------------------//
 
+#include "Fox/AST/BuiltinsTypes.hpp"
 #include "Fox/AST/Expr.hpp"
 #include "Fox/AST/Decl.hpp"
 #include "Fox/AST/Stmt.hpp"
@@ -376,28 +377,21 @@ SourceRange FuncDecl::getSourceRange() const {
 // BuiltinFuncDecl
 //----------------------------------------------------------------------------//
 
-BuiltinFuncDecl* BuiltinFuncDecl::get(ASTContext&, BuiltinID) {
-  // TODO
-  return nullptr;
-}
-
-SourceRange BuiltinFuncDecl::getSourceRange() const {
-  // No SourceRange available since this is implicit.
-  return SourceRange();
-}
-
-Type BuiltinFuncDecl::getValueType() const {
-  // TODO
-  return Type();
-}
-
-BuiltinID BuiltinFuncDecl::getBuiltinID() const {
-  return bID_;
+BuiltinFuncDecl* BuiltinFuncDecl::get(ASTContext& ctxt, BuiltinID id) {
+  auto& map = ctxt.builtinFuncs_;
+  /// Check if it exists already
+  auto it = map.find(id);
+  if(it != map.end()) return it->second;
+  /// We need to create it
+  auto* func = new(ctxt) BuiltinFuncDecl(ctxt, id);
+  map[id] = func;
+  return func;
 }
 
 BuiltinFuncDecl::BuiltinFuncDecl(ASTContext& ctxt, BuiltinID id) : 
   ValueDecl(DeclKind::BuiltinFuncDecl, nullptr, 
-            ctxt.getIdentifier(id), SourceRange()) {
+            ctxt.getIdentifier(id), SourceRange()), 
+  type_(getTypeOfBuiltin(ctxt, id)) {
   /// BuiltinFuncDecls are always checked
   setCheckState(CheckState::Checked);
 }

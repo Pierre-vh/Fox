@@ -345,17 +345,24 @@ namespace fox {
       static BuiltinFuncDecl* get(ASTContext& ctxt, BuiltinID id);
 
       /// \returns the invalid SourceRange (SourceRange())
-      SourceRange getSourceRange() const;
+      SourceRange getSourceRange() const {
+        return SourceRange();
+      }
 
       /// \returns the FunctionType of this builtin
-      Type getValueType() const;
+      Type getValueType() const {
+        return type_;
+      }
 
       /// \returns the BuiltinID of this BuiltinFuncDecl
-      BuiltinID getBuiltinID() const;
+      BuiltinID getBuiltinID() const {
+        return bID_;
+      }
 
     private:
       BuiltinFuncDecl(ASTContext& ctxt, BuiltinID id);
 
+      Type type_;
       BuiltinID bID_ = BuiltinID::invalid;
   };
 

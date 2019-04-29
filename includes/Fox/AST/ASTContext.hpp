@@ -93,11 +93,12 @@ namespace fox {
       DiagnosticEngine& diagEngine;
 
     private:
-      friend class ArrayType;
-      friend class LValueType;
-      friend class ErrorType;
-      friend class PrimitiveType;
-      friend class FunctionType;
+      friend ArrayType;
+      friend LValueType;
+      friend ErrorType;
+      friend PrimitiveType;
+      friend FunctionType;
+      friend BuiltinFuncDecl;
 
       /// Calls the cleanup functions and resets the "cleanups" vector.
       void callCleanups();
@@ -117,6 +118,9 @@ namespace fox {
       /// instance of the FunctionType).
       /// Managed by the \ref FunctionType class.
       std::unordered_map<std::size_t, FunctionType*> functionTypes_;
+
+      /// The map of BuiltinID -> BuiltinFuncDecl
+      std::unordered_map<BuiltinID, BuiltinFuncDecl*> builtinFuncs_;
 
       // Singleton/unique types. Lazily created by their respective classes.
       ErrorType* theErrorType_      = nullptr;
