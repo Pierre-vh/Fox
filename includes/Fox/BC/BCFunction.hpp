@@ -22,8 +22,7 @@ namespace fox {
     public:
       /// Creates a BCFunction
       /// \param id the ID of the function
-      /// \param numParams the number of parameters the function takes
-      BCFunction(std::size_t id, std::size_t numParams = 0);
+      BCFunction(std::size_t id);
 
       BCFunction(const BCFunction&) = delete;
       BCFunction& operator=(const BCFunction&) = delete;
@@ -36,11 +35,6 @@ namespace fox {
       
       /// \returns the number of instructions in the instruction buffer
       std::size_t numInstructions() const;
-
-      /// \returns the number of parameters that this function takes
-      std::size_t numParams() const {
-        return numParams_;
-      }
 
       /// Creates a bytecode builder for this function's instruction buffer.
       BCBuilder createBCBuilder();
@@ -70,6 +64,5 @@ namespace fox {
     private:
       InstructionVector instrs_;
       const std::size_t id_ = 0;
-      const std::size_t numParams_ = 0;
   };
 }

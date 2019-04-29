@@ -478,7 +478,7 @@ TEST_F(VMTest, runFuncWithArgs) {
   using reg_t = VM::reg_t;
   // Create a function that takes 3 parameters
   // Parameters should be in r0, r1 and r2
-  BCFunction& fn = theModule.createFunction(3);
+  BCFunction& fn = theModule.createFunction();
   BCBuilder builder = fn.createBCBuilder();
   // Create a few instructions so r0 = r1 + r2
   // and r1 = r1 + r2

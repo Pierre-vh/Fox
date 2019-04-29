@@ -206,7 +206,7 @@ BCFunction& BCGen::getBCFunction(FuncDecl* func) {
   // a BCFunction for this FuncDecl* was not created yet so create it
   assert((theModule.numFunctions() <= bc_limits::max_functions)
     && "Cannot create function: too many functions in the module");
-  BCFunction& fn = theModule.createFunction(func->numUsedParams());
+  BCFunction& fn = theModule.createFunction();
   funcs_.insert({func, fn});
   return fn;
 }

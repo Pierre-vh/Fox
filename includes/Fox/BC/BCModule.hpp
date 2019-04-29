@@ -36,10 +36,8 @@ namespace fox {
       std::size_t numFunctions() const;
 
       /// Creates a new function (that will be stored in this module)
-      /// \param numParams the number of parameters the function takes
       /// \returns a reference to the created function
-      BCFunction& 
-      createFunction(std::size_t numParams = 0);
+      BCFunction& createFunction();
 
       /// \returns a reference to the function in this module with ID \p idx
       BCFunction& getFunction(std::size_t idx);

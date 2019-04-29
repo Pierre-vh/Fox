@@ -11,8 +11,7 @@
 
 using namespace fox;
 
-BCFunction::BCFunction(std::size_t id, std::size_t numParams) 
-  : id_(id), numParams_(numParams) {}
+BCFunction::BCFunction(std::size_t id) : id_(id) {}
 
 std::size_t BCFunction::numInstructions() const {
   return instrs_.size();
