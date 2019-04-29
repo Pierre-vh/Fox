@@ -360,6 +360,10 @@ namespace fox {
         return bID_;
       }
 
+      static bool classof(const Decl* decl) {
+        return decl->getKind() == DeclKind::BuiltinFuncDecl;
+      }
+
     private:
       friend ASTContext;
 
