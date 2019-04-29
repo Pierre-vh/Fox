@@ -182,12 +182,13 @@ class Sema::DeclChecker : Checker, DeclVisitor<DeclChecker, void> {
       diagEngine
         .report(diagID, redecl->getIdentifierRange())
         .addArg(id);
-      noteFirstDeclHere(original);
+      noteFirstDeclHere(redecl->getFileID(), original);
     }
 
-    void noteFirstDeclHere(NamedDecl* decl) {
+    void noteFirstDeclHere(FileID inFile, NamedDecl* decl) {
+      assert(inFile && "invalid FileID");
       if (isa<BuiltinFuncDecl>(decl)) {
-        diagEngine.report(DiagID::is_a_builtin_func, SourceRange())
+        diagEngine.report(DiagID::is_a_builtin_func, inFile)
           .addArg(decl->getIdentifier());
       }
       else {

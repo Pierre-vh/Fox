@@ -76,6 +76,7 @@ Basic VM data types and their mappings to Fox types:
       -> Fix tests that aren't passing
       -> DiagnosticVerifier will need an update to expect diagnostics at any line,
          maybe using '@?' 
+        -> Fix it because now I just used a hack in operator>
       -> Write more tests
     -> BCGen
 

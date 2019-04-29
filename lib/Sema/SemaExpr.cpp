@@ -56,7 +56,8 @@ class Sema::ExprChecker : Checker, ExprVisitor<ExprChecker, Expr*>,  ASTWalker {
     //----------------------------------------------------------------------//
 
     // (Note) example: "'foo' declared here with type 'int'"
-    void noteIsDeclaredHereWithType(ValueDecl* decl) {
+    void noteIsDeclaredHereWithType(FileID inFile, ValueDecl* decl) {
+      assert(inFile && "invalid FileID");
       Identifier id = decl->getIdentifier();
       SourceRange range = decl->getIdentifierRange();
       Type declType = decl->getValueType();
@@ -64,7 +65,7 @@ class Sema::ExprChecker : Checker, ExprVisitor<ExprChecker, Expr*>,  ASTWalker {
       if(!Sema::isWellFormed(declType)) return;
 
       if (isa<BuiltinFuncDecl>(decl)) {
-        diagEngine.report(DiagID::is_a_builtin_func_with_type, SourceRange())
+        diagEngine.report(DiagID::is_a_builtin_func_with_type, inFile)
           .addArg(id).addArg(declType);
         return;
       }
@@ -250,7 +251,8 @@ class Sema::ExprChecker : Checker, ExprVisitor<ExprChecker, Expr*>,  ASTWalker {
       diagEngine.report(diag, callee->getSourceRange())
         .addArg(callee->getDecl()->getIdentifier());
       // Also emit a "is declared here with type" note.
-      noteIsDeclaredHereWithType(callee->getDecl());
+      noteIsDeclaredHereWithType(call->getBeginLoc().getFileID(), 
+                                 callee->getDecl());
     }
 
     // Diagnoses a bad function call where the types didn't match
@@ -276,7 +278,8 @@ class Sema::ExprChecker : Checker, ExprVisitor<ExprChecker, Expr*>,  ASTWalker {
         .addArg(argsAsStr)
         .setExtraRange(argsRange);
 
-      noteIsDeclaredHereWithType(callee->getDecl());
+      noteIsDeclaredHereWithType(call->getBeginLoc().getFileID(), 
+                                 callee->getDecl());
     }
 
     void diagnoseFunctionTypeInArrayLiteral(ArrayLiteralExpr* lit, Expr* fn) {
