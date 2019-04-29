@@ -84,12 +84,6 @@ Basic VM data types and their mappings to Fox types:
           return something to unit test further.
     -> Big code review: I Wrote a ton of code related to builtins, better review it
        now and rewrite messy code.
-        -> Reduce the numbers of translation units in which Builtins.hpp is
-      Answer these:
-        -> Does Builtins.def/.hpp make sense in /Common/? Probably.
-        -> BuiltinsTypes.hpp/.cpp? I should find a better name for sure. Also this
-           file only contains one function so it's kind of ridiculous. 
-           Refactor that and ask for advice too.
             
     -> Unit test for Ambiguous Builtins (check that they're all unique)
 

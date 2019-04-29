@@ -7,10 +7,59 @@
 
 #include "Fox/AST/ASTContext.hpp"
 #include "Fox/AST/Decl.hpp"
+#include "Fox/AST/Types.hpp"
 #include <cstring>
 
 using namespace fox;
 
+//----------------------------------------------------------------------------//
+// getFoxTypeOfFunc impl
+//----------------------------------------------------------------------------//
+
+namespace {
+  using FnTyParam = FunctionTypeParam;
+
+  template<typename Ty>
+  struct TypeConverter {
+    static Type get(ASTContext&) {
+      static_assert(false, "This type is not supported by the Fox FFI!");
+    }
+  };
+  
+  template<typename ... Args> 
+  struct ParamConverter {
+    static void add(ASTContext&, SmallVectorImpl<FnTyParam>&) {}
+  };
+
+  template<typename First, typename ... Args> 
+  struct ParamConverter<First, Args...> {
+    static void add(ASTContext& ctxt, SmallVectorImpl<FnTyParam>& params) {
+      params.emplace_back(TypeConverter<First>::get(ctxt), /*isMut*/ false);
+      ParamConverter<Args...>::add(ctxt, params);
+    }
+  };
+
+  #define TYPE_CONVERSION(TYPE, GET_IMPL) template<> struct TypeConverter<TYPE>\
+    { static Type get(ASTContext& ctxt) { GET_IMPL; } }
+  TYPE_CONVERSION(void,       return PrimitiveType::getVoid(ctxt));
+  TYPE_CONVERSION(FoxInt,     return PrimitiveType::getInt(ctxt));
+  TYPE_CONVERSION(FoxDouble,  return PrimitiveType::getDouble(ctxt));
+  TYPE_CONVERSION(bool,       return PrimitiveType::getBool(ctxt));
+  TYPE_CONVERSION(FoxChar,    return PrimitiveType::getChar(ctxt));
+  #undef TYPE_CONVERSION
+
+  template<typename Rtr, typename ... Args>
+  Type getFoxTypeOfFunc(ASTContext& ctxt, Rtr(*)(Args...)) {
+    Type returnType = TypeConverter<Rtr>::get(ctxt);
+    SmallVector<FnTyParam, 4> params;
+    ParamConverter<Args...>::add(ctxt, params);
+    return FunctionType::get(ctxt, params, returnType);
+  }
+}
+
+//----------------------------------------------------------------------------//
+// ASTContext
+//----------------------------------------------------------------------------//
 
 ASTContext::ASTContext(SourceManager& srcMgr, DiagnosticEngine& diags):
   sourceMgr(srcMgr), diagEngine(diags) {}
@@ -61,6 +110,17 @@ void ASTContext::lookupBuiltin(Identifier id,
   #define BUILTIN(FUNC, FOX) if(id.getStr() == #FOX)\
     results.push_back(BuiltinFuncDecl::get(*this, BuiltinID::FUNC));
   #include "Fox/Common/Builtins.def"
+}
+
+Type ASTContext::getTypeOfBuiltin(BuiltinID id) {
+  switch (id) {
+    #define BUILTIN(FUNC, FOX)\
+      case BuiltinID::FUNC:\
+        return getFoxTypeOfFunc(*this, builtin::FUNC);
+    #include "Fox/Common/Builtins.def"
+    default:
+      fox_unreachable("unknown BuiltinID");
+  }
 }
 
 Identifier ASTContext::getIdentifier(string_view str) {

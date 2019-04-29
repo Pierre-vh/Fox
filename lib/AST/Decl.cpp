@@ -5,7 +5,6 @@
 // Author : Pierre van Houtryve                
 //----------------------------------------------------------------------------//
 
-#include "Fox/AST/BuiltinsTypes.hpp"
 #include "Fox/AST/Expr.hpp"
 #include "Fox/AST/Decl.hpp"
 #include "Fox/AST/Stmt.hpp"
@@ -392,7 +391,7 @@ BuiltinFuncDecl* BuiltinFuncDecl::get(ASTContext& ctxt, BuiltinID id) {
 BuiltinFuncDecl::BuiltinFuncDecl(ASTContext& ctxt, BuiltinID id) : 
   ValueDecl(DeclKind::BuiltinFuncDecl, nullptr, 
             ctxt.getIdentifier(id), SourceRange()), 
-  type_(getTypeOfBuiltin(ctxt, id)), bID_(id) {
+  type_(ctxt.getTypeOfBuiltin(id)), bID_(id) {
   /// BuiltinFuncDecls are always checked
   setCheckState(CheckState::Checked);
   /// Instantiated BuiltinFuncDecls cannot have an 'invalid' BuiltinID.

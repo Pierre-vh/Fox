@@ -9,7 +9,6 @@
 
 #include "gtest/gtest.h"
 #include "Fox/AST/ASTContext.hpp"
-#include "Fox/AST/BuiltinsTypes.hpp"
 #include "Fox/AST/Decl.hpp"
 #include "Fox/AST/Expr.hpp"
 #include "Fox/AST/Types.hpp"
@@ -554,8 +553,8 @@ class BuiltinsTest : public ::testing::Test {
 };
 
 TEST_F(BuiltinsTest, getTypeOfBuiltinTest) {
-  Type printIntTy = getTypeOfBuiltin(ctxt, BuiltinID::printInt);
-  Type printBoolTy = getTypeOfBuiltin(ctxt, BuiltinID::printBool);
+  Type printIntTy = ctxt.getTypeOfBuiltin(BuiltinID::printInt);
+  Type printBoolTy = ctxt.getTypeOfBuiltin(BuiltinID::printBool);
 
   // Is 'toDebugString' fine for this?
   EXPECT_EQ(printIntTy->toDebugString(),  "(int) -> void");
