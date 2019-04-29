@@ -396,6 +396,12 @@ BuiltinFuncDecl::BuiltinFuncDecl(ASTContext& ctxt, BuiltinID id) :
   setCheckState(CheckState::Checked);
 }
 
+void BuiltinFuncDecl::load(ASTContext& ctxt, BuiltinID id) {
+  BuiltinFuncDecl*& entry = ctxt.builtinFuncs_[id];
+  assert(!entry && "builtin loaded twice");
+  entry = new(ctxt) BuiltinFuncDecl(ctxt, id);
+}
+
 //----------------------------------------------------------------------------//
 // VarDecl
 //----------------------------------------------------------------------------//

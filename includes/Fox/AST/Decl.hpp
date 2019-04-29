@@ -360,7 +360,13 @@ namespace fox {
       }
 
     private:
+      friend ASTContext;
+
       BuiltinFuncDecl(ASTContext& ctxt, BuiltinID id);
+
+      /// Method for use by the ASTContext which loads the builtin
+      /// with it \p id in the builtinFuncs_ map.
+      void load(ASTContext& ctxt, BuiltinID id);
 
       Type type_;
       BuiltinID bID_ = BuiltinID::invalid;
