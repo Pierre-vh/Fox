@@ -15,6 +15,8 @@
 #include "Fox/Common/FoxTypes.hpp"
 #include "Fox/Common/LLVM.hpp"
 #include "llvm/ADT/ArrayRef.h"
+#include "llvm/ADT/PointerEmbeddedInt.h"
+#include "llvm/ADT/PointerUnion.h"
 #include <cstdint>
 #include <cstddef>
 #include <array>
@@ -25,6 +27,49 @@ namespace fox {
   class BCFunction;
   class VM {
     public:
+      /// A Function reference: a discriminated union of a BCFunction*
+      /// and a BuiltinID.
+      class FunctionRef {
+        public:
+          FunctionRef(BCFunction* fn) { *this = fn; }
+          FunctionRef(BuiltinID id)   { *this = id; }
+
+          FunctionRef& operator=(BCFunction* fn) {
+            data_ = fn;
+            return *this;
+          }
+          FunctionRef& operator=(BuiltinID id) {
+            data_ = static_cast<builtin_id_t>(id);
+            return *this;
+          }
+
+          /// \returns true if this FunctionRef contains a BCFunction*
+          bool isBCFunction() const {
+            return data_.is<BCFunction*>();
+          }
+
+          /// \returns true if this FunctionRef contains a BuiltinID
+          bool isBuiltinID() const {
+            return data_.is<EmbeddedID>();
+          }
+
+          /// \returns the BCFunction* contained in this function
+          /// (isBCFunction() must return true)
+          BCFunction* getBCFunction() {
+            return data_.get<BCFunction*>();
+          }
+
+          /// \returns the BuiltinID contained in this function
+          /// (isBuiltinID() must return true)
+          BuiltinID getBuiltinID() {
+            return BuiltinID((builtin_id_t)data_.get<EmbeddedID>());
+          }
+
+        private:
+          using EmbeddedID = llvm::PointerEmbeddedInt<builtin_id_t>;
+          llvm::PointerUnion<BCFunction*, EmbeddedID> data_;
+      };
+
       /// Untagged union representing a single register value.
       /// This is exactly 8 bytes (64 Bits) in size.
       union Register {
@@ -32,12 +77,13 @@ namespace fox {
         Register(std::uint64_t raw) : raw(raw) {}
         Register(FoxInt v)          : intVal(v) {}
         Register(FoxDouble v)       : doubleVal(v) {}
-        Register(BCFunction* v)     : func(v) {}
+        Register(BCFunction* v)     : funcRef(v) {}
+        Register(BuiltinID v)       : funcRef(v) {}
 
         std::uint64_t raw;
         FoxInt intVal;
         FoxDouble doubleVal;
-        BCFunction* func;
+        FunctionRef funcRef;
       };
 
       static_assert(sizeof(Register) == 8,

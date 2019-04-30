@@ -240,7 +240,7 @@ VM::Register* VM::run(ArrayRef<Instruction> instrs) {
       case Opcode::LoadFunc:
         // LoadFunc dest func : loads a reference to the function with the
         //  ID 'func' in 'dest'.
-        getReg(instr.LoadFunc.dest).func =
+        getReg(instr.LoadFunc.dest).funcRef =
           &(bcModule.getFunction(instr.LoadFunc.func));
         continue;
       case Opcode::CallVoid:
@@ -285,7 +285,7 @@ VM::Register* VM::callFunc(regaddr_t base) {
   // Fetch a pointer to the base
   Register* basePtr = getRegPtr(base);
   // Fetch the BCFunction
-  BCFunction* fn = *reinterpret_cast<BCFunction**>(basePtr);
+  BCFunction* fn = basePtr->funcRef.getBCFunction();
   assert(fn && "func is null");
 
   ///////////////////////////////////////////////////////////////////
