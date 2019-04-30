@@ -91,14 +91,19 @@ Basic VM data types and their mappings to Fox types:
   -> ArrayObject: Always dynamically sized, essentially just a SmallVector (will maybe even inherit from it). Has a "isReference" flag.
   -> Strings: Similar to ArrayObject. I think they'll also be dynamically sized & mutable, but that's
      subject to change.
-
-  Note: In the future, I'll probably have a UserObject (structs) and a TupleObject (tuples).
+  -> Object allocation interface, either in the VM or in a separate class used by the VM.
+     Using the VM might be simpler, but as we might pass the instance to clients in FFI/Instrinsic functions,
+     they might misuse it and corrupt the VM, so maybe that a 'VMContext' that manages its memory is better.
+     (VM = "execution engine", VMContext = Memory management & other contextual information, 
+      like the BCModule&)
+  -> Finish the implementation of the language in its current state
+  -> Add support for stuff like "StringObject*" and "ArrayObject*" in Builtins
 
 ---- Getting feature-complete (with the current feature set) ----
+  -> Builtins should be able to take a "VM/VMContext&" as parameter so they can allocate objects.
+     That parameter should always be first.
   -> LoadStringK instruction (use string constants)
-  -> Functions
-  -> Codegen of global variables
-  -> Intrinsics/FFI
+  -> Global Variables
   -> Basic debug information & trivial exception system (for proper error management).
   -> Growable register stack
   -> Properly diagnose maximum register pressure exceeded:
