@@ -77,14 +77,11 @@ Basic VM data types and their mappings to Fox types:
       -> CallBuiltin (Done)
       -> FunctionReference type : llvm::PointerUnion<BCFunction*, /*pointer embedded int for the BuiltinID*/>
       -> LoadBuiltin instruction + callFunc handling
-    -> BCGen
-    -> Unit tests, tons of them!
-    -> Finish: implement correctly most of the builtin functions desired
-          double underscore before the name, have a few of them that do calculations &
-          return something to unit test further.
-    -> Big code review: I Wrote a ton of code related to builtins, better review it
-       now and rewrite messy code.
-            -> Improve ASTContext::lookupBuiltin. Try to cache it in a lookup map at least.
+    -> BCGen (Next)
+    -> VM (LoadBuiltin + callFunc update) & unit tests (Next)
+    -> Review the code I wrote
+      -> Improve ASTContext::lookupBuiltin. Ideally it should be cached without having to load
+          every single builtin in a map or creating an id for every builtin (it should be lazily).
     -> Unit test for Ambiguous Builtins (check that they're all unique)
 
 ---- Implementation of Object types ----
