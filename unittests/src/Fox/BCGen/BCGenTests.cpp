@@ -33,8 +33,8 @@ namespace {
 }
 
 TEST_F(BCGenTest, intConstantsUniqueness) {
-  static constexpr FoxInt num_constants_to_insert = 4096;
-  const FoxInt beg = -4096;
+  static constexpr std::size_t num_constants_to_insert = 4096;
+  const FoxInt beg = -(FoxInt)num_constants_to_insert;
   FoxInt value = beg;
 
   std::unordered_set<constant_id_t> ids;
@@ -68,8 +68,8 @@ TEST_F(BCGenTest, intConstantsUniqueness) {
 }
 
 TEST_F(BCGenTest, doubleConstantsUniqueness) {
-  static constexpr FoxInt num_constants_to_insert = 4096;
-  const FoxDouble beg = -num_constants_to_insert;
+  static constexpr std::size_t num_constants_to_insert = 4096;
+  const FoxDouble beg = -(FoxDouble)(num_constants_to_insert);
   FoxDouble value = beg;
 
   std::unordered_set<constant_id_t> ids;

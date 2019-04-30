@@ -360,12 +360,6 @@ class BCGen::ExprGenerator : public Generator,
       return dstReg;
     }
 
-    // Generates the code for a assignement binary expr
-    RegisterValue genAssign(BinaryExpr* expr, RegisterValue dest) {
-      assert(expr->isAssignement() && "not an assignement");
-
-    }
-
     //------------------------------------------------------------------------//
     // "visit" methods 
     // 
@@ -722,6 +716,8 @@ visitDeclRefExpr(DeclRefExpr* expr, GenFunc gen, BinOp op) {
   // So, if in the future I add +=, -=, etc. this doesn't fail
   // silently.
   assert((op == BinOp::Assign) && "Unsupported assignement type");
+  // Avoid 'unreferenced formal parameter'
+  op;
   return gen(regAlloc.useDecl(expr->getDecl()));
 }
 
