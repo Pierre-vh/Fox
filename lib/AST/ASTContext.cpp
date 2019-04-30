@@ -107,6 +107,7 @@ void ASTContext::lookupBuiltin(Identifier id,
   /// FIXME: This could be greatly improved I think.
   /// Especially since this is going to be called fairly often
   /// (at nearly every lookup)
+  /// Of course, back this up by measurements before optimizing anything.
   #define BUILTIN(FUNC, FOX) if(id.getStr() == #FOX)\
     results.push_back(BuiltinFuncDecl::get(*this, BuiltinID::FUNC));
   #include "Fox/Common/Builtins.def"

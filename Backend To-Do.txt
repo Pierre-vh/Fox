@@ -79,9 +79,7 @@ Basic VM data types and their mappings to Fox types:
       -> LoadBuiltin instruction + callFunc handling
     -> BCGen (Next)
     -> VM (LoadBuiltin + callFunc update) & unit tests (Next)
-    -> Review the code I wrote
-      -> Improve ASTContext::lookupBuiltin. Ideally it should be cached without having to load
-          every single builtin in a map or creating an id for every builtin (it should be lazily).
+    -> Review the code I wrote for builtins
     -> Unit test for Ambiguous Builtins (check that they're all unique)
 
 ---- Implementation of Object types ----
