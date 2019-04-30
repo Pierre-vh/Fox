@@ -374,7 +374,7 @@ namespace fox {
       void load(ASTContext& ctxt, BuiltinID id);
 
       Type type_;
-      BuiltinID bID_ = BuiltinID::invalid;
+      BuiltinID bID_;
   };
 
   /// VarDecl

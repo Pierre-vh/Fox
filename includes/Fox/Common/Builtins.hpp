@@ -19,7 +19,6 @@ namespace fox {
 
   /// Enumeration representing every kind of builtin
   enum class BuiltinID : builtin_id_t {
-    invalid,
     #define BUILTIN(FUNC, ID) FUNC,
     #include "Builtins.def"
   };
