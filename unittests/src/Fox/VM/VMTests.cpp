@@ -510,7 +510,7 @@ TEST_F(VMTest, loadFunc) {
   vm.call(fn);
   // Helper to get a register's value as a BCFunction*
   auto getReg = [&](std::size_t idx) {
-    return vm.getRegisterStack()[idx].func;
+    return vm.getRegisterStack()[idx].funcRef.getBCFunction();
   };
   // Check that the function was loaded correctly
   EXPECT_EQ(getReg(0), &fn);
