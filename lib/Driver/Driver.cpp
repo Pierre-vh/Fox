@@ -6,22 +6,23 @@
 //----------------------------------------------------------------------------//
 
 #include "Fox/Driver/Driver.hpp"
-#include "Fox/Lexer/Lexer.hpp"
-#include "Fox/Parser/Parser.hpp"
+
 #include "Fox/AST/ASTDumper.hpp"
 #include "Fox/AST/ASTContext.hpp"
-#include "Fox/Sema/Sema.hpp"
 #include "Fox/AST/Decl.hpp"
-#include "Fox/Common/LLVM.hpp"
-#include "Fox/Common/DiagnosticVerifier.hpp"
-#include <fstream>
-
-// TEST-Only! Remove later
 #include "Fox/BC/BCBuilder.hpp"
 #include "Fox/BC/Instruction.hpp"
 #include "Fox/BC/BCModule.hpp"
 #include "Fox/BCGen/BCGen.hpp"
-#include "Fox/AST/ASTWalker.hpp"
+#include "Fox/Common/LLVM.hpp"
+#include "Fox/Common/DiagnosticVerifier.hpp"
+#include "Fox/Lexer/Lexer.hpp"
+#include "Fox/Parser/Parser.hpp"
+#include "Fox/Sema/Sema.hpp"
+#include "Fox/VM/VM.hpp"
+
+#include <fstream>
+
 
 using namespace fox;
 
@@ -29,6 +30,12 @@ Driver::Driver(std::ostream& os): out(os), diagEngine_(srcMgr_, os),
   ctxt_(srcMgr_, diagEngine_) {}
 
 bool Driver::processFile(string_view filepath) {
+  auto finish = [&]() {
+    auto chrono = createChrono("ASTContext::reset()");
+    ctxt_.reset();
+    return !diagEngine_.hadAnyError(); 
+  };
+
   // Remove quotes if there's quotes around the file
   if ((filepath.front() == '"') && (filepath.back() == '"'))
     filepath = filepath.substr(1, filepath.size()-2);
@@ -109,24 +116,29 @@ bool Driver::processFile(string_view filepath) {
     assert(dv && "DiagnosticVerifier is null");
     // Return directly after finishing. We won't do BCGen or execute
     // anything in verify mode
-    return dv->finish();
+    return finish(), dv->finish();
   }
 
-  // For now, only do BCGen if we want to dump BC.
-  if (canContinue() && getDumpBCGen()) {
-    BCModule theModule;
-    BCGen generator(ctxt_, theModule);
-    generator.genUnit(unit);
+  if(!canContinue())
+    return finish();
+
+  if(!(willRun() || getDumpBCGen()))
+    return finish();
+
+  BCModule theModule;
+  BCGen generator(ctxt_, theModule);
+  generator.genUnit(unit);
+
+  if (getDumpBCGen())
     theModule.dump(out);
+  if (willRun()) {
+    VM vm(theModule);
+    // Use '!' because we want to return EXIT_SUCCESS when 
+    // the function returns nothing (0)
+    return !vm.call(theModule.getFunction(0)).raw;
   }
 
-  // Release the memory of the AST
-  {
-    auto chrono = createChrono("ASTContext::reset()");
-    ctxt_.reset();
-  }
-
-  return !diagEngine_.hadAnyError();
+  return true;
 }
 
 bool Driver::getPrintChrono() const {
@@ -177,6 +189,14 @@ void Driver::setDumpTokens(bool val) {
   dumpTokens_ = val;
 }
 
+bool Driver::willRun() const {
+  return run_;
+}
+
+void Driver::setRun(bool val) {
+  run_ = val;
+}
+
 bool Driver::isParseOnly() const {
   return parseOnly_;
 }
@@ -216,6 +236,8 @@ bool Driver::doCL(int argc, char* argv[]) {
       setDumpBCGen(true);
     else if(str == "-dump-tokens") 
       setDumpTokens(true);
+    else if(str == "-run") 
+      setRun(true);
     else {
       // TODO: Emit a diagnostic for this.
       out << "Unknown argument \"" << str << "\"\n";

@@ -100,6 +100,8 @@ Basic VM data types and their mappings to Fox types:
   -> Add support for stuff like "StringObject*" and "ArrayObject*" in Builtins
 
 ---- Getting feature-complete (with the current feature set) ----
+  -> entry point detection (basic, just the function called 'main' with a '() -> int' signature)
+  -> rewrite the driver
   -> Builtins should be able to take a "VM/VMContext&" as parameter so they can allocate objects.
      That parameter should always be first.
   -> LoadStringK instruction (use string constants)

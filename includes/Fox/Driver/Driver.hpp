@@ -20,16 +20,18 @@
 #include "Fox/Common/SourceManager.hpp"
 
 namespace fox {
+// FIXME: This driver has become spaghetti code due to the numerous reworks.
+//        rewrite it.
   class Driver {
     private:
-      // Driver-specific attributes
-      bool verify_ = false;
-      bool chrono_ = false;
-      bool dumpAlloc_ = false;
-      bool dumpAST_ = false;
-      bool dumpBCGen_ = false;
-      bool parseOnly_ = false;
-      bool dumpTokens_ = false;
+      bool verify_      = false;
+      bool chrono_      = false;
+      bool dumpAlloc_   = false;
+      bool dumpAST_     = false;
+      bool dumpBCGen_   = false;
+      bool parseOnly_   = false;
+      bool dumpTokens_  = false;
+      bool run_         = false;
 
       SourceManager srcMgr_;
       DiagnosticEngine diagEngine_;
@@ -60,6 +62,9 @@ namespace fox {
 
       bool getDumpTokens() const;
       void setDumpTokens(bool val);
+
+      bool willRun() const;
+      void setRun(bool val);
 
       bool isParseOnly() const;
       void setIsParseOnly(bool val);
