@@ -77,8 +77,8 @@ Basic VM data types and their mappings to Fox types:
       -> CallBuiltin (Done)
       -> FunctionRef (Done)
       -> LoadBuiltin instruction + callFunc handling (Done)
-    -> BCGen (Next)
-    -> VM (LoadBuiltin + callFunc update) & unit tests (Next)
+    -> BCGen (Done)
+    -> VM (LoadBuiltin + callFunc update) & unit tests (Done)
     -> Review the code I wrote for builtins
     -> Unit test for Ambiguous Builtins (check that they're all unique)
 

@@ -535,12 +535,20 @@ class BCGen::ExprGenerator : public Generator,
     visitDeclRefExpr(DeclRefExpr* expr, RegisterValue dest) { 
       ValueDecl* decl = expr->getDecl();
       // References to Functions
-      if (FuncDecl* func = dyn_cast<FuncDecl>(decl)) {
+      if (auto func = dyn_cast<FuncDecl>(decl)) {
         auto fID = static_cast<func_id_t>(bcGen.getBCFunction(func).getID());
         dest = getDestReg(std::move(dest));
         builder.createLoadFuncInstr(dest.getAddress(), fID);
         return dest;
       }
+      // References to builtins
+      if (auto builtin = dyn_cast<BuiltinFuncDecl>(decl)) {
+        auto bID = builtin->getBuiltinID();
+        dest = getDestReg(std::move(dest));
+        builder.createLoadBuiltinFuncInstr(dest.getAddress(), bID);
+        return dest;
+      }
+      assert(isa<VarDecl>(decl) && "unknown ValueDecl kind");
       // Reference to Global variables
       if(!decl->isLocal())
         fox_unimplemented_feature("Global DeclRefExpr BCGen");

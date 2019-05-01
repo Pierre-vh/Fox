@@ -32,3 +32,11 @@ func baz() {
   baz;
   // CHECK-NEXT: RetVoid
 }
+
+// CHECK:   Function 3
+func builtinCalls() {
+  // CHECK-NEXT: LoadBuiltinFunc 0 printBool
+  printBool;
+  // CHECK-NEXT: LoadBuiltinFunc 0 printInt
+  printInt;
+}
