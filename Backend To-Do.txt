@@ -75,8 +75,8 @@ Basic VM data types and their mappings to Fox types:
     -> Name Binding/Sema (Done)
     -> VM
       -> CallBuiltin (Done)
-      -> FunctionReference type : llvm::PointerUnion<BCFunction*, /*pointer embedded int for the BuiltinID*/>
-      -> LoadBuiltin instruction + callFunc handling
+      -> FunctionRef (Done)
+      -> LoadBuiltin instruction + callFunc handling (Done)
     -> BCGen (Next)
     -> VM (LoadBuiltin + callFunc update) & unit tests (Next)
     -> Review the code I wrote for builtins

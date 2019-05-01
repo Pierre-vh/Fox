@@ -80,6 +80,18 @@ namespace fox {
         Register(BCFunction* v)     : funcRef(v) {}
         Register(BuiltinID v)       : funcRef(v) {}
 
+        friend bool operator==(Register lhs, Register rhs) {
+          return lhs.raw == rhs.raw;
+        }
+
+        friend bool operator!=(Register lhs, Register rhs) {
+          return lhs.raw != rhs.raw;
+        }
+
+        explicit operator bool() const {
+          return raw;
+        }
+
         std::uint64_t raw;
         FoxInt intVal;
         FoxDouble doubleVal;
@@ -106,14 +118,13 @@ namespace fox {
       /// \returns a pointer to the register containing the return value
       /// of the executed bytecode. nullptr if there is no return value
       /// (void)
-      Register* call(BCFunction& func, 
+      /// \return the return value of the executed function.
+      Register call(BCFunction& func, 
                   MutableArrayRef<Register> args = MutableArrayRef<Register>());
 
       /// Executes a bytecode buffer \p instrs.
-      /// \returns a pointer to the register containing the return value
-      /// of the executed bytecode. nullptr if there is no return value
-      /// (void)
-      Register* run(ArrayRef<Instruction> instrs);
+      /// \return the return value of the executed instruction buffer.
+      Register run(ArrayRef<Instruction> instrs);
 
       /// \returns the program counter
       const Instruction* getPC() const;
@@ -139,7 +150,7 @@ namespace fox {
       /// \returns a pointer to the register containing the return value
       /// of the executed bytecode. nullptr if there is no return value
       /// (void)
-      Register* callFunc(regaddr_t base);
+      Register callFunc(regaddr_t base);
 
       /// Internal method to run a builtin function in the current window.
       Register callBuiltinFunc(BuiltinID id);

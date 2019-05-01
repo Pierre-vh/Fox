@@ -10,6 +10,7 @@
 #pragma once
 
 #include <cstdint>
+#include <iosfwd>
 
 namespace fox {
   /// The underlying type of the BuiltinID enum
@@ -22,4 +23,5 @@ namespace fox {
   };
 
   const char* to_string(BuiltinID id);
+  std::ostream& operator<<(std::ostream& os, BuiltinID id);
 }

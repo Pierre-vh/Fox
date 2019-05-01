@@ -31,6 +31,15 @@ const char* fox::toString(Opcode op) {
 // instruction dumps
 //----------------------------------------------------------------------------//
 
+namespace {
+  /// Because we use the unary+ to uprank uint8/int8 to a int (so it doesn't
+  /// print rubbish), we need to specify it for BuiltinID so it works with
+  /// it too.
+  BuiltinID operator+(BuiltinID id) {
+    return id;
+  }
+}
+
 void fox::dumpInstruction(std::ostream& os, Instruction instr) {
   #define SIMPLE_INSTR(ID)\
     case Opcode::ID: os << #ID; break;

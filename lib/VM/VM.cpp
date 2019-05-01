@@ -22,7 +22,7 @@ VM::VM(BCModule& theModule) : bcModule(theModule) {
   baseReg_ = regStack_.data();
 }
 
-VM::Register* VM::call(BCFunction& func, MutableArrayRef<Register> args) {
+VM::Register VM::call(BCFunction& func, MutableArrayRef<Register> args) {
   /// Copy the args into registers r0 -> rN
   if(args.size()) {
     regaddr_t k = 0;
@@ -30,7 +30,7 @@ VM::Register* VM::call(BCFunction& func, MutableArrayRef<Register> args) {
       getReg(k++) = arg;
   }
   /// Run the bytecode
-  Register* rtr = run(func.getInstructions());
+  Register rtr = run(func.getInstructions());
   /// Copy the args back if needed
   if(args.size()) {
     for (regaddr_t k = 0; k < args.size(); k++)
@@ -39,7 +39,7 @@ VM::Register* VM::call(BCFunction& func, MutableArrayRef<Register> args) {
   return rtr;
 }
 
-VM::Register* VM::run(ArrayRef<Instruction> instrs) {
+VM::Register VM::run(ArrayRef<Instruction> instrs) {
   pc_ = instrs.begin();
   Instruction instr;
   do {
@@ -237,12 +237,17 @@ VM::Register* VM::run(ArrayRef<Instruction> instrs) {
       case Opcode::RetVoid:
         return nullptr;
       case Opcode::Ret:
-        return getRegPtr(instr.Ret.reg);
+        return getReg(instr.Ret.reg);
       case Opcode::LoadFunc:
         // LoadFunc dest func : loads a reference to the function with the
         //  ID 'func' in 'dest'.
         getReg(instr.LoadFunc.dest).funcRef =
           &(bcModule.getFunction(instr.LoadFunc.func));
+        continue;
+      case Opcode::LoadBuiltinFunc:
+        // LoadBuiltinFunc dest id : loads a reference to the
+        //                           builtin 'id' in 'dest'
+        getReg(instr.LoadBuiltinFunc.dest).funcRef = instr.LoadBuiltinFunc.id;
         continue;
       case Opcode::CallVoid:
         // CallVoid base : calls a function located in 'base'.
@@ -254,10 +259,7 @@ VM::Register* VM::run(ArrayRef<Instruction> instrs) {
         // CallVoid base dest : calls a function located in 'base'
         //  Args are in subsequent registers.
         //  Stores the result in 'dest'
-        Register* result = callFunc(instr.CallVoid.base);
-        assert(result && "function returning void called with "
-          "'Call' and not 'CallVoid'");
-        getReg(instr.Call.dest) = *result;
+        getReg(instr.Call.dest) = callFunc(instr.CallVoid.base);
         continue;
       }
       default:
@@ -282,17 +284,9 @@ MutableArrayRef<VM::Register> VM::getRegisterStack() {
   return regStack_;
 }
 
-VM::Register* VM::callFunc(regaddr_t base) {
-  // Fetch a pointer to the base
+VM::Register VM::callFunc(regaddr_t base) {
   Register* basePtr = getRegPtr(base);
-  // Fetch the BCFunction
-  BCFunction* fn = basePtr->funcRef.getBCFunction();
-  assert(fn && "func is null");
-
-  ///////////////////////////////////////////////////////////////////
-  // TODO: Realloc the stack if needed ( if the func needs more regs
-  // than what's available on the regStack)
-  ///////////////////////////////////////////////////////////////////
+  FunctionRef& fnRef = basePtr->funcRef;
 
   // Backup the instrBeg and curInstr ptrs
 
@@ -305,14 +299,19 @@ VM::Register* VM::callFunc(regaddr_t base) {
   // pointer.
   auto oldPC = pc_;
 
-  // Run
-  Register* rtrReg = run(fn->getInstructions());
+  Register rtr;
+  if(fnRef.isBCFunction()) 
+    rtr = run(fnRef.getBCFunction()->getInstructions());
+  else if(fnRef.isBuiltinID()) 
+    rtr = callBuiltinFunc(fnRef.getBuiltinID());
+  else 
+    fox_unreachable("unknown FunctionRef kind");
 
   // Restore the window and pc pointers
   baseReg_ = previousBase;
   pc_ = oldPC;
 
-  return rtrReg;
+  return rtr;
 }
 
 namespace {

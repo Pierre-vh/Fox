@@ -238,6 +238,7 @@ TEST(BCModuleTest, dump) {
     builder.createRetVoidInstr();
     builder.createNoOpInstr();
     builder.createRetVoidInstr();
+    builder.createLoadBuiltinFuncInstr(0, BuiltinID::printBool);
   };
   // Add a function to trigger a more detailed dump
   createFn();
@@ -253,6 +254,7 @@ TEST(BCModuleTest, dump) {
       "    0\t| RetVoid\n"
       "    1\t| NoOp\n"
       "    2\t| RetVoid\n"
+      "    3\t| LoadBuiltinFunc 0 printBool\n"
     );
   }
   // Create a few more functions
@@ -291,16 +293,19 @@ TEST(BCModuleTest, dump) {
       "    0\t| RetVoid\n"
       "    1\t| NoOp\n"
       "    2\t| RetVoid\n"
+      "    3\t| LoadBuiltinFunc 0 printBool\n"
       "\n"
       "Function 1\n"
       "    0\t| RetVoid\n"
       "    1\t| NoOp\n"
       "    2\t| RetVoid\n"
+      "    3\t| LoadBuiltinFunc 0 printBool\n"
       "\n"
       "Function 2\n"
       "    0\t| RetVoid\n"
       "    1\t| NoOp\n"
       "    2\t| RetVoid\n"
+      "    3\t| LoadBuiltinFunc 0 printBool\n"
     );
   }
 }

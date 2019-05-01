@@ -457,7 +457,7 @@ TEST_F(VMTest, RetRetVoid) {
   BCFunction& f1 = theModule.createFunction();
   f1.createBCBuilder().createRetVoidInstr();
   VM vm(theModule);
-  EXPECT_EQ(vm.call(f1), nullptr) << "RetVoid returned something non-null";
+  EXPECT_EQ(vm.call(f1), VM::Register()) << "RetVoid returned something non-null";
   // f2 = stores something in r1 and and returns 
   // the value in r1
   BCFunction& f2 = theModule.createFunction();
@@ -466,11 +466,10 @@ TEST_F(VMTest, RetRetVoid) {
     builder.createStoreSmallIntInstr(1, 526);
     builder.createRetInstr(1);
   }
-  // Compare pointers and values
-  auto retptr = vm.call(f2);
+  // Compare values
+  auto ret = vm.call(f2);
   auto regstack = vm.getRegisterStack();
-  ASSERT_EQ(retptr, regstack.data()+1);
-  EXPECT_EQ(retptr->intVal, 526);
+  EXPECT_EQ(ret.intVal, 526);
 }
 
 TEST_F(VMTest, runFuncWithArgs) {
@@ -492,10 +491,9 @@ TEST_F(VMTest, runFuncWithArgs) {
   FoxInt a1 = 0;
   FoxInt a2 = 5;
   Register args[3] = {a0, a1, a2};
-  Register* result = vm.call(fn, args);
+  Register result = vm.call(fn, args);
   // Check that the call went as expected
-  ASSERT_NE(result, nullptr) << "result is null";
-  EXPECT_EQ(result->intVal, a2);
+  EXPECT_EQ(result.intVal, a2);
   EXPECT_EQ(args[0].intVal, a1 + a2);
   EXPECT_EQ(args[1].intVal, a1 + a2);
 }
@@ -514,6 +512,22 @@ TEST_F(VMTest, loadFunc) {
   };
   // Check that the function was loaded correctly
   EXPECT_EQ(getReg(0), &fn);
+}
+
+TEST_F(VMTest, loadBuiltinFunc) {
+  BCFunction& fn = theModule.createFunction();
+  BCBuilder builder = fn.createBCBuilder();
+  ASSERT_EQ(fn.getID(), 0u);
+  builder.createLoadBuiltinFuncInstr(0, BuiltinID::printBool);
+  builder.createRetVoidInstr();
+  VM vm(theModule);
+  vm.call(fn);
+  // Helper to get a register's value as a BuiltinID
+  auto getReg = [&](std::size_t idx) {
+    return vm.getRegisterStack()[idx].funcRef.getBuiltinID();
+  };
+  // Check that the builtin was loaded correctly
+  EXPECT_EQ(getReg(0), BuiltinID::printBool);
 }
 
 TEST_F(VMTest, call) {

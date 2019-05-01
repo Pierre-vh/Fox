@@ -25,6 +25,10 @@ const char* fox::to_string(BuiltinID id) {
   }
 }
 
+std::ostream& fox::operator<<(std::ostream& os, BuiltinID id) {
+  return os << to_string(id);
+}
+
 //----------------------------------------------------------------------------//
 // Builtins
 //----------------------------------------------------------------------------//

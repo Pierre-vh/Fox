@@ -114,6 +114,8 @@ UNARY_INSTR(Ret, reg, regaddr_t)
 
 // Stores a reference to a function 'func' in register 'dest'
 BINARY_INSTR(LoadFunc, dest, regaddr_t, func, func_id_t)
+// Stores a reference to a builtin function in register 'dest'
+BINARY_INSTR(LoadBuiltinFunc, dest, regaddr_t, id, BuiltinID)
 // Calls a function in register 'base' and places the return value in 'dest'
 BINARY_INSTR(Call, base, regaddr_t, dest, regaddr_t) 
 // Calls a function in register 'base' and discards the return value
