@@ -1,22 +1,25 @@
 //----------------------------------------------------------------------------//
 // Part of the Fox project, licensed under the MIT license.
 // See LICENSE.txt in the project root for license information.     
-// File : Builtins.hpp                      
+// File : BuiltinID.hpp                      
 // Author : Pierre van Houtryve                
 //----------------------------------------------------------------------------//
-// This file contains the builtin functions of Fox.
+// This file contains the BuiltinID enum.
 //----------------------------------------------------------------------------//
 
 #pragma once
 
-#include "FoxTypes.hpp"
+#include <cstdint>
 
 namespace fox {
-  namespace builtin {
-    /// Prints an integer to stdout
-    void printInt(FoxInt value);
+  /// The underlying type of the BuiltinID enum
+  using builtin_id_t = std::uint8_t;
 
-    /// Prints a boolean to stdout
-    void printBool(bool value);
-  }
+  /// Enumeration representing every kind of builtin
+  enum class BuiltinID : builtin_id_t {
+    #define BUILTIN(FUNC, ID) FUNC,
+    #include "Builtins.def"
+  };
+
+  const char* to_string(BuiltinID id);
 }

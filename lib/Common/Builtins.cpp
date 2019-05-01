@@ -6,10 +6,15 @@
 //----------------------------------------------------------------------------//
 
 #include "Fox/Common/Builtins.hpp"
+#include "Fox/Common/BuiltinID.hpp"
 #include "Fox/Common/Errors.hpp"
 #include <iostream>
 
 using namespace fox;
+
+//----------------------------------------------------------------------------//
+// BuiltinID
+//----------------------------------------------------------------------------//
 
 const char* fox::to_string(BuiltinID id) {
   switch (id) {
@@ -21,7 +26,7 @@ const char* fox::to_string(BuiltinID id) {
 }
 
 //----------------------------------------------------------------------------//
-// Builtin implementations
+// Builtins
 //----------------------------------------------------------------------------//
 
 void builtin::printInt(FoxInt value) {

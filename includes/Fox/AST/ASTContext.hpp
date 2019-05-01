@@ -11,7 +11,7 @@
 
 #include "Identifier.hpp"
 #include "ASTFwdDecl.hpp"
-#include "Fox/Common/Builtins.hpp"
+#include "Fox/Common/BuiltinID.hpp"
 #include "Fox/Common/LLVM.hpp"
 #include "Fox/Common/LinearAllocator.hpp"
 #include "Fox/Common/string_view.hpp"

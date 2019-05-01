@@ -10,6 +10,7 @@
 #include "Fox/BC/BCModule.hpp"
 #include "Fox/BC/BCFunction.hpp"
 #include "Fox/Common/Errors.hpp"
+#include "Fox/Common/Builtins.hpp"
 #include <cmath>
 #include <iterator>
 

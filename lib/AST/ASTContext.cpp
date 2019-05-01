@@ -8,6 +8,7 @@
 #include "Fox/AST/ASTContext.hpp"
 #include "Fox/AST/Decl.hpp"
 #include "Fox/AST/Types.hpp"
+#include "Fox/Common/Builtins.hpp"
 #include <cstring>
 
 using namespace fox;

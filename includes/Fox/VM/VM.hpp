@@ -11,7 +11,7 @@
 #pragma once
 
 #include "Fox/BC/BCUtils.hpp"
-#include "Fox/Common/Builtins.hpp"
+#include "Fox/Common/BuiltinID.hpp"
 #include "Fox/Common/FoxTypes.hpp"
 #include "Fox/Common/LLVM.hpp"
 #include "llvm/ADT/ArrayRef.h"

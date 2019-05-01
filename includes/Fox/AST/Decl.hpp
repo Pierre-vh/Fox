@@ -13,7 +13,7 @@
 #include "ASTAligns.hpp"
 #include "Type.hpp"
 #include "Identifier.hpp"
-#include "Fox/Common/Builtins.hpp"
+#include "Fox/Common/BuiltinID.hpp"
 #include "llvm/Support/TrailingObjects.h"
 #include "llvm/ADT/ArrayRef.h"
 #include "llvm/ADT/PointerUnion.h"
