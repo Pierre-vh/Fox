@@ -234,6 +234,10 @@ bool TypeBase::isNumeric() const {
   return false;
 }
 
+bool TypeBase::isPrimitive() const {
+  return toPrimitiveType(this);
+}
+
 bool TypeBase::isNumericOrBool() const {
   if (auto prim = toPrimitiveType(this))
     return prim->is(PrimitiveType::Kind::IntTy)

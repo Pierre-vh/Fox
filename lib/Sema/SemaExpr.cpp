@@ -852,9 +852,8 @@ class Sema::ExprChecker : Checker, ExprVisitor<ExprChecker, Expr*>,  ASTWalker {
       // For ranking comparisons, only allow primitive types except booleans
       // as operands.
       if (expr->isRankingComparison()) {
-        // Check if both lhs and rhs obey this condition
-        bool lhsOk = (lhsTy->is<PrimitiveType>() && !lhsTy->isBoolType());
-        bool rhsOk = (rhsTy->is<PrimitiveType>() && !rhsTy->isBoolType());
+        bool lhsOk = (lhsTy->isPrimitive() && !lhsTy->isBoolType());
+        bool rhsOk = (rhsTy->isPrimitive() && !rhsTy->isBoolType());
         if(!(lhsOk && rhsOk)) {
           diagnoseInvalidBinaryExpr(expr);
           return expr;

@@ -97,6 +97,9 @@ namespace fox {
       /// 'double' type. Ignores LValues.
       bool isNumeric() const;
 
+      /// \returns true if this type is any primitive type. Ignores LValues.
+      bool isPrimitive() const;
+
       /// \returns true if this type is either the primitive 'int', 
       /// 'double' or 'bool' type. Ignores LValues.
       bool isNumericOrBool() const;

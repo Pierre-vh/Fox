@@ -5,7 +5,7 @@ func intBinOps() {
   // CHECK-NEXT:  StoreSmallInt 0 0
   let a : int = 0;
   // CHECK-NEXT:  StoreSmallInt 1 0
-  let b : int = 0;
+  var b : int = 0;
   // CHECK-NEXT:  AddInt 2 0 1
   a+b;
   // CHECK-NEXT:  SubInt 2 0 1
