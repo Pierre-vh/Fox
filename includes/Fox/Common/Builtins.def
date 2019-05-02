@@ -16,9 +16,10 @@
 
 //----------------------------------------------------------------------------//
 
-BUILTIN(printInt,   printInt)
-BUILTIN(printBool,  printBool)
-BUILTIN(printChar,  printChar)
+BUILTIN(printInt,     printInt)
+BUILTIN(printBool,    printBool)
+BUILTIN(printChar,    printChar)
+BUILTIN(printDouble,  printDouble)
 
 //----------------------------------------------------------------------------//
 

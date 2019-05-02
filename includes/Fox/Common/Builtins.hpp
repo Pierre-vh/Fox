@@ -21,5 +21,8 @@ namespace fox {
 
     /// Prints a character to stdout
     void printChar(FoxChar ch);
+
+    /// Prints a double to stdout
+    void printDouble(FoxDouble value);
   }
 }

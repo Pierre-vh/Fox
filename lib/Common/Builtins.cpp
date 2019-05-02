@@ -49,3 +49,8 @@ void builtin::printChar(FoxChar ch) {
   std::cout << dest;
 }
 
+void builtin::printDouble(FoxDouble value) {
+  std::cout << value;
+}
+
+
