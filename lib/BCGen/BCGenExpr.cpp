@@ -205,8 +205,8 @@ class BCGen::ExprGenerator : public Generator,
 
     // Generates the adequate instruction(s) to perform a binary
     // operation on doubles
-    void emitDoubleBinaryExpr(BinOp op, regaddr_t dst, regaddr_t lhs, 
-                                                       regaddr_t rhs) {
+    void 
+    emitDoubleBinOp(BinOp op, regaddr_t dst, regaddr_t lhs, regaddr_t rhs) {
       assert((lhs != rhs) && "lhs and rhs are identical");
       // Emit
       switch (op) {
@@ -261,8 +261,7 @@ class BCGen::ExprGenerator : public Generator,
     // operation on integers.
     // This is used to generate operations involving chars, 
     // booleans and ints.
-    void emitIntBinOp(BinOp op, regaddr_t dst, 
-                                  regaddr_t lhs, regaddr_t rhs) {
+    void emitIntBinOp(BinOp op, regaddr_t dst, regaddr_t lhs, regaddr_t rhs) {
       assert((lhs != rhs) && "lhs and rhs are identical");
       // Emit
       switch (op) {
@@ -352,7 +351,7 @@ class BCGen::ExprGenerator : public Generator,
       else if (expr->getLHS()->getType()->isDoubleType()) {
         assert(expr->getRHS()->getType()->isDoubleType()
           && "Inconsistent Operands");
-        emitDoubleBinaryExpr(expr->getOp(), dstAddr, lhsAddr, rhsAddr);
+        emitDoubleBinOp(expr->getOp(), dstAddr, lhsAddr, rhsAddr);
       }
       else 
         fox_unreachable("unhandled situation : operands are "
