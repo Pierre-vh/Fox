@@ -1,0 +1,22 @@
+// RUN: %fox-run
+
+func main() {
+  test('\n' == '\n');
+  test(33333.33333 < 33333.333333);
+  test(3 < 6);
+  test(true == false);
+  test(0.0000001 != 0.0001);
+}
+
+func test(value: bool) {
+  printChar('#');
+  printBool(value);
+  printChar('#');
+  printChar('\n');
+}
+
+// CHECK:       #true#
+// CHECK-NEXT:  #false#
+// CHECK-NEXT:  #true#
+// CHECK-NEXT:  #false#
+// CHECK-NEXT:  #true#
