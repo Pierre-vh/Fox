@@ -127,16 +127,20 @@ class BCGen::ExprGenerator : public Generator,
     // some common patterns used in this generator.
     //------------------------------------------------------------------------//
 
-    // Returns true if the type is an integer or a boolean
-    bool isIntOrBool(Type type) {
-      return (type->isIntType() || type->isBoolType());
-    }
-
-    // Returns true if this binary expression's operand are
-    // both integers or booleans.
-    bool areOperandsIntOrBools(BinaryExpr* expr) {
-      if (isIntOrBool(expr->getLHS()->getType())) {
-        assert(isIntOrBool(expr->getRHS()->getType()) && "Inconsistent types");
+    /// \returns true if \p expr can be generated using a "XXXInt" instruction
+    /// such as AddInt, SubInt, etc.
+    /// This is true if both operands are of Int, Bool or Char type.
+    bool canGenToIntBinop(BinaryExpr* expr) {
+      auto check = [](Expr* expr) {
+        Type type = expr->getType();
+        assert(type && "type is null");
+        return type->isIntType() 
+            || type->isBoolType()
+            || type->isCharType();
+      };
+      if (check(expr->getLHS())) {
+        assert(check(expr->getRHS()) 
+          && "Inconsistent types");
         return true;
       }
       return false;
@@ -145,8 +149,7 @@ class BCGen::ExprGenerator : public Generator,
     /// Chooses a destination register for a function: uses dest if valid,
     /// else allocates a new temporary.
     RegisterValue getDestReg(RegisterValue dest) {
-      if(dest) 
-        return dest;
+      if(dest) return dest;
       return regAlloc.allocateTemporary();
     }
 
@@ -255,8 +258,10 @@ class BCGen::ExprGenerator : public Generator,
     }
 
     // Generates the adequate instruction(s) to perform a binary
-    // operation on integers or booleans.
-    void emitIntegerOrBoolBinaryOp(BinOp op, regaddr_t dst, 
+    // operation on integers.
+    // This is used to generate operations involving chars, 
+    // booleans and ints.
+    void emitIntBinOp(BinOp op, regaddr_t dst, 
                                   regaddr_t lhs, regaddr_t rhs) {
       assert((lhs != rhs) && "lhs and rhs are identical");
       // Emit
@@ -323,8 +328,6 @@ class BCGen::ExprGenerator : public Generator,
     RegisterValue genNumericOrBoolBinaryExpr(BinaryExpr* expr, 
                                              RegisterValue dest) {
       assert((expr->getType()->isNumericOrBool()));
-      assert((expr->getLHS()->getType()->isNumericOrBool())
-          && (expr->getRHS()->getType()->isNumericOrBool()));
       
       // Gen the LHS
       RegisterValue lhsReg = visit(expr->getLHS());
@@ -341,18 +344,15 @@ class BCGen::ExprGenerator : public Generator,
       regaddr_t dstAddr = dstReg.getAddress();
 
       // Dispatch to the appropriate generator function
-      Type lhsType = expr->getLHS()->getType();
+
+      // Integer or Boolean expressions
+      if (canGenToIntBinop(expr))
+        emitIntBinOp(expr->getOp(), dstAddr, lhsAddr, rhsAddr);
       // Double operands
-      if (lhsType->isDoubleType()) {
+      else if (expr->getLHS()->getType()->isDoubleType()) {
         assert(expr->getRHS()->getType()->isDoubleType()
           && "Inconsistent Operands");
         emitDoubleBinaryExpr(expr->getOp(), dstAddr, lhsAddr, rhsAddr);
-      }
-      // Integer or Boolean expressions
-      else if (isIntOrBool(lhsType)) {
-        assert(isIntOrBool(expr->getRHS()->getType())
-          && "Inconsistent Operands");
-        emitIntegerOrBoolBinaryOp(expr->getOp(), dstAddr, lhsAddr, rhsAddr);
       }
       else 
         fox_unreachable("unhandled situation : operands are "
