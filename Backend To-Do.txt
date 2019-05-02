@@ -79,8 +79,8 @@ Basic VM data types and their mappings to Fox types:
       -> LoadBuiltin instruction + callFunc handling (Done)
     -> BCGen (Done)
     -> VM (LoadBuiltin + callFunc update) & unit tests (Done)
-    -> Review the code I wrote for builtins
-    -> Unit test for Ambiguous Builtins (check that they're all unique)
+    -> Review the code I wrote for builtins (Done)
+    -> Unit test for Ambiguous Builtins (Done)
 
 ---- Implementation of Object types ----
   Note: At first, objects won't be freed. I'll use a leak-forever allocator (LinearAllocator).

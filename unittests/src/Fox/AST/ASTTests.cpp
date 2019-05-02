@@ -542,9 +542,9 @@ TEST_F(ASTTest, functionTypesUniqueness) {
             FunctionType::get(ctxt, {p2}, voidTy));
 }
 
-class BuiltinsTest : public ::testing::Test {
+class ASTBuiltinsTest : public ::testing::Test {
   public:
-    BuiltinsTest() : diags(srcMgr, std::cout), ctxt(srcMgr, diags) {}
+    ASTBuiltinsTest() : diags(srcMgr, std::cout), ctxt(srcMgr, diags) {}
 
     SourceManager srcMgr;
     DiagnosticEngine diags;
@@ -552,7 +552,7 @@ class BuiltinsTest : public ::testing::Test {
 
 };
 
-TEST_F(BuiltinsTest, getTypeOfBuiltinTest) {
+TEST_F(ASTBuiltinsTest, getTypeOfBuiltinTest) {
   Type printIntTy = ctxt.getTypeOfBuiltin(BuiltinID::printInt);
   Type printBoolTy = ctxt.getTypeOfBuiltin(BuiltinID::printBool);
 
@@ -561,7 +561,7 @@ TEST_F(BuiltinsTest, getTypeOfBuiltinTest) {
   EXPECT_EQ(printBoolTy->toDebugString(), "(bool) -> void");
 }
 
-TEST_F(BuiltinsTest, builtinIdentifier) {
+TEST_F(ASTBuiltinsTest, builtinIdentifier) {
   EXPECT_EQ(ctxt.getIdentifier(BuiltinID::printBool).getStr(), 
             "printBool");
   EXPECT_EQ(ctxt.getIdentifier(BuiltinID::printBool),
@@ -573,7 +573,7 @@ TEST_F(BuiltinsTest, builtinIdentifier) {
             ctxt.getIdentifier(BuiltinID::printInt));
 }
 
-TEST_F(BuiltinsTest, builtinLookup) {
+TEST_F(ASTBuiltinsTest, builtinLookup) {
   auto printBool = ctxt.getIdentifier(BuiltinID::printBool);
   auto printInt = ctxt.getIdentifier(BuiltinID::printInt);
   {
@@ -589,5 +589,40 @@ TEST_F(BuiltinsTest, builtinLookup) {
     ASSERT_EQ(results.size(), 1u) 
       << "Incorrect number of results for " << printInt.getStr();
     EXPECT_EQ(results.front(), BuiltinFuncDecl::get(ctxt, BuiltinID::printInt));
+  }
+}
+
+namespace {
+  std::string 
+  dumpAmbiguousBuiltinErr(
+    const SmallVectorImpl<std::pair<string_view, Type>>& pairs
+  ) {
+    std::stringstream ss;
+    ss << "{\n";
+    for (auto pair : pairs)
+      ss << '\'' << pair.first << "' -> '"
+         << pair.second->toDebugString() << "'\n";
+    ss << "}\n";
+    return ss.str();
+  }
+}
+
+TEST_F(ASTBuiltinsTest, unambiguousBuiltins) {
+  // Tests that builtin functions identifiers are not ambiguous
+  std::unordered_map<
+    string_view, 
+    SmallVector<std::pair<string_view, Type>, 2>
+  > buitlins;
+  #define BUILTIN(FUNC, FOX)\
+    buitlins[#FOX].push_back({#FUNC, ctxt.getTypeOfBuiltin(BuiltinID::FUNC)});
+  #include "Fox/Common/Builtins.def"
+  // For now, simply check that every vector in the array has a size of one.
+  for (auto builtin : buitlins) {
+    ASSERT_GT(builtin.second.size(), 0u) 
+      << "Builtin '" << builtin.first 
+      << "' doesn't have a function associated with it?";
+    EXPECT_EQ(builtin.second.size(), 1u)
+      << "Builtins with identifier '" << builtin.first 
+      << "' are ambiguous: " << dumpAmbiguousBuiltinErr(builtin.second);
   }
 }
