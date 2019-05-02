@@ -1,0 +1,10 @@
+﻿// RUN: %fox-run
+
+func foo() {
+  printInt(42);
+  printBool(true);
+  printChar('善');
+  printDouble(-333.333333333);
+}
+
+// CHECK: 42true善-333.333333333
