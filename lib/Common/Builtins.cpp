@@ -8,6 +8,7 @@
 #include "Fox/Common/Builtins.hpp"
 #include "Fox/Common/BuiltinID.hpp"
 #include "Fox/Common/Errors.hpp"
+#include "Fox/Common/UTF8.hpp"
 #include <iostream>
 
 using namespace fox;
@@ -39,5 +40,12 @@ void builtin::printInt(FoxInt value) {
 
 void builtin::printBool(bool value) {
   std::cout << (value ? "true" : "false");
+}
+
+void builtin::printChar(FoxChar ch) {
+  // FIXME: This isn't very efficient
+  std::string dest;
+  appendFoxChar(ch, dest);
+  std::cout << dest;
 }
 

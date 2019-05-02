@@ -18,5 +18,8 @@ namespace fox {
 
     /// Prints a boolean to stdout
     void printBool(bool value);
+
+    /// Prints a character to stdout
+    void printChar(FoxChar ch);
   }
 }
