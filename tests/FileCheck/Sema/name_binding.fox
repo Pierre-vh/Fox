@@ -30,6 +30,8 @@ func foo(a : char, mutParam : mut [string]) {
   some_func_before;
   // CHECK-NEXT: DeclRefExpr '([bool], string) -> void' another_func_after
   another_func_after;
+  // CHECK-NEXT: DeclRefExpr '(int) -> void' printInt {{.*}} (Builtin 'printInt')
+  printInt;
 }
 
 // CHECK: VarDecl {{0x([[:alnum:]]{8,16}) .*}} let c '[double]'
