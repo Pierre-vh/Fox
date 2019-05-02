@@ -12,6 +12,7 @@
 #include "Fox/Common/Errors.hpp"
 #include "Fox/Common/Builtins.hpp"
 #include <cmath>
+#include <type_traits>
 #include <iterator>
 
 using namespace fox;
@@ -315,48 +316,82 @@ VM::Register VM::callFunc(regaddr_t base) {
 }
 
 namespace {
-  /// Utility class used to convert a given type to a VM::Register or
-  /// a VM::Register to a given type, while only allowing a restricted 
-  /// set of types.
+  /// Utility class used to perform conversions betwween a VM::Register
+  /// and another type.
   template<typename Ty>
   struct RegCast {
-    static Ty from_reg(const VM::Register&) {
+    static Ty regToType(VM::Register) {
       static_assert(false, "This type is not supported by the Fox FFI!");
     }
 
-    static VM::Register to_reg(const Ty&) {
+    static VM::Register typeToReg(Ty) {
       static_assert(false, "This type is not supported by the Fox FFI!");
     }
   };
 
   #define REG_CONVERT(TYPE, FROM_EXPR, TO_EXPR)\
   template<> struct RegCast<TYPE>\
-    { static TYPE from_reg(const VM::Register& reg) { return FROM_EXPR; } \
-      static VM::Register to_reg(const TYPE& value) { return TO_EXPR; } }
+    { static TYPE regToType(VM::Register reg) { return FROM_EXPR; } \
+      static VM::Register typeToReg(TYPE value) { return TO_EXPR; } }
   REG_CONVERT(FoxInt    , reg.intVal     , value);
   REG_CONVERT(FoxDouble , reg.doubleVal  , value);
   REG_CONVERT(bool      , reg.raw        , std::uint64_t(value));
   REG_CONVERT(FoxChar   , reg.raw        , std::uint64_t(value));
   #undef REG_CONVERT
 
+  /// Calls RegCast::from_reg on base[index of arg];
+  template<typename Ty, std::size_t index>
+  auto castArg(VM::Register* base) {
+    return RegCast<Ty>::regToType(base[index]);
+  }
+
+  /// Helper that performs the actual function call
+  template <typename Rtr, typename ... Args, std::size_t ... N>
+  auto doBuiltinCallImpl(std::index_sequence<N...>, 
+                         Rtr(*fn)(Args...), VM::Register* base) {
+    return fn(castArg<Args, N>(base)...);
+  }
+
+  //--------------------------------------------------------------------------//
+  // doBuiltinCall overloads
+  //--------------------------------------------------------------------------//
+
+  /// Calls a builtin that takes arguments and returns something
   template<typename Rtr, typename ... Args>
-  VM::Register callBuiltinImpl(VM::Register* args, Rtr(*fn)(Args...)) {
-    auto rtr = fn(RegCast<Args>::template from_reg<Args>(*(args++))...);
+  VM::Register doBuiltinCall(VM::Register* base, Rtr(*fn)(Args...)) {
+    // Perform the call: we need to have an index sequence to subscript
+    // the base pointer appropriately.
+    auto rtr = doBuiltinCallImpl(
+          std::make_index_sequence<sizeof...(Args)>(),
+          fn,
+          base
+        );
+    // Cast the return value to a VM::Reg
     return RegCast<Rtr>::template from_reg(rtr);
   }
 
+  /// Calls a builtin that takes arguments but doesn't return anything
   template<typename ... Args>
-  VM::Register callBuiltinImpl(VM::Register* args, void(*fn)(Args...)) {
-    fn(RegCast<Args>::template from_reg(*(args++))...);
+  VM::Register doBuiltinCall(VM::Register* base, void(*fn)(Args...)) {
+    doBuiltinCallImpl(
+      std::make_index_sequence<sizeof...(Args)>(),
+      fn, 
+      base
+    );
+    // Simply returns null register for void function calls
     return VM::Register();
   }
 
+  /// Calls a simple builtin that doesn't take any argument and
+  /// just returns a value
   template<typename Rtr>
-  VM::Register callBuiltinImpl(VM::Register*, Rtr(*fn)()) {
+  VM::Register doBuiltinCall(VM::Register*, Rtr(*fn)()) {
     return RegCast<Rtr>::template from_reg(fn());
   }
 
-  VM::Register callBuiltinImpl(VM::Register*, void(*fn)()) {
+  /// Calls a simple builtin that doesn't take any argument and does not
+  /// return anything.
+  VM::Register doBuiltinCall(VM::Register*, void(*fn)()) {
     fn();
     return VM::Register();
   }
@@ -366,7 +401,7 @@ VM::Register VM::callBuiltinFunc(BuiltinID id) {
   switch (id) {
     #define BUILTIN(FUNC, FOX)\
       case BuiltinID::FUNC:   \
-        return callBuiltinImpl(getRegPtr(0), builtin::FUNC);
+        return doBuiltinCall(getRegPtr(0), builtin::FUNC);
     #include "Fox/Common/Builtins.def"
     default:
       fox_unreachable("Unknown BuiltinID");
