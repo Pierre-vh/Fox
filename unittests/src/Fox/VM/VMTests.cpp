@@ -490,7 +490,7 @@ TEST_F(VMTest, runFuncWithArgs) {
   FoxInt a0 = -5;
   FoxInt a1 = 0;
   FoxInt a2 = 5;
-  Register args[3] = {a0, a1, a2};
+  Register args[3] = {Register(a0), Register(a1), Register(a2)};
   Register result = vm.call(fn, args);
   // Check that the call went as expected
   EXPECT_EQ(result.intVal, a2);

@@ -73,12 +73,12 @@ namespace fox {
       /// Untagged union representing a single register value.
       /// This is exactly 8 bytes (64 Bits) in size.
       union Register {
-        Register()                  : raw(0) {}
-        Register(std::uint64_t raw) : raw(raw) {}
-        Register(FoxInt v)          : intVal(v) {}
-        Register(FoxDouble v)       : doubleVal(v) {}
-        Register(BCFunction* v)     : funcRef(v) {}
-        Register(BuiltinID v)       : funcRef(v) {}
+        Register()                           : raw(0) {}
+        explicit Register(std::uint64_t raw) : raw(raw) {}
+        explicit Register(FoxInt v)          : intVal(v) {}
+        explicit Register(FoxDouble v)       : doubleVal(v) {}
+        explicit Register(BCFunction* v)     : funcRef(v) {}
+        explicit Register(BuiltinID v)       : funcRef(v) {}
 
         friend bool operator==(Register lhs, Register rhs) {
           return lhs.raw == rhs.raw;

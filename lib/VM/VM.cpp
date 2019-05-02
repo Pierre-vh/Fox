@@ -236,7 +236,7 @@ VM::Register VM::run(ArrayRef<Instruction> instrs) {
           bcModule.getDoubleConstant(instr.LoadDoubleK.kID);
         continue;
       case Opcode::RetVoid:
-        return nullptr;
+        return VM::Register();
       case Opcode::Ret:
         return getReg(instr.Ret.reg);
       case Opcode::LoadFunc:
@@ -329,10 +329,15 @@ namespace {
     }
   };
 
-  #define REG_CONVERT(TYPE, FROM_EXPR, TO_EXPR)\
-  template<> struct RegCast<TYPE>\
-    { static TYPE regToType(VM::Register reg) { return FROM_EXPR; } \
-      static VM::Register typeToReg(TYPE value) { return TO_EXPR; } }
+  #define REG_CONVERT(TYPE, FROM_EXPR, TO_EXPR)                                   \
+  template<> struct RegCast<TYPE>                                                 \
+    {                                                                             \
+      static TYPE regToType(VM::Register reg)                                     \
+              { return FROM_EXPR; }                                               \
+      static VM::Register typeToReg(TYPE value)                                   \
+             { return VM::Register(TO_EXPR); }                                    \
+    }
+
   REG_CONVERT(FoxInt    , reg.intVal     , value);
   REG_CONVERT(FoxDouble , reg.doubleVal  , value);
   REG_CONVERT(bool      , reg.raw        , std::uint64_t(value));
