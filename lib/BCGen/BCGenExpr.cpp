@@ -548,7 +548,8 @@ class BCGen::ExprGenerator : public Generator,
         builder.createLoadBuiltinFuncInstr(dest.getAddress(), bID);
         return dest;
       }
-      assert(isa<VarDecl>(decl) && "unknown ValueDecl kind");
+      assert((isa<VarDecl>(decl) || isa<ParamDecl>(decl))
+        && "unknown ValueDecl kind");
       // Reference to Global variables
       if(!decl->isLocal())
         fox_unimplemented_feature("Global DeclRefExpr BCGen");
