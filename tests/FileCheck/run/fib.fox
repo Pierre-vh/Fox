@@ -1,0 +1,36 @@
+// RUN: %fox-run
+
+func foo() {
+  fib(16);
+}
+
+func fib(n: int) {
+  var prevPrev : int;
+  var prev : int;
+  var cur : int = 1;
+  var k : int = 1;
+  while(k < n) {
+    prevPrev = prev;
+    prev = cur;
+    cur = prevPrev + prev;
+    k = k+1;
+    printInt(cur);
+    printChar('\n');
+  }
+}
+
+// CHECK:       1
+// CHECK-NEXT:  2
+// CHECK-NEXT:  3
+// CHECK-NEXT:  5
+// CHECK-NEXT:  8
+// CHECK-NEXT:  13
+// CHECK-NEXT:  21
+// CHECK-NEXT:  34
+// CHECK-NEXT:  55
+// CHECK-NEXT:  89
+// CHECK-NEXT:  144
+// CHECK-NEXT:  233
+// CHECK-NEXT:  377
+// CHECK-NEXT:  610
+// CHECK-NEXT:  987
