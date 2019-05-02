@@ -344,17 +344,29 @@ namespace {
   REG_CONVERT(FoxChar   , reg.raw        , std::uint64_t(value));
   #undef REG_CONVERT
 
-  /// Calls RegCast::from_reg on base[index of arg];
   template<typename Ty, std::size_t index>
-  auto castArg(VM::Register* base) {
-    return RegCast<Ty>::regToType(base[index]);
-  }
+  struct ArgCaster {
+    /// Calls RegCast::from_reg on base[index of arg];
+    static Ty cast(VM&, VM::Register* base) {
+      return RegCast<Ty>::regToType(base[index]);
+    }
+  };
+
+
+  template<std::size_t index>
+  struct ArgCaster<VM&, index> {
+    /// Just returns the VM instance
+    static VM& cast(VM& vm, VM::Register*) {
+      return vm;
+    }
+  };
+
 
   /// Helper that performs the actual function call
   template <typename Rtr, typename ... Args, std::size_t ... N>
-  auto doBuiltinCallImpl(std::index_sequence<N...>, 
+  auto doBuiltinCallImpl(VM& vm, std::index_sequence<N...>, 
                          Rtr(*fn)(Args...), VM::Register* base) {
-    return fn(castArg<Args, N>(base)...);
+    return fn(ArgCaster<Args, N>::cast(vm, base)...);
   }
 
   //--------------------------------------------------------------------------//
@@ -363,10 +375,11 @@ namespace {
 
   /// Calls a builtin that takes arguments and returns something
   template<typename Rtr, typename ... Args>
-  VM::Register doBuiltinCall(VM::Register* base, Rtr(*fn)(Args...)) {
+  VM::Register doBuiltinCall(VM& vm, VM::Register* base, Rtr(*fn)(Args...)) {
     // Perform the call: we need to have an index sequence to subscript
     // the base pointer appropriately.
     auto rtr = doBuiltinCallImpl(
+          vm,
           std::make_index_sequence<sizeof...(Args)>(),
           fn,
           base
@@ -377,8 +390,9 @@ namespace {
 
   /// Calls a builtin that takes arguments but doesn't return anything
   template<typename ... Args>
-  VM::Register doBuiltinCall(VM::Register* base, void(*fn)(Args...)) {
+  VM::Register doBuiltinCall(VM& vm, VM::Register* base, void(*fn)(Args...)) {
     doBuiltinCallImpl(
+      vm,
       std::make_index_sequence<sizeof...(Args)>(),
       fn, 
       base
@@ -390,13 +404,13 @@ namespace {
   /// Calls a simple builtin that doesn't take any argument and
   /// just returns a value
   template<typename Rtr>
-  VM::Register doBuiltinCall(VM::Register*, Rtr(*fn)()) {
+  VM::Register doBuiltinCall(VM&, VM::Register*, Rtr(*fn)()) {
     return RegCast<Rtr>::template from_reg(fn());
   }
 
   /// Calls a simple builtin that doesn't take any argument and does not
   /// return anything.
-  VM::Register doBuiltinCall(VM::Register*, void(*fn)()) {
+  VM::Register doBuiltinCall(VM&, VM::Register*, void(*fn)()) {
     fn();
     return VM::Register();
   }
@@ -406,7 +420,7 @@ VM::Register VM::callBuiltinFunc(BuiltinID id) {
   switch (id) {
     #define BUILTIN(FUNC, FOX)\
       case BuiltinID::FUNC:   \
-        return doBuiltinCall(getRegPtr(0), builtin::FUNC);
+        return doBuiltinCall(*this, getRegPtr(0), builtin::FUNC);
     #include "Fox/Common/Builtins.def"
     default:
       fox_unreachable("Unknown BuiltinID");

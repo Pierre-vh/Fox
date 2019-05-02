@@ -29,13 +29,22 @@ namespace {
   
   template<typename ... Args> 
   struct ParamConverter {
-    static void add(ASTContext&, SmallVectorImpl<FnTyParam>&) {}
+    static void 
+    add(ASTContext&, SmallVectorImpl<FnTyParam>&) {}
   };
 
   template<typename First, typename ... Args> 
   struct ParamConverter<First, Args...> {
-    static void add(ASTContext& ctxt, SmallVectorImpl<FnTyParam>& params) {
+    template<bool ignored = BuiltinArgTypeTrait<First>::ignored>
+    static void 
+    add(ASTContext& ctxt, SmallVectorImpl<FnTyParam>& params) {
       params.emplace_back(TypeConverter<First>::get(ctxt), /*isMut*/ false);
+      ParamConverter<Args...>::add(ctxt, params);
+    }
+
+    template<>
+    static void 
+    add<true>(ASTContext& ctxt, SmallVectorImpl<FnTyParam>& params) {
       ParamConverter<Args...>::add(ctxt, params);
     }
   };

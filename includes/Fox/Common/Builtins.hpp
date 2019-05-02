@@ -10,8 +10,24 @@
 #pragma once
 
 #include "FoxTypes.hpp"
+#include "BuiltinID.hpp"
+#include <type_traits>
 
 namespace fox {
+  class VM;
+
+  template<typename Ty>
+  struct BuiltinArgTypeTrait {
+    static constexpr bool ignored = false;
+  };
+
+  #define IGNORED_BUILTIN_ARG_TY(T) template<>\
+  struct BuiltinArgTypeTrait<T> { static constexpr bool ignored = true; };
+  // Arguments of these types should be ignored when converting the
+  // builtin's signature to a AST Function Type.
+  IGNORED_BUILTIN_ARG_TY(VM&);
+  #undef IGNORED_BUILTIN_ARG_TY
+
   namespace builtin {
     /// Prints an integer to stdout
     void printInt(FoxInt value);
