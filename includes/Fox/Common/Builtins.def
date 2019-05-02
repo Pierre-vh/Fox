@@ -7,11 +7,19 @@
 //  x-macros for macro-metaprogramming with builtin functions
 //----------------------------------------------------------------------------//
 
-/// The 'main' builtin macro:
+/// The 'builtin' declaration macro:
 ///   FUNC is the name of the function in the fox::builtin namespace
 ///   FOX is the name the function should have in Fox code
 #ifndef BUILTIN
   #define BUILTIN(FUNC, FOX)
+#endif 
+
+/// This macro is used to tell the routine that converts a Builtin's signature
+/// to an AST type that some type should be ignored.
+/// This just sets the BuiltinFnArgTypeTrait<TYPE>::ignored value to true.
+///     TYPE is the type that should be ignored, e.g. "VM&"
+#ifndef IGNORED_ARG_TYPE
+  #define IGNORED_ARG_TYPE(TYPE)
 #endif 
 
 //----------------------------------------------------------------------------//
@@ -23,4 +31,9 @@ BUILTIN(printDouble,  printDouble)
 
 //----------------------------------------------------------------------------//
 
+IGNORED_ARG_TYPE(VM&) // Ignore references VM instances
+
+//----------------------------------------------------------------------------//
+
 #undef BUILTIN
+#undef IGNORED_ARG_TYPE

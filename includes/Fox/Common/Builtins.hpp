@@ -17,16 +17,11 @@ namespace fox {
   class VM;
 
   template<typename Ty>
-  struct BuiltinArgTypeTrait {
-    static constexpr bool ignored = false;
-  };
+  struct BuiltinFnArgTypeTrait { static constexpr bool ignored = false; };
 
-  #define IGNORED_BUILTIN_ARG_TY(T) template<>\
-  struct BuiltinArgTypeTrait<T> { static constexpr bool ignored = true; };
-  // Arguments of these types should be ignored when converting the
-  // builtin's signature to a AST Function Type.
-  IGNORED_BUILTIN_ARG_TY(VM&);
-  #undef IGNORED_BUILTIN_ARG_TY
+  #define IGNORED_ARG_TYPE(TYPE) template<> \
+  struct BuiltinFnArgTypeTrait<TYPE> { static constexpr bool ignored = true;  };
+  #include "Builtins.def"
 
   namespace builtin {
     /// Prints an integer to stdout

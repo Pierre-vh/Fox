@@ -35,7 +35,7 @@ namespace {
 
   template<typename First, typename ... Args> 
   struct ParamConverter<First, Args...> {
-    template<bool ignored = BuiltinArgTypeTrait<First>::ignored>
+    template<bool ignored = BuiltinFnArgTypeTrait<First>::ignored>
     static void 
     add(ASTContext& ctxt, SmallVectorImpl<FnTyParam>& params) {
       params.emplace_back(TypeConverter<First>::get(ctxt), /*isMut*/ false);
