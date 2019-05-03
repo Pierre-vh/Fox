@@ -305,6 +305,12 @@ TEST_F(ASTTest, DeclRTTI) {
   EXPECT_TRUE(FuncDecl::classof((Decl*)fndecl));
   EXPECT_TRUE(NamedDecl::classof(fndecl));
 
+  // BuiltinFunc
+  auto* builtin = BuiltinFuncDecl::get(ctxt, BuiltinID::printBool);
+  EXPECT_EQ(builtin->getKind(), DeclKind::BuiltinFuncDecl);
+  EXPECT_TRUE(BuiltinFuncDecl::classof((Decl*)builtin));
+  EXPECT_TRUE(NamedDecl::classof(builtin));
+
   // Arg
   ParamDecl* paramdecl = createEmptyParamDecl(ctxt, fndecl);
   EXPECT_EQ(paramdecl->getKind(), DeclKind::ParamDecl);
