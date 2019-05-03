@@ -87,17 +87,29 @@ Basic VM data types and their mappings to Fox types:
     GC will come later when the language is officially "feature-complete", because writing a good, reliable
     GC takes time and I'll probably write a better one with the full design of the language implemented.
 
-  -> Common "Object" base
-  -> ArrayObject: Always dynamically sized, essentially just a SmallVector (will maybe even inherit from it). Has a "isReference" flag.
-  -> Strings: Similar to ArrayObject. I think they'll also be dynamically sized & mutable, but that's
-     subject to change.
-  -> Object allocation interface, either in the VM or in a separate class used by the VM.
-     Using the VM might be simpler, but as we might pass the instance to clients in FFI/Instrinsic functions,
-     they might misuse it and corrupt the VM, so maybe that a 'VMContext' that manages its memory is better.
-     (VM = "execution engine", VMContext = Memory management & other contextual information, 
-      like the BCModule&)
+  -> Common "Object" base (Done)
+  -> Strings
+    -> StringObject (Done)
+    -> Finish StringObject's implementation
+  -> SafeMallocAllocator
+    -> Allocate using mmaloc, keep track of pointers in a set and free them at destruction
+  -> Object allocation functions in the VM
+    -> use SafeMallocAllocator
+    -> Have a "T* createObject<T>(Args...)" method (Use SFINAE to ensure T is an Object)
+  -> VM instructions:
+    -> newEmptyString
+    -> newString
+    -> Test!
+  -> Builtins
+    -> StringObject* support
+    -> Add all string builtins that I need
+    -> Unit test
+  -> Arrays 
+    -> Scaffolding
+    -> Operations
+    -> Builtins
+    -> Tests
   -> Finish the implementation of the language in its current state
-  -> Add support for stuff like "StringObject*" and "ArrayObject*" in Builtins
 
 ---- Getting feature-complete (with the current feature set) ----
   -> entry point detection (basic, just the function called 'main' with a '() -> int' signature)

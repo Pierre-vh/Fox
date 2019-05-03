@@ -5,6 +5,7 @@ add_source(common_src
   "DiagnosticVerifier.cpp"
   "Errors.cpp"
   "LinearAllocator.cpp"
+  "Objects.cpp"
   "QuotedString.cpp"
   "Source.cpp"
   "UTF8.cpp"

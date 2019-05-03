@@ -1,0 +1,22 @@
+//----------------------------------------------------------------------------//
+// This file is part of the Fox project.        
+// See the LICENSE.txt file at the root of the project for license information.            
+// File : Objects.def                      
+// Author : Pierre van Houtryve                
+//----------------------------------------------------------------------------//
+//  x-macros for macro-metaprogramming with Objects
+//----------------------------------------------------------------------------//
+
+// The basic 'Object' macro
+//    CLASS is the name of the object class.
+#ifndef OBJECT
+  #define OBJECT(CLASS)
+#endif
+
+//----------------------------------------------------------------------------//
+
+OBJECT(StringObject)
+
+//----------------------------------------------------------------------------//
+
+#undef OBJECT
