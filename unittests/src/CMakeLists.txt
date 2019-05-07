@@ -7,6 +7,7 @@ add_source(unittest_src
   "Fox/Common/AllocatorsTests.cpp"
   "Fox/Common/DiagnosticsTests.cpp"
   "Fox/Common/DiagnosticVerifierTests.cpp"
+  "Fox/Common/ObjectsTests.cpp"
   "Fox/Common/SourceManagerTests.cpp"
   "Fox/Common/StableVectorIteratorTests.cpp"
   "Fox/Lexer/LexerTests.cpp"
