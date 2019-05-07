@@ -366,10 +366,16 @@ namespace {
              { return VM::Register(TO_EXPR); }                                    \
     }
 
-  REG_CONVERT(FoxInt    , reg.intVal     , value);
-  REG_CONVERT(FoxDouble , reg.doubleVal  , value);
-  REG_CONVERT(bool      , reg.raw        , std::uint64_t(value));
-  REG_CONVERT(FoxChar   , reg.raw        , std::uint64_t(value));
+  REG_CONVERT(FoxInt        , reg.intVal     
+                            , value);
+  REG_CONVERT(FoxDouble     , reg.doubleVal  
+                            , value);
+  REG_CONVERT(bool          , reg.raw        
+                            , std::uint64_t(value));
+  REG_CONVERT(FoxChar       , reg.raw        
+                            , std::uint64_t(value));
+  REG_CONVERT(StringObject* , cast<StringObject>(reg.object)     
+                            , value);
   #undef REG_CONVERT
 
   template<typename Ty, std::size_t index>

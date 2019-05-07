@@ -96,7 +96,7 @@ Basic VM data types and their mappings to Fox types:
     -> LoadStringK (Done)
     -> Test! (Done)
   -> Builtins
-    -> StringObject* support
+    -> StringObject* support (Done)
     -> Add all string builtins that I need
     -> Unit test
   -> Arrays 

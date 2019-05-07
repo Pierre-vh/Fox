@@ -51,11 +51,12 @@ namespace {
 
   #define TYPE_CONVERSION(TYPE, GET_IMPL) template<> struct TypeConverter<TYPE>\
     { static Type get(ASTContext& ctxt) { GET_IMPL; } }
-  TYPE_CONVERSION(void,       return PrimitiveType::getVoid(ctxt));
-  TYPE_CONVERSION(FoxInt,     return PrimitiveType::getInt(ctxt));
-  TYPE_CONVERSION(FoxDouble,  return PrimitiveType::getDouble(ctxt));
-  TYPE_CONVERSION(bool,       return PrimitiveType::getBool(ctxt));
-  TYPE_CONVERSION(FoxChar,    return PrimitiveType::getChar(ctxt));
+  TYPE_CONVERSION(void,           return PrimitiveType::getVoid(ctxt));
+  TYPE_CONVERSION(FoxInt,         return PrimitiveType::getInt(ctxt));
+  TYPE_CONVERSION(FoxDouble,      return PrimitiveType::getDouble(ctxt));
+  TYPE_CONVERSION(bool,           return PrimitiveType::getBool(ctxt));
+  TYPE_CONVERSION(FoxChar,        return PrimitiveType::getChar(ctxt));
+  TYPE_CONVERSION(StringObject*,  return PrimitiveType::getString(ctxt));
   #undef TYPE_CONVERSION
 
   template<typename Rtr, typename ... Args>

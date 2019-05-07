@@ -15,6 +15,7 @@
 
 namespace fox {
   class VM;
+  class StringObject;
 
   template<typename Ty>
   struct BuiltinFnArgTypeTrait { static constexpr bool ignored = false; };
