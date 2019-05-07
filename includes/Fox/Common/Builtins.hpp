@@ -36,5 +36,8 @@ namespace fox {
 
     /// Prints a double to stdout
     void printDouble(FoxDouble value);
+
+    /// Prints a string to stdout
+    void printString(StringObject* str);
   }
 }

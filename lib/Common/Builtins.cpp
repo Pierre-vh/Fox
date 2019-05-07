@@ -8,6 +8,7 @@
 #include "Fox/Common/Builtins.hpp"
 #include "Fox/Common/BuiltinID.hpp"
 #include "Fox/Common/Errors.hpp"
+#include "Fox/Common/Objects.hpp"
 #include "Fox/Common/UTF8.hpp"
 #include <iostream>
 
@@ -51,6 +52,11 @@ void builtin::printChar(FoxChar ch) {
 
 void builtin::printDouble(FoxDouble value) {
   std::cout << value;
+}
+
+void builtin::printString(StringObject* str) {
+  assert(str && "String is Null!");
+  std::cout << str->str();
 }
 
 

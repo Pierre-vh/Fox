@@ -561,10 +561,12 @@ class ASTBuiltinsTest : public ::testing::Test {
 TEST_F(ASTBuiltinsTest, getTypeOfBuiltinTest) {
   Type printIntTy = ctxt.getTypeOfBuiltin(BuiltinID::printInt);
   Type printBoolTy = ctxt.getTypeOfBuiltin(BuiltinID::printBool);
+  Type printStrTy = ctxt.getTypeOfBuiltin(BuiltinID::printString);
 
   // Is 'toDebugString' fine for this?
-  EXPECT_EQ(printIntTy->toDebugString(),  "(int) -> void");
-  EXPECT_EQ(printBoolTy->toDebugString(), "(bool) -> void");
+  EXPECT_EQ(printIntTy->toDebugString(),    "(int) -> void");
+  EXPECT_EQ(printBoolTy->toDebugString(),   "(bool) -> void");
+  EXPECT_EQ(printStrTy->toDebugString(),    "(string) -> void");
 }
 
 TEST_F(ASTBuiltinsTest, builtinIdentifier) {
