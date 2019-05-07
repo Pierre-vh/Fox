@@ -66,6 +66,30 @@ VM::Register VM::run(ArrayRef<Instruction> instrs) {
         // StoreSmallInt dest value: Stores value in dest (value: int16)
         getReg(instr.StoreSmallInt.dest).intVal = instr.StoreSmallInt.value;
         continue;
+      case Opcode::Copy:
+        // Copy dest src : dest = src
+        getReg(instr.Copy.dest).raw = getReg(instr.Copy.src).raw;
+        continue;
+      case Opcode::LoadIntK:
+        // Copies the integer constant 'kID' into the register 'dest'
+        getReg(instr.LoadIntK.dest).intVal =
+          bcModule.getIntConstant(instr.LoadIntK.kID);
+        continue;
+      case Opcode::LoadDoubleK:
+        // Copies the double constant 'kID' into the register 'dest'
+        getReg(instr.LoadDoubleK.dest).doubleVal =
+          bcModule.getDoubleConstant(instr.LoadDoubleK.kID);
+        continue;
+      case Opcode::NewString:
+        // Create a new string and put a pointer to it in 'dest'
+        getReg(instr.NewString.dest).object = newStringObject();
+        continue;
+      case Opcode::LoadStringK:
+        // Create a new string from a string constant 'kID' stored in bcModule
+        // and put a pointer to it in 'dest'
+        getReg(instr.LoadStringK.dest).object =
+          newStringObject(instr.LoadStringK.kID);
+        continue;
       case Opcode::AddInt: 
         // AddInt dest lhs rhs: dest = lhs + rhs (FoxInts)
         TRIVIAL_TAC_BINOP_IMPL(AddInt, intVal, +);
@@ -225,20 +249,6 @@ VM::Register VM::run(ArrayRef<Instruction> instrs) {
         // DoubleToInt dest src: dest = (src as FoxInt) (src: FoxDouble)
         getReg(instr.DoubleToInt.dest).intVal =
           FoxInt(getReg(instr.DoubleToInt.src).doubleVal);
-        continue;
-      case Opcode::Copy:
-        // Copy dest src : dest = src
-        getReg(instr.Copy.dest).raw = getReg(instr.Copy.src).raw;
-        continue;
-      case Opcode::LoadIntK:
-        // Copies the integer constant 'kID' into the register 'dest'
-        getReg(instr.LoadIntK.dest).intVal =
-          bcModule.getIntConstant(instr.LoadIntK.kID);
-        continue;
-      case Opcode::LoadDoubleK:
-        // Copies the double constant 'kID' into the register 'dest'
-        getReg(instr.LoadDoubleK.dest).doubleVal =
-          bcModule.getDoubleConstant(instr.LoadDoubleK.kID);
         continue;
       case Opcode::RetVoid:
         return VM::Register();

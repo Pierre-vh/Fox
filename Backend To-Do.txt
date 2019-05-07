@@ -91,15 +91,10 @@ Basic VM data types and their mappings to Fox types:
   -> Strings
     -> StringObject (Done)
     -> Finish StringObject's implementation
-  -> SafeMallocAllocator
-    -> Allocate using mmaloc, keep track of pointers in a set and free them at destruction
-  -> Object allocation functions in the VM
-    -> use SafeMallocAllocator
-    -> Have a "T* createObject<T>(Args...)" method (Use SFINAE to ensure T is an Object)
-  -> VM instructions:
-    -> newEmptyString
-    -> newString
-    -> Test!
+  -> VM instructions (Done)
+    -> NewString (Done)
+    -> LoadStringK (Done)
+    -> Test! (Done)
   -> Builtins
     -> StringObject* support
     -> Add all string builtins that I need

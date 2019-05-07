@@ -56,7 +56,7 @@
 
 SIMPLE_INSTR(NoOp)
 
-// Storing & Loading Values
+// Storing, Loading & Creating Values
   // Stores value (a signed 16 bit int) in register dest
 BINARY_INSTR(StoreSmallInt, dest, regaddr_t, value, std::int16_t)
   // dest = src
@@ -65,6 +65,11 @@ UNARY_REG_OP(Copy)
 BINARY_INSTR(LoadIntK, dest, regaddr_t, kID, constant_id_t)
   // Loads the double constant identified by 'kID' into the register 'dest'
 BINARY_INSTR(LoadDoubleK, dest, regaddr_t, kID, constant_id_t)
+  // Creates a new StringObject and stores a pointer to it in dest
+UNARY_INSTR(NewString, dest, regaddr_t)
+  // Creates a new StringObject from a string constant with it 'kID' and stores
+  // a pointer to it in dest
+BINARY_INSTR(LoadStringK, dest, regaddr_t, kID, constant_id_t)
 
 // Arithmetic : dest = lhs (op) rhs. Result's type is the type of the operand.
 BINARY_REG_OP(AddInt)    // Int Addition
@@ -119,7 +124,7 @@ BINARY_INSTR(LoadBuiltinFunc, dest, regaddr_t, id, BuiltinID)
 // Calls a function in register 'base' and places the return value in 'dest'
 BINARY_INSTR(Call, base, regaddr_t, dest, regaddr_t) 
 // Calls a function in register 'base' and discards the return value
-UNARY_INSTR(CallVoid, base, regaddr_t) 
+UNARY_INSTR(CallVoid, base, regaddr_t)
 
 LAST_INSTR(Ret)
 

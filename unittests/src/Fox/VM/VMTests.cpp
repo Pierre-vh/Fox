@@ -453,6 +453,36 @@ TEST_F(VMTest, LoadDoubleK) {
   EXPECT_EQ(getReg(2), k2);
 }
 
+TEST_F(VMTest, NewStringAndLoadStringK) {
+  std::string foo = "Foo is awesome!";
+  std::string bar = "...so is Bar!";
+
+  // Load the constants into the constant table
+  theModule.addStringConstant(foo);
+  theModule.addStringConstant(bar);
+
+  // load k0 into r0
+  builder.createLoadStringKInstr(0, 0);
+  // load k1 into r1
+  builder.createLoadStringKInstr(1, 1);
+  // create a blank string in r2
+  builder.createNewStringInstr(2);
+  builder.createRetVoidInstr();
+
+  VM vm(theModule);
+  vm.run(instrs);
+
+  // Helper to get a register's value as a StringObject*
+  auto getReg = [&](std::size_t idx) {
+    return (StringObject*)vm.getRegisterStack()[idx].object;
+  };
+
+  // Check that the values are correct
+  EXPECT_EQ(getReg(0)->str(), foo);
+  EXPECT_EQ(getReg(1)->str(), bar);
+  EXPECT_EQ(getReg(2)->str(), "");
+}
+
 TEST_F(VMTest, RetRetVoid) {
   // f1 = just a RetVoid
   BCFunction& f1 = theModule.createFunction();
@@ -574,10 +604,10 @@ TEST_F(VMTest, call) {
 TEST_F(VMTest, stringCreation) {
   VM vm(theModule);
   static constexpr char helloWorld[] = "Hello, World!";
-  auto helloWordID = theModule.addStringConstant("Hello, World!");
+  theModule.addStringConstant("Hello, World!");
   
   {
-    StringObject* string = vm.newStringObject(helloWordID);
+    StringObject* string = vm.newStringObject(0);
     ASSERT_NE(string, nullptr);
     ASSERT_EQ(string->str(), helloWorld);
   }

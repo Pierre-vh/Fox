@@ -28,6 +28,7 @@ namespace fox {
   struct Instruction;
   class BCModule;
   class BCFunction;
+  class Object;
   class StringObject;
 
   class VM {
@@ -88,6 +89,7 @@ namespace fox {
         explicit Register(FoxDouble v)       : doubleVal(v) {}
         explicit Register(BCFunction* v)     : funcRef(v) {}
         explicit Register(BuiltinID v)       : funcRef(v) {}
+        explicit Register(Object* v)         : object(v) {}
 
         friend bool operator==(Register lhs, Register rhs) {
           return lhs.raw == rhs.raw;
@@ -105,6 +107,7 @@ namespace fox {
         FoxInt intVal;
         FoxDouble doubleVal;
         FunctionRef funcRef;
+        Object* object;
       };
 
       static_assert(sizeof(Register) == 8,
