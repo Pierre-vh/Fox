@@ -17,6 +17,9 @@
 #include "llvm/ADT/ArrayRef.h"
 #include "llvm/ADT/PointerEmbeddedInt.h"
 #include "llvm/ADT/PointerUnion.h"
+#include "llvm/ADT/SmallVector.h"
+#include "llvm/Support/Compiler.h"
+#include <memory>
 #include <cstdint>
 #include <cstddef>
 #include <array>
@@ -25,8 +28,14 @@ namespace fox {
   struct Instruction;
   class BCModule;
   class BCFunction;
+  class StringObject;
+
   class VM {
     public:
+      ///--------------------------------------------------------------------///
+      /// VM Nested Classes
+      ///--------------------------------------------------------------------///
+
       /// A Function reference: a discriminated union of a BCFunction*
       /// and a BuiltinID.
       class FunctionRef {
@@ -101,14 +110,17 @@ namespace fox {
       static_assert(sizeof(Register) == 8,
         "The size of a Register is not 64 Bits");
 
-      /// The number of registers on the register stack
-      static constexpr unsigned numStackRegister = 255;
+      ///--------------------------------------------------------------------///
+      /// VM Interface
+      ///--------------------------------------------------------------------///
 
       /// \param bcModule the bytecode module. This will serve as the context
       ///        of execution. Constants, Functions and everything else that
       ///        might be needed during the execution of bytecode will be
       ///        fetched in that module.
       VM(BCModule& bcModule);
+
+      ~VM();
 
       /// Executes a function \p func with parameters \p args.
       /// This is intended as an entry point for clients, and not as an internal
@@ -141,6 +153,23 @@ namespace fox {
       /// have been called, etc.
       MutableArrayRef<Register> getRegisterStack();
 
+      ///--------------------------------------------------------------------///
+      /// Object Allocation
+      ///--------------------------------------------------------------------///
+
+      /// Creates a new, blank StringObject
+      LLVM_ATTRIBUTE_RETURNS_NONNULL LLVM_ATTRIBUTE_RETURNS_NOALIAS
+      StringObject* newStringObject();
+
+      /// Loads a string constant with id \p kID and creates a 
+      /// new StringObject with its content.
+      LLVM_ATTRIBUTE_RETURNS_NONNULL LLVM_ATTRIBUTE_RETURNS_NOALIAS
+      StringObject* newStringObject(constant_id_t kID);
+
+      ///--------------------------------------------------------------------///
+      /// Public Member Variables
+      ///--------------------------------------------------------------------///
+
       /// The Bytecode module executed by this VM instance.
       BCModule& bcModule;
 
@@ -171,9 +200,17 @@ namespace fox {
       /// The Program Counter
       const Instruction* pc_ = nullptr;
 
+      /// The number of registers on the register stack
+      static constexpr unsigned numStackRegister = 255;
       /// The register stack
       std::array<Register, numStackRegister> regStack_;
       /// The base register (rO) of the current function's register window.
       Register* baseReg_ = nullptr;
+
+      // Temporarily, objects are simply allocated in vectors of unique_ptrs
+      // for simplicity. I'll implement a more elaborate allocation technique
+      // when the GC is implemented.
+      // For now, objects are simply never freed.
+      SmallVector<std::unique_ptr<StringObject>, 4> stringObjects_;
   };
 }

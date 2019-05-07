@@ -11,6 +11,7 @@
 #include "Fox/BC/BCFunction.hpp"
 #include "Fox/Common/Errors.hpp"
 #include "Fox/Common/Builtins.hpp"
+#include "Fox/Common/Objects.hpp"
 #include <cmath>
 #include <type_traits>
 #include <iterator>
@@ -22,6 +23,10 @@ VM::VM(BCModule& theModule) : bcModule(theModule) {
   /// stack.
   baseReg_ = regStack_.data();
 }
+
+/// Out of line because unique_ptr needs to see the definition of
+/// StringObject and others.
+VM::~VM() = default;
 
 VM::Register VM::call(BCFunction& func, MutableArrayRef<Register> args) {
   /// Copy the args into registers r0 -> rN
@@ -279,6 +284,19 @@ const Instruction* VM::getPC() const {
 
 ArrayRef<VM::Register> VM::getRegisterStack() const {
   return regStack_;
+}
+
+LLVM_ATTRIBUTE_RETURNS_NONNULL LLVM_ATTRIBUTE_RETURNS_NOALIAS
+StringObject* VM::newStringObject() {
+  stringObjects_.emplace_back(std::make_unique<StringObject>());
+  return stringObjects_.back().get();
+}
+
+LLVM_ATTRIBUTE_RETURNS_NONNULL LLVM_ATTRIBUTE_RETURNS_NOALIAS
+StringObject* VM::newStringObject(constant_id_t kID) {
+  const auto& str = bcModule.getStringConstant(kID);
+  stringObjects_.emplace_back(std::make_unique<StringObject>(str));
+  return stringObjects_.back().get();
 }
 
 MutableArrayRef<VM::Register> VM::getRegisterStack() {

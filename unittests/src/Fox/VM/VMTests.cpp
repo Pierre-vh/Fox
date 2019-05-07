@@ -13,6 +13,7 @@
 #include "Fox/BC/BCModule.hpp"
 #include "Fox/VM/VM.hpp"
 #include "Fox/Common/FoxTypes.hpp"
+#include "Fox/Common/Objects.hpp"
 #include <sstream>
 
 using namespace fox;
@@ -568,4 +569,22 @@ TEST_F(VMTest, call) {
   EXPECT_EQ(getReg(1), r1*2)            << "incorrect value for r1";
   EXPECT_EQ(getReg(2), r2*2)            << "incorrect value for r2";
   EXPECT_EQ(getReg(3), (r1*2) + (r2*2)) << "incorrect return value";
+}
+
+TEST_F(VMTest, stringCreation) {
+  VM vm(theModule);
+  static constexpr char helloWorld[] = "Hello, World!";
+  auto helloWordID = theModule.addStringConstant("Hello, World!");
+  
+  {
+    StringObject* string = vm.newStringObject(helloWordID);
+    ASSERT_NE(string, nullptr);
+    ASSERT_EQ(string->str(), helloWorld);
+  }
+
+  {
+    StringObject* string = vm.newStringObject();
+    ASSERT_NE(string, nullptr);
+    ASSERT_EQ(string->str(), "");
+  }
 }
