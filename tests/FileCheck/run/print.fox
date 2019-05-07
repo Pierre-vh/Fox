@@ -5,8 +5,10 @@ func foo() {
   printBool(true);
   printChar('善');
   printDouble(-333.333333333);
-  printString("\nHello, World!");
+  printString("\nHello, World\n");
+  printString("");
 }
 
 // CHECK: 42true善-333.333333333
 // CHECK-NEXT: Hello, World!
+// CHECK-EMPTY:
