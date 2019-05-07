@@ -1,0 +1,15 @@
+// RUN: %fox-dump-bcgen | %filecheck
+
+// CHECK:       [Strings: 2 constants]
+// CHECK-NEXT:    0   | "Hello, World!"
+// CHECK-NEXT:    1   | "Fox is Great!"
+
+// CHECK: Function 0
+func foo() {
+  // CHECK-NEXT:  LoadStringK 0 0
+  "Hello, World!";
+  // CHECK-NEXT:  LoadStringK 0 1
+  "Fox is Great!";
+  // CHECK-NEXT:  NewString 0
+  "";
+}

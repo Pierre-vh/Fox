@@ -95,6 +95,7 @@ Basic VM data types and their mappings to Fox types:
     -> NewString (Done)
     -> LoadStringK (Done)
     -> Test! (Done)
+  -> StringLiteralExpr BCGen (Done)
   -> Builtins
     -> StringObject* support (Done)
     -> Add all string builtins that I need

@@ -640,9 +640,15 @@ class BCGen::ExprGenerator : public Generator,
     }
 
     RegisterValue 
-    visitStringLiteralExpr(StringLiteralExpr*, RegisterValue) { 
-      // Needs strings implemented in the VM
-      fox_unimplemented_feature("StringLiteralExpr BCGen");
+    visitStringLiteralExpr(StringLiteralExpr* expr, RegisterValue dest) { 
+      dest = getDestReg(std::move(dest));
+      auto string = expr->getValue();
+      if (string.size() == 0) // "" literal
+        builder.createNewStringInstr(dest.getAddress());
+      else                    // Other literals
+        builder.createLoadStringKInstr(dest.getAddress(), 
+                                       bcGen.getConstantID(string));
+      return dest;
     }
 
     RegisterValue 
