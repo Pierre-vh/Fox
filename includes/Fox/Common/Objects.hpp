@@ -39,11 +39,8 @@ namespace fox {
       /// creates an empty StringObject
       StringObject();
 
-      /// creates a StringObject from a pre-existing string
+      /// creates a StringObject from a pre-existing string_view
       StringObject(string_view value);
-
-      /// \returns a string_view of the string
-      string_view getView() const;
 
       /// \returns a reference to the underlying string
       std::string& str();

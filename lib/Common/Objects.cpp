@@ -28,10 +28,6 @@ StringObject::StringObject() : StringObject(string_view()) {}
 StringObject::StringObject(string_view value) 
   : Object(ObjectKind::StringObject), str_(value.to_string()) {}
 
-string_view StringObject::getView() const {
-  return str_;
-}
-
 std::string& StringObject::str() {
   return str_;
 }
