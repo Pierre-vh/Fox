@@ -99,12 +99,15 @@ Basic VM data types and their mappings to Fox types:
   -> Builtins
     -> StringObject* support (Done)
     -> Add all string builtins that I need
+      -> toString() for Int, Double, Bool, Char
     -> Unit test
   -> Arrays 
     -> Scaffolding
     -> Operations
     -> Builtins
     -> Tests
+  -> Support 'Object*' in builtins as a new "Object" type, which is simply a type-erased object (array, string, anything)
+    -> This will allow me to have a single "print(Object*)" builtin instead of one per object kind (when I add overloads)
   -> Finish the implementation of the language in its current state
 
 ---- Getting feature-complete (with the current feature set) ----
