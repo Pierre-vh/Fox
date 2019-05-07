@@ -101,6 +101,9 @@ Basic VM data types and their mappings to Fox types:
     -> Add all string builtins that I need
       -> toString() for Int, Double, Bool, Char
     -> Unit test
+  -> Finish string impl:
+    -> String concatenation ('concat' builtin)
+    -> Compile the 'Concat' BinOp in BCGenExpr
   -> Arrays 
     -> Scaffolding
     -> Operations
@@ -113,9 +116,6 @@ Basic VM data types and their mappings to Fox types:
 ---- Getting feature-complete (with the current feature set) ----
   -> entry point detection (basic, just the function called 'main' with a '() -> int' signature)
   -> rewrite the driver
-  -> Builtins should be able to take a "VM/VMContext&" as parameter so they can allocate objects.
-     That parameter should always be first.
-  -> LoadStringK instruction (use string constants)
   -> Global Variables
   -> Basic debug information & trivial exception system (for proper error management).
   -> Growable register stack
