@@ -55,8 +55,8 @@ namespace fox {
       /// \param str the string to insert. it'll be copied in the vector.
       /// \returns the index of the newly inserted constant
       std::size_t addStringConstant(string_view str);
-      /// \returns the int constant identified by \p idx
-      std::string getStringConstant(std::size_t idx) const;
+      /// \returns the string constant identified by \p idx
+      const std::string& getStringConstant(std::size_t idx) const;
       /// \returns a view of the string constants vector
       ArrayRef<std::string> getStringConstants() const;
       

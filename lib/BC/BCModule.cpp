@@ -44,7 +44,7 @@ std::size_t BCModule::addStringConstant(string_view str) {
   return idx;
 }
 
-std::string BCModule::getStringConstant(std::size_t idx) const {
+const std::string& BCModule::getStringConstant(std::size_t idx) const {
   assert((idx < strConstants_.size()) && "out-of-range");
   return strConstants_[idx];
 }
