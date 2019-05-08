@@ -111,6 +111,7 @@ class BCGen::ExprGenerator : public Generator,
 
     RegisterAllocator& regAlloc;
 
+
   private:
     /// Binary Operator Kinds
     using BinOp = BinaryExpr::OpKind;
@@ -120,6 +121,11 @@ class BCGen::ExprGenerator : public Generator,
     template<typename Ty>
     using reference_initializer_list 
       = std::initializer_list< std::reference_wrapper<Ty> >;
+    /// A Generation "thunk" function, which delays generation of an expr
+    /// for later, when the thunk is actually called
+    /// The argument type is the destination register (can be null), and the
+    /// return type is the RegisterValue where the result is located.
+    using GenThunk = std::function<RegisterValue(RegisterValue)>;
 
     //------------------------------------------------------------------------//
     // Helper methods
@@ -127,6 +133,31 @@ class BCGen::ExprGenerator : public Generator,
     // Helper functions performing various tasks. Generalizes/shortens
     // some common patterns used in this generator.
     //------------------------------------------------------------------------//
+
+    /// Calls a genThunk, enforcing its invariants (if dest != null, the
+    /// return value of the thunk must be == dest)
+    RegisterValue call(GenThunk thunk, RegisterValue dest = RegisterValue()) {
+      #ifndef NDEBUG
+        // In debug mode, check that the destination is respected
+        bool hadDest = dest.isAlive();
+        regaddr_t expectedAddr = dest ? dest.getAddress() : 0;
+        RegisterValue resultRV = thunk(std::move(dest));
+        if (hadDest) {
+          assert((expectedAddr == resultRV.getAddress())
+          && "A destination register was provided but was not respected");
+        }
+        return resultRV;
+      #else 
+        return thunk(std::move(dest));
+      #endif
+    }
+
+    /// \returns a GenThunk that call visit() on an expr
+    GenThunk getGTForExpr(Expr* expr) {
+      return [this, expr](RegisterValue rv) {
+        return this->visit(expr, std::move(rv));
+      };
+    }
 
     /// \returns true if \p expr can be generated using a "XXXInt" instruction
     /// such as AddInt, SubInt, etc.
@@ -190,18 +221,19 @@ class BCGen::ExprGenerator : public Generator,
     //------------------------------------------------------------------------//
 
     // Emits a call to a builtin function from a list of expressions
-    void emitBuiltinCall(BuiltinID bID, RegisterValue dest, ArrayRef<Expr*> args) {
+    RegisterValue emitBuiltinCall(BuiltinID bID, RegisterValue dest, 
+                                  ArrayRef<GenThunk> generators) {
       // Reserve registers
       SmallVector<RegisterValue, 4> callRegs;
-      regAlloc.allocateCallRegisters(callRegs, args.size()+1);
+      regAlloc.allocateCallRegisters(callRegs, generators.size()+1);
 
       // Put a reference to the builtin in the base register
       regaddr_t baseAddr = callRegs.front().getAddress();
       builder.createLoadBuiltinFuncInstr(baseAddr, bID);
 
       // Compile the args
-      for (std::size_t k = 0, size = args.size(); k < size; ++k)
-        callRegs[k+1] = visit(args[k], std::move(callRegs[k+1]));
+      for (std::size_t k = 0, size = generators.size(); k < size; ++k)
+        callRegs[k+1] = call(generators[k], std::move(callRegs[k+1]));
 
       // Check what the builtin returns
       // FIXME: Is this a good idea to use the ASTContext for this? What bothers
@@ -211,8 +243,10 @@ class BCGen::ExprGenerator : public Generator,
       bool returnsVoid = ctxt.getBuiltinFuncReturnType(bID)->isVoidType();
 
       // Gen the call
-      if(returnsVoid)
+      if(returnsVoid) {
+        assert(!dest && "cannot have a destination if the builtin returns void");
         builder.createCallVoidInstr(baseAddr);
+      }
       else {
         // Decide on the destination register, if possible reusing the base
         // registers
@@ -220,6 +254,8 @@ class BCGen::ExprGenerator : public Generator,
         dest = getDestReg(std::move(dest), {callRegs.front()});
         builder.createCallInstr(baseAddr, dest.getAddress());
       }
+
+      return dest;
     }
 
     // Emit an instruction to store the constant 'val' into the register
@@ -404,8 +440,10 @@ class BCGen::ExprGenerator : public Generator,
       // string + string concatenation
       if(lhs->getType()->isStringType() && rhs->getType()->isStringType()) {
         // Generate a call to the concat builtin
-        emitBuiltinCall(BuiltinID::strConcat, std::move(dest), {lhs, rhs});
-        return dest;
+        GenThunk lhsGT = getGTForExpr(lhs);
+        GenThunk rhsGT = getGTForExpr(rhs);
+        return 
+          emitBuiltinCall(BuiltinID::strConcat, std::move(dest), {lhsGT, rhsGT});
       }
 
       fox_unimplemented_feature("Unhandled Concatenation Situation");
@@ -427,11 +465,15 @@ class BCGen::ExprGenerator : public Generator,
     RegisterValue visit(Expr* expr, RegisterValue dest) {
       #ifndef NDEBUG
         // In debug mode, check that the destination is respected
+        bool hadDest = dest.isAlive();
         regaddr_t expectedAddr = dest ? dest.getAddress() : 0;
         RegisterValue resultRV = Visitor::visit(expr, std::move(dest));
-        if (dest) {
+        if (hadDest) {
+          assert(resultRV
+            && "A destination register was provided but the expression did not "
+               "produce any result");
           assert((expectedAddr == resultRV.getAddress())
-          && "A destination register was provided but was not respected");
+           && "A destination register was provided but was not respected");
         }
         return resultRV;
       #else 
