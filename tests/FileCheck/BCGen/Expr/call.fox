@@ -11,8 +11,8 @@ func foo(x: mut int, y: mut int) : int {
   // CHECK-NEXT:  StoreSmallInt 4 3
   // CHECK-NEXT:  StoreSmallInt 5 4
   // CHECK-NEXT:  Call 3 2
-  // CHECK-NEXT:  Call 0 3
-  // CHECK-NEXT:  Ret 3
+  // CHECK-NEXT:  Call 0 0
+  // CHECK-NEXT:  Ret 0
   return foo(foo(1, 2), foo(3, 4));
 }
 

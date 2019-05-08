@@ -100,14 +100,11 @@ Basic VM data types and their mappings to Fox types:
     -> StringObject* support (Done)
     -> Add all string builtins that I need
       -> toString() for Int, Double, Bool, Char (Done)
-      -> Implement string interface in full
+  -> Compile the 'Concat' BinOp in BCGenExpr
+    -> string+string (Done)
+    -> handle chars (change the thunk depending on the type) (Done)
+  -> Implement string interface in full
     -> Unit test
-  -> Finish string impl:
-    -> Compile the 'Concat' BinOp in BCGenExpr
-      -> string+string (Done)
-      -> handle chars (change the thunk depending on the type) (Done)
-    -> Update: try to recycle registers in call (visitCallExpr and
-       genBuiltinCall), maybe take an ArrayRef of RV as parameter?
   -> Arrays 
     -> Scaffolding
     -> Operations

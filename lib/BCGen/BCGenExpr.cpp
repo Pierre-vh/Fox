@@ -178,32 +178,42 @@ class BCGen::ExprGenerator : public Generator,
       return false;
     }
 
-    /// Chooses a destination register for a function: uses dest if valid,
-    /// else allocates a new temporary.
-    RegisterValue getDestReg(RegisterValue dest) {
+    /// Tries to use \p dest, if \p dest is dead/null, allocates
+    /// a new temporary
+    RegisterValue tryUse(RegisterValue dest) {
+      // NOTE: Don't recycle 'dest' because dest might be owning a 
+      // variable or something. Just return it.
       if(dest) return dest;
       return regAlloc.allocateTemporary();
     }
 
     /// Chooses a destination register for an expression
     ///  -> Uses \p dest when it's non null
-    ///  -> Else, uses the best recyclable RV in \p hints 
+    ///  -> Else, uses the best recyclable RV in \p hints.
+    ///     \p hints must be an array-like type of RegisterValues
     ///     (uses the one with the lowest address possible)
     ///  -> Else allocates a new temporary
     ///
     /// After execution, the hint that has been recycled will be dead
     /// (=evaluate to false) and other hints will be left untouched.
-    RegisterValue 
-    getDestReg(RegisterValue dest, 
-               reference_initializer_list<RegisterValue> hints) {
+    template<typename RVArray = reference_initializer_list<RegisterValue>>
+    RegisterValue getDestReg(RegisterValue dest, RVArray&& hints) {
+      // NOTE: Don't recycle 'dest' because dest might be owning a 
+      // variable or something. Just return it.
       if(dest) return dest;
-      
+
+      // FIXME: This function could be greatly improved:
+      // we could have a RegisterAllocator function that returns the address
+      // of the next temporary we will allocate (without actually reserving it)
+      // so we can check if allocating a temporary is a better idea than
+      // reusing any of the candidates.
+
       RegisterValue* best = nullptr;
-      for (auto& hint : hints) {
-        if (hint.get().canRecycle()) {
+      for (RegisterValue& hint : hints) {
+        if (hint.canRecycle()) {
           // Can this become our best candidate?
-          if((!best) || (best->getAddress() > hint.get().getAddress())) 
-            best = &(hint.get());
+          if((!best) || (best->getAddress() > hint.getAddress())) 
+            best = &(hint);
         }
       }
 
@@ -251,7 +261,7 @@ class BCGen::ExprGenerator : public Generator,
         // Decide on the destination register, if possible reusing the base
         // registers
         // TODO: Try to reuse the arguments registers if possible too
-        dest = getDestReg(std::move(dest), {callRegs.front()});
+        dest = getDestReg(std::move(dest), callRegs);
         builder.createCallInstr(baseAddr, dest.getAddress());
       }
 
@@ -666,14 +676,14 @@ class BCGen::ExprGenerator : public Generator,
       // References to Functions
       if (auto func = dyn_cast<FuncDecl>(decl)) {
         auto fID = static_cast<func_id_t>(bcGen.getBCFunction(func).getID());
-        dest = getDestReg(std::move(dest));
+        dest = tryUse(std::move(dest));
         builder.createLoadFuncInstr(dest.getAddress(), fID);
         return dest;
       }
       // References to builtins
       if (auto builtin = dyn_cast<BuiltinFuncDecl>(decl)) {
         auto bID = builtin->getBuiltinID();
-        dest = getDestReg(std::move(dest));
+        dest = tryUse(std::move(dest));
         builder.createLoadBuiltinFuncInstr(dest.getAddress(), bID);
         return dest;
       }
@@ -731,14 +741,16 @@ class BCGen::ExprGenerator : public Generator,
         return RegisterValue();
       }
       // Else just use 'Call'.
-      dest = getDestReg(std::move(dest));
+      // If there is no destination, any recyclable register in regs is a 
+      // potential candidate for reusability.
+      dest = getDestReg(std::move(dest), regs);
       builder.createCallInstr(baseAddr, dest.getAddress());
       return dest;
     }
 
     RegisterValue 
     visitCharLiteralExpr(CharLiteralExpr* expr, RegisterValue dest) { 
-      dest = getDestReg(std::move(dest));
+      dest = tryUse(std::move(dest));
       emitStoreIntConstant(dest.getAddress(), expr->getValue());
       return dest;
     }
@@ -746,7 +758,7 @@ class BCGen::ExprGenerator : public Generator,
     RegisterValue 
     visitIntegerLiteralExpr(IntegerLiteralExpr* expr, RegisterValue dest,
                             bool asNegative = false) {
-      dest = getDestReg(std::move(dest));
+      dest = tryUse(std::move(dest));
       FoxInt value = asNegative ? -expr->getValue() : expr->getValue();
       emitStoreIntConstant(dest.getAddress(), value);
       return dest;
@@ -755,7 +767,7 @@ class BCGen::ExprGenerator : public Generator,
     RegisterValue 
     visitDoubleLiteralExpr(DoubleLiteralExpr* expr, RegisterValue dest,
                            bool asNegative = false) { 
-      dest = getDestReg(std::move(dest));
+      dest = tryUse(std::move(dest));
       FoxDouble value = asNegative ? -expr->getValue() : expr->getValue();
       auto kID = bcGen.getConstantID(value);
       builder.createLoadDoubleKInstr(dest.getAddress(), kID);
@@ -764,14 +776,14 @@ class BCGen::ExprGenerator : public Generator,
 
     RegisterValue 
     visitBoolLiteralExpr(BoolLiteralExpr* expr, RegisterValue dest) { 
-      dest = getDestReg(std::move(dest));
+      dest = tryUse(std::move(dest));
       emitStoreIntConstant(dest.getAddress(), expr->getValue());
       return dest;
     }
 
     RegisterValue 
     visitStringLiteralExpr(StringLiteralExpr* expr, RegisterValue dest) { 
-      dest = getDestReg(std::move(dest));
+      dest = tryUse(std::move(dest));
       auto string = expr->getValue();
       if (string.size() == 0) // "" literal
         builder.createNewStringInstr(dest.getAddress());
