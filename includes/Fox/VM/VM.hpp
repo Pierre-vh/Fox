@@ -15,6 +15,7 @@
 #include "Fox/Common/BuiltinID.hpp"
 #include "Fox/Common/FoxTypes.hpp"
 #include "Fox/Common/LLVM.hpp"
+#include "Fox/Common/string_view.hpp"
 #include "llvm/ADT/ArrayRef.h"
 #include "llvm/ADT/PointerEmbeddedInt.h"
 #include "llvm/ADT/PointerUnion.h"
@@ -160,14 +161,14 @@ namespace fox {
       /// Object Allocation
       ///--------------------------------------------------------------------///
 
-      /// Creates a new, blank StringObject
+      /// Creates a new, blank StringObject, maybe from a string.
       LLVM_ATTRIBUTE_RETURNS_NONNULL LLVM_ATTRIBUTE_RETURNS_NOALIAS
-      StringObject* newStringObject();
+      StringObject* newStringObject(string_view str = string_view());
 
       /// Loads a string constant with id \p kID and creates a 
       /// new StringObject with its content.
       LLVM_ATTRIBUTE_RETURNS_NONNULL LLVM_ATTRIBUTE_RETURNS_NOALIAS
-      StringObject* newStringObject(constant_id_t kID);
+      StringObject* newStringObjectFromK(constant_id_t kID);
 
       ///--------------------------------------------------------------------///
       /// Public Member Variables

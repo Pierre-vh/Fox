@@ -604,10 +604,16 @@ TEST_F(VMTest, call) {
 TEST_F(VMTest, stringCreation) {
   VM vm(theModule);
   static constexpr char helloWorld[] = "Hello, World!";
-  theModule.addStringConstant("Hello, World!");
   
   {
-    StringObject* string = vm.newStringObject(0);
+    theModule.addStringConstant("Hello, World!");
+    StringObject* string = vm.newStringObjectFromK(0);
+    ASSERT_NE(string, nullptr);
+    ASSERT_EQ(string->str(), helloWorld);
+  }
+
+  {
+    StringObject* string = vm.newStringObject(helloWorld);
     ASSERT_NE(string, nullptr);
     ASSERT_EQ(string->str(), helloWorld);
   }

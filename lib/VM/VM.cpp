@@ -90,7 +90,7 @@ VM::Register VM::run(ArrayRef<Instruction> instrs) {
         // Create a new string from a string constant 'kID' stored in bcModule
         // and put a pointer to it in 'dest'
         getReg(instr.LoadStringK.dest).object =
-          newStringObject(instr.LoadStringK.kID);
+          newStringObjectFromK(instr.LoadStringK.kID);
         continue;
       case Opcode::AddInt: 
         // AddInt dest lhs rhs: dest = lhs + rhs (FoxInts)
@@ -299,15 +299,15 @@ ArrayRef<VM::Register> VM::getRegisterStack() const {
 }
 
 LLVM_ATTRIBUTE_RETURNS_NONNULL LLVM_ATTRIBUTE_RETURNS_NOALIAS
-StringObject* VM::newStringObject() {
-  stringObjects_.emplace_back(std::make_unique<StringObject>());
+StringObject* VM::newStringObject(string_view str) {
+  stringObjects_.emplace_back(std::make_unique<StringObject>(str));
   StringObject* ptr = stringObjects_.back().get();
   assert(ptr && "Pointer to allocated object is nullptr");
   return ptr;
 }
 
 LLVM_ATTRIBUTE_RETURNS_NONNULL LLVM_ATTRIBUTE_RETURNS_NOALIAS
-StringObject* VM::newStringObject(constant_id_t kID) {
+StringObject* VM::newStringObjectFromK(constant_id_t kID) {
   const auto& str = bcModule.getStringConstant(kID);
   stringObjects_.emplace_back(std::make_unique<StringObject>(str));
   StringObject* ptr = stringObjects_.back().get();
