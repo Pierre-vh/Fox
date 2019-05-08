@@ -1,0 +1,21 @@
+// RUN: %fox-run
+
+func fizz() {
+  var i : int;
+  while(i <= 100) {
+    printInt(i);
+    if((i % 3) == 0) {
+      printString("\rFizz");
+    }
+    if((i % 5) == 0) {
+      printString("Buzz");
+    }
+    printChar('\n');
+    i = i + 1;
+  }
+}
+
+// CHECK:      1
+// CHECK-NEXT: 2
+// CHECK-NEXT: Fizz
+// CHECK-NEXT: 4// CHECK-NEXT: Buzz// CHECK-NEXT: Fizz// CHECK-NEXT: 7// CHECK-NEXT: 8// CHECK-NEXT: Fizz// CHECK-NEXT: Buzz// CHECK-NEXT: 11// CHECK-NEXT: Fizz// CHECK-NEXT: 13// CHECK-NEXT: 14// CHECK-NEXT: FizzBuzz// CHECK-NEXT: 16// CHECK-NEXT: 17// CHECK-NEXT: Fizz// CHECK-NEXT: 19// CHECK-NEXT: Buzz// CHECK-NEXT: Fizz// CHECK-NEXT: 22// CHECK-NEXT: 23// CHECK-NEXT: Fizz// CHECK-NEXT: Buzz// CHECK-NEXT: 26// CHECK-NEXT: Fizz// CHECK-NEXT: 28// CHECK-NEXT: 29// CHECK-NEXT: FizzBuzz// CHECK-NEXT: 31// CHECK-NEXT: 32// CHECK-NEXT: Fizz// CHECK-NEXT: 34// CHECK-NEXT: Buzz// CHECK-NEXT: Fizz// CHECK-NEXT: 37// CHECK-NEXT: 38// CHECK-NEXT: Fizz// CHECK-NEXT: Buzz// CHECK-NEXT: 41// CHECK-NEXT: Fizz// CHECK-NEXT: 43// CHECK-NEXT: 44// CHECK-NEXT: FizzBuzz// CHECK-NEXT: 46// CHECK-NEXT: 47// CHECK-NEXT: Fizz// CHECK-NEXT: 49// CHECK-NEXT: Buzz// CHECK-NEXT: Fizz// CHECK-NEXT: 52// CHECK-NEXT: 53// CHECK-NEXT: Fizz// CHECK-NEXT: Buzz// CHECK-NEXT: 56// CHECK-NEXT: Fizz// CHECK-NEXT: 58// CHECK-NEXT: 59// CHECK-NEXT: FizzBuzz// CHECK-NEXT: 61// CHECK-NEXT: 62// CHECK-NEXT: Fizz// CHECK-NEXT: 64// CHECK-NEXT: Buzz// CHECK-NEXT: Fizz// CHECK-NEXT: 67// CHECK-NEXT: 68// CHECK-NEXT: Fizz// CHECK-NEXT: Buzz// CHECK-NEXT: 71// CHECK-NEXT: Fizz// CHECK-NEXT: 73// CHECK-NEXT: 74// CHECK-NEXT: FizzBuzz// CHECK-NEXT: 76// CHECK-NEXT: 77// CHECK-NEXT: Fizz// CHECK-NEXT: 79// CHECK-NEXT: Buzz// CHECK-NEXT: Fizz// CHECK-NEXT: 82// CHECK-NEXT: 83// CHECK-NEXT: Fizz// CHECK-NEXT: Buzz// CHECK-NEXT: 86// CHECK-NEXT: Fizz// CHECK-NEXT: 88// CHECK-NEXT: 89// CHECK-NEXT: FizzBuzz// CHECK-NEXT: 91// CHECK-NEXT: 92// CHECK-NEXT: Fizz// CHECK-NEXT: 94// CHECK-NEXT: Buzz// CHECK-NEXT: Fizz// CHECK-NEXT: 97// CHECK-NEXT: 98// CHECK-NEXT: Fizz// CHECK-NEXT: Buzz
