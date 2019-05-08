@@ -437,15 +437,6 @@ class BCGen::ExprGenerator : public Generator,
       Expr* lhs = expr->getLHS();
       Expr* rhs = expr->getRHS();
 
-      // string + string concatenation
-      if(lhs->getType()->isStringType() && rhs->getType()->isStringType()) {
-        // Generate a call to the concat builtin
-        GenThunk lhsGT = getGTForExpr(lhs);
-        GenThunk rhsGT = getGTForExpr(rhs);
-        return 
-          emitBuiltinCall(BuiltinID::strConcat, std::move(dest), {lhsGT, rhsGT});
-      }
-
       // char + char concatenation
       if(lhs->getType()->isCharType() && rhs->getType()->isCharType()) {
         // Generate a call to the charConcat builtin
@@ -455,7 +446,41 @@ class BCGen::ExprGenerator : public Generator,
           emitBuiltinCall(BuiltinID::charConcat, std::move(dest), {lhsGT, rhsGT});
       }
 
-      fox_unimplemented_feature("Unhandled Concatenation Situation");
+      // string + string
+      // char + string 
+      // string + char
+
+      assert((lhs->getType()->isCharType() || lhs->getType()->isStringType())
+        && "LHS is neither a string or a char");
+      assert((rhs->getType()->isCharType() || rhs->getType()->isStringType())
+        && "RHS is neither a string or a char");
+
+      // FIXME: lhsGT and rhsGT have a lot in common, could code duplication
+      //        be reduced here?
+      GenThunk lhsGT = [this, lhs](RegisterValue dest) {
+        // If the lhs is a string, just gen it
+        if(lhs->getType()->isStringType())
+          return this->visit(lhs, std::move(dest));
+        // Else it's a char, so emit a charToString
+        return 
+          this->emitBuiltinCall(BuiltinID::charToString, 
+                                std::move(dest),
+                                this->getGTForExpr(lhs));
+      };
+
+      GenThunk rhsGT = [this, rhs](RegisterValue dest) {
+        // If the rhs is a string, just gen it
+        if(rhs->getType()->isStringType())
+          return this->visit(rhs, std::move(dest));
+        // Else it's a char, so emit a charToString
+        return 
+          this->emitBuiltinCall(BuiltinID::charToString, 
+                                std::move(dest),
+                                this->getGTForExpr(rhs));
+      };
+
+      return 
+        emitBuiltinCall(BuiltinID::strConcat, std::move(dest), {lhsGT, rhsGT});
     }
 
     //------------------------------------------------------------------------//

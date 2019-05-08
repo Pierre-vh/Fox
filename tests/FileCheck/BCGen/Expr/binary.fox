@@ -1,8 +1,10 @@
 // RUN: %fox-dump-bcgen | %filecheck
 
-// CHECK:       [Strings: 2 constants]
+// CHECK:       [Strings: 4 constants]
 // CHECK-NEXT:    0   | "foo"
 // CHECK-NEXT:    1   | "bar"
+// CHECK-NEXT:    2   | "b"
+// CHECK-NEXT:    3   | "a"
 
 // CHECK:   Function 0
 func intBinOps() {
@@ -91,4 +93,18 @@ func concatOps() {
   // CHECK-NEXT:  StoreSmallInt 2 98
   // CHECK-NEXT:  Call 0 0
   'a' + 'b';
+  // CHECK-NEXT:  LoadBuiltinFunc 0 strConcat
+  // CHECK-NEXT:  LoadBuiltinFunc 3 charToString
+  // CHECK-NEXT:  StoreSmallInt 4 97
+  // CHECK-NEXT:  Call 3 1
+  // CHECK-NEXT:  LoadStringK 2 2
+  // CHECK-NEXT:  Call 0 0
+  'a' + "b";
+  // CHECK-NEXT:  LoadBuiltinFunc 0 strConcat
+  // CHECK-NEXT:  LoadStringK 1 3
+  // CHECK-NEXT:  LoadBuiltinFunc 3 charToString
+  // CHECK-NEXT:  StoreSmallInt 4 98
+  // CHECK-NEXT:  Call 3 2
+  // CHECK-NEXT:  Call 0 0
+  "a" + 'b';
 }
