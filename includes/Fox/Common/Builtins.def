@@ -30,6 +30,8 @@ BUILTIN(printChar,    printChar)
 BUILTIN(printDouble,  printDouble)
 BUILTIN(printString,  printString)
 
+BUILTIN(strConcat,    concat)
+
 //----------------------------------------------------------------------------//
 
 IGNORED_ARG_TYPE(VM&) // Ignore references VM instances

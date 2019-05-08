@@ -39,5 +39,8 @@ namespace fox {
 
     /// Prints a string to stdout
     void printString(StringObject* str);
+
+    /// Concatenates 2 strings together, producing a new string
+    StringObject* strConcat(VM& vm, StringObject* lhs, StringObject* rhs);
   }
 }
