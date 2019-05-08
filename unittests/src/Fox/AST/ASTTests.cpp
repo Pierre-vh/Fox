@@ -558,15 +558,27 @@ class ASTBuiltinsTest : public ::testing::Test {
 
 };
 
-TEST_F(ASTBuiltinsTest, getTypeOfBuiltinTest) {
-  Type printIntTy = ctxt.getTypeOfBuiltin(BuiltinID::printInt);
-  Type printBoolTy = ctxt.getTypeOfBuiltin(BuiltinID::printBool);
-  Type printStrTy = ctxt.getTypeOfBuiltin(BuiltinID::printString);
+TEST_F(ASTBuiltinsTest, builtinFuncTypes) {
+  Type printIntTy = ctxt.getBuiltinFuncType(BuiltinID::printInt);
+  Type printBoolTy = ctxt.getBuiltinFuncType(BuiltinID::printBool);
+  Type printStrTy = ctxt.getBuiltinFuncType(BuiltinID::printString);
+  Type strConcatTy = ctxt.getBuiltinFuncType(BuiltinID::strConcat);
 
-  // Is 'toDebugString' fine for this?
-  EXPECT_EQ(printIntTy->toDebugString(),    "(int) -> void");
-  EXPECT_EQ(printBoolTy->toDebugString(),   "(bool) -> void");
-  EXPECT_EQ(printStrTy->toDebugString(),    "(string) -> void");
+  Type printIntRtrTy = ctxt.getBuiltinFuncReturnType(BuiltinID::printInt);
+  Type printBoolRtrTy = ctxt.getBuiltinFuncReturnType(BuiltinID::printBool);
+  Type printStrRtrTy = ctxt.getBuiltinFuncReturnType(BuiltinID::printString);
+  Type strConcatRtrTy = ctxt.getBuiltinFuncReturnType(BuiltinID::strConcat);
+
+  // FIXME: Is 'toDebugString' fine for this?
+  EXPECT_EQ(printIntTy->toDebugString(),  "(int) -> void");
+  EXPECT_EQ(printBoolTy->toDebugString(), "(bool) -> void");
+  EXPECT_EQ(printStrTy->toDebugString(),  "(string) -> void");
+  EXPECT_EQ(strConcatTy->toDebugString(), "(string, string) -> string");
+
+  EXPECT_TRUE(printIntRtrTy->isVoidType());
+  EXPECT_TRUE(printBoolRtrTy->isVoidType());
+  EXPECT_TRUE(printStrRtrTy->isVoidType());
+  EXPECT_TRUE(strConcatRtrTy->isStringType());
 }
 
 TEST_F(ASTBuiltinsTest, builtinIdentifier) {
@@ -622,7 +634,7 @@ TEST_F(ASTBuiltinsTest, unambiguousBuiltins) {
     SmallVector<std::pair<string_view, Type>, 2>
   > buitlins;
   #define BUILTIN(FUNC, FOX)\
-    buitlins[#FOX].push_back({#FUNC, ctxt.getTypeOfBuiltin(BuiltinID::FUNC)});
+    buitlins[#FOX].push_back({#FUNC, ctxt.getBuiltinFuncType(BuiltinID::FUNC)});
   #include "Fox/Common/Builtins.def"
   // For now, simply check that every vector in the array has a size of one.
   for (auto builtin : buitlins) {
