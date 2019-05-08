@@ -6,6 +6,7 @@
 //----------------------------------------------------------------------------//
 
 #include "Registers.hpp"
+#include "Fox/AST/ASTContext.hpp"
 #include "Fox/BCGen/BCGen.hpp"
 #include "Fox/BC/BCBuilder.hpp"
 #include "Fox/AST/Expr.hpp"
@@ -163,7 +164,7 @@ class BCGen::ExprGenerator : public Generator,
     /// (=evaluate to false) and other hints will be left untouched.
     RegisterValue 
     getDestReg(RegisterValue dest, 
-                  reference_initializer_list<RegisterValue> hints) {
+               reference_initializer_list<RegisterValue> hints) {
       if(dest) return dest;
       
       RegisterValue* best = nullptr;
@@ -188,19 +189,52 @@ class BCGen::ExprGenerator : public Generator,
     // emission
     //------------------------------------------------------------------------//
 
+    // Emits a call to a builtin function from a list of expressions
+    void emitBuiltinCall(BuiltinID bID, RegisterValue dest, ArrayRef<Expr*> args) {
+      // Reserve registers
+      SmallVector<RegisterValue, 4> callRegs;
+      regAlloc.allocateCallRegisters(callRegs, args.size()+1);
+
+      // Put a reference to the builtin in the base register
+      regaddr_t baseAddr = callRegs.front().getAddress();
+      builder.createLoadBuiltinFuncInstr(baseAddr, bID);
+
+      // Compile the args
+      for (std::size_t k = 0, size = args.size(); k < size; ++k)
+        callRegs[k+1] = visit(args[k], std::move(callRegs[k+1]));
+
+      // Check what the builtin returns
+      // FIXME: Is this a good idea to use the ASTContext for this? What bothers
+      //        me the most is that I need to include the whole ASTContext header
+      //        for this bit. (+getBuiltinFuncReturnType exists only for this
+      //        ATM)
+      bool returnsVoid = ctxt.getBuiltinFuncReturnType(bID)->isVoidType();
+
+      // Gen the call
+      if(returnsVoid)
+        builder.createCallVoidInstr(baseAddr);
+      else {
+        // Decide on the destination register, if possible reusing the base
+        // registers
+        // TODO: Try to reuse the arguments registers if possible too
+        dest = getDestReg(std::move(dest), {callRegs.front()});
+        builder.createCallInstr(baseAddr, dest.getAddress());
+      }
+    }
+
     // Emit an instruction to store the constant 'val' into the register
     // 'reg'.
-    void emitStoreIntConstant(const RegisterValue& dest, FoxInt val) {
+    void emitStoreIntConstant(regaddr_t dest, FoxInt val) {
       auto ssi_min = bc_limits::storeSmallInt_min;
       auto ssi_max = bc_limits::storeSmallInt_max;
       // Check if the value can be stored using StoreSmallInt
       if ((val >= ssi_min) && (val <= ssi_max)) {
-        builder.createStoreSmallIntInstr(dest.getAddress(), val);
+        builder.createStoreSmallIntInstr(dest, val);
         return;
       }
       // Else, store the constant in the constant table and emit a LoadIntK
       auto kId = bcGen.getConstantID(val);
-      builder.createLoadIntKInstr(dest.getAddress(), kId);
+      builder.createLoadIntKInstr(dest, kId);
     }
 
     // Generates the adequate instruction(s) to perform a binary
@@ -359,6 +393,24 @@ class BCGen::ExprGenerator : public Generator,
       return dstReg;
     }
 
+    RegisterValue genConcatBinaryExpr(BinaryExpr* expr, RegisterValue dest) {
+      assert(expr->isConcat() && "not a concatenation");
+      //  The return type of this expression should be a string
+      assert(expr->getType()->isStringType() && "doesn't return a string");
+
+      Expr* lhs = expr->getLHS();
+      Expr* rhs = expr->getRHS();
+
+      // string + string concatenation
+      if(lhs->getType()->isStringType() && rhs->getType()->isStringType()) {
+        // Generate a call to the concat builtin
+        emitBuiltinCall(BuiltinID::strConcat, std::move(dest), {lhs, rhs});
+        return dest;
+      }
+
+      fox_unimplemented_feature("Unhandled Concatenation Situation");
+    }
+
     //------------------------------------------------------------------------//
     // "visit" methods 
     // 
@@ -408,6 +460,8 @@ class BCGen::ExprGenerator : public Generator,
         // Else just return
         return reg;
       }
+      if (expr->isConcat())
+        return genConcatBinaryExpr(expr, std::move(dest));
       if (expr->getType()->isNumericOrBool())
         return genNumericOrBoolBinaryExpr(expr, std::move(dest));
       fox_unimplemented_feature("Non-numeric BinaryExpr BCGen");
@@ -609,7 +663,7 @@ class BCGen::ExprGenerator : public Generator,
     RegisterValue 
     visitCharLiteralExpr(CharLiteralExpr* expr, RegisterValue dest) { 
       dest = getDestReg(std::move(dest));
-      emitStoreIntConstant(dest, expr->getValue());
+      emitStoreIntConstant(dest.getAddress(), expr->getValue());
       return dest;
     }
 
@@ -618,7 +672,7 @@ class BCGen::ExprGenerator : public Generator,
                             bool asNegative = false) {
       dest = getDestReg(std::move(dest));
       FoxInt value = asNegative ? -expr->getValue() : expr->getValue();
-      emitStoreIntConstant(dest, value);
+      emitStoreIntConstant(dest.getAddress(), value);
       return dest;
     }
 
@@ -635,7 +689,7 @@ class BCGen::ExprGenerator : public Generator,
     RegisterValue 
     visitBoolLiteralExpr(BoolLiteralExpr* expr, RegisterValue dest) { 
       dest = getDestReg(std::move(dest));
-      emitStoreIntConstant(dest, expr->getValue());
+      emitStoreIntConstant(dest.getAddress(), expr->getValue());
       return dest;
     }
 
