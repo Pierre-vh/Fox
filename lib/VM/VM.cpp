@@ -12,9 +12,11 @@
 #include "Fox/Common/Errors.hpp"
 #include "Fox/Common/Builtins.hpp"
 #include "Fox/Common/Objects.hpp"
+#include "Fox/Common/STLExtras.hpp"
 #include <cmath>
 #include <type_traits>
 #include <iterator>
+#include <tuple>
 
 using namespace fox;
 
@@ -299,14 +301,18 @@ ArrayRef<VM::Register> VM::getRegisterStack() const {
 LLVM_ATTRIBUTE_RETURNS_NONNULL LLVM_ATTRIBUTE_RETURNS_NOALIAS
 StringObject* VM::newStringObject() {
   stringObjects_.emplace_back(std::make_unique<StringObject>());
-  return stringObjects_.back().get();
+  StringObject* ptr = stringObjects_.back().get();
+  assert(ptr && "Pointer to allocated object is nullptr");
+  return ptr;
 }
 
 LLVM_ATTRIBUTE_RETURNS_NONNULL LLVM_ATTRIBUTE_RETURNS_NOALIAS
 StringObject* VM::newStringObject(constant_id_t kID) {
   const auto& str = bcModule.getStringConstant(kID);
   stringObjects_.emplace_back(std::make_unique<StringObject>(str));
-  return stringObjects_.back().get();
+  StringObject* ptr = stringObjects_.back().get();
+  assert(ptr && "Pointer to allocated object is nullptr");
+  return ptr;
 }
 
 MutableArrayRef<VM::Register> VM::getRegisterStack() {
@@ -344,6 +350,10 @@ VM::Register VM::callFunc(regaddr_t base) {
 }
 
 namespace {
+  //--------------------------------------------------------------------------//
+  // Argument conversion and call logic
+  //--------------------------------------------------------------------------//
+
   /// Utility class used to perform conversions betwween a VM::Register
   /// and another type.
   template<typename Ty>
@@ -378,30 +388,20 @@ namespace {
                             , value);
   #undef REG_CONVERT
 
-  template<typename Ty, std::size_t index>
+  template<typename Ty>
   struct ArgCaster {
-    /// Calls RegCast::from_reg on base[index of arg];
-    static Ty cast(VM&, VM::Register* base) {
-      return RegCast<Ty>::regToType(base[index]);
+    static Ty cast(VM&, VM::Register*& base) {
+      return RegCast<Ty>::regToType(*(base++));
     }
   };
 
-
-  template<std::size_t index>
-  struct ArgCaster<VM&, index> {
+  template<>
+  struct ArgCaster<VM&> {
     /// Just returns the VM instance
-    static VM& cast(VM& vm, VM::Register*) {
+    static VM& cast(VM& vm, VM::Register*&) {
       return vm;
     }
   };
-
-
-  /// Helper that performs the actual function call
-  template <typename Rtr, typename ... Args, std::size_t ... N>
-  auto doBuiltinCallImpl(VM& vm, std::index_sequence<N...>, 
-                         Rtr(*fn)(Args...), VM::Register* base) {
-    return fn(ArgCaster<Args, N>::cast(vm, base)...);
-  }
 
   //--------------------------------------------------------------------------//
   // doBuiltinCall overloads
@@ -410,27 +410,21 @@ namespace {
   /// Calls a builtin that takes arguments and returns something
   template<typename Rtr, typename ... Args>
   VM::Register doBuiltinCall(VM& vm, VM::Register* base, Rtr(*fn)(Args...)) {
-    // Perform the call: we need to have an index sequence to subscript
-    // the base pointer appropriately.
-    auto rtr = doBuiltinCallImpl(
-          vm,
-          std::make_index_sequence<sizeof...(Args)>(),
-          fn,
-          base
-        );
+    // Create a tuple of arguments
+    std::tuple<Args...> args{ArgCaster<Args>::cast(vm, base)...};
+    // Apply
+    auto result = apply(fn, args);
     // Cast the return value to a VM::Reg
-    return RegCast<Rtr>::template from_reg(rtr);
+    return RegCast<Rtr>::template typeToReg(result);
   }
 
   /// Calls a builtin that takes arguments but doesn't return anything
   template<typename ... Args>
   VM::Register doBuiltinCall(VM& vm, VM::Register* base, void(*fn)(Args...)) {
-    doBuiltinCallImpl(
-      vm,
-      std::make_index_sequence<sizeof...(Args)>(),
-      fn, 
-      base
-    );
+    // Create a tuple of arguments
+    std::tuple<Args...> args{ArgCaster<Args>::cast(vm, base)...};
+    // Apply
+    apply(fn, args);
     // Simply returns null register for void function calls
     return VM::Register();
   }
