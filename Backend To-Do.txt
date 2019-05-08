@@ -103,7 +103,9 @@ Basic VM data types and their mappings to Fox types:
       -> Implement string interface in full
     -> Unit test
   -> Finish string impl:
-    -> String concatenation ('concat' builtin) (Done)
+    -> String concatenation ('concat' builtin)
+      -> string+string (Done)
+      -> handle chars (change the thunk depending on the type) (Done)
     -> Compile the 'Concat' BinOp in BCGenExpr (Done)
   -> Arrays 
     -> Scaffolding
