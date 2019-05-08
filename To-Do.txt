@@ -158,9 +158,12 @@ To-Do:
 
   > VM, Bytecode, BytecodeGen (Currently being worked on, see Backend To-Do.txt
 
-  > Decide on how mut parameters should be handled.
+  > Make a final decision on how mut parameters should be handled.
     If the caller isn't affected by them, remove the code/tests related to the 
     "cannot pass unassignable expression as 'mut' argument" diagnostic
+    -> Remove FunctionTypeParam too
+
+  > Maybe remove TypeLoc
 
   > Break and Continue Statements
 
