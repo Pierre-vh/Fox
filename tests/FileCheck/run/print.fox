@@ -7,8 +7,10 @@ func foo() {
   printDouble(-333.333333333);
   printString("\nHello, World\n");
   printString("");
+  printString("\nFox" + " is great!");
 }
 
 // CHECK: 42true善-333.333333333
 // CHECK-NEXT: Hello, World!
 // CHECK-EMPTY:
+// CHECK-NEXT: Fox is great!
