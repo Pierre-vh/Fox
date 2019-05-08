@@ -11,6 +11,7 @@
 #pragma once
 
 #include "Fox/BC/BCUtils.hpp"
+#include "Fox/BC/BCFunction.hpp"
 #include "Fox/Common/BuiltinID.hpp"
 #include "Fox/Common/FoxTypes.hpp"
 #include "Fox/Common/LLVM.hpp"
@@ -27,7 +28,6 @@
 namespace fox {
   struct Instruction;
   class BCModule;
-  class BCFunction;
   class Object;
   class StringObject;
 
