@@ -99,7 +99,8 @@ Basic VM data types and their mappings to Fox types:
   -> Builtins
     -> StringObject* support (Done)
     -> Add all string builtins that I need
-      -> toString() for Int, Double, Bool, Char
+      -> toString() for Int, Double, Bool, Char (Done)
+      -> Implement string interface in full
     -> Unit test
   -> Finish string impl:
     -> String concatenation ('concat' builtin) (Done)

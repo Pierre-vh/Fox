@@ -24,11 +24,18 @@
 
 //----------------------------------------------------------------------------//
 
+// TODO: Once I get overloads to work, rename all of these to 'print'
 BUILTIN(printInt,     printInt)
 BUILTIN(printBool,    printBool)
 BUILTIN(printChar,    printChar)
 BUILTIN(printDouble,  printDouble)
 BUILTIN(printString,  printString)
+
+// TODO: Once I get overloads to work, rename all of these to 'toString'
+BUILTIN(charToString,   charToString)
+BUILTIN(intToString,    intToString)
+BUILTIN(doubleToString, doubleToString)
+BUILTIN(boolToString,   boolToString)
 
 BUILTIN(strConcat,    concat)
 

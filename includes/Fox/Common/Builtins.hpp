@@ -40,6 +40,18 @@ namespace fox {
     /// Prints a string to stdout
     void printString(StringObject* str);
 
+    /// Converts a char to a string
+    StringObject* charToString(VM& vm, FoxChar value);
+
+    /// Converts an integer to a string
+    StringObject* intToString(VM& vm, FoxInt value);
+
+    /// Converts a double to a string
+    StringObject* doubleToString(VM& vm, FoxDouble value);
+
+    /// Converts a boolean to a string
+    StringObject* boolToString(VM& vm, bool value);
+
     /// Concatenates 2 strings together, producing a new string
     StringObject* strConcat(VM& vm, StringObject* lhs, StringObject* rhs);
   }
