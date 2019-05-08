@@ -38,6 +38,7 @@ BUILTIN(doubleToString, doubleToString)
 BUILTIN(boolToString,   boolToString)
 
 BUILTIN(strConcat,    concat)
+BUILTIN(charConcat,   concatChars)
 
 //----------------------------------------------------------------------------//
 

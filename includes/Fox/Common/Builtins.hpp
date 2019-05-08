@@ -54,5 +54,8 @@ namespace fox {
 
     /// Concatenates 2 strings together, producing a new string
     StringObject* strConcat(VM& vm, StringObject* lhs, StringObject* rhs);
+
+    /// Concatenates 2 chars together, producing a string
+    StringObject* charConcat(VM& vm, FoxChar lhs, FoxChar rhs);
   }
 }

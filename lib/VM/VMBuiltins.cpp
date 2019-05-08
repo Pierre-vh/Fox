@@ -49,3 +49,10 @@ StringObject* builtin::strConcat(VM& vm, StringObject* lhs, StringObject* rhs) {
   str = lhs->str() + rhs->str();
   return result;
 }
+
+StringObject* builtin::charConcat(VM& vm, FoxChar lhs, FoxChar rhs) {
+  StringObject* result = vm.newStringObject();
+  appendFoxChar(lhs, result->str());
+  appendFoxChar(rhs, result->str());
+  return result;
+}
