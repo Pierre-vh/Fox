@@ -102,8 +102,8 @@ Basic VM data types and their mappings to Fox types:
       -> toString() for Int, Double, Bool, Char
     -> Unit test
   -> Finish string impl:
-    -> String concatenation ('concat' builtin)
-    -> Compile the 'Concat' BinOp in BCGenExpr
+    -> String concatenation ('concat' builtin) (Done)
+    -> Compile the 'Concat' BinOp in BCGenExpr (Done)
   -> Arrays 
     -> Scaffolding
     -> Operations
