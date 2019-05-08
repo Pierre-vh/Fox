@@ -10,9 +10,9 @@
 
 #include "Fox/Sema/Sema.hpp"
 #include "Fox/AST/ASTNode.hpp"
-#include "Fox/Common/Errors.hpp"
 #include "Fox/AST/Decl.hpp"
 #include "Fox/AST/ASTContext.hpp"
+#include "Fox/Common/Errors.hpp"
 
 using namespace fox;
 
