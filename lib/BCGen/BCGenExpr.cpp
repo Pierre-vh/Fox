@@ -446,6 +446,15 @@ class BCGen::ExprGenerator : public Generator,
           emitBuiltinCall(BuiltinID::strConcat, std::move(dest), {lhsGT, rhsGT});
       }
 
+      // char + char concatenation
+      if(lhs->getType()->isCharType() && rhs->getType()->isCharType()) {
+        // Generate a call to the charConcat builtin
+        GenThunk lhsGT = getGTForExpr(lhs);
+        GenThunk rhsGT = getGTForExpr(rhs);
+        return 
+          emitBuiltinCall(BuiltinID::charConcat, std::move(dest), {lhsGT, rhsGT});
+      }
+
       fox_unimplemented_feature("Unhandled Concatenation Situation");
     }
 

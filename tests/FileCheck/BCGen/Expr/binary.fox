@@ -86,4 +86,9 @@ func concatOps() {
   // CHECK-NEXT:  LoadStringK 2 1
   // CHECK-NEXT:  Call 0 0
   "foo" + "bar";
+  // CHECK-NEXT:  LoadBuiltinFunc 0 charConcat
+  // CHECK-NEXT:  StoreSmallInt 1 97
+  // CHECK-NEXT:  StoreSmallInt 2 98
+  // CHECK-NEXT:  Call 0 0
+  'a' + 'b';
 }
