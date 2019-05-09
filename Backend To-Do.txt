@@ -105,7 +105,6 @@ Basic VM data types and their mappings to Fox types:
     -> handle chars (change the thunk depending on the type) (Done)
   -> Implement string interface in full
     -> Unit test
-  -> See fixMe in getDestReg for a small, easy optimization
   -> Arrays 
     -> Scaffolding
     -> Operations

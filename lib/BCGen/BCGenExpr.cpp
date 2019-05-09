@@ -202,25 +202,28 @@ class BCGen::ExprGenerator : public Generator,
       // variable or something. Just return it.
       if(dest) return dest;
 
-      // FIXME: This function could be greatly improved:
-      // we could have a RegisterAllocator function that returns the address
-      // of the next temporary we will allocate (without actually reserving it)
-      // so we can check if allocating a temporary is a better idea than
-      // reusing any of the candidates.
-
-      RegisterValue* best = nullptr;
+      // First, allocate a temporary register which will serve as a starting
+      // point.
+      // Allocating it now lets this method do the right thing when allocating
+      // a temporary is actually more efficient than reusing one of the
+      // hints.
+      RegisterValue temp = regAlloc.allocateTemporary();;
+      RegisterValue* best = &temp;
       for (RegisterValue& hint : hints) {
         if (hint.canRecycle()) {
-          // Can this become our best candidate?
-          if((!best) || (best->getAddress() > hint.getAddress())) 
+          // If the address of this hint is lower than the address of the best
+          // candidate, it becomes our best candidate.
+          if(hint.getAddress() < best->getAddress())
             best = &(hint);
         }
       }
 
-      // Recycle the best candidate
-      if(best)
-        return regAlloc.recycle(std::move(*best));
-      return regAlloc.allocateTemporary();
+      // Don't bother calling regAlloc.recycle if the best candidate is the 
+      // temporary
+      if(best == &temp)
+        return temp;
+      // Else, call recycle.
+      return regAlloc.recycle(std::move(*best));
     }
 
     //------------------------------------------------------------------------//
