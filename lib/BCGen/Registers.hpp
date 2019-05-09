@@ -92,7 +92,7 @@ namespace fox {
       /// Recycle a register that's about to die, transforming it into
       /// a temporary that has the same address.
       RegisterValue recycle(RegisterValue value);
-      
+
       /// \returns the number of registers currently in use
       regaddr_t numbersOfRegisterInUse() const;
 
