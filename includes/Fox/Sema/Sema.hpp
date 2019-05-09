@@ -30,6 +30,10 @@ namespace fox {
       /// will be the Diagnostic Engine used to emit diagnostics.
       Sema(ASTContext& ctxt);
 
+      /// Make this class non copyable
+      Sema(const Sema&) = delete;
+      Sema& operator=(const Sema&) = delete;
+
       /// Performs Semantic Analysis on a UnitDecl
       void checkUnitDecl(UnitDecl* decl);
 

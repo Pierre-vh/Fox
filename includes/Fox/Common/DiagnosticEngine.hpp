@@ -173,6 +173,10 @@ namespace fox {
       /// which prints pretty-printed diagnostics to \p os
       DiagnosticEngine(SourceManager& sm, std::ostream& os);
 
+      /// Make this class non copyable
+      DiagnosticEngine(const DiagnosticEngine&) = delete;
+      DiagnosticEngine& operator=(const DiagnosticEngine&) = delete;
+
       /// Constructor for when you want to use a pre-created DiagnosticConsumer
       DiagnosticEngine(SourceManager& sm, 
                        std::unique_ptr<DiagnosticConsumer> ncons);

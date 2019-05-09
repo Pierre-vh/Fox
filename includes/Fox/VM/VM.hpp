@@ -123,8 +123,11 @@ namespace fox {
       ///        might be needed during the execution of bytecode will be
       ///        fetched in that module.
       VM(BCModule& bcModule);
-
       ~VM();
+
+      /// Make this class non copyable
+      VM(const VM&) = delete;
+      VM& operator=(const VM&) = delete;
 
       /// Executes a function \p func with parameters \p args.
       /// This is intended as an entry point for clients, and not as an internal

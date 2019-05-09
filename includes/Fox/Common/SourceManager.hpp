@@ -86,6 +86,10 @@ namespace fox {
 
       SourceManager() = default;
 
+      /// Make this class non copyable
+      SourceManager(const SourceManager&) = delete;
+      SourceManager& operator=(const SourceManager&) = delete;
+
       /// Return enum for readFile
       enum class ReadFileResult : std::uint8_t {
         /// The file was successfully read and loaded in memory.
@@ -225,10 +229,6 @@ namespace fox {
 
       // Inserts a new Data in the datas_ vector, returning it's FileID.
       FileID insertData(std::unique_ptr<Data> data);
-
-      // Make it non copyable
-      SourceManager(const SourceManager&) = delete;
-      SourceManager& operator=(const SourceManager&) = delete;
       
       // Member variables
       SmallVector<std::unique_ptr<Data>, 4> datas_;

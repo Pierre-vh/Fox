@@ -36,6 +36,10 @@ namespace fox {
       ///        might be contained inside it will not be read/considered.
       BCGen(ASTContext& ctxt, BCModule& theModule);
 
+      /// Make this class non copyable
+      BCGen(const BCGen&) = delete;
+      BCGen& operator=(const BCGen&) = delete;
+
       /// Generates the bytecode of a single unit \p unit
       void genUnit(UnitDecl* unit);
 

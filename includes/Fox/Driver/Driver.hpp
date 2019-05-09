@@ -41,7 +41,11 @@ namespace fox {
       std::ostream& out;
 
       Driver(std::ostream& os);
-      /// Processes a single file whose path is filepath
+
+      Driver(const Driver&) = delete;
+      Driver& operator=(const Driver&) = delete;
+
+      /// Processes a single file at \p filepath
       /// \returns true if the file was processed successfully, false otherwise
       bool processFile(string_view filepath);
 

@@ -32,6 +32,12 @@ namespace fox {
       ///        owned by \p srcMgr.
       Lexer(SourceManager& srcMgr, DiagnosticEngine& diags, FileID file);
 
+      /// Make this class non copyable, but movable
+      Lexer(const Lexer&) = delete;
+      Lexer& operator=(const Lexer&) = delete;
+      Lexer(Lexer&&) = default;
+      Lexer& operator=(Lexer&&) = default;
+
       /// lex the full file. the tokens can be retrieved using getTokens()
       void lex();
   
@@ -63,12 +69,6 @@ namespace fox {
       SourceManager& sourceMgr;
       /// The FileID of the file being lexed
       const FileID theFile;
-
-      // The Lexer should be movable but not copyable.
-      Lexer(const Lexer&) = delete;
-      Lexer& operator=(const Lexer&) = delete;
-      Lexer(Lexer&&) = default;
-      Lexer& operator=(Lexer&&) = default;
 
     private:
       // Pushes the current token with the kind "kind"
