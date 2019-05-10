@@ -103,6 +103,7 @@ Basic VM data types and their mappings to Fox types:
   -> Compile the 'Concat' BinOp in BCGenExpr
     -> string+string (Done)
     -> handle chars (change the thunk depending on the type) (Done)
+  -> Default-init variables (based on its type)
   -> Implement string interface in full
     -> Unit test
   -> Arrays 
