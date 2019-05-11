@@ -7,7 +7,6 @@
 
 #include "Fox/Common/Errors.hpp"
 #include <cstdlib>
-#include <new>  // bad_alloc
 #include <iostream>
 
 void fox::detail::fox_unreachable_internal(const char* message, 
