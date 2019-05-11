@@ -32,11 +32,11 @@ RegisterAllocator::RegisterAllocator(ParamList* params) {
     data.addr = biggestAllocatedReg_++;
   }
 
-  // Release unused, non mut parameters.
+  // Release unused parameters directly.
   // This must be done as a separate loop to ensure that the parameters
   // are given a register address based on their index. Calling release()
   // at the end of the previous loop might decrement biggestAllocatedReg_
-  // which would mess up the register addresses.
+  // which would mess up the register addresses of parameters.
   for (ParamDecl* param : *params) {
     if(!param->isUsed())
       release(param, /*isAlreadyDead*/ true);

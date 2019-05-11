@@ -39,8 +39,12 @@ namespace fox {
       ///
       /// The parameters in ParamList will be assigned a register based 
       /// on their position in the list.
+      /// e.g. Param 0 = r0, Param 1 = r1, ..., Param N = rN.
       /// Parameters are treated like normal variables and will be freed
       /// after their last use.
+      /// No distinction is made between mutable and non mutable parameters,
+      /// however unused parameters's register will be directly freed to
+      /// allow their registers to be reused.
       ///
       ///
       /// \p params the list of parameters of the function, maybe nullptr.
