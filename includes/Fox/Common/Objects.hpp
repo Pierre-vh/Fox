@@ -12,6 +12,7 @@
 
 #include <cstdint>
 #include <string>
+#include "FoxTypes.hpp"
 #include "string_view.hpp"
 
 namespace fox {
@@ -50,7 +51,7 @@ namespace fox {
       /// std::size_t numChars() const /* utf-8 measurement */
       /// std::size_t numBytes() const /* std::string::size() */
 
-      /// void append(FoxChar ch);
+      void append(FoxChar ch);
       /// void setChar(std::size_t idx, FoxChar ch)
       /// FoxChar getChar(std::size_t idx)
 

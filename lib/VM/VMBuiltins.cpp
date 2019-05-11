@@ -52,7 +52,7 @@ StringObject* builtin::strConcat(VM& vm, StringObject* lhs, StringObject* rhs) {
 
 StringObject* builtin::charConcat(VM& vm, FoxChar lhs, FoxChar rhs) {
   StringObject* result = vm.newStringObject();
-  appendFoxChar(lhs, result->str());
-  appendFoxChar(rhs, result->str());
+  result->append(lhs);
+  result->append(rhs);
   return result;
 }
