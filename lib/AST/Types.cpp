@@ -138,25 +138,18 @@ namespace {
       #undef LEAF
 
       void visitArrayType(ArrayType* type) {
-        if (debugPrint) {
-          out << "Array(";
-          visit(type->getElementType());
-          out << ")";
-        }
-        else {
-          out << "[";
-          visit(type->getElementType());
-          out << "]";
-        }
+        out << "[";
+        visit(type->getElementType());
+        out << "]";
       }
 
       void visitLValueType(LValueType* type) {
         if (debugPrint) {
-          out << "LValue(";
+          out << "@(";
           visit(type->getType());
           out << ")";
         }
-        else // just print the child type
+        else
           visit(type->getType());
       }
 
@@ -166,10 +159,13 @@ namespace {
           // In debug prints, print the substitution too, if
           // there's one.
           if (Type subst = type->getSubst()) {
-            out << "=";
+            out << "=(";
             visit(subst);
+            out << ")";
           }
         }
+        // When presenting this type to the user, just say it's a "any"
+        // type.
         else 
           out << "any";
       }
