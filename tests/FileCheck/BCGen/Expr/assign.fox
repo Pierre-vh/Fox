@@ -2,6 +2,7 @@
 
 // CHECK:   Function 0
 func foo() {
+  // CHECK-NEXT: StoreSmallInt 0 0
   var x : int;
   // CHECK-NEXT: StoreSmallInt 0 0
   x = 0;

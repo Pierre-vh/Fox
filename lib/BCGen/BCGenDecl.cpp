@@ -10,6 +10,7 @@
 #include "Fox/AST/Decl.hpp"
 #include "Fox/AST/Expr.hpp"
 #include "Fox/AST/Stmt.hpp"
+#include "Fox/AST/TypeVisitor.hpp"
 #include "Fox/AST/ASTWalker.hpp"
 #include "Fox/AST/ASTVisitor.hpp"
 #include "Fox/BC/BCBuilder.hpp"
@@ -18,6 +19,70 @@
 #include "Fox/Common/Errors.hpp"
 
 using namespace fox;
+
+//----------------------------------------------------------------------------//
+// DefaultInitGenerator
+//
+// Generates code to default-init a variable of some type in a given register.
+//----------------------------------------------------------------------------//
+
+namespace {
+  class DefaultInitGenerator : TypeVisitor<DefaultInitGenerator, void, regaddr_t> {
+    using Inherited = TypeVisitor<DefaultInitGenerator, void, regaddr_t>;
+    friend Inherited;
+    public:
+      DefaultInitGenerator(BCBuilder& builder) : builder(builder) {}
+
+      void gen(Type type, regaddr_t dest) {
+        visit(type, dest);
+      }
+
+      BCBuilder& builder;
+
+    private:
+      void visitPrimitiveType(PrimitiveType* type, regaddr_t dest) {
+        using Prim = PrimitiveType::Kind;
+        assert(!type->isVoidType() &&
+          "The Void Type shouldn't appear in a variable's type");
+        /// For primitive "value" types, simply reset the register
+        switch (type->getPrimitiveKind()) {
+          case Prim::IntTy:
+          case Prim::DoubleTy:
+          case Prim::CharTy:
+          case Prim::BoolTy:
+            builder.createStoreSmallIntInstr(dest, 0);
+            break;
+          /// For strings, use newString
+          case Prim::StringTy:
+            builder.createNewStringInstr(dest);
+            break;
+          default:
+            fox_unreachable("Unknown Primitive Type Kind");
+        }
+      }
+
+      void visitErrorType(ErrorType*, regaddr_t) {
+        fox_unreachable("ErrorType found past Semantic Analysis");
+      }
+
+      void visitFunctionType(FunctionType*, regaddr_t) {
+        fox_unreachable("FunctionType shouldn't appear in a variable's type");
+      }
+
+      void visitArrayType(ArrayType*, regaddr_t) {
+        fox_unimplemented_feature("ArrayType variables default initialization");
+      }
+
+      void visitLValueType(LValueType*, regaddr_t) {
+        fox_unreachable("LValueTypes shouldn't appear in a variable's type");
+      }
+
+      void visitTypeVariableType(TypeVariableType*, regaddr_t) {
+        fox_unreachable("TypeVariableType found past Semantic Analysis");
+      }
+
+  };
+}
 
 //----------------------------------------------------------------------------//
 // DeclGenerator 
@@ -44,26 +109,31 @@ class BCGen::LocalDeclGenerator : public Generator,
     }
 
     void visitVarDecl(VarDecl* decl) {
-      RegisterValue initReg;
+      Expr* init = decl->getInitExpr();
 
-      // Generate the initializer if there's one
-      if (Expr* init = decl->getInitExpr()) {
-        initReg = bcGen.genExpr(builder, regAlloc, init);
-
-        // If possible, store the variable directly in initReg.
-        if (initReg.canRecycle()) {
-          regAlloc.initVar(decl, &initReg); // discard the RegisterValue directly
-          assert(!initReg.isAlive() && "hint not consumed");
-          return;
-        } 
+      // If the variable doesn't have an initializer, simply default-init it
+      if (!init) {
+        RegisterValue varReg = regAlloc.initVar(decl);
+        DefaultInitGenerator dig(builder);
+        dig.gen(decl->getTypeLoc().getType(), varReg.getAddress());
+        return;
       }
 
-      // Initialize the variable normally, duplicating the register containing
+      // Generate the initializer
+      RegisterValue initReg = bcGen.genExpr(builder, regAlloc, init);
+
+      // If possible, store the variable directly in initReg.
+      // This should be the most common case.
+      if (initReg.canRecycle()) {
+        regAlloc.initVar(decl, &initReg); // discard the RegisterValue directly
+        assert(!initReg.isAlive() && "hint not consumed");
+        return;
+      } 
+
+      // Initialize the variable, duplicating the register containing
       // the initializer in the var's designated register.
-      RegisterValue var = regAlloc.initVar(decl);
-      // Init the var if we have an initializer
-      if(initReg)
-        builder.createCopyInstr(var.getAddress(), initReg.getAddress());
+      RegisterValue varReg = regAlloc.initVar(decl);
+      builder.createCopyInstr(varReg.getAddress(), initReg.getAddress());
     }
 
     void visitParamDecl(ParamDecl*) {
