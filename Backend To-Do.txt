@@ -105,12 +105,11 @@ Basic VM data types and their mappings to Fox types:
     -> handle chars (change the thunk depending on the type) (Done)
   -> Default-init variables (based on its type) (Done)
   -> Implement string interface in full
-    -> append
-      -> change the "Concat" binop so it compiles to a append when we have
-          string+char (char+string stays charToStr+concat)
-    -> length, numBytes()
+    -> append, appendStr
+    -> pop
+    -> length, numBytes
     -> getChar/setChar
-      -> Add string subscript
+      -> Add string subscript & assignement
     -> getByte/setByte
     -> erase, eraseBytes
     -> Unit test everything of course
