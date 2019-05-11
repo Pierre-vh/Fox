@@ -40,25 +40,28 @@ namespace {
       BCBuilder& builder;
 
     private:
-      void visitPrimitiveType(PrimitiveType* type, regaddr_t dest) {
-        using Prim = PrimitiveType::Kind;
-        assert(!type->isVoidType() &&
-          "The Void Type shouldn't appear in a variable's type");
-        /// For primitive "value" types, simply reset the register
-        switch (type->getPrimitiveKind()) {
-          case Prim::IntTy:
-          case Prim::DoubleTy:
-          case Prim::CharTy:
-          case Prim::BoolTy:
-            builder.createStoreSmallIntInstr(dest, 0);
-            break;
-          /// For strings, use newString
-          case Prim::StringTy:
-            builder.createNewStringInstr(dest);
-            break;
-          default:
-            fox_unreachable("Unknown Primitive Type Kind");
-        }
+      void visitIntType(IntType*, regaddr_t dest) {
+        builder.createStoreSmallIntInstr(dest, 0);
+      }
+
+      void visitDoubleType(DoubleType*, regaddr_t dest) {
+        builder.createStoreSmallIntInstr(dest, 0);
+      }
+
+      void visitBoolType(BoolType*, regaddr_t dest) {
+        builder.createStoreSmallIntInstr(dest, 0);
+      }
+
+      void visitCharType(CharType*, regaddr_t dest) {
+        builder.createStoreSmallIntInstr(dest, 0);
+      }
+
+      void visitStringType(StringType*, regaddr_t dest) {
+        builder.createNewStringInstr(dest);
+      }
+
+      void visitVoidType(VoidType*, regaddr_t) {
+        fox_unreachable("VoidType shouldn't appear in a variable's type");
       }
 
       void visitErrorType(ErrorType*, regaddr_t) {

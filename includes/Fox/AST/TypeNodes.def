@@ -31,9 +31,16 @@
 
 /* Macros */
 ABSTRACT_TYPE(BasicType, TypeBase)
-  TYPE(PrimitiveType, BasicType)
-  TYPE(ErrorType, BasicType)
-  TYPE_RANGE(BasicType, PrimitiveType, ErrorType)
+  ABSTRACT_TYPE(PrimitiveType, BasicType)
+    TYPE(IntType,     PrimitiveType)
+    TYPE(DoubleType,  PrimitiveType)
+    TYPE(CharType,    PrimitiveType)
+    TYPE(BoolType,    PrimitiveType)
+    TYPE(StringType,  PrimitiveType)
+    TYPE(VoidType,    PrimitiveType)
+    TYPE_RANGE(PrimitiveType, IntType, VoidType)
+  TYPE(ErrorType,   BasicType)
+  TYPE_RANGE(BasicType, IntType, ErrorType)
 
 TYPE(FunctionType, TypeBase)
 TYPE(ArrayType, TypeBase)

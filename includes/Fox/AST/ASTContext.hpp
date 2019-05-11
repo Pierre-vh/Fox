@@ -106,11 +106,11 @@ namespace fox {
       DiagnosticEngine& diagEngine;
 
     private:
-      friend ArrayType;
-      friend LValueType;
-      friend ErrorType;
-      friend PrimitiveType;
-      friend FunctionType;
+      // Friend every Type class
+      // FIXME: Once I do PImpl on the ASTContext, remove these and implement
+      // every Type::create/get method in ASTContext.cpp instead.
+      #define TYPE(TYPE, PARENT) friend TYPE;
+      #include "TypeNodes.def"
       friend BuiltinFuncDecl;
 
       /// Calls the cleanup functions and resets the "cleanups" vector.
@@ -136,13 +136,13 @@ namespace fox {
       std::unordered_map<BuiltinID, BuiltinFuncDecl*> builtinFuncs_;
 
       // Singleton/unique types. Lazily created by their respective classes.
-      ErrorType* theErrorType_      = nullptr;
-      PrimitiveType* theIntType_    = nullptr;
-      PrimitiveType* theFloatType_  = nullptr;
-      PrimitiveType* theCharType_   = nullptr;
-      PrimitiveType* theBoolType_   = nullptr;
-      PrimitiveType* theStringType_ = nullptr;
-      PrimitiveType* theVoidType_   = nullptr;
+      ErrorType*  theErrorType_   = nullptr;
+      IntType*    theIntType_     = nullptr;
+      DoubleType* theDoubleType   = nullptr;
+      CharType*   theCharType_    = nullptr;
+      BoolType*   theBoolType_    = nullptr;
+      StringType* theStringType_  = nullptr;
+      VoidType*   theVoidType_    = nullptr;
 
       /// The set of unique identifier strings.
       std::unordered_set<string_view> idents_;

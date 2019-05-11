@@ -130,7 +130,7 @@ Type Sema::simplify(Type type) {
       Impl(Sema& sema) : 
         sema(sema), ctxt(sema.ctxt) {}
 
-      Type visitPrimitiveType(PrimitiveType* type) {
+      Type visitBasicType(BasicType* type) {
         return type;
       }
 
@@ -154,12 +154,6 @@ Type Sema::simplify(Type type) {
 
       Type visitTypeVariableType(TypeVariableType* type) {
         return type->getSubstRecursively();
-      }
-
-      Type visitErrorType(ErrorType* type) {
-        // Assert that we have emitted at least 1 error if
-        // we have a ErrorType present in the hierarchy.
-        return type;
       }
 
       Type visitFunctionType(FunctionType* type) {

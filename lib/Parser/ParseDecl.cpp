@@ -178,7 +178,7 @@ Parser::Result<Decl*> Parser::parseFuncDecl() {
   } 
   else {
     // No explicit return type, so the function returns void.
-    TypeLoc voidTL(PrimitiveType::getVoid(ctxt), SourceRange());
+    TypeLoc voidTL(VoidType::get(ctxt), SourceRange());
     func->setReturnTypeLoc(voidTL);
   }
 

@@ -55,23 +55,23 @@ Parser::Result<TypeLoc> Parser::parseBuiltinTypename() {
 
   // "int"
   if (auto range = tryConsume(TokenKind::IntKw))
-    return RtrTy(TypeLoc(PrimitiveType::getInt(ctxt), range));
+    return RtrTy(TypeLoc(IntType::get(ctxt), range));
   
   // "float"
   if (auto range = tryConsume(TokenKind::DoubleKw))
-    return RtrTy(TypeLoc(PrimitiveType::getDouble(ctxt), range));
+    return RtrTy(TypeLoc(DoubleType::get(ctxt), range));
 
   // "bool"
   if (auto range = tryConsume(TokenKind::BoolKw))
-    return RtrTy(TypeLoc(PrimitiveType::getBool(ctxt), range));
+    return RtrTy(TypeLoc(BoolType::get(ctxt), range));
 
   // "string"
   if (auto range = tryConsume(TokenKind::StringKw))
-    return RtrTy(TypeLoc(PrimitiveType::getString(ctxt), range));
+    return RtrTy(TypeLoc(StringType::get(ctxt), range));
 
   // "char"
   if (auto range = tryConsume(TokenKind::CharKw))
-    return RtrTy(TypeLoc(PrimitiveType::getChar(ctxt), range));
+    return RtrTy(TypeLoc(CharType::get(ctxt), range));
 
   return RtrTy::NotFound();
 }

@@ -576,9 +576,9 @@ class BCGen::ExprGenerator : public Generator,
       regaddr_t dstRegAddr = dstReg.getAddress();
 
       // Casts to numeric types
-      if (ty->isNumeric()) {
+      if (ty->isNumericType()) {
         // Numeric -> Numeric
-        if (subTy->isNumeric()) {
+        if (subTy->isNumericType()) {
           // We know it's a non-useless cast from a numeric type
           // to a different numeric type.
           if (ty->isDoubleType()) {
@@ -648,7 +648,7 @@ class BCGen::ExprGenerator : public Generator,
       // as the expr's.
       else if (expr->getOp() == UnOp::Minus) {
         Type ty = expr->getType();
-        assert(ty->isNumeric() && "Unary Minus on non-numeric types");
+        assert(ty->isNumericType() && "Unary Minus on non-numeric types");
         // Decide what to emit based on the type of the UnaryExpr.
         if(ty->isIntType())
           builder.createNegIntInstr(destAddr, childAddr);

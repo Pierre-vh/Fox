@@ -63,6 +63,10 @@ namespace fox {
       ///          returns this.
       Type getRValue();
 
+      /// \returns for LValues, return the element's type of the LValue, else
+      ///          returns this.
+      const Type getRValue() const;
+
       /// \returns true if this Type tree contains a TypeVariable somewhere
       bool hasTypeVariable() const;
 
@@ -95,10 +99,10 @@ namespace fox {
 
       /// \returns true if this type is either the primitive 'int' or 
       /// 'double' type. Ignores LValues.
-      bool isNumeric() const;
+      bool isNumericType() const;
 
       /// \returns true if this type is any primitive type. Ignores LValues.
-      bool isPrimitive() const;
+      bool isPrimitiveType() const;
 
       /// \returns true if this type is either the primitive 'int', 
       /// 'double' or 'bool' type. Ignores LValues.
@@ -243,7 +247,7 @@ namespace fox {
   };
 
   /// BasicType
-  ///    Common base for "Basic" Types.
+  ///    Common base for basic and primitive Types.
   class BasicType : public TypeBase {
     public:
       static bool classof(const TypeBase* type) {
@@ -255,59 +259,95 @@ namespace fox {
       BasicType(TypeKind tc);
   };
 
-  /// PrimitiveType 
-  ///    A primitive type (void/int/float/char/bool/string)
-  class PrimitiveType final : public BasicType {
+  /// PrimitiveType
+  ///    Common base for primitive types
+  class PrimitiveType : public BasicType {
     public:
-      /// Kinds of primitive types
-      enum class Kind : std::uint8_t {
-        /// 'void'
-        VoidTy,
-        /// 'int'
-        IntTy,
-        /// 'double'
-        DoubleTy,
-        /// 'char'
-        CharTy,
-        /// 'string'
-        StringTy,
-        /// 'bool'
-        BoolTy
-      };
-
-      /// \returns true if getPrimitiveKind() == kind.
-      bool is(Kind kind) const;
-
-      /// \returns the unique instance of PrimitiveType for the 'string'
-      /// type, for \p ctxt.
-      static PrimitiveType* getString(ASTContext& ctxt);
-      /// \returns the unique instance of PrimitiveType for the 'char'
-      /// type, for \p ctxt.
-      static PrimitiveType* getChar(ASTContext& ctxt);
-      /// \returns the unique instance of PrimitiveType for the 'double'
-      /// type, for \p ctxt.
-      static PrimitiveType* getDouble(ASTContext& ctxt);
-      /// \returns the unique instance of PrimitiveType for the 'bool'
-      /// type, for \p ctxt.
-      static PrimitiveType* getBool(ASTContext& ctxt);
-      /// \returns the unique instance of PrimitiveType for the 'int'
-      /// type, for \p ctxt.
-      static PrimitiveType* getInt(ASTContext& ctxt);
-      /// \returns the unique instance of PrimitiveType for the 'void'
-      /// type, for \p ctxt.
-      static PrimitiveType* getVoid(ASTContext& ctxt);
-
-      /// \returns the primitive type kind
-      Kind getPrimitiveKind() const;
-
       static bool classof(const TypeBase* type) {
-        return (type->getKind() == TypeKind::PrimitiveType);
+        return ((type->getKind() >= TypeKind::First_PrimitiveType) 
+          && (type->getKind() <= TypeKind::Last_PrimitiveType));
       }
 
-    private:
-      PrimitiveType(Kind kd);
+    protected:
+      PrimitiveType(TypeKind tc);
+  };
 
-      const Kind builtinKind_;
+  /// IntType
+  ///   The primitive 'int' type.
+  class IntType final : public PrimitiveType {
+    public:
+      static IntType* get(ASTContext& ctxt);
+
+      static bool classof(const TypeBase* type) {
+        return (type->getKind() == TypeKind::IntType);
+      }
+    private:
+      IntType();
+  };
+
+  /// DoubleType
+  ///   The primitive 'double' type.
+  class DoubleType final : public PrimitiveType {
+    public:
+      static DoubleType* get(ASTContext& ctxt);
+
+      static bool classof(const TypeBase* type) {
+        return (type->getKind() == TypeKind::DoubleType);
+      }
+    private:
+      DoubleType();
+  };
+
+  /// CharType
+  ///   The primitive 'char' type.
+  class CharType final : public PrimitiveType {
+    public:
+      static CharType* get(ASTContext& ctxt);
+
+      static bool classof(const TypeBase* type) {
+        return (type->getKind() == TypeKind::CharType);
+      }
+    private:
+      CharType();
+  };
+
+  /// BoolType
+  ///   The primitive 'bool' type.
+  class BoolType final : public PrimitiveType {
+    public:
+      static BoolType* get(ASTContext& ctxt);
+
+      static bool classof(const TypeBase* type) {
+        return (type->getKind() == TypeKind::BoolType);
+      }
+    private:
+      BoolType();
+  };
+
+  /// StringType
+  ///   The primitive 'string' type.
+  class StringType final : public PrimitiveType {
+    public:
+      static StringType* get(ASTContext& ctxt);
+
+      static bool classof(const TypeBase* type) {
+        return (type->getKind() == TypeKind::StringType);
+      }
+    private:
+      StringType();
+  };
+
+  /// VoidType
+  ///   The primitive 'void' type.
+  class VoidType final : public PrimitiveType {
+    public:
+      static VoidType* get(ASTContext& ctxt);
+
+      static bool classof(const TypeBase* type) {
+        return (type->getKind() == TypeKind::VoidType);
+      }
+    private:
+      VoidType();
   };
 
   /// ErrorType

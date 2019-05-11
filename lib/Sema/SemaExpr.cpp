@@ -316,7 +316,7 @@ class Sema::ExprChecker : Checker, ExprVisitor<ExprChecker, Expr*>,  ASTWalker {
     // Finalizes an expression whose type is boolean (e.g. conditional/logical
     // expressions such as LAnd, LNot, LE, GT, etc..)
     Expr* finalizeBooleanExpr(Expr* expr) {
-      expr->setType(PrimitiveType::getBool(ctxt));
+      expr->setType(BoolType::get(ctxt));
       return expr;
     }
 
@@ -348,7 +348,7 @@ class Sema::ExprChecker : Checker, ExprVisitor<ExprChecker, Expr*>,  ASTWalker {
     Expr* finalizeConcatBinaryExpr(BinaryExpr* expr) {
       // For concatenation, the type is always string.
       // We'll also change the add operator to become the concat operator.
-      expr->setType(PrimitiveType::getString(ctxt));
+      expr->setType(StringType::get(ctxt));
       expr->setOp(BinaryExpr::OpKind::Concat);
       return expr;
     }
@@ -529,7 +529,7 @@ class Sema::ExprChecker : Checker, ExprVisitor<ExprChecker, Expr*>,  ASTWalker {
         // on numeric types.
         case UOp::Minus:
         case UOp::Plus:
-          if (childTy->isNumeric()) {
+          if (childTy->isNumericType()) {
             // The type of the expr is the same as its child (without
             // LValue if present)
             expr->setType(childTy->getRValue());
@@ -565,7 +565,7 @@ class Sema::ExprChecker : Checker, ExprVisitor<ExprChecker, Expr*>,  ASTWalker {
       }
       // Or a String Type (in that case, the type of the subscript is 'char')
       else if(baseTy->isStringType())
-        subscriptType = PrimitiveType::getChar(ctxt);
+        subscriptType = CharType::get(ctxt);
       // if it's neither, we can't subscript.
       else {
 			  diagnoseInvalidArraySubscript(expr, base->getSourceRange(), 
@@ -683,27 +683,27 @@ class Sema::ExprChecker : Checker, ExprVisitor<ExprChecker, Expr*>,  ASTWalker {
     // Trivial literals: the expr's type is simply the corresponding
     // type. Int for a Int literal, etc.
     Expr* visitCharLiteralExpr(CharLiteralExpr* expr) {
-      expr->setType(PrimitiveType::getChar(ctxt));
+      expr->setType(CharType::get(ctxt));
       return expr;
     }
 
     Expr* visitIntegerLiteralExpr(IntegerLiteralExpr* expr) {
-      expr->setType(PrimitiveType::getInt(ctxt));
+      expr->setType(IntType::get(ctxt));
       return expr;
     }
 
     Expr* visitDoubleLiteralExpr(DoubleLiteralExpr* expr) {
-      expr->setType(PrimitiveType::getDouble(ctxt));
+      expr->setType(DoubleType::get(ctxt));
       return expr;
     }
 
     Expr* visitBoolLiteralExpr(BoolLiteralExpr* expr) {
-      expr->setType(PrimitiveType::getBool(ctxt));
+      expr->setType(BoolType::get(ctxt));
       return expr;
     }
 
     Expr* visitStringLiteralExpr(StringLiteralExpr* expr) {
-      expr->setType(PrimitiveType::getString(ctxt));
+      expr->setType(StringType::get(ctxt));
       return expr;
     }
 
@@ -789,7 +789,7 @@ class Sema::ExprChecker : Checker, ExprVisitor<ExprChecker, Expr*>,  ASTWalker {
       // Check that lhs and rhs unify and that they're both numeric
       // types.
       if(sema.unify(lhsTy, rhsTy) && 
-        (lhsTy->isNumeric() && rhsTy->isNumeric())) {
+        (lhsTy->isNumericType() && rhsTy->isNumericType())) {
         expr->setType(lhsTy);
         return expr;
       }
@@ -852,8 +852,8 @@ class Sema::ExprChecker : Checker, ExprVisitor<ExprChecker, Expr*>,  ASTWalker {
       // For ranking comparisons, only allow primitive types except booleans
       // as operands.
       if (expr->isRankingComparison()) {
-        bool lhsOk = (lhsTy->isPrimitive() && !lhsTy->isBoolType());
-        bool rhsOk = (rhsTy->isPrimitive() && !rhsTy->isBoolType());
+        bool lhsOk = (lhsTy->isPrimitiveType() && !lhsTy->isBoolType());
+        bool rhsOk = (rhsTy->isPrimitiveType() && !rhsTy->isBoolType());
         if(!(lhsOk && rhsOk)) {
           diagnoseInvalidBinaryExpr(expr);
           return expr;

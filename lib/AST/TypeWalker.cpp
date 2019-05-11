@@ -28,7 +28,7 @@ namespace {
         return false;
       }
 
-      bool visitPrimitiveType(PrimitiveType*) {
+      bool visitBasicType(BasicType*) {
         return true;
       }
 
@@ -41,10 +41,6 @@ namespace {
       bool visitLValueType(LValueType* type) {
         if (Type ty = type->getType())
           return doIt(ty);
-        return true;
-      }
-
-      bool visitErrorType(ErrorType*) {
         return true;
       }
 

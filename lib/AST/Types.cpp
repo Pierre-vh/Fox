@@ -38,31 +38,15 @@ namespace {
 
       }
 
-      void visitPrimitiveType(PrimitiveType* type) {
-        using PTK = PrimitiveType::Kind;
-        switch (type->getPrimitiveKind()) {
-          case PTK::BoolTy:
-            out << "bool";
-            break;
-          case PTK::CharTy:
-            out << "char";
-            break;
-          case PTK::StringTy:
-            out << "string";
-            break;
-          case PTK::DoubleTy:
-            out << "double";
-            break;
-          case PTK::IntTy:
-            out << "int";
-            break;
-          case PTK::VoidTy:
-            out << "void";
-            break;
-          default:
-            fox_unreachable("all primitive kinds handled");
-        }
-      }
+      #define LEAF(TYPE, STR) void visit##TYPE(TYPE*) { out << STR; }
+      LEAF(ErrorType,   "<error>")
+      LEAF(IntType,     "int")
+      LEAF(DoubleType,  "double")
+      LEAF(BoolType,    "bool")
+      LEAF(CharType,    "char")
+      LEAF(StringType,  "string")
+      LEAF(VoidType,    "void")
+      #undef LEAF
 
       void visitArrayType(ArrayType* type) {
         if (debugPrint) {
@@ -99,10 +83,6 @@ namespace {
           else
             out << nullTypeStr;
         }
-      }
-
-      void visitErrorType(ErrorType*) {
-        out << "<error_type>";
       }
 
       void visitTypeVariableType(TypeVariableType* type) {
@@ -178,6 +158,10 @@ Type TypeBase::getRValue() {
   return this;
 }
 
+const Type TypeBase::getRValue() const {
+  return const_cast<TypeBase*>(this)->getRValue();
+}
+
 bool TypeBase::hasTypeVariable() const {
   return getProperties() & Property::HasTypeVariable;
 }
@@ -186,64 +170,43 @@ bool TypeBase::hasErrorType() const {
   return getProperties() & Property::HasErrorType;
 }
 
-// Implementation method for TypeBase::isXXX() methods.
-static const PrimitiveType* toPrimitiveType(const TypeBase* type) {
-  return const_cast<TypeBase*>(type)->getRValue()->getAs<PrimitiveType>();
-}
-
 bool TypeBase::isStringType() const {
-  if (auto prim = toPrimitiveType(this))
-    return prim->is(PrimitiveType::Kind::StringTy);
-  return false;
+  return getRValue()->is<StringType>();
 }
 
 bool TypeBase::isCharType() const {
-  if (auto prim = toPrimitiveType(this))
-    return prim->is(PrimitiveType::Kind::CharTy);
-  return false;
+  return getRValue()->is<CharType>();
 }
 
 bool TypeBase::isBoolType() const {
-  if (auto prim = toPrimitiveType(this))
-    return prim->is(PrimitiveType::Kind::BoolTy);
-  return false;
+  return getRValue()->is<BoolType>();
 }
 
 bool TypeBase::isIntType() const {
-  if (auto prim = toPrimitiveType(this))
-    return prim->is(PrimitiveType::Kind::IntTy);
-  return false;
+  return getRValue()->is<IntType>();
 }
 
 bool TypeBase::isDoubleType() const {
-  if (auto prim = toPrimitiveType(this))
-    return prim->is(PrimitiveType::Kind::DoubleTy);
-  return false;
+  return getRValue()->is<DoubleType>();
 }
 
 bool TypeBase::isVoidType() const {
-  if (auto prim = toPrimitiveType(this))
-    return prim->is(PrimitiveType::Kind::VoidTy);
-  return false;
+  return getRValue()->is<VoidType>();
 }
 
-bool TypeBase::isNumeric() const {
-  if (auto prim = toPrimitiveType(this))
-    return prim->is(PrimitiveType::Kind::IntTy)
-        || prim->is(PrimitiveType::Kind::DoubleTy);
-  return false;
+bool TypeBase::isNumericType() const {
+  auto rvalue = getRValue();
+  return rvalue->is<IntType>() || rvalue->is<DoubleType>();
 }
 
-bool TypeBase::isPrimitive() const {
-  return toPrimitiveType(this);
+bool TypeBase::isPrimitiveType() const {
+  return getRValue()->is<PrimitiveType>();
 }
 
 bool TypeBase::isNumericOrBool() const {
-  if (auto prim = toPrimitiveType(this))
-    return prim->is(PrimitiveType::Kind::IntTy)
-        || prim->is(PrimitiveType::Kind::DoubleTy)
-        || prim->is(PrimitiveType::Kind::BoolTy);
-  return false;
+  auto rvalue = getRValue();
+  return rvalue->is<IntType>()    || rvalue->is<DoubleType>()
+      || rvalue->is<BoolType>();
 }
 
 bool TypeBase::isAssignable() const {
@@ -280,51 +243,93 @@ BasicType::BasicType(TypeKind tc): TypeBase(tc) {}
 // PrimitiveType
 //----------------------------------------------------------------------------//
 
-PrimitiveType::PrimitiveType(Kind kd) : builtinKind_(kd), 
-  BasicType(TypeKind::PrimitiveType) {}
+PrimitiveType::PrimitiveType(TypeKind tc): BasicType(tc) {}
 
-bool PrimitiveType::is(Kind kind) const {
-  return (getPrimitiveKind() == kind);
-}
+//----------------------------------------------------------------------------//
+// IntType
+//----------------------------------------------------------------------------//
 
-PrimitiveType* PrimitiveType::getString(ASTContext& ctxt) {
-  if (!ctxt.theStringType_)
-    ctxt.theStringType_ = new(ctxt) PrimitiveType(Kind::StringTy);
-  return ctxt.theStringType_;
-}
-
-PrimitiveType* PrimitiveType::getChar(ASTContext& ctxt) {
-  if (!ctxt.theCharType_)
-    ctxt.theCharType_ = new(ctxt) PrimitiveType(Kind::CharTy);
-  return ctxt.theCharType_;
-}
-
-PrimitiveType* PrimitiveType::getDouble(ASTContext& ctxt) {
-  if (!ctxt.theFloatType_)
-    ctxt.theFloatType_ = new(ctxt) PrimitiveType(Kind::DoubleTy);
-  return ctxt.theFloatType_;
-}
-
-PrimitiveType* PrimitiveType::getBool(ASTContext& ctxt) {
-  if (!ctxt.theBoolType_)
-    ctxt.theBoolType_ = new(ctxt) PrimitiveType(Kind::BoolTy);
-  return ctxt.theBoolType_;
-}
-
-PrimitiveType* PrimitiveType::getInt(ASTContext& ctxt) {
+IntType* IntType::get(ASTContext& ctxt) {
   if (!ctxt.theIntType_)
-    ctxt.theIntType_ = new(ctxt) PrimitiveType(Kind::IntTy);
+    ctxt.theIntType_ = new(ctxt) IntType();
   return ctxt.theIntType_;
 }
 
-PrimitiveType* PrimitiveType::getVoid(ASTContext& ctxt) {
+IntType::IntType() : PrimitiveType(TypeKind::IntType) {}
+
+//----------------------------------------------------------------------------//
+// DoubleType
+//----------------------------------------------------------------------------//
+
+DoubleType* DoubleType::get(ASTContext& ctxt) {
+  if (!ctxt.theDoubleType)
+    ctxt.theDoubleType = new(ctxt) DoubleType();
+  return ctxt.theDoubleType;
+}
+
+DoubleType::DoubleType() : PrimitiveType(TypeKind::DoubleType) {}
+
+//----------------------------------------------------------------------------//
+// CharType
+//----------------------------------------------------------------------------//
+
+CharType* CharType::get(ASTContext& ctxt) {
+  if (!ctxt.theCharType_)
+    ctxt.theCharType_ = new(ctxt) CharType();
+  return ctxt.theCharType_;
+}
+
+CharType::CharType() : PrimitiveType(TypeKind::CharType) {}
+
+//----------------------------------------------------------------------------//
+// BoolType
+//----------------------------------------------------------------------------//
+
+BoolType* BoolType::get(ASTContext& ctxt) {
+  if (!ctxt.theBoolType_)
+    ctxt.theBoolType_ = new(ctxt) BoolType();
+  return ctxt.theBoolType_;
+}
+
+BoolType::BoolType() : PrimitiveType(TypeKind::BoolType) {}
+
+//----------------------------------------------------------------------------//
+// StringType
+//----------------------------------------------------------------------------//
+
+StringType* StringType::get(ASTContext& ctxt) {
+  if (!ctxt.theStringType_)
+    ctxt.theStringType_ = new(ctxt) StringType();
+  return ctxt.theStringType_;
+}
+
+StringType::StringType() : PrimitiveType(TypeKind::StringType) {}
+
+//----------------------------------------------------------------------------//
+// VoidType
+//----------------------------------------------------------------------------//
+
+VoidType* VoidType::get(ASTContext& ctxt) {
   if (!ctxt.theVoidType_)
-    ctxt.theVoidType_ = new(ctxt) PrimitiveType(Kind::VoidTy);
+    ctxt.theVoidType_ = new(ctxt) VoidType();
   return ctxt.theVoidType_;
 }
 
-PrimitiveType::Kind PrimitiveType::getPrimitiveKind() const {
-  return builtinKind_;
+VoidType::VoidType() : PrimitiveType(TypeKind::VoidType) {}
+
+//----------------------------------------------------------------------------//
+// ErrorType
+//----------------------------------------------------------------------------//
+
+ErrorType::ErrorType():
+  BasicType(TypeKind::ErrorType) {
+  setProperties(Property::HasErrorType);
+}
+
+ErrorType* ErrorType::get(ASTContext& ctxt) {
+  if (!ctxt.theErrorType_)
+    ctxt.theErrorType_ = new(ctxt) ErrorType();
+  return ctxt.theErrorType_;
 }
 
 //----------------------------------------------------------------------------//
@@ -388,21 +393,6 @@ LValueType* LValueType::get(ASTContext& ctxt, Type ty) {
 
 Type LValueType::getType() const {
   return ty_;
-}
-
-//----------------------------------------------------------------------------//
-// ErrorType
-//----------------------------------------------------------------------------//
-
-ErrorType::ErrorType():
-  BasicType(TypeKind::ErrorType) {
-  setProperties(Property::HasErrorType);
-}
-
-ErrorType* ErrorType::get(ASTContext& ctxt) {
-  if (!ctxt.theErrorType_)
-    ctxt.theErrorType_ = new(ctxt) ErrorType();
-  return ctxt.theErrorType_;
 }
 
 //----------------------------------------------------------------------------//
