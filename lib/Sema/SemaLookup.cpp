@@ -4,8 +4,7 @@
 // File : SemaLookup.cpp                    
 // Author : Pierre van Houtryve                
 //----------------------------------------------------------------------------//
-//  This file implements Sema methods related to scopes and name lookup
-//  as well as most of the Lookup and Name binding logic.
+//  This file implements the name lookup logic
 //----------------------------------------------------------------------------//
 
 #include "Fox/Sema/Sema.hpp"
