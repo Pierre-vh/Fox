@@ -104,12 +104,12 @@ namespace fox {
       #define ABSTRACT_DECL(ID,PARENT) VISIT_METHOD(DeclRtrTy, ID, PARENT)
       #include "DeclNodes.def"
 
-      // Stmt & Exprs
+      // Stmts
       #define STMT(ID,PARENT) VISIT_METHOD(StmtRtrTy, ID, PARENT)
       #define ABSTRACT_STMT(ID,PARENT) VISIT_METHOD(StmtRtrTy, ID, PARENT)
       #include "StmtNodes.def"
 
-      // Stmt & Exprs
+      // Exprs
       #define EXPR(ID,PARENT) VISIT_METHOD(ExprRtrTy, ID, PARENT)
       #define ABSTRACT_EXPR(ID,PARENT) VISIT_METHOD(ExprRtrTy, ID, PARENT)
       #include "ExprNodes.def"
