@@ -18,8 +18,6 @@ using namespace fox;
 //----------------------------------------------------------------------------//
 
 namespace {
-  using FnTyParam = FunctionTypeParam;
-
   template<typename Ty>
   struct TypeConverter {
     static Type get(ASTContext&) {
@@ -30,22 +28,22 @@ namespace {
   template<typename ... Args> 
   struct ParamConverter {
     static void 
-    add(ASTContext&, SmallVectorImpl<FnTyParam>&) {}
+    add(ASTContext&, SmallVectorImpl<Type>&) {}
   };
 
   template<typename First, typename ... Args> 
   struct ParamConverter<First, Args...> {
     template<bool ignored = BuiltinFnArgTypeTrait<First>::ignored>
     static void 
-    add(ASTContext& ctxt, SmallVectorImpl<FnTyParam>& params) {
-      params.emplace_back(TypeConverter<First>::get(ctxt), /*isMut*/ false);
-      ParamConverter<Args...>::add(ctxt, params);
+    add(ASTContext& ctxt, SmallVectorImpl<Type>& paramTypes) {
+      paramTypes.push_back(TypeConverter<First>::get(ctxt));
+      ParamConverter<Args...>::add(ctxt, paramTypes);
     }
 
     template<>
     static void 
-    add<true>(ASTContext& ctxt, SmallVectorImpl<FnTyParam>& params) {
-      ParamConverter<Args...>::add(ctxt, params);
+    add<true>(ASTContext& ctxt, SmallVectorImpl<Type>& paramTypes) {
+      ParamConverter<Args...>::add(ctxt, paramTypes);
     }
   };
 
@@ -62,9 +60,9 @@ namespace {
   template<typename Rtr, typename ... Args>
   Type getFoxTypeOfFunc(ASTContext& ctxt, Rtr(*)(Args...)) {
     Type returnType = TypeConverter<Rtr>::get(ctxt);
-    SmallVector<FnTyParam, 4> params;
-    ParamConverter<Args...>::add(ctxt, params);
-    return FunctionType::get(ctxt, params, returnType);
+    SmallVector<Type, 4> paramTypes;
+    ParamConverter<Args...>::add(ctxt, paramTypes);
+    return FunctionType::get(ctxt, paramTypes, returnType);
   }
 
   template<typename Rtr, typename ... Args>

@@ -106,64 +106,60 @@ TEST_F(ASTTest, ASTContextArrayTypes) {
 }
 
 TEST_F(ASTTest, TypeRTTI) {
-  TypeBase* boolType   = BoolType::get(ctxt);
-  TypeBase* doubleType = DoubleType::get(ctxt);
   TypeBase* intType    = IntType::get(ctxt);
-  TypeBase* charType   = CharType::get(ctxt);
-  TypeBase* strType    = StringType::get(ctxt);
-  TypeBase* voidType   = VoidType::get(ctxt);
-  TypeBase* arrIntTy = ArrayType::get(ctxt, intType);
-  TypeBase* lvIntTy = LValueType::get(ctxt, intType);
-  TypeBase* errType = ErrorType::get(ctxt);
-  TypeBase* tyVarType = TypeVariableType::create(ctxt, 0);
-
-  FunctionTypeParam p1(intType, false);
-  FunctionTypeParam p2(intType, true);
-  TypeBase* funcType = FunctionType::get(ctxt, {p1, p2}, intType);
-
   EXPECT_EQ(intType->getKind(), TypeKind::IntType);
   EXPECT_TRUE(IntType::classof(intType));
   EXPECT_TRUE(BasicType::classof(intType));
   EXPECT_TRUE(PrimitiveType::classof(intType));
 
+  TypeBase* doubleType = DoubleType::get(ctxt);
   EXPECT_EQ(doubleType->getKind(), TypeKind::DoubleType);
   EXPECT_TRUE(DoubleType::classof(doubleType));
   EXPECT_TRUE(BasicType::classof(doubleType));
   EXPECT_TRUE(PrimitiveType::classof(doubleType));
 
+  TypeBase* boolType   = BoolType::get(ctxt);
   EXPECT_EQ(boolType->getKind(), TypeKind::BoolType);
   EXPECT_TRUE(BoolType::classof(boolType));
   EXPECT_TRUE(BasicType::classof(boolType));
   EXPECT_TRUE(PrimitiveType::classof(boolType));
 
+  TypeBase* charType   = CharType::get(ctxt);
   EXPECT_EQ(charType->getKind(), TypeKind::CharType);
   EXPECT_TRUE(CharType::classof(charType));
   EXPECT_TRUE(BasicType::classof(charType));
   EXPECT_TRUE(PrimitiveType::classof(charType));
 
+  TypeBase* strType    = StringType::get(ctxt);
   EXPECT_EQ(strType->getKind(), TypeKind::StringType);
   EXPECT_TRUE(StringType::classof(strType));
   EXPECT_TRUE(BasicType::classof(strType));
   EXPECT_TRUE(PrimitiveType::classof(strType));
 
+  TypeBase* voidType   = VoidType::get(ctxt);
   EXPECT_EQ(voidType->getKind(), TypeKind::VoidType);
   EXPECT_TRUE(VoidType::classof(voidType));
   EXPECT_TRUE(BasicType::classof(voidType));
   EXPECT_TRUE(PrimitiveType::classof(voidType));
 
+  TypeBase* arrIntTy = ArrayType::get(ctxt, intType);
   EXPECT_EQ(arrIntTy->getKind(), TypeKind::ArrayType);
   EXPECT_TRUE(ArrayType::classof(arrIntTy));
 
+  TypeBase* lvIntTy = LValueType::get(ctxt, intType);
   EXPECT_EQ(lvIntTy->getKind(), TypeKind::LValueType);
   EXPECT_TRUE(LValueType::classof(lvIntTy));
 
+  TypeBase* errType = ErrorType::get(ctxt);
   EXPECT_EQ(errType->getKind(), TypeKind::ErrorType);
   EXPECT_TRUE(ErrorType::classof(errType));
   EXPECT_TRUE(BasicType::classof(errType));
 
+  TypeBase* funcType = FunctionType::get(ctxt, {intType}, intType);
   EXPECT_EQ(funcType->getKind(), TypeKind::FunctionType);
   EXPECT_TRUE(FunctionType::classof(funcType));
 
+  TypeBase* tyVarType = TypeVariableType::create(ctxt, 0);
   EXPECT_EQ(tyVarType->getKind(), TypeKind::TypeVariableType);
   EXPECT_TRUE(TypeVariableType::classof(tyVarType));
 }
@@ -510,23 +506,20 @@ TEST_F(ASTTest, functionTypesUniqueness) {
   Type boolTy = BoolType::get(ctxt);
   Type voidTy = VoidType::get(ctxt);
 
-  FunctionTypeParam p1(intTy, false);
-  FunctionTypeParam p2(boolTy, true);
-
   Type fns[6];
   // Create a few functions with different signatures.
-  // (int, mut bool) -> void
-  fns[0] = FunctionType::get(ctxt, {p1, p2}, voidTy);
+  // (int, bool) -> void
+  fns[0] = FunctionType::get(ctxt, {intTy, boolTy}, voidTy);
   // (int) -> bool
-  fns[1] = FunctionType::get(ctxt, {p1}, boolTy);
-  // (mut bool) -> int
-  fns[2] = FunctionType::get(ctxt, {p2}, intTy);
+  fns[1] = FunctionType::get(ctxt, {intTy}, boolTy);
+  // (bool) -> int
+  fns[2] = FunctionType::get(ctxt, {boolTy}, intTy);
   // () -> void
   fns[3] = FunctionType::get(ctxt, {}, voidTy);
-  // (mut bool, int) -> void
-  fns[4] = FunctionType::get(ctxt, {p2, p1}, voidTy);
-  // (mut bool) -> void
-  fns[5] = FunctionType::get(ctxt, {p2}, voidTy);
+  // (bool, int) -> void
+  fns[4] = FunctionType::get(ctxt, {boolTy, intTy}, voidTy);
+  // (bool) -> void
+  fns[5] = FunctionType::get(ctxt, {boolTy}, voidTy);
 
   // Check that they all have different pointers
   std::set<TypeBase*> ptrs;
@@ -535,19 +528,13 @@ TEST_F(ASTTest, functionTypesUniqueness) {
     EXPECT_TRUE(result.second) << "element already exists";
   }
 
-  // Check that we can successfully retrieve every function type
-  // while keeping the same pointer value.
-  EXPECT_EQ(fns[0], FunctionType::get(ctxt, {p1, p2}, voidTy));
-  EXPECT_EQ(fns[1], FunctionType::get(ctxt, {p1}, boolTy));
-  EXPECT_EQ(fns[2], FunctionType::get(ctxt, {p2}, intTy));
+  // Check that we can successfully retrieve every function type singleton
+  EXPECT_EQ(fns[0], FunctionType::get(ctxt, {intTy, boolTy}, voidTy));
+  EXPECT_EQ(fns[1], FunctionType::get(ctxt, {intTy}, boolTy));
+  EXPECT_EQ(fns[2], FunctionType::get(ctxt, {boolTy}, intTy));
   EXPECT_EQ(fns[3], FunctionType::get(ctxt, {}, voidTy));
-  EXPECT_EQ(fns[4], FunctionType::get(ctxt, {p2, p1}, voidTy));
-  EXPECT_EQ(fns[5], FunctionType::get(ctxt, {p2}, voidTy));
-
-  // Also, check that 'mut' taken into account
-  FunctionTypeParam p2immut(boolTy, false);
-  EXPECT_NE(FunctionType::get(ctxt, {p2immut}, voidTy), 
-            FunctionType::get(ctxt, {p2}, voidTy));
+  EXPECT_EQ(fns[4], FunctionType::get(ctxt, {boolTy, intTy}, voidTy));
+  EXPECT_EQ(fns[5], FunctionType::get(ctxt, {boolTy}, voidTy));
 }
 
 class ASTBuiltinsTest : public ::testing::Test {

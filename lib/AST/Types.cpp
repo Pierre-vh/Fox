@@ -121,8 +121,6 @@ namespace {
     std::ostream& out;
     bool debugPrint = false;
 
-    static constexpr char nullTypeStr[] = "nullptr";
-
     public:
       TypePrinter(std::ostream& out, bool debugPrint) :
         out(out), debugPrint(debugPrint) {
@@ -142,18 +140,12 @@ namespace {
       void visitArrayType(ArrayType* type) {
         if (debugPrint) {
           out << "Array(";
-          if (Type elem = type->getElementType())
-            visit(elem);
-          else
-            out << nullTypeStr;
+          visit(type->getElementType());
           out << ")";
         }
         else {
           out << "[";
-          if (Type elem = type->getElementType())
-            visit(elem);
-          else
-            out << nullTypeStr;
+          visit(type->getElementType());
           out << "]";
         }
       }
@@ -161,19 +153,11 @@ namespace {
       void visitLValueType(LValueType* type) {
         if (debugPrint) {
           out << "LValue(";
-          if (Type elem = type->getType())
-            visit(elem);
-          else
-            out << nullTypeStr;
+          visit(type->getType());
           out << ")";
         }
-        else {
-          //out << "@";
-          if (Type elem = type->getType())
-            visit(elem);
-          else
-            out << nullTypeStr;
-        }
+        else // just print the child type
+          visit(type->getType());
       }
 
       void visitTypeVariableType(TypeVariableType* type) {
@@ -195,23 +179,18 @@ namespace {
         bool first = true;
         for(auto param : type->getParams()) {
           // Print a colon for every type except the first one
-          if(first) first = false;
-          else out << ", ";
-          // Print 'mut'
-          if(param.isMut())
-            out << "mut ";
+          if(first) 
+            first = false;
+          else 
+            out << ", ";
           // Print the type
-          if(Type paramType = param.getType())
-            visit(paramType);
-          else out << nullTypeStr;
+          visit(param);
         }
         out << ") -> ";
         if(Type rtr = type->getReturnType())
           visit(rtr);
       }
   };
-
-  constexpr char TypePrinter::nullTypeStr[];
 }
 
 //----------------------------------------------------------------------------//
@@ -487,54 +466,25 @@ Type LValueType::getType() const {
 }
 
 //----------------------------------------------------------------------------//
-// FunctionTypeParam
-//----------------------------------------------------------------------------//
-
-FunctionTypeParam::FunctionTypeParam(Type type, bool isMut) : 
-  typeAndIsMut_(type, isMut) {}
-
-Type FunctionTypeParam::getType() const {
-  return typeAndIsMut_.getPointer();
-}
-
-bool FunctionTypeParam::isMut() const {
-  return typeAndIsMut_.getInt();
-}
-
-void* FunctionTypeParam::getOpaqueValue() const {
-  return typeAndIsMut_.getOpaqueValue();
-}
-
-bool FunctionTypeParam::operator==(const FunctionTypeParam& other) const {
-  return typeAndIsMut_ == other.typeAndIsMut_;
-}
-
-bool FunctionTypeParam::operator!=(const FunctionTypeParam& other) const {
-  return typeAndIsMut_ != other.typeAndIsMut_;
-}
-
-//----------------------------------------------------------------------------//
 // FunctionType
 //----------------------------------------------------------------------------//
 
 namespace {
-  std::size_t functionTypeHash(ArrayRef<FunctionTypeParam> paramTys, Type rtrTy) {
-    // Create a vector of uintptr_t with all of the hash data
-    SmallVector<std::uintptr_t, 8> bytes;
-    // Return type pointer
-    bytes.push_back(reinterpret_cast<std::uintptr_t>(rtrTy.getPtr()));
-    // Param types pointers
-    for(auto ty : paramTys) 
-      bytes.push_back(reinterpret_cast<std::uintptr_t>(ty.getOpaqueValue()));
-    // hash the data
-    return llvm::hash_combine_range(bytes.begin(), bytes.end());
+  std::size_t hashFunctionType(ArrayRef<Type> paramTys, Type rtrTy) {
+    // Collect types
+    SmallVector<TypeBase*, 8> types;
+    types.push_back(rtrTy.getPtr());
+    for(auto param : paramTys) 
+      types.push_back(param.getPtr());
+    // Hash
+    return llvm::hash_combine_range(types.begin(), types.end());
   }
 }
 
 FunctionType* 
-FunctionType::get(ASTContext& ctxt, ArrayRef<Param> params, Type rtr) {
+FunctionType::get(ASTContext& ctxt, ArrayRef<Type> params, Type rtr) {
   // Hash the parameters.
-  std::size_t hash = functionTypeHash(params, rtr);
+  std::size_t hash = hashFunctionType(params, rtr);
   // Check in the map
   auto& map = ctxt.functionTypes_;
   auto it = map.find(hash);
@@ -553,7 +503,7 @@ FunctionType::get(ASTContext& ctxt, ArrayRef<Param> params, Type rtr) {
   else {
     // It's the first time we've seen this signature, create a new
     // instance of FunctionType and insert it in the map.
-    auto totalSize = totalSizeToAlloc<Param>(params.size());
+    auto totalSize = totalSizeToAlloc<Type>(params.size());
     void* mem = ctxt.allocate(totalSize, alignof(FunctionType));
     FunctionType* created =  new(mem) FunctionType(params, rtr);
     map.insert({hash, created});
@@ -561,7 +511,7 @@ FunctionType::get(ASTContext& ctxt, ArrayRef<Param> params, Type rtr) {
   }
 }
 
-bool FunctionType::isSame(ArrayRef<Param> params, Type rtr) {
+bool FunctionType::isSame(ArrayRef<Type> params, Type rtr) {
   Type myRtrTy = getReturnType();
 
   // Check that the return type matches
@@ -573,8 +523,8 @@ bool FunctionType::isSame(ArrayRef<Param> params, Type rtr) {
   // Check parameters individually
   std::size_t num = numParams();
   for(std::size_t idx = 0; idx < num; ++idx) {
-    Param param = params[idx];
-    Param myParam = getParam(idx);
+    Type param = params[idx];
+    Type myParam = getParam(idx);
     if(param != myParam) return false;
   }
   return true;
@@ -584,12 +534,11 @@ Type FunctionType::getReturnType() const {
   return rtrType_;
 }
 
-ArrayRef<FunctionTypeParam> 
-FunctionType::getParams() const {
-  return {getTrailingObjects<Param>(), numParams_};
+ArrayRef<Type> FunctionType::getParams() const {
+  return {getTrailingObjects<Type>(), numParams_};
 }
 
-FunctionTypeParam FunctionType::getParam(std::size_t idx) const {
+Type FunctionType::getParam(std::size_t idx) const {
   assert((idx < numParams_) && "Out of range");
   return getParams()[idx];
 }
@@ -598,24 +547,24 @@ FunctionType::SizeTy FunctionType::numParams() const {
   return numParams_;
 }
 
-FunctionType::FunctionType(ArrayRef<Param> params, Type rtr) :
+FunctionType::FunctionType(ArrayRef<Type> params, Type rtr) :
   TypeBase(TypeKind::FunctionType), rtrType_(rtr),
   numParams_(static_cast<SizeTy>(params.size())) {
   assert((params.size() < maxParams) && "Too many params for FunctionType. "
     "Change the type of SizeTy to something bigger!");
 
   std::uninitialized_copy(params.begin(), params.end(),
-    getTrailingObjects<Param>());
+    getTrailingObjects<Type>());
 
   setProperties(getPropertiesForFunc(params, rtr));
 }
 
 TypeBase::Properties 
-FunctionType::getPropertiesForFunc(ArrayRef<Param> params, Type rtr) {
+FunctionType::getPropertiesForFunc(ArrayRef<Type> params, Type rtr) {
   Properties props;
   props |= rtr->getProperties();
   for(auto param : params) 
-    props |= param.getType()->getProperties();
+    props |= param->getProperties();
   return props;
 }
 

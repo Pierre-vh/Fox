@@ -53,8 +53,7 @@ namespace {
           if(!doIt(rtr)) return false;
 
         for(auto param : type->getParams()) {
-          if(Type paramTy = param.getType())
-            if(!doIt(paramTy)) return false;
+          if(!doIt(param)) return false;
         }
 
         return true;

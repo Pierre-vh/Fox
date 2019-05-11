@@ -366,56 +366,28 @@ namespace fox {
       ErrorType();
   };
 
-  /// FunctionTypeParam
-  ///   Contains information about a FunctionType's Parameter:
-  ///     - its type
-  ///     - a boolean indicating if it is mutable or not
-  /// Note that this doesn't have a 'Type' suffix because it's not
-  /// a type!
-  class FunctionTypeParam {
-    /// The type + a flag indicating if it's 'mut'.
-    llvm::PointerIntPair<Type, 1> typeAndIsMut_;
-    public:
-      FunctionTypeParam(Type type, bool isMut);
-
-      /// \returns this parameter's type
-      Type getType() const;
-
-      /// \returns true if this parameter is 'mut'
-      bool isMut() const;
-
-      /// \returns an opaque pointer with flags embedded in the low
-      /// bits of the pointers. Useful for hashing.
-      void* getOpaqueValue() const;
-
-      bool operator==(const FunctionTypeParam& other) const;
-      bool operator!=(const FunctionTypeParam& other) const;
-  };
-
   /// FunctionType
   ///    Represents the type of a function. 
   ///    Example: (int, int) -> int
   class FunctionType final : public TypeBase, 
-      llvm::TrailingObjects<FunctionType, FunctionTypeParam> {
+      llvm::TrailingObjects<FunctionType, Type> {
     using TrailingObjects = 
-      llvm::TrailingObjects<FunctionType, FunctionTypeParam>;
+      llvm::TrailingObjects<FunctionType, Type>;
     friend TrailingObjects;
     public:
-      using Param = FunctionTypeParam;
-
       using SizeTy = std::size_t;
       static constexpr auto maxParams = std::numeric_limits<SizeTy>::max();
 
       static FunctionType* 
-      get(ASTContext& ctxt, ArrayRef<FunctionTypeParam> params, Type rtr);
+      get(ASTContext& ctxt, ArrayRef<Type> params, Type rtr);
 
       /// \returns true if this function's parameters and return type are
       /// all equal to \p params and \p rtr
-      bool isSame(ArrayRef<Param> params, Type rtr);
+      bool isSame(ArrayRef<Type> params, Type rtr);
 
       Type getReturnType() const;
-      ArrayRef<FunctionTypeParam> getParams() const;
-      FunctionTypeParam getParam(std::size_t idx) const;
+      ArrayRef<Type> getParams() const;
+      Type getParam(std::size_t idx) const;
       SizeTy numParams() const;
 
       static bool classof(const TypeBase* type) {
@@ -423,10 +395,10 @@ namespace fox {
       }
       
     private:
-      FunctionType(ArrayRef<FunctionTypeParam> params, Type rtr);
+      FunctionType(ArrayRef<Type> params, Type rtr);
 
       static Properties 
-      getPropertiesForFunc(ArrayRef<FunctionTypeParam> params, Type rtr);
+      getPropertiesForFunc(ArrayRef<Type> params, Type rtr);
 
       Type rtrType_;
       const SizeTy numParams_;

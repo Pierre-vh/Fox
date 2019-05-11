@@ -653,14 +653,13 @@ class Sema::ExprChecker : Checker, ExprVisitor<ExprChecker, Expr*>,  ASTWalker {
         bool hasArgTypeMismatch = false;
         // Check arg types
         for(std::size_t idx = 0; idx < callArgc; idx++) {
-          FunctionTypeParam param = fnTy->getParam(idx);
+          Type paramType = fnTy->getParam(idx);
           Expr* arg = expr->getArg(idx);
           Type argType = arg->getType();
 
-          assert(param.getType() && argType 
-            && "types cant be nullptrs!");
+          assert(paramType && argType && "types cant be nullptrs!");
           // Check that the types match.
-          if (!sema.unify(param.getType(), argType)) {
+          if (!sema.unify(paramType, argType)) {
             hasArgTypeMismatch = true;
             continue;
           }
