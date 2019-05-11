@@ -7,6 +7,8 @@
 // This file declares the TypeVisitor class
 //----------------------------------------------------------------------------//
 
+#pragma once
+
 #include "Type.hpp"
 #include "Types.hpp"
 #include "Fox/Common/Errors.hpp"
