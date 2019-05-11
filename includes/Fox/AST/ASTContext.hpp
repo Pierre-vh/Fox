@@ -137,7 +137,7 @@ namespace fox {
 
       // Singleton/unique types. Lazily created by their respective classes.
       ErrorType*  theErrorType_   = nullptr;
-      IntType*    theIntType_     = nullptr;
+      IntegerType*    theIntType_     = nullptr;
       DoubleType* theDoubleType   = nullptr;
       CharType*   theCharType_    = nullptr;
       BoolType*   theBoolType_    = nullptr;

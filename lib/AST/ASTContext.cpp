@@ -50,7 +50,7 @@ namespace {
   #define TYPE_CONVERSION(TYPE, GET_IMPL) template<> struct TypeConverter<TYPE>\
     { static Type get(ASTContext& ctxt) { GET_IMPL; } }
   TYPE_CONVERSION(void,           return VoidType::get(ctxt));
-  TYPE_CONVERSION(FoxInt,         return IntType::get(ctxt));
+  TYPE_CONVERSION(FoxInt,         return IntegerType::get(ctxt));
   TYPE_CONVERSION(FoxDouble,      return DoubleType::get(ctxt));
   TYPE_CONVERSION(bool,           return BoolType::get(ctxt));
   TYPE_CONVERSION(FoxChar,        return CharType::get(ctxt));

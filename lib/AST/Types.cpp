@@ -129,7 +129,7 @@ namespace {
 
       #define LEAF(TYPE, STR) void visit##TYPE(TYPE*) { out << STR; }
       LEAF(ErrorType,   "<error>")
-      LEAF(IntType,     "int")
+      LEAF(IntegerType, "int")
       LEAF(DoubleType,  "double")
       LEAF(BoolType,    "bool")
       LEAF(CharType,    "char")
@@ -253,7 +253,7 @@ bool TypeBase::isBoolType() const {
 }
 
 bool TypeBase::isIntType() const {
-  return getRValue()->is<IntType>();
+  return getRValue()->is<IntegerType>();
 }
 
 bool TypeBase::isDoubleType() const {
@@ -266,7 +266,7 @@ bool TypeBase::isVoidType() const {
 
 bool TypeBase::isNumericType() const {
   auto rvalue = getRValue();
-  return rvalue->is<IntType>() || rvalue->is<DoubleType>();
+  return rvalue->is<IntegerType>() || rvalue->is<DoubleType>();
 }
 
 bool TypeBase::isPrimitiveType() const {
@@ -275,7 +275,7 @@ bool TypeBase::isPrimitiveType() const {
 
 bool TypeBase::isNumericOrBool() const {
   auto rvalue = getRValue();
-  return rvalue->is<IntType>()    || rvalue->is<DoubleType>()
+  return rvalue->is<IntegerType>()    || rvalue->is<DoubleType>()
       || rvalue->is<BoolType>();
 }
 
@@ -316,16 +316,16 @@ BasicType::BasicType(TypeKind tc): TypeBase(tc) {}
 PrimitiveType::PrimitiveType(TypeKind tc): BasicType(tc) {}
 
 //----------------------------------------------------------------------------//
-// IntType
+// IntegerType
 //----------------------------------------------------------------------------//
 
-IntType* IntType::get(ASTContext& ctxt) {
+IntegerType* IntegerType::get(ASTContext& ctxt) {
   if (!ctxt.theIntType_)
-    ctxt.theIntType_ = new(ctxt) IntType();
+    ctxt.theIntType_ = new(ctxt) IntegerType();
   return ctxt.theIntType_;
 }
 
-IntType::IntType() : PrimitiveType(TypeKind::IntType) {}
+IntegerType::IntegerType() : PrimitiveType(TypeKind::IntegerType) {}
 
 //----------------------------------------------------------------------------//
 // DoubleType

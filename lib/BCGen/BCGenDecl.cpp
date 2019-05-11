@@ -40,7 +40,7 @@ namespace {
       BCBuilder& builder;
 
     private:
-      void visitIntType(IntType*, regaddr_t dest) {
+      void visitIntegerType(IntegerType*, regaddr_t dest) {
         builder.createStoreSmallIntInstr(dest, 0);
       }
 

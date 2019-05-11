@@ -687,7 +687,7 @@ class Sema::ExprChecker : Checker, ExprVisitor<ExprChecker, Expr*>,  ASTWalker {
     }
 
     Expr* visitIntegerLiteralExpr(IntegerLiteralExpr* expr) {
-      expr->setType(IntType::get(ctxt));
+      expr->setType(IntegerType::get(ctxt));
       return expr;
     }
 

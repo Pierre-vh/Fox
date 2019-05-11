@@ -55,7 +55,7 @@ Parser::Result<TypeLoc> Parser::parseBuiltinTypename() {
 
   // "int"
   if (auto range = tryConsume(TokenKind::IntKw))
-    return RtrTy(TypeLoc(IntType::get(ctxt), range));
+    return RtrTy(TypeLoc(IntegerType::get(ctxt), range));
   
   // "float"
   if (auto range = tryConsume(TokenKind::DoubleKw))

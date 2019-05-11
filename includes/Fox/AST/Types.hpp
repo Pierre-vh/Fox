@@ -272,17 +272,17 @@ namespace fox {
       PrimitiveType(TypeKind tc);
   };
 
-  /// IntType
+  /// IntegerType
   ///   The primitive 'int' type.
-  class IntType final : public PrimitiveType {
+  class IntegerType final : public PrimitiveType {
     public:
-      static IntType* get(ASTContext& ctxt);
+      static IntegerType* get(ASTContext& ctxt);
 
       static bool classof(const TypeBase* type) {
-        return (type->getKind() == TypeKind::IntType);
+        return (type->getKind() == TypeKind::IntegerType);
       }
     private:
-      IntType();
+      IntegerType();
   };
 
   /// DoubleType

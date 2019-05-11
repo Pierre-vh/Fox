@@ -39,7 +39,7 @@ namespace {
 TEST_F(ASTTest, BasicType) {
   auto primBool     = BoolType::get(ctxt);
   auto primDouble   = DoubleType::get(ctxt);
-  auto primInt      = IntType::get(ctxt);
+  auto primInt      = IntegerType::get(ctxt);
   auto primChar     = CharType::get(ctxt);
   auto primString   = StringType::get(ctxt);
   auto primVoid     = VoidType::get(ctxt);
@@ -65,7 +65,7 @@ TEST_F(ASTTest, BasicType) {
 
   // Check uniqueness
   EXPECT_EQ(primVoid,   VoidType::get(ctxt));
-  EXPECT_EQ(primInt,    IntType::get(ctxt));
+  EXPECT_EQ(primInt,    IntegerType::get(ctxt));
   EXPECT_EQ(primString, StringType::get(ctxt));
   EXPECT_EQ(primChar,   CharType::get(ctxt));
   EXPECT_EQ(primDouble, DoubleType::get(ctxt));
@@ -76,7 +76,7 @@ TEST_F(ASTTest, BasicType) {
 TEST_F(ASTTest, ASTContextArrayTypes) {
   Type primBool     = BoolType::get(ctxt);
   Type primDouble   = DoubleType::get(ctxt);
-  Type primInt      = IntType::get(ctxt);
+  Type primInt      = IntegerType::get(ctxt);
   Type primChar     = CharType::get(ctxt);
   Type primString   = StringType::get(ctxt);
 
@@ -106,9 +106,9 @@ TEST_F(ASTTest, ASTContextArrayTypes) {
 }
 
 TEST_F(ASTTest, TypeRTTI) {
-  TypeBase* intType    = IntType::get(ctxt);
-  EXPECT_EQ(intType->getKind(), TypeKind::IntType);
-  EXPECT_TRUE(IntType::classof(intType));
+  TypeBase* intType    = IntegerType::get(ctxt);
+  EXPECT_EQ(intType->getKind(), TypeKind::IntegerType);
+  EXPECT_TRUE(IntegerType::classof(intType));
   EXPECT_TRUE(BasicType::classof(intType));
   EXPECT_TRUE(PrimitiveType::classof(intType));
 
@@ -367,7 +367,7 @@ TEST_F(ASTTest, BasicVisitor) {
   auto* rtr = ReturnStmt::create(ctxt, nullptr, SourceRange());
   UnitDecl* unit = UnitDecl::create(ctxt, Identifier(), FileID());
   auto* vardecl = createEmptyVarDecl(ctxt, unit);
-  Type intTy = IntType::get(ctxt);
+  Type intTy = IntegerType::get(ctxt);
   Type arrInt = ArrayType::get(ctxt, intTy);
 
   IsExpr exprVisitor;
@@ -502,7 +502,7 @@ TEST_F(ASTTest, cleanup) {
 }
 
 TEST_F(ASTTest, functionTypesUniqueness) {
-  Type intTy = IntType::get(ctxt);
+  Type intTy = IntegerType::get(ctxt);
   Type boolTy = BoolType::get(ctxt);
   Type voidTy = VoidType::get(ctxt);
 
