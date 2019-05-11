@@ -8,7 +8,6 @@ add_source(ast_src
   "Expr.cpp"
   "Identifier.cpp"
   "Stmt.cpp"
-  "Type.cpp"
   "Types.cpp"
   "TypeWalker.cpp"
 )
