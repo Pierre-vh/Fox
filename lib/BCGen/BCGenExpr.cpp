@@ -60,26 +60,46 @@ class BCGen::AssignementGenerator : public Generator,
     using GenFunc = AGGenFunc;
 
   private:
-    RegisterValue
-    visitBinaryExpr(BinaryExpr* expr, GenFunc gen, BinOp op);
-    RegisterValue
-    visitCastExpr(CastExpr* expr, GenFunc gen, BinOp op);
-    RegisterValue
-    visitUnaryExpr(UnaryExpr* expr, GenFunc gen, BinOp op);
+    ///----------------------------------------------------------------------///
+    /// Handled scenarios
+    ///----------------------------------------------------------------------///
+
     RegisterValue
     visitArraySubscriptExpr(ArraySubscriptExpr* expr, GenFunc gen, BinOp op);
     RegisterValue
     visitMemberOfExpr(MemberOfExpr* expr, GenFunc gen, BinOp op);
     RegisterValue
     visitDeclRefExpr(DeclRefExpr* expr, GenFunc gen, BinOp op);
+
+    ///----------------------------------------------------------------------///
+    /// Unhandled scenarios
+    ///----------------------------------------------------------------------///
+
     RegisterValue
-    visitUnresolvedDeclRefExpr(UnresolvedDeclRefExpr* expr, GenFunc gen, BinOp op);
-    RegisterValue
-    visitCallExpr(CallExpr* expr, GenFunc gen, BinOp op);
-    RegisterValue
-    visitAnyLiteralExpr(AnyLiteralExpr* expr, GenFunc gen, BinOp op);
-    RegisterValue
-    visitErrorExpr(ErrorExpr* expr, GenFunc gen, BinOp op);
+    visitUnresolvedDeclRefExpr(UnresolvedDeclRefExpr*, GenFunc, BinOp) {
+      fox_unreachable("UnresolvedDeclRefExpr found past Semantic Analysis");
+    }
+
+    RegisterValue 
+    visitErrorExpr(ErrorExpr*, GenFunc, BinOp) {
+      fox_unreachable("ErrorExpr found past Semantic Analysis");
+    }
+
+    // Some nodes should never be found in the LHS of an assignement.
+    #define IMPOSSIBLE_ASSIGNEMENT(KIND) RegisterValue\
+      visit##KIND(KIND*, GenFunc, BinOp)\
+      { fox_unreachable("Unhandled Assignement: Cannot assign to a " #KIND); }
+    IMPOSSIBLE_ASSIGNEMENT(BinaryExpr)
+    IMPOSSIBLE_ASSIGNEMENT(UnaryExpr)
+    IMPOSSIBLE_ASSIGNEMENT(CastExpr)
+    IMPOSSIBLE_ASSIGNEMENT(CharLiteralExpr)
+    IMPOSSIBLE_ASSIGNEMENT(BoolLiteralExpr)
+    IMPOSSIBLE_ASSIGNEMENT(IntegerLiteralExpr)
+    IMPOSSIBLE_ASSIGNEMENT(DoubleLiteralExpr)
+    IMPOSSIBLE_ASSIGNEMENT(StringLiteralExpr)
+    IMPOSSIBLE_ASSIGNEMENT(ArrayLiteralExpr)
+    IMPOSSIBLE_ASSIGNEMENT(CallExpr)
+    #undef IMPOSSIBLE_ASSIGNEMENT
 };
 
 //----------------------------------------------------------------------------//
@@ -835,27 +855,6 @@ RegisterValue BCGen::AssignementGenerator::generate(BinaryExpr* expr) {
 }
 
 RegisterValue BCGen::AssignementGenerator::
-visitBinaryExpr(BinaryExpr*, GenFunc, BinOp) {
-  // Shouldn't be possible in LHS of an Assignement 
-  //    Reason: BinaryExprs cannot produce LValues
-  fox_unreachable("Unhandled Assignement: Cannot Assign to a BinaryExpr");
-}
-
-RegisterValue BCGen::AssignementGenerator::
-visitCastExpr(CastExpr*, GenFunc, BinOp) {
-  // Shouldn't be possible in LHS of an Assignement 
-  //    Reason: CastExprs cannot produce LValues
-  fox_unreachable("Unhandled Assignement: Cannot Assign to a CastExpr");
-}
-
-RegisterValue BCGen::AssignementGenerator::
-visitUnaryExpr(UnaryExpr*, GenFunc, BinOp) {
-  // Shouldn't be possible in LHS of an Assignement 
-  //    Reason: UnaryExprs cannot produce LValues
-  fox_unreachable("Unhandled Assignement: Cannot Assign to a UnaryExpr");
-}
-
-RegisterValue BCGen::AssignementGenerator::
 visitArraySubscriptExpr(ArraySubscriptExpr*, GenFunc, BinOp) {
   // VM doesn't support arrays yet
   fox_unimplemented_feature("ArraySubscript Assignement");
@@ -878,31 +877,6 @@ visitDeclRefExpr(DeclRefExpr* expr, GenFunc gen, BinOp op) {
   // Avoid 'unreferenced formal parameter'
   op;
   return gen(regAlloc.useDecl(expr->getDecl()));
-}
-
-RegisterValue BCGen::AssignementGenerator::
-visitCallExpr(CallExpr*, GenFunc, BinOp) {
-  // Shouldn't be possible in LHS of an Assignement 
-  //    Reason: CallExprs cannot produce LValues
-  fox_unreachable("Unhandled Assignement: Cannot Assign to a CallExpr");
-}
-
-RegisterValue BCGen::AssignementGenerator::
-visitAnyLiteralExpr(AnyLiteralExpr*, GenFunc, BinOp) {
-  // Shouldn't be possible in LHS of an Assignement 
-  //    Reason: Literals cannot produce LValues
-  fox_unreachable("Unhandled Assignement: "
-    "Cannot Assign to a Literal (AnyLiteralExpr)");
-}
-
-RegisterValue BCGen::AssignementGenerator::
-visitErrorExpr(ErrorExpr*, GenFunc, BinOp) {
-  fox_unreachable("ErrorExpr found past Semantic Analysis");
-}
-
-RegisterValue BCGen::AssignementGenerator::
-visitUnresolvedDeclRefExpr(UnresolvedDeclRefExpr*, GenFunc, BinOp) {
-  fox_unreachable("UnresolvedDeclRef found past Semantic Analysis");
 }
 
 //----------------------------------------------------------------------------//
