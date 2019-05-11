@@ -85,6 +85,14 @@ namespace fox {
         }
       }
 
+      // Sometimes, visit methods might not return (e.g. call fox_unreachable)
+      // and MSVC is sort of pedantic about this and will complain about 
+      // unreachable code in the .def file. 
+      // The error it emits is unhelpful and not useful, so we're going to
+      // disable it for visit methods.
+      #pragma warning(push)
+      #pragma warning(disable:4702)
+
       // VisitXXX Methods
       // The base implementations just chain back to the parent class, 
       // so visitors can just implement the parent class or an abstract class
@@ -115,6 +123,7 @@ namespace fox {
       #include "ExprNodes.def"
 
       #undef VISIT_METHOD
+      #pragma warning(pop)
   };
 
   /// A Simple AST Visitor that uses the same return type

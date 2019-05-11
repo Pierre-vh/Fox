@@ -34,6 +34,14 @@ namespace fox {
         }
       }
 
+      // Sometimes, visit methods might not return (e.g. call fox_unreachable)
+      // and MSVC is sort of pedantic about this and will complain about 
+      // unreachable code in the .def file. 
+      // The error it emits is unhelpful and not useful, so we're going to
+      // disable it for visit methods.
+      #pragma warning(push)
+      #pragma warning(disable:4702)
+
       #define VISIT_METHOD(NODE, PARENT)                      \
       Rtr visit##NODE(NODE* node, Args... args) {             \
         return static_cast<Derived*>(this)->                  \
@@ -43,7 +51,8 @@ namespace fox {
       #define TYPE(ID, PARENT) VISIT_METHOD(ID, PARENT)
       #define ABSTRACT_TYPE(ID, PARENT) VISIT_METHOD(ID, PARENT)
       #include "TypeNodes.def"
-
       #undef VISIT_METHOD
+
+      #pragma warning(pop)
   };
 }

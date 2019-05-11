@@ -92,12 +92,7 @@ class BCGen::AssignementGenerator : public Generator,
     IMPOSSIBLE_ASSIGNEMENT(BinaryExpr)
     IMPOSSIBLE_ASSIGNEMENT(UnaryExpr)
     IMPOSSIBLE_ASSIGNEMENT(CastExpr)
-    IMPOSSIBLE_ASSIGNEMENT(CharLiteralExpr)
-    IMPOSSIBLE_ASSIGNEMENT(BoolLiteralExpr)
-    IMPOSSIBLE_ASSIGNEMENT(IntegerLiteralExpr)
-    IMPOSSIBLE_ASSIGNEMENT(DoubleLiteralExpr)
-    IMPOSSIBLE_ASSIGNEMENT(StringLiteralExpr)
-    IMPOSSIBLE_ASSIGNEMENT(ArrayLiteralExpr)
+    IMPOSSIBLE_ASSIGNEMENT(AnyLiteralExpr)
     IMPOSSIBLE_ASSIGNEMENT(CallExpr)
     #undef IMPOSSIBLE_ASSIGNEMENT
 };
