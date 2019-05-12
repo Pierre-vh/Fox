@@ -7,6 +7,7 @@ Fox is a language that aims to be easily embeddable in other projects and easy t
 Required:
  * CMake
  * Git
+ * A C++14 Compiler (preferably MSVC, I can't guarantee that it builds on other compilers for now) 
 
 1. Open the command prompt and set your working directory to the folder where you wish to build the Fox interpreter.
 1. Clone the repo
@@ -53,6 +54,6 @@ If you have any questions don't hesitate to send me a mail at `pierre.vanhoutryv
 ## Acknowledgments
 * CLang and Swift
   * These well written open source projects have been of immense help when I was in doubt, or in need of help.
-    The design of the Fox interpreter has been highly influenced by the design of theses compilers. 
+    The design of the Fox interpreter has been highly influenced by the design of these compilers. 
 * /r/programminglanguages (Reddit & Discord server)
   * Friendly, passionate people that have helped me countless times. Can't thank them enough!
