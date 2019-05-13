@@ -1,0 +1,14 @@
+﻿// RUN: %fox-run | %filecheck
+
+func main() {
+  stringInterfaceTest();
+}
+
+func stringInterfaceTest() {
+  let str : string = "おはよう。";
+  // numBytes counts the null terminator
+  // CHECK: num bytes: 15
+  printString("num bytes: " + intToString(numBytes(str)) + "\n"); 
+  // CHECK-NEXT: length: 5
+  printString("length: " + intToString(length(str)) + "\n");
+}

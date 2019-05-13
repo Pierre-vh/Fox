@@ -37,8 +37,12 @@ BUILTIN(intToString,    intToString)
 BUILTIN(doubleToString, doubleToString)
 BUILTIN(boolToString,   boolToString)
 
+// String operations
 BUILTIN(strConcat,    concat)
 BUILTIN(charConcat,   concatChars)
+// String Object interface
+BUILTIN(strLength,    length)
+BUILTIN(strNumBytes,  numBytes)
 
 //----------------------------------------------------------------------------//
 

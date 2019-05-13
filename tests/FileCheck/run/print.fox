@@ -1,4 +1,9 @@
-﻿// RUN: %fox-run
+﻿// RUN: %fox-run | %filecheck
+
+func main() {
+  foo();
+  consistencyTest();
+}
 
 func foo() {
   printInt(42);
@@ -11,10 +16,59 @@ func foo() {
   printString('a' + 'b');
   printString("a" + 'b');
   printString('a' + "b");
+  // CHECK: 42true善-333.333333333
+  // CHECK-NEXT: Hello, World
+  // CHECK-EMPTY:
+  // CHECK-NEXT: Fox is great!
+  // CHECK-NEXT: ababab
 }
 
-// CHECK: 42true善-333.333333333
-// CHECK-NEXT: Hello, World!
-// CHECK-EMPTY:
-// CHECK-NEXT: Fox is great!
-// CHECK-NEXT: ababab
+func consistencyTest() {
+  let a : string = intToString(350000000);
+  // CHECK: 350000000
+  // CHECK-NEXT: 350000000
+  printString(a + '\n');
+  printInt(350000000);
+  printChar('\n');
+
+  let b : string = intToString(-350000000);
+  // CHECK-NEXT: -350000000
+  // CHECK-NEXT: -350000000
+  printString(b + '\n');
+  printInt(-350000000);
+  printChar('\n');
+
+  let c : string = doubleToString(333333.333333);
+  // CHECK-NEXT: 333333.333333
+  // CHECK-NEXT: 333333.333333
+  printString(c + '\n');
+  printDouble(333333.333333);
+  printChar('\n');
+
+  let d : string = doubleToString(-333333.333333);
+  // CHECK-NEXT: -333333.333333
+  // CHECK-NEXT: -333333.333333
+  printString(d + '\n');
+  printDouble(-333333.333333);
+  printChar('\n');
+
+  let e : string = charToString('@');
+  // CHECK-NEXT: @
+  // CHECK-NEXT: @
+  printString(e + '\n');
+  printChar('@');
+  printChar('\n');
+
+  let f : string = boolToString(true);
+  // CHECK-NEXT: true
+  // CHECK-NEXT: true
+  printString(f + '\n');
+  printBool(true);
+  printChar('\n');
+
+  let g : string = boolToString(false);
+  // CHECK-NEXT: false
+  printString(g + '\n');
+  printBool(false);
+  printChar('\n');
+}

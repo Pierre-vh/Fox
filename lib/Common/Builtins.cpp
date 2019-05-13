@@ -11,6 +11,8 @@
 #include "Fox/Common/Objects.hpp"
 #include "Fox/Common/UTF8.hpp"
 #include <iostream>
+#include <iomanip>
+#include <sstream>
 
 using namespace fox;
 
@@ -31,9 +33,24 @@ std::ostream& fox::operator<<(std::ostream& os, BuiltinID id) {
   return os << to_string(id);
 }
 
+std::string builtin::detail::foxDoubleTostring(FoxDouble value) { 
+  static std::size_t foxDoublePrec = 
+    std::numeric_limits<FoxDouble>::max_digits10;
+  // FIXME: Can this be done better?
+  std::stringstream ss;
+  ss << std::setprecision(foxDoublePrec) << value;
+  return ss.str();
+}
+
 //----------------------------------------------------------------------------//
 // Builtins
+//
+// FIXME: printXX builtins are implemented differently than XXToString functions
+// maybe this can lead to inconsistencies?
 //----------------------------------------------------------------------------//
+
+static std::size_t foxDoubleMaxPrecision =
+  std::numeric_limits<FoxDouble>::max_digits10;
 
 void builtin::printInt(FoxInt value) {
   std::cout << value;
@@ -51,7 +68,7 @@ void builtin::printChar(FoxChar ch) {
 }
 
 void builtin::printDouble(FoxDouble value) {
-  std::cout << value;
+  std::cout << detail::foxDoubleTostring(value);
 }
 
 void builtin::printString(StringObject* str) {

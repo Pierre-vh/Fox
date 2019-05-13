@@ -1,4 +1,4 @@
-// RUN: %fox-run
+// RUN: %fox-run | %filecheck
 
 func main() {
   test('\n' == '\n');
@@ -16,7 +16,7 @@ func test(value: bool) {
 }
 
 // CHECK:       #true#
-// CHECK-NEXT:  #false#
+// CHECK-NEXT:  #true#
 // CHECK-NEXT:  #true#
 // CHECK-NEXT:  #false#
 // CHECK-NEXT:  #true#

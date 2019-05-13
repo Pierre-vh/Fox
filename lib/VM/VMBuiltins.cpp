@@ -31,9 +31,7 @@ StringObject* builtin::intToString(VM& vm, FoxInt value) {
 }
 
 StringObject* builtin::doubleToString(VM& vm, FoxDouble value) {
-  std::stringstream ss;
-  ss << value;
-  return vm.newStringObject(ss.str());
+  return vm.newStringObject(detail::foxDoubleTostring(value));
 }
 
 StringObject* builtin::boolToString(VM& vm, bool value) {
@@ -55,4 +53,14 @@ StringObject* builtin::charConcat(VM& vm, FoxChar lhs, FoxChar rhs) {
   result->append(lhs);
   result->append(rhs);
   return result;
+}
+
+FoxInt builtin::strLength(StringObject* str) {
+  assert(str && "String is null");
+  return str->length();
+}
+
+FoxInt builtin::strNumBytes(StringObject* str) {
+  assert(str && "String is null");
+  return str->numBytes();
 }

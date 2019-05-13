@@ -12,6 +12,7 @@
 #include "FoxTypes.hpp"
 #include "BuiltinID.hpp"
 #include <type_traits>
+#include <string>
 
 namespace fox {
   class VM;
@@ -25,6 +26,13 @@ namespace fox {
   #include "Builtins.def"
 
   namespace builtin {
+    namespace detail {
+      /// Helper functions for builtins
+
+      /// \returns \p value converted as a string with full precision
+      std::string foxDoubleTostring(FoxDouble value);
+    }
+
     /// Prints an integer to stdout
     void printInt(FoxInt value);
 
@@ -53,9 +61,17 @@ namespace fox {
     StringObject* boolToString(VM& vm, bool value);
 
     /// Concatenates 2 strings together, producing a new string
+    /// \returns a new string containing LHS and RHS.
     StringObject* strConcat(VM& vm, StringObject* lhs, StringObject* rhs);
 
-    /// Concatenates 2 chars together, producing a string
+    /// Concatenates 2 chars together
+    /// \returns a new string that contains LHS and RHS.
     StringObject* charConcat(VM& vm, FoxChar lhs, FoxChar rhs);
+
+    /// \returns the length of \p str in UTF8 Codepoints.
+    FoxInt strLength(StringObject* str);
+
+    /// \returns the size of \p str in bytes
+    FoxInt strNumBytes(StringObject* str);
   }
 }

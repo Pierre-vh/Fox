@@ -10,7 +10,7 @@
 
 #pragma once
 
-#include <cstdint>
+#include <cstddef>
 #include <string>
 #include "FoxTypes.hpp"
 #include "string_view.hpp"
@@ -48,8 +48,10 @@ namespace fox {
       /// \returns a const reference to the underlying string
       const std::string& str() const;
 
-      /// std::size_t numChars() const /* utf-8 measurement */
-      /// std::size_t numBytes() const /* std::string::size() */
+      /// \returns the size of the string in UTF8 codepoints.
+      std::size_t length() const;
+      /// \returns the size of the string in bytes
+      std::size_t numBytes() const;
 
       void append(FoxChar ch);
       /// void setChar(std::size_t idx, FoxChar ch)

@@ -7,6 +7,7 @@
 
 #include "Fox/Common/Objects.hpp"
 #include "Fox/Common/UTF8.hpp"
+#include "utfcpp/utf8.hpp"
 
 using namespace fox;
 
@@ -35,6 +36,14 @@ std::string& StringObject::str() {
 
 const std::string& StringObject::str() const {
   return str_;
+}
+
+std::size_t StringObject::length() const {
+  return utf8::distance(str_.begin(), str_.end());
+}
+
+std::size_t StringObject::numBytes() const {
+  return str_.size();
 }
 
 void StringObject::append(FoxChar ch) {
