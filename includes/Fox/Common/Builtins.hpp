@@ -26,13 +26,6 @@ namespace fox {
   #include "Builtins.def"
 
   namespace builtin {
-    namespace detail {
-      /// Helper functions for builtins
-
-      /// \returns \p value converted as a string with full precision
-      std::string foxDoubleTostring(FoxDouble value);
-    }
-
     /// Prints an integer to stdout
     void printInt(FoxInt value);
 

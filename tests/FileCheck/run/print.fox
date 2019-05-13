@@ -9,14 +9,14 @@ func foo() {
   printInt(42);
   printBool(true);
   printChar('善');
-  printDouble(-333.333333333);
+  printDouble(-3333.333333);
   printString("\nHello, World\n");
   printString("");
   printString("\nFox" + " is great!\n");
   printString('a' + 'b');
   printString("a" + 'b');
   printString('a' + "b");
-  // CHECK: 42true善-333.333333333
+  // CHECK: 42true善-3333.333333
   // CHECK-NEXT: Hello, World
   // CHECK-EMPTY:
   // CHECK-NEXT: Fox is great!

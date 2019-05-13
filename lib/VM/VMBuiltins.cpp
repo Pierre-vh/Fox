@@ -31,7 +31,7 @@ StringObject* builtin::intToString(VM& vm, FoxInt value) {
 }
 
 StringObject* builtin::doubleToString(VM& vm, FoxDouble value) {
-  return vm.newStringObject(detail::foxDoubleTostring(value));
+  return vm.newStringObject(std::to_string(value));
 }
 
 StringObject* builtin::boolToString(VM& vm, bool value) {
