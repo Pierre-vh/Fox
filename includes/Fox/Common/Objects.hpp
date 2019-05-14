@@ -51,14 +51,7 @@ namespace fox {
       /// \returns the size of the string in bytes
       std::size_t numBytes() const;
 
-      /// void setChar(std::size_t idx, FoxChar ch)
-      /// FoxChar getChar(std::size_t idx)
-
-      /// void setByte(std::size_t idx, char ch);
-      /// char getByte(std::size_t idx)
-
-      /// void eraseChars(std::size_t idx, std::size_t end = idx)
-      /// void eraseBytes(std::size_t idx, std::size_t end = idx)
+      /// FoxChar getChar(std::size_t idx) const;
 
       static bool classof(const Object* obj) {
         return obj->getKind() == ObjectKind::StringObject;
