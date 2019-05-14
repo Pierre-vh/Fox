@@ -14,13 +14,13 @@
 
 // Version numbers
 #define FOX_VER_MAJOR 0
-#define FOX_VER_MINOR 3
+#define FOX_VER_MINOR 1
 #define FOX_VER_PATCH 0
 
 #define FOX_DEV_PHASE "inDev"  
 
 // Description of each (planned) "development" phase
-// inDev: Nothing is complete/working as intended  (Make it work)
+// inDev: Nothing is complete/working as intended  (Make it work) -> 0.1
 // Alpha: The interpreter is working and can run basic Fox code. 
 //       This phase is mostly improving the existing code :
 //       Writing more tests, Refactoring, DRYing, etc. 
