@@ -104,6 +104,13 @@ Basic VM data types and their mappings to Fox types:
     -> string+string (Done)
     -> handle chars (change the thunk depending on the type) (Done)
   -> Default-init variables (based on its type) (Done)
+
+  -> Immutability problem: Currently immutability in Fox is a bit of a problem, since it can easily
+    be bypassed using function calls. Mutability needs to be cleaned up a bit:
+      - Make strings immutable
+      - Only allow "let" on primitive types
+      - Rethink about "mut": is it even needed anymore?
+
   -> Implement string interface in full
     -> append, appendStr (done)
     -> pop
