@@ -35,20 +35,22 @@ std::ostream& fox::operator<<(std::ostream& os, BuiltinID id) {
 // Utils
 //----------------------------------------------------------------------------//
 
-void builtin::util::toString(std::string& dest, FoxInt value) {
-  dest = std::to_string(value);
+std::string builtin::util::toString(FoxInt value) {
+  return std::to_string(value);
 }
 
-void builtin::util::toString(std::string& dest, FoxDouble value) {
-  dest = std::to_string(value);
+std::string builtin::util::toString(FoxDouble value) {
+  return std::to_string(value);
 }
 
-void builtin::util::toString(std::string& dest, bool value) {
-  dest = (value ? "true" : "false");
+std::string builtin::util::toString(bool value) {
+  return (value ? "true" : "false");
 }
 
-void builtin::util::toString(std::string& dest, FoxChar value) {
+std::string builtin::util::toString(FoxChar value) {
+  std::string dest;
   appendFoxChar(value, dest);
+  return dest;
 }
 
 
@@ -57,27 +59,19 @@ void builtin::util::toString(std::string& dest, FoxChar value) {
 //----------------------------------------------------------------------------//
 
 void builtin::printInt(FoxInt value) {
-  std::string str;
-  util::toString(str, value);
-  std::cout << str;
+  std::cout << util::toString(value);
 }
 
 void builtin::printBool(bool value) {
-  std::string str;
-  util::toString(str, value);
-  std::cout << str;
+  std::cout << util::toString(value);
 }
 
 void builtin::printChar(FoxChar ch) {
-  std::string str;
-  util::toString(str, ch);
-  std::cout << str;
+  std::cout << util::toString(ch);
 }
 
 void builtin::printDouble(FoxDouble value) {
-  std::string str;
-  util::toString(str, value);
-  std::cout << str;
+  std::cout << util::toString(value);
 }
 
 void builtin::printString(StringObject* str) {

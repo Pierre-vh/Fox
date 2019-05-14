@@ -30,10 +30,6 @@ StringObject::StringObject() : StringObject(string_view()) {}
 StringObject::StringObject(string_view value) 
   : Object(ObjectKind::StringObject), str_(value.to_string()) {}
 
-std::string& StringObject::str() {
-  return str_;
-}
-
 const std::string& StringObject::str() const {
   return str_;
 }
@@ -44,8 +40,4 @@ std::size_t StringObject::length() const {
 
 std::size_t StringObject::numBytes() const {
   return str_.size();
-}
-
-void StringObject::append(FoxChar ch) {
-  appendFoxChar(ch, str_);
 }

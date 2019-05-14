@@ -12,49 +12,37 @@
 #include "Fox/Common/Errors.hpp"
 #include "Fox/Common/UTF8.hpp"
 #include "Fox/VM/VM.hpp"
-#include <string>
-#include <sstream>
 
 using namespace fox;
 
 StringObject* builtin::charToString(VM& vm, FoxChar value) {
-  StringObject* result = vm.newStringObject();
-  util::toString(result->str(), value);
-  return result;
+  return vm.newStringObject(util::toString(value));
 }
 
 StringObject* builtin::intToString(VM& vm, FoxInt value) {
-  StringObject* result = vm.newStringObject();
-  util::toString(result->str(), value);
-  return result;
+  return vm.newStringObject(util::toString(value));
 }
 
 StringObject* builtin::doubleToString(VM& vm, FoxDouble value) {
-  StringObject* result = vm.newStringObject();
-  util::toString(result->str(), value);
-  return result;
+  return vm.newStringObject(util::toString(value));
 }
 
 StringObject* builtin::boolToString(VM& vm, bool value) {
-  StringObject* result = vm.newStringObject();
-  util::toString(result->str(), value);
-  return result;
+  return vm.newStringObject(util::toString(value));
 }
-
 
 StringObject* builtin::strConcat(VM& vm, StringObject* lhs, StringObject* rhs) {
   assert(lhs && "LHS is null");
   assert(rhs && "RHS is null");
-  StringObject* result = vm.newStringObject();
-  std::string& str = result->str();
-  str = lhs->str() + rhs->str();
-  return result;
+  return vm.newStringObject(lhs->str() + rhs->str());
 }
 
 StringObject* builtin::charConcat(VM& vm, FoxChar lhs, FoxChar rhs) {
-  StringObject* result = vm.newStringObject();
-  result->append(lhs);
-  result->append(rhs);
+  // TODO: Can this be improved?
+  std::string str;
+  appendFoxChar(lhs, str);
+  appendFoxChar(rhs, str);
+  StringObject* result = vm.newStringObject(str);
   return result;
 }
 

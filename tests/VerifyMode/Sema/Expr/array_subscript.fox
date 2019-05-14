@@ -31,4 +31,8 @@ func subscript_set() {
   // but if the type is an lvalue, you can.
   var mutArr : [int] = [];
   mutArr[0] = 2;
+
+  // strings cannot be changed either
+  let str : string = "Hello"; 
+  str[0] = 'c'; // expect-error: expression is not assignable
 }

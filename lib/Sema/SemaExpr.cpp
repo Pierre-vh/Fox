@@ -553,19 +553,20 @@ class Sema::ExprChecker : Checker, ExprVisitor<ExprChecker, Expr*>,  ASTWalker {
       Expr* idx = expr->getIndex();
       Type idxTy = idx->getType();
 
+      bool canLValue = true;
       Type subscriptType;
 
-      // Check if the base is an Array Type, ignoring LValues if
-      // present.
-      // (in that case, the type of the subscript is the array's
-      //  element type)
+      // Check if the base is an Array Type, ignoring LValues if present.
       if (auto arr  = baseTy->getRValue()->getAs<ArrayType>()) {
         subscriptType = arr->getElementType();
         assert(subscriptType && "ArrayType had no element type!");
       }
-      // Or a String Type (in that case, the type of the subscript is 'char')
-      else if(baseTy->isStringType())
+      // String types are also allowed, but they cannot be mutated.
+      // It's just a shorthand for a getchar-like function.
+      else if (baseTy->isStringType()) {
         subscriptType = CharType::get(ctxt);
+        canLValue = false;
+      }
       // if it's neither, we can't subscript.
       else {
 			  diagnoseInvalidArraySubscript(expr, base->getSourceRange(), 
@@ -583,8 +584,8 @@ class Sema::ExprChecker : Checker, ExprVisitor<ExprChecker, Expr*>,  ASTWalker {
       assert(subscriptType);
 
       // Note: When the base is an lvalue (= it's assignable), the subscript
-      // should be assignable too, so wrap it in a LValue if that's the case.
-      if(base->getType()->isAssignable())
+      // should be assignable too if it's allowed.
+      if(canLValue && base->getType()->isAssignable())
         subscriptType = LValueType::get(ctxt, subscriptType);
       expr->setType(subscriptType);
       return expr;

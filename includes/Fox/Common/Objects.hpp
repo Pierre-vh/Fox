@@ -34,7 +34,7 @@ namespace fox {
       ObjectKind kind_;
   };
 
-  /// Object representing an UTF8 String.
+  /// Object representing an immutable UTF8 String.
   class StringObject : public Object {
     public:
       /// creates an empty StringObject
@@ -43,8 +43,6 @@ namespace fox {
       /// creates a StringObject from a pre-existing string_view
       StringObject(string_view value);
 
-      /// \returns a reference to the underlying string
-      std::string& str();
       /// \returns a const reference to the underlying string
       const std::string& str() const;
 
@@ -53,7 +51,6 @@ namespace fox {
       /// \returns the size of the string in bytes
       std::size_t numBytes() const;
 
-      void append(FoxChar ch);
       /// void setChar(std::size_t idx, FoxChar ch)
       /// FoxChar getChar(std::size_t idx)
 
@@ -68,6 +65,6 @@ namespace fox {
       }
 
     private:
-      std::string str_;
+      const std::string str_;
   };
 }
