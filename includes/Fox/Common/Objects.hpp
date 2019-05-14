@@ -35,6 +35,8 @@ namespace fox {
   };
 
   /// Object representing an immutable UTF8 String.
+  ///   TODO: Trail-allocate the string once I get a proper allocator in
+  ///         the VM.
   class StringObject : public Object {
     public:
       /// creates an empty StringObject
