@@ -32,37 +32,55 @@ std::ostream& fox::operator<<(std::ostream& os, BuiltinID id) {
 }
 
 //----------------------------------------------------------------------------//
-// Builtins
-//
-// FIXME: printXX builtins are implemented differently than XXToString functions
-// maybe this can lead to inconsistencies?
+// Utils
 //----------------------------------------------------------------------------//
 
-static std::size_t foxDoubleMaxPrecision =
-  std::numeric_limits<FoxDouble>::max_digits10;
+void builtin::util::toString(std::string& dest, FoxInt value) {
+  dest = std::to_string(value);
+}
+
+void builtin::util::toString(std::string& dest, FoxDouble value) {
+  dest = std::to_string(value);
+}
+
+void builtin::util::toString(std::string& dest, bool value) {
+  dest = (value ? "true" : "false");
+}
+
+void builtin::util::toString(std::string& dest, FoxChar value) {
+  appendFoxChar(value, dest);
+}
+
+
+//----------------------------------------------------------------------------//
+// Builtins
+//----------------------------------------------------------------------------//
 
 void builtin::printInt(FoxInt value) {
-  std::cout << value;
+  std::string str;
+  util::toString(str, value);
+  std::cout << str;
 }
 
 void builtin::printBool(bool value) {
-  std::cout << (value ? "true" : "false");
+  std::string str;
+  util::toString(str, value);
+  std::cout << str;
 }
 
 void builtin::printChar(FoxChar ch) {
-  // FIXME: This isn't very efficient
-  std::string dest;
-  appendFoxChar(ch, dest);
-  std::cout << dest;
+  std::string str;
+  util::toString(str, ch);
+  std::cout << str;
 }
 
 void builtin::printDouble(FoxDouble value) {
-  std::cout << std::to_string(value);
+  std::string str;
+  util::toString(str, value);
+  std::cout << str;
 }
 
 void builtin::printString(StringObject* str) {
   assert(str && "String is Null!");
   std::cout << str->str();
 }
-
-

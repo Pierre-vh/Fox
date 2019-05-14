@@ -19,23 +19,26 @@ using namespace fox;
 
 StringObject* builtin::charToString(VM& vm, FoxChar value) {
   StringObject* result = vm.newStringObject();
-  /// FIXME: Is this optimal?
-  appendFoxChar(value, result->str());
+  util::toString(result->str(), value);
   return result;
 }
 
 StringObject* builtin::intToString(VM& vm, FoxInt value) {
-  std::stringstream ss;
-  ss << value;
-  return vm.newStringObject(ss.str());
+  StringObject* result = vm.newStringObject();
+  util::toString(result->str(), value);
+  return result;
 }
 
 StringObject* builtin::doubleToString(VM& vm, FoxDouble value) {
-  return vm.newStringObject(std::to_string(value));
+  StringObject* result = vm.newStringObject();
+  util::toString(result->str(), value);
+  return result;
 }
 
 StringObject* builtin::boolToString(VM& vm, bool value) {
-  return vm.newStringObject(value ? "true" : "false");
+  StringObject* result = vm.newStringObject();
+  util::toString(result->str(), value);
+  return result;
 }
 
 

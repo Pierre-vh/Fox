@@ -11,7 +11,6 @@
 
 #include "FoxTypes.hpp"
 #include "BuiltinID.hpp"
-#include <type_traits>
 #include <string>
 
 namespace fox {
@@ -26,6 +25,17 @@ namespace fox {
   #include "Builtins.def"
 
   namespace builtin {
+    namespace util {
+      /// Converts an integer \p value to a string \p dest
+      void toString(std::string& dest, FoxInt value);
+      /// Converts a double \p value to a string \p dest
+      void toString(std::string& dest, FoxDouble value);
+      /// Converts a bool \p value to a string \p dest
+      void toString(std::string& dest, bool value);
+      /// Converts a char \p value to a string \p dest
+      void toString(std::string& dest, FoxChar value);
+    }
+
     /// Prints an integer to stdout
     void printInt(FoxInt value);
 
