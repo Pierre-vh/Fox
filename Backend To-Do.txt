@@ -105,9 +105,9 @@ Basic VM data types and their mappings to Fox types:
     -> handle chars (change the thunk depending on the type) (Done)
   -> Default-init variables (based on its type) (Done)
   -> Implement string interface in full
-    -> append, appendStr
+    -> append, appendStr (done)
     -> pop
-    -> length, numBytes
+    -> length, numBytes (done)
     -> getChar/setChar
       -> Add string subscript & assignement
     -> getByte/setByte
