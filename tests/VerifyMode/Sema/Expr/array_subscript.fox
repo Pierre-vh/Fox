@@ -26,8 +26,6 @@ func subscript() {
 func subscript_set() {
   // If the array isn't an lvalue, you can't assign to a subscript.
   [0, 1, 2][0] = 2; // expect-error: expression is not assignable
-  let arr : [int] = [];
-  arr[0] = 2; // expect-error: expression is not assignable
   // but if the type is an lvalue, you can.
   var mutArr : [int] = [];
   mutArr[0] = 2;

@@ -18,12 +18,12 @@ let m : char = 'f';
 let n : char = "foo"; // expect-error: cannot use an expression of type 'string' to initialize a variable of type 'char'
 let o : char = 4; // expect-error: cannot use an expression of type 'int' to initialize a variable of type 'char'
 
-let p : [int] = [1];
-let q : [int] = 1; // expect-error: cannot use an expression of type 'int' to initialize a variable of type '[int]'
+var p : [int] = [1];
+var q : [int] = 1; // expect-error: cannot use an expression of type 'int' to initialize a variable of type '[int]'
 
 // infer tests
-let r : [int] = [];
-let s : [[[double]]] = [];
+var r : [int] = [];
+var s : [[[double]]] = [];
 
 // Test that we can't use a variable declared later in the file inside an initializer
 let t : int = u; // expect-error: undeclared identifier 'u'

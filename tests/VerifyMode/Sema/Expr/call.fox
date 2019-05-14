@@ -80,5 +80,5 @@ func inExprs() {
   // expect-error@+1: cannot use binary operator '*' on expressions of types 'void' and 'int'
   basic()*3;
 
-  let n : [int] = takesArrayReturnsArray([1,2,3]);
+  var n : [int] = takesArrayReturnsArray([1,2,3]);
 }

@@ -39,7 +39,7 @@ func test_scope() {
   // x shouldn't be visible here
   x; // expect-error: undeclared identifier 'x'
   
-  let y : [char];
+  var y : [char];
   if(false) {
     if(true) {
       y; // should be visible & accessible
