@@ -1,8 +1,0 @@
-// RUN: %fox-verify
-
-let a: int;
-let b: double;
-let c: bool;
-let d: char;
-let e: string;
-let f: [string]; // expect-error: variable 'f' of non-primitive type '[string]' cannot be declared using 'let'

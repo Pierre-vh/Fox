@@ -60,8 +60,6 @@ ERROR(func_type_in_arrlit,
   "function types cannot be used within an array literals")
 ERROR(missing_return_in_func,
   "missing return statement in function '%0' expected to return '%1'")
-ERROR(nonprim_cannot_let,
-  "variable '%0' of non-primitive type '%1' cannot be declared using 'let'")
 
 WARNING(code_after_return_not_reachable,
   "code after 'return' will never be executed")

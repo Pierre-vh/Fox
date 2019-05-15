@@ -109,7 +109,9 @@ Basic VM data types and their mappings to Fox types:
     be bypassed using function calls. Mutability needs to be cleaned up a bit:
       - Make strings immutable (done)
       - Only allow "let" on primitive types (done)
+         -- reverted (done)
       - Rethink about "mut": is it even needed anymore?
+        -- yes
 
   -> Implement string interface in full
     -> append, appendStr (done)

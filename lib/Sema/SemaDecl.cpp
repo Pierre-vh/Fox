@@ -248,25 +248,6 @@ class Sema::DeclChecker : Checker, DeclVisitor<DeclChecker, void> {
         if(!ok)
           diagnoseInvalidVarInitExpr(decl, init);
       }
-      
-      // Can this variable be "let" ? Only primitive types
-      // should be able to.
-      if (decl->isLet()) {
-        Type varType = decl->getValueType();
-        if (!varType->isPrimitiveType()) {
-          SourceRange range = decl->getIdentifierRange();
-          // TODO: Handle implicit types (= extra will be null) if I add var
-          //       type inference.
-          SourceRange extra = decl->getTypeLoc().getSourceRange();
-          assert(range && extra && "invalid locs");
-
-          diagEngine.report(DiagID::nonprim_cannot_let, range)
-            .addArg(decl->getIdentifier())
-            .addArg(varType)
-            .setExtraRange(extra);
-          return;
-        }
-      }
     }
 
     void visitFuncDecl(FuncDecl* decl) {
