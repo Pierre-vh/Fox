@@ -211,9 +211,7 @@ namespace fox {
       using LookupMap = 
         std::unordered_multimap<Identifier, std::pair<ScopeInfo, NamedDecl*>>;
 
-      // Creates the appropriate lookup map for this DeclContext:
-      //  for local DeclContexts, uses a LocalLookupMap.
-      //  for any other DeclContextk ind, uses a LookupMap
+      /// Creates the LookupMap for this context
       void createLookupMap();
       
       // The PointerIntPair used to represent the ParentAndKind bits
@@ -229,7 +227,7 @@ namespace fox {
       Decl* firstDecl_ = nullptr;
       Decl* lastDecl_ = nullptr;
 
-      // The LookupMap, which might be a Local LookupMap.
+      // The LookupMap
       LookupMap* lookupMap_ = nullptr;
 
       // Check that ParentAndKindTy has enough bits to represent

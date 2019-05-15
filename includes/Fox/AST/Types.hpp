@@ -73,6 +73,11 @@ namespace fox {
       /// \returns true if this Type tree contains an ErrorType somewhere
       bool hasErrorType() const;
 
+      /// Note: all of the following functions are simply shorthand for
+      /// type->getRValue()->is<...>(), this is done because most of these
+      /// checks are frequently performed and this shorthand form
+      /// helps with readability IMHO - Pierre
+
       /// \returns true if this type is the primitive 'string' type.
       /// Ignores LValues.
       bool isStringType() const;
