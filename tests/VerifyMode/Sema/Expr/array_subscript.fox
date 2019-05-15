@@ -29,14 +29,17 @@ func subscript_set() {
   // but if the type is an lvalue, you can.
   var varArr : [int] = [];
   varArr[0] = 2;
+  ((varArr))[0] = 2;
   // even if it's a "let" variable
   let letArr : [int] = [];
   letArr[0] = 2;
+  ((letArr))[0] = 2;
 
   // if the subscripted is an LValue, the subscript should be an
   // LValue too.
   var nested : [[int]] = [];
   nested[0][0] = 0;
+  ((nested))[0][0] = 0;
 
   // One exception is with strings
   var varStr : string = "Hello"; 
