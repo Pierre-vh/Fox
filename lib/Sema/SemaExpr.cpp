@@ -850,8 +850,8 @@ class Sema::ExprChecker : Checker, ExprVisitor<ExprChecker, Expr*>,  ASTWalker {
         return expr;
       }
 
-      // Everything's fine, the type of the expr is the type of it's RHS,
-      // (as an RValue)
+      // Everything's fine, the type of the expr is the type of its RHS
+      // without LValues if present.
       expr->setType(rhsTy->getRValue());
       return expr;
     }
