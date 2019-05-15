@@ -27,10 +27,21 @@ func subscript_set() {
   // If the array isn't an lvalue, you can't assign to a subscript.
   [0, 1, 2][0] = 2; // expect-error: expression is not assignable
   // but if the type is an lvalue, you can.
-  var mutArr : [int] = [];
-  mutArr[0] = 2;
+  var varArr : [int] = [];
+  varArr[0] = 2;
+  // even if it's a "let" variable
+  let letArr : [int] = [];
+  letArr[0] = 2;
 
-  // strings cannot be changed either
-  let str : string = "Hello"; 
-  str[0] = 'c'; // expect-error: expression is not assignable
+  // if the subscripted is an LValue, the subscript should be an
+  // LValue too.
+  var nested : [[int]] = [];
+  nested[0][0] = 0;
+
+  // One exception is with strings
+  var varStr : string = "Hello"; 
+  var letStr : string = "Hello"; 
+  varStr[0] = 'c';    // expect-error: expression is not assignable
+  letStr[0] = 'c';    // expect-error: expression is not assignable
+  "hello"[0] = 'c';   // expect-error: expression is not assignable
 }

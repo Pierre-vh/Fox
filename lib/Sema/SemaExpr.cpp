@@ -546,23 +546,24 @@ class Sema::ExprChecker : Checker, ExprVisitor<ExprChecker, Expr*>,  ASTWalker {
     }
 
     Expr* visitArraySubscriptExpr(ArraySubscriptExpr* expr) {
-      // Get child expr and its RValue type
+      // Fetch the base
       Expr* base = expr->getBase();
       Type baseTy = base->getType();
-      // Get idx expr
+      // Fetch the index
       Expr* idx = expr->getIndex();
       Type idxTy = idx->getType();
 
       bool canLValue = true;
       Type subscriptType;
 
-      // Check if the base is an Array Type, ignoring LValues if present.
+      // Check if the base is an Array Type, ignoring LValues 
+      // if present.
       if (auto arr  = baseTy->getRValue()->getAs<ArrayType>()) {
         subscriptType = arr->getElementType();
         assert(subscriptType && "ArrayType had no element type!");
       }
       // String types are also allowed, but they cannot be mutated.
-      // It's just a shorthand for a getchar-like function.
+      // (-> It's just a shorthand for a getchar-like function)
       else if (baseTy->isStringType()) {
         subscriptType = CharType::get(ctxt);
         canLValue = false;
@@ -583,9 +584,8 @@ class Sema::ExprChecker : Checker, ExprVisitor<ExprChecker, Expr*>,  ASTWalker {
       }
       assert(subscriptType);
 
-      // Note: When the base is an lvalue (= it's assignable), the subscript
-      // should be assignable too if it's allowed.
-      if(canLValue && base->getType()->isAssignable())
+      // Check if the subscript's type should be an LValue
+      if(canLValue && isAccessOnExprAssignable(base))
         subscriptType = LValueType::get(ctxt, subscriptType);
       expr->setType(subscriptType);
       return expr;
@@ -719,6 +719,25 @@ class Sema::ExprChecker : Checker, ExprVisitor<ExprChecker, Expr*>,  ASTWalker {
     //----------------------------------------------------------------------//
     // Various semantics-related helper methods 
     //----------------------------------------------------------------------//
+
+
+    /// \returns true if the result of an "access" operation on \p base should
+    ///               be assignable.
+    /// "Access" here means both susbcripting and member access.
+    /// This will return true in 2 cases:
+    ///   - if \p base's type is an LValue
+    ///   - if \p base is a reference to a declaration (let or not)
+    bool isAccessOnExprAssignable(Expr* base) {
+      Type type = base->getType();
+      // Subscript is automatically assignable if the base is assignable
+      if(type->isAssignable())
+        return true;
+      // Else, it's only assignable if the Expr is a DeclRefExpr.
+      // FIXME: If I add ParenExpr, take them into account here (by
+      //        ignoring them)
+      // FIXME: Can this be done better?
+      return isa<DeclRefExpr>(base);
+    }
 
     // visitArrayLiteralExpr helpers
     bool checkIfLegalWithinArrayLiteral(ArrayLiteralExpr* lit, Expr* expr) {

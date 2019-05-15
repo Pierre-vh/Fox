@@ -1,0 +1,8 @@
+// RUN: %fox-verify
+
+func foo() {
+  let a : int;
+  let b : string;
+  a = 0;    // expect-error: expression is not assignable
+  b = "";   // expect-error: expression is not assignable
+}

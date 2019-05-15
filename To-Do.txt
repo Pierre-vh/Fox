@@ -156,12 +156,14 @@ To-Do:
   > Polishing the Lexer Rework + Adding EOF token (Done)
   > StableVectorIterator (Done)
   > Remove FunctionTypeParam (Done)
+  > Fixed immutability issues (Done)
 
   > VM, Bytecode, BytecodeGen (Currently being worked on, see Backend To-Do.txt
 
   > Consider removing TypeLoc, it's nearly useless, it's just a SourceRange/Type pack that's
     never used outside AST Nodes.
   > Break and Continue Statements
+  > Warn if a "let" variable is not initialized
 
   --- Get "feature-complete" ---
 
