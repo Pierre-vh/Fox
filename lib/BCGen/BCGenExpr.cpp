@@ -29,13 +29,11 @@ using UnOp = UnaryExpr::OpKind;
 // AssignementGenerator : Declaration
 //----------------------------------------------------------------------------// 
 
-using AGGenFunc = std::function<RegisterValue(RegisterValue)>;
-
 class BCGen::AssignementGenerator : public Generator,
                              ExprVisitor<AssignementGenerator, RegisterValue,
-                                                            AGGenFunc, BinOp> {
+                                                            Expr*, BinOp> {
   using Visitor = ExprVisitor<AssignementGenerator, RegisterValue, 
-                                                    AGGenFunc, BinOp>;
+                                                    Expr*, BinOp>;
   friend Visitor;
   public:  
     AssignementGenerator(BCGen& gen, BCBuilder& builder, 
@@ -49,45 +47,35 @@ class BCGen::AssignementGenerator : public Generator,
     /// Generates the bytecode for an assignement expression \p expr
     RegisterValue generate(BinaryExpr* expr);
 
-    /// The AssignementGenerator 'Gen' function. This is a 'thunk'
-    /// function that can do many things. What the thunk does
-    /// depends on the entry point used.
-    /// Its signature is (RegisterValue) -> RegisterValue
-    /// The goal is to place the thing we need to assign in the
-    /// register passed as parameter and return the parameter.
-    /// FIXME: This was used for a previous version of BCGen, but is
-    ///        now borderline useless. Maybe remove it?
-    using GenFunc = AGGenFunc;
-
   private:
     ///----------------------------------------------------------------------///
     /// Handled scenarios
     ///----------------------------------------------------------------------///
 
     RegisterValue
-    visitArraySubscriptExpr(ArraySubscriptExpr* expr, GenFunc gen, BinOp op);
+    visitArraySubscriptExpr(ArraySubscriptExpr* dst, Expr* src, BinOp op);
     RegisterValue
-    visitMemberOfExpr(MemberOfExpr* expr, GenFunc gen, BinOp op);
+    visitMemberOfExpr(MemberOfExpr* dst, Expr* src, BinOp op);
     RegisterValue
-    visitDeclRefExpr(DeclRefExpr* expr, GenFunc gen, BinOp op);
+    visitDeclRefExpr(DeclRefExpr* dst, Expr* src, BinOp op);
 
     ///----------------------------------------------------------------------///
     /// Unhandled scenarios
     ///----------------------------------------------------------------------///
 
     RegisterValue
-    visitUnresolvedDeclRefExpr(UnresolvedDeclRefExpr*, GenFunc, BinOp) {
+    visitUnresolvedDeclRefExpr(UnresolvedDeclRefExpr*, Expr*, BinOp) {
       fox_unreachable("UnresolvedDeclRefExpr found past Semantic Analysis");
     }
 
     RegisterValue 
-    visitErrorExpr(ErrorExpr*, GenFunc, BinOp) {
+    visitErrorExpr(ErrorExpr*, Expr*, BinOp) {
       fox_unreachable("ErrorExpr found past Semantic Analysis");
     }
 
     // Some nodes should never be found in the LHS of an assignement.
     #define IMPOSSIBLE_ASSIGNEMENT(KIND) RegisterValue\
-      visit##KIND(KIND*, GenFunc, BinOp)\
+      visit##KIND(KIND*, Expr*, BinOp)\
       { fox_unreachable("Unhandled Assignement: Cannot assign to a " #KIND); }
     IMPOSSIBLE_ASSIGNEMENT(BinaryExpr)
     IMPOSSIBLE_ASSIGNEMENT(UnaryExpr)
@@ -841,16 +829,11 @@ AssignementGenerator(BCGen& gen, BCBuilder& builder, ExprGenerator& exprGen)
 
 RegisterValue BCGen::AssignementGenerator::generate(BinaryExpr* expr) {
   assert(expr->isAssignement() && "Not an Assignement");
-  // for this entry point, the generator function simply calls the
-  // exprGen to generate the RHS into the desired register.
-  auto genFunc = [&](RegisterValue dest) {
-    return exprGen.generate(expr->getRHS(), std::move(dest));
-  };
-  return visit(expr->getLHS(), genFunc, expr->getOp());
+  return visit(expr->getLHS(), expr->getRHS(), expr->getOp());
 }
 
 RegisterValue BCGen::AssignementGenerator::
-visitArraySubscriptExpr(ArraySubscriptExpr*, GenFunc, BinOp) {
+visitArraySubscriptExpr(ArraySubscriptExpr*, Expr*, BinOp) {
   // VM doesn't support arrays yet
   fox_unimplemented_feature("ArraySubscript Assignement");
   // -> Gen the Subscripted Expression (SSE) using exprGen
@@ -859,19 +842,19 @@ visitArraySubscriptExpr(ArraySubscriptExpr*, GenFunc, BinOp) {
 }
 
 RegisterValue BCGen::AssignementGenerator::
-visitMemberOfExpr(MemberOfExpr*, GenFunc, BinOp) {
+visitMemberOfExpr(MemberOfExpr*, Expr*, BinOp) {
   // VM doesn't support objects yet
   fox_unimplemented_feature("MemberOfExpr Assignement");}
 
 RegisterValue BCGen::AssignementGenerator::
-visitDeclRefExpr(DeclRefExpr* expr, GenFunc gen, BinOp op) {
+visitDeclRefExpr(DeclRefExpr* dst, Expr* src, BinOp op) {
   // Assert that the only assignement possible is a vanilla one '='.
   // So, if in the future I add +=, -=, etc. this doesn't fail
   // silently.
   assert((op == BinOp::Assign) && "Unsupported assignement type");
   // Avoid 'unreferenced formal parameter'
   op;
-  return gen(regAlloc.useDecl(expr->getDecl()));
+  return exprGen.generate(src, regAlloc.useDecl(dst->getDecl()));
 }
 
 //----------------------------------------------------------------------------//
