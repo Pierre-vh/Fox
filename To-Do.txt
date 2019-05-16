@@ -158,38 +158,37 @@ To-Do:
   > Remove FunctionTypeParam (Done)
   > Fixed immutability issues (Done)
 
-  > VM, Bytecode, BytecodeGen (Currently being worked on, see Backend To-Do.txt
+  > VM, Bytecode, BytecodeGen (Currently being worked on, see Backend To-Do.txt)
 
   > Consider removing TypeLoc, it's nearly useless, it's just a SourceRange/Type pack that's
     never used outside AST Nodes.
   > Break and Continue Statements
-  > Warn if a "let" variable is not initialized
+  > Warn if a "let" variable doesn't have an initializer
 
-  --- Get "feature-complete" ---
+In no particular order:
+  > Implement more features (see below)
+  > Small "Make it Right" phase, fix things in the interpreter I'm not fully satisfied of,
+    and try to do some work in the High/Medium priority to-dos below.
+  > Proper VM Debug info & error handling mechanism. Possibly exception-based.
 
+Features I want to add (in order of priority)
   > UFCS
-    > Decide on the nodes that must be added exactly, how it'll work and what the grammar will be.
-
-  > Function Overloads on number and type of arguments. 
+    > Use an "UnresolvedDotExpr" that also captures the argument list for easy resolution of UFCS. It also allows "disabling" UFCS
+     like this: (a.b)(c) (instead of a.b() which might be interpreted as b(a, c))
+  > Function Overloading (on number & type of arguments)
+  > Ternary operator
+  > Allow omission of type annotations in local & global variable declarations
     > To Implement function overloads, add another "SemaType" that represents a
       disjunction of FunctionTypes* (the candidates) + the ID of the selected candidate.
     > It'd also be a good idea to give 'TypeVariableType' and 'OverloadType' a common base
       called 'SemaType'.
-
-  > Ternary operator
-
-  > Support omission of the type in local declarations (e.g. let foo = 3).
-    Maybe even for global ones too, but that gets a lot more complicated so I can't
-    promise anything yet.
-
-  > Multifile support:
-    > Exact syntax and semantics still to be defined.
-
-  > Small "Make it Right" phase, fix things in the interpreter I'm not fully satisfied of,
-    and try to do some work in the High/Medium priority to-dos below.
-
-  > Tuples, Unions and Structs
-  > VM Debug info/error handling mechanism. Possibly exception-based.
+  > Support multiple files
+  > Tuples
+  > Unions & is-expression
+  > Structs
+  > Pattern in variable declarations
+  > Allow variable declarations in `if`s
+  > for-in loops
   > Functions as first-class citizens
   > Typedefs
 
@@ -250,4 +249,4 @@ Other things that aren't part of the main pipeline:
       "foo as bool as string" in tests.
 
   Maybe someday: 
-    > Rethink the const-correctness policy, especially when it comes to pointers getters.
+    > Rethink the const-correctness policy, especially when it comes to getters that return pointers in the AST.

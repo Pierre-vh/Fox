@@ -156,6 +156,7 @@ Basic VM data types and their mappings to Fox types:
       Add a "-log-regalloc" option and use write FileCheck tests based on that option.
 
   -> Properly diagnose out of range jumps in BCGen::StmtGenerator::calculateJumpOffset
+    -> Same as diagnosing register pressure exceeded -> diagnostic like "'if' statement too complex to be compiled: reduce the amount of code contained inside it"
 
   -> When a mut ParamDecl is never written to 
      (= never at the top level of the lhs of an assignement)
