@@ -3,6 +3,12 @@
 func foo() {
   let a : int;
   let b : string;
-  a = 0;    // expect-error: expression is not assignable
-  b = "";   // expect-error: expression is not assignable
+  let c : double;
+  let d : bool;
+  let e : char;
+  a = 0;     // expect-error: expression is not assignable
+  b = "";    // expect-error: expression is not assignable
+  c = 0.0;   // expect-error: expression is not assignable
+  d = true;  // expect-error: expression is not assignable
+  e = 'c';   // expect-error: expression is not assignable
 }
