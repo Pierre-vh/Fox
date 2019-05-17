@@ -157,6 +157,7 @@ To-Do:
   > StableVectorIterator (Done)
   > Remove FunctionTypeParam (Done)
   > Fixed immutability issues (Done)
+  > Added toString '$' unary operator (implicitely calls the appropriate toString func) (Done)
 
   > VM, Bytecode, BytecodeGen (Currently being worked on, see Backend To-Do.txt)
 

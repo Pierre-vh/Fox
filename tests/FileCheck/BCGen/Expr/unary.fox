@@ -1,0 +1,31 @@
+// RUN: %fox-dump-bcgen | %filecheck
+
+// CHECK: Function 0
+func foo() {
+  -+-+-3;
+  // CHECK-NEXT:  StoreSmallInt 0 -3
+  // CHECK-NEXT:  NegInt 0 0
+  // CHECK-NEXT:  NegInt 0 0
+}
+
+// CHECK: Function 1
+func ToStringOperatorTest() {
+  // CHECK-NEXT:  LoadStringK 0 0
+  $"hello";
+  // CHECK-NEXT:  LoadBuiltinFunc 0 intToString
+  // CHECK-NEXT:  StoreSmallInt 1 0
+  // CHECK-NEXT:  Call 0 0
+  $0;
+  // CHECK-NEXT:  LoadBuiltinFunc 0 boolToString
+  // CHECK-NEXT:  StoreSmallInt 1 1
+  // CHECK-NEXT:  Call 0 0
+  $true;
+  // CHECK-NEXT:  LoadBuiltinFunc 0 doubleToString
+  // CHECK-NEXT:  LoadDoubleK 1 0
+  // CHECK-NEXT:  Call 0 0
+  $0.0;
+  // CHECK-NEXT:  LoadBuiltinFunc 0 charToString
+  // CHECK-NEXT:  StoreSmallInt 1 99
+  // CHECK-NEXT:  Call 0 0
+  $'c';
+}

@@ -23,3 +23,12 @@ func bar() {
   // CHECK-NEXT:  RetVoid
   return bar();
 }
+
+// CHECK:   Function 2
+func baz() : string {
+  // CHECK-NEXT:  LoadBuiltinFunc 0 intToString
+  // CHECK-NEXT:  StoreSmallInt 1 0
+  // CHECK-NEXT:  Call 0 0
+  // CHECK-NEXT:  Ret 0
+  return intToString(0);
+}

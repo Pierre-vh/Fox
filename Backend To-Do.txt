@@ -110,6 +110,10 @@ Basic VM data types and their mappings to Fox types:
     -> getChar
       -> Add string subscript
     -> Unit test everything of course
+  -> Move builtin-related checks/codegen inside "BCGenBuiltin" so I can remove ASTContext.hpp 
+     from BCGenExpr's includes
+    -> BCGen::getBuiltinFuncReturnType()
+    ->  
   -> Arrays 
     -> Scaffolding
     -> Operations

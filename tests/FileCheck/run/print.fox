@@ -24,49 +24,50 @@ func foo() {
 }
 
 func consistencyTest() {
-  let a : string = intToString(350000000);
+  let a : string = $350000000;
   // CHECK: 350000000
   // CHECK-NEXT: 350000000
   printString(a + '\n');
   printInt(350000000);
   printChar('\n');
 
-  let b : string = intToString(-350000000);
+  let b : string = $(-350000000);
   // CHECK-NEXT: -350000000
   // CHECK-NEXT: -350000000
   printString(b + '\n');
   printInt(-350000000);
   printChar('\n');
 
-  let c : string = doubleToString(333333.333333);
+  let c : string = $333333.333333;
   // CHECK-NEXT: 333333.333333
   // CHECK-NEXT: 333333.333333
   printString(c + '\n');
   printDouble(333333.333333);
   printChar('\n');
 
-  let d : string = doubleToString(-333333.333333);
+  let d : string = $(-333333.333333);
   // CHECK-NEXT: -333333.333333
   // CHECK-NEXT: -333333.333333
   printString(d + '\n');
   printDouble(-333333.333333);
   printChar('\n');
 
-  let e : string = charToString('@');
+  let e : string = $'@';
   // CHECK-NEXT: @
   // CHECK-NEXT: @
   printString(e + '\n');
   printChar('@');
   printChar('\n');
 
-  let f : string = boolToString(true);
+  let f : string = $true;
   // CHECK-NEXT: true
   // CHECK-NEXT: true
   printString(f + '\n');
   printBool(true);
   printChar('\n');
 
-  let g : string = boolToString(false);
+  let g : string = $false;
+  // CHECK-NEXT: false
   // CHECK-NEXT: false
   printString(g + '\n');
   printBool(false);

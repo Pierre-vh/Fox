@@ -90,9 +90,9 @@ class Sema::ExprChecker : Checker, ExprVisitor<ExprChecker, Expr*>,  ASTWalker {
         .setExtraRange(expr->getExpr()->getSourceRange());
     }
 
-    // (Warning) Diagnoses a redudant cast (when the
-    // cast goal and the child's type are equal)
-    void warnRedundantCast(CastExpr* expr, TypeLoc castTL) {
+    // (Warning) Diagnoses a redudant cast (when the cast goal 
+    // and the child's type are equal)
+    void warnRedundantCastExpr(CastExpr* expr, TypeLoc castTL) {
       Type castTy = castTL.getType();
       if(!Sema::isWellFormed(castTy)) return;
 
@@ -326,7 +326,7 @@ class Sema::ExprChecker : Checker, ExprVisitor<ExprChecker, Expr*>,  ASTWalker {
 
       if (isRedundant) { 
         expr->markAsUselesss();
-        warnRedundantCast(expr, castTL);
+        warnRedundantCastExpr(expr, castTL);
       }
 
       expr->setType(castTL.getType());
@@ -449,7 +449,7 @@ class Sema::ExprChecker : Checker, ExprVisitor<ExprChecker, Expr*>,  ASTWalker {
       assert(lhsTy && rhsTy && "untyped exprs");
 
       // Check that the types are well formed. If they aren't, don't
-      // bother checking.
+      // bother typechecking the expr.
       if (!Sema::isWellFormed({lhsTy, rhsTy})) return expr;
 
       // Handle assignements early, let checkAssignementBinaryExpr do it.
@@ -493,6 +493,10 @@ class Sema::ExprChecker : Checker, ExprVisitor<ExprChecker, Expr*>,  ASTWalker {
       Type childTy = expr->getExpr()->getType();
       Type goalTy = expr->getCastTypeLoc().getType();
 
+      // Check that the types are well formed. If they aren't, don't
+      // bother typechecking the expr.
+      if (!Sema::isWellFormed({childTy, goalTy})) return expr;
+
       bool isPerfectEquality = false;
       // custom comparator which considers that a and b are
       // equal when they're both numeric or boolean types.
@@ -517,6 +521,10 @@ class Sema::ExprChecker : Checker, ExprVisitor<ExprChecker, Expr*>,  ASTWalker {
       using UOp = UnaryExpr::OpKind;
       Type childTy = expr->getExpr()->getType();
 
+      // Check that the type is well formed. If it isn't, don't
+      // bother typechecking the expr.
+      if (!Sema::isWellFormed(childTy)) return expr;
+
       switch (expr->getOp()) {
         case UOp::Invalid:
           fox_unreachable("UnaryExpr with Invalid Op found");
@@ -536,6 +544,8 @@ class Sema::ExprChecker : Checker, ExprVisitor<ExprChecker, Expr*>,  ASTWalker {
             return expr;
           }
           break;
+        case UOp::ToString:
+          return checkToStringUnaryExpr(expr);
         default:
           fox_unreachable("Unhandled Unary Op kind");
       }
@@ -552,6 +562,10 @@ class Sema::ExprChecker : Checker, ExprVisitor<ExprChecker, Expr*>,  ASTWalker {
       // Fetch the index
       Expr* idx = expr->getIndex();
       Type idxTy = idx->getType();
+
+      // Check that the types are well formed. If they aren't, don't
+      // bother typechecking the expr.
+      if (!Sema::isWellFormed({idxTy, baseTy})) return expr;
 
       bool canLValue = true;
       Type subscriptType;
@@ -649,6 +663,8 @@ class Sema::ExprChecker : Checker, ExprVisitor<ExprChecker, Expr*>,  ASTWalker {
         return expr;
       }
 
+      bool canDiagnose = true;
+
       // Check that the function is callable with these arguments.
       if(fnTy->numParams()) {
         bool hasArgTypeMismatch = false;
@@ -657,6 +673,10 @@ class Sema::ExprChecker : Checker, ExprVisitor<ExprChecker, Expr*>,  ASTWalker {
           Type paramType = fnTy->getParam(idx);
           Expr* arg = expr->getArg(idx);
           Type argType = arg->getType();
+
+          // If the argument's type is an error type, don't diagnose.
+          if(argType->is<ErrorType>())
+            canDiagnose = false;
 
           assert(paramType && argType && "types cant be nullptrs!");
           // Check that the types match.
@@ -667,7 +687,8 @@ class Sema::ExprChecker : Checker, ExprVisitor<ExprChecker, Expr*>,  ASTWalker {
         }
 
         if (hasArgTypeMismatch) {
-          diagnoseBadFunctionCall(expr);
+          if(canDiagnose)
+            diagnoseBadFunctionCall(expr);
           return expr;
         }
       }
@@ -898,6 +919,30 @@ class Sema::ExprChecker : Checker, ExprVisitor<ExprChecker, Expr*>,  ASTWalker {
       return expr;
     }
 
+    // Typechecks a use of the '$' operator, the toString operator.
+    Expr* checkToStringUnaryExpr(UnaryExpr* expr) {
+      assert((expr->getOp() == UnaryExpr::OpKind::ToString) &&
+        "wrong function");
+      Type childTy = expr->getExpr()->getType();
+      Type stringType = StringType::get(ctxt);
+
+      // We only allow non-void primitive types as the child's type.
+      if (!childTy->isPrimitiveType() || childTy->isVoidType()) {
+        diagnoseInvalidUnaryOpChildType(expr);
+        return expr;
+      }
+
+      // Check that the child isn't already a string type 
+      // (warn the user if that's the case)
+      if (childTy->isStringType()) {
+        diagEngine.report(DiagID::useless_redundant_cast, expr->getOpRange())
+          .addArg(stringType)
+          .setExtraRange(expr->getExpr()->getSourceRange());
+      }
+
+      expr->setType(stringType);
+      return expr;
+    }
 
     //----------------------------------------------------------------------//
     // Other helper methods

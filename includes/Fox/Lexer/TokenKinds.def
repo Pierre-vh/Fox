@@ -54,6 +54,7 @@ PUNCTUATOR(LParen)        // (
 PUNCTUATOR(RParen)        // )
 PUNCTUATOR(LBrace)        // {
 PUNCTUATOR(RBrace)        // }
+PUNCTUATOR(Dollar)        // $
 
 // Punctuators : Operators
 PUNCTUATOR(StarStar)      // **

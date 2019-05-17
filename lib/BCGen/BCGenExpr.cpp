@@ -6,14 +6,15 @@
 //----------------------------------------------------------------------------//
 
 #include "Registers.hpp"
-#include "Fox/AST/ASTContext.hpp"
 #include "Fox/BCGen/BCGen.hpp"
 #include "Fox/BC/BCBuilder.hpp"
+#include "Fox/AST/ASTContext.hpp"
 #include "Fox/AST/Expr.hpp"
 #include "Fox/AST/Types.hpp"
 #include "Fox/AST/ASTVisitor.hpp"
 #include "Fox/AST/ASTWalker.hpp"
 #include "Fox/AST/Types.hpp"
+#include "Fox/AST/TypeVisitor.hpp"
 #include "Fox/Common/FoxTypes.hpp"
 #include "Fox/Common/LLVM.hpp"
 #include "llvm/ADT/Optional.h"
@@ -264,10 +265,9 @@ class BCGen::ExprGenerator : public Generator,
         builder.createCallVoidInstr(baseAddr);
       }
       else {
-        // Decide on the destination register, if possible reusing the base
-        // registers
-        // TODO: Try to reuse the arguments registers if possible too
+        // Choose a destination register
         dest = getDestReg(std::move(dest), callRegs);
+        // Emit.
         builder.createCallInstr(baseAddr, dest.getAddress());
       }
 
@@ -445,7 +445,7 @@ class BCGen::ExprGenerator : public Generator,
       return dstReg;
     }
 
-    RegisterValue genConcatBinaryExpr(BinaryExpr* expr, RegisterValue dest) {
+    RegisterValue emitConcatBinaryExpr(BinaryExpr* expr, RegisterValue dest) {
       assert(expr->isConcat() && "not a concatenation");
       //  The return type of this expression should be a string
       assert(expr->getType()->isStringType() && "doesn't return a string");
@@ -497,6 +497,58 @@ class BCGen::ExprGenerator : public Generator,
 
       return 
         emitBuiltinCall(BuiltinID::strConcat, std::move(dest), {lhsGT, rhsGT});
+    }
+
+    RegisterValue emitToStringUnOp(UnaryExpr* expr, RegisterValue dest) {
+      assert((expr->getOp() == UnOp::ToString) && "wrong function");
+      Expr* child = expr->getExpr();
+
+      // If the child's type is already string, simply emit the child.
+      if(child->getType()->isStringType())
+        return visit(child, std::move(dest));
+
+      // Construct the "GenThunk" of the child
+      GenThunk childGT = getGTForExpr(child);
+
+      // Emit the builtin call depending on the type of the child. There should
+      // be one for every possible type.
+      class ToStringBuiltinChooser 
+      : public TypeVisitor<ToStringBuiltinChooser, BuiltinID> {
+        public:
+          #define HANDLE(TYPE, ACTION)\
+            BuiltinID visit##TYPE(TYPE*) { ACTION; }
+          HANDLE(IntegerType, return BuiltinID::intToString)
+          HANDLE(DoubleType,  return BuiltinID::doubleToString)
+          HANDLE(BoolType,    return BuiltinID::boolToString)
+          HANDLE(CharType,    return BuiltinID::charToString)
+          HANDLE(StringType,  
+            fox_unreachable("Should have been handled above");)
+          HANDLE(VoidType,    
+            fox_unreachable("Cannot cast 'VoidType' to string");)
+          HANDLE(FunctionType,    
+            fox_unreachable("Cannot cast 'FunctionType' to string");)
+          HANDLE(ArrayType,    
+            fox_unreachable("Cannot cast 'ArrayType' to string");)
+          // We use getRValue() to call this, so there shouldn't be any LValues here
+          HANDLE(LValueType,
+            fox_unreachable("Should have been handled by getRValue()");)
+          HANDLE(TypeVariableType,   
+            fox_unreachable("TypeVariableType shouldn't be present in BCGen");)
+          HANDLE(ErrorType,   
+            fox_unreachable("ErrorType shouldn't be present in BCGen");)
+      };
+
+      BuiltinID builtin;
+      {
+        ToStringBuiltinChooser tsbc;
+        builtin = tsbc.visit(child->getType()->getRValue());
+      }
+      // Sanity check: check that the builtin's return type is indeed string.
+      assert(ctxt.getBuiltinFuncReturnType(builtin)->isStringType()
+        && "Builtin doesn't return 'string'");
+
+      // Emit the builtin call.
+      return emitBuiltinCall(builtin, std::move(dest), {childGT});
     }
 
     //------------------------------------------------------------------------//
@@ -553,7 +605,7 @@ class BCGen::ExprGenerator : public Generator,
         return reg;
       }
       if (expr->isConcat())
-        return genConcatBinaryExpr(expr, std::move(dest));
+        return emitConcatBinaryExpr(expr, std::move(dest));
       if (expr->getType()->isNumericOrBool())
         return genNumericOrBoolBinaryExpr(expr, std::move(dest));
       fox_unimplemented_feature("Non-numeric BinaryExpr BCGen");
@@ -615,23 +667,27 @@ class BCGen::ExprGenerator : public Generator,
       assert((expr->getOp() != UnOp::Invalid)
         && "UnaryExpr with OpKind::Invalid past semantic analysis");
 
-      Expr* subExpr = expr->getExpr();
+      Expr* child = expr->getExpr();
+
+      // Handle the ToString operator directly since it needs special logic.
+      if(expr->getOp() == UnOp::ToString)
+        return emitToStringUnOp(expr, std::move(dest));
 
       // When we have an unary minus, and the child is int, bool or double literal, 
       // directly emit the literal with a negative
       // value instead of generating a NegInt or something.
       if (expr->getOp() == UnOp::Minus) {
-        if (auto intLit = dyn_cast<IntegerLiteralExpr>(subExpr))
+        if (auto intLit = dyn_cast<IntegerLiteralExpr>(child))
           return visitIntegerLiteralExpr(intLit, std::move(dest), 
                                             /*asNegative*/ true);
 
-        if (auto doubleLit = dyn_cast<DoubleLiteralExpr>(subExpr))
+        if (auto doubleLit = dyn_cast<DoubleLiteralExpr>(child))
           return visitDoubleLiteralExpr(doubleLit, std::move(dest), 
                                               /*asNegative*/ true);
       }
-      // Else compile it normally
 
-      RegisterValue childReg = visit(subExpr);
+      // Else compile it normally
+      RegisterValue childReg = visit(child);
 
       // Handle unary plus directly as it's a no-op
       if(expr->getOp() == UnOp::Plus) return childReg;

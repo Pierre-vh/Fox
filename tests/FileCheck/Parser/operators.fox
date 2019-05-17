@@ -75,4 +75,7 @@ func uops() {
   //  CHECK-NEXT: UnaryExpr ! (Logical Negation)
   //        CHECK-NEXT: IntegerLiteralExpr 1
   !1;
+  //  CHECK-NEXT: UnaryExpr $ (String Conversion)
+  //        CHECK-NEXT: IntegerLiteralExpr 1
+  $1;
 }

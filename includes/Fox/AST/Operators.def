@@ -45,6 +45,7 @@ UNARY_OP(Invalid, "", "Invalid")
 UNARY_OP(LNot, "!", "Logical Negation")
 UNARY_OP(Plus, "+", "Unary Plus")
 UNARY_OP(Minus, "-", "Unary Minus")
+UNARY_OP(ToString, "$", "String Conversion")
 
 #undef BINARY_OP
 #undef UNARY_OP

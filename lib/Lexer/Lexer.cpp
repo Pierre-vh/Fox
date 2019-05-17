@@ -258,6 +258,9 @@ void Lexer::lexImpl() {
       case ',':
         beginAndPushToken(TokenKind::Comma);
         break;
+      case '$':
+        beginAndPushToken(TokenKind::Dollar);
+        break;
       // Single/Double quote text
       case '\'':
         lexCharLiteral();

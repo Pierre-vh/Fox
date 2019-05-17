@@ -29,4 +29,15 @@ func foo() {
 
   !3;    // expect-error: cannot use unary operator '!' on an expression of type 'int'
   !3.14; // expect-error: cannot use unary operator '!' on an expression of type 'double'
+
+  $0;
+  $0.0;
+  $true;
+  $'c';
+  $"str";         // expect-warning: useless cast to 'string': expression is already of type 'string'
+  $returnsVoid;   // expect-error: cannot use unary operator '$' on an expression of type '() -> void'
+  $returnsVoid(); // expect-error: cannot use unary operator '$' on an expression of type 'void'
+  $[0];           // expect-error: cannot use unary operator '$' on an expression of type '[int]'
 }
+
+func returnsVoid() {}

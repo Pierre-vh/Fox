@@ -654,10 +654,12 @@ Parser::parseUnaryOp(SourceRange& range) {
 
   if (auto excl = tryConsume(TokenKind::Exclaim))
     return success(UOp::LNot, excl);
-  else if (auto minus = tryConsume(TokenKind::Minus))
+  if (auto minus = tryConsume(TokenKind::Minus))
     return success(UOp::Minus, minus);
-  else if (auto plus = tryConsume(TokenKind::Plus))
+  if (auto plus = tryConsume(TokenKind::Plus))
     return success(UOp::Plus, plus);
+  if (auto dollar = tryConsume(TokenKind::Dollar))
+    return success(UOp::ToString, dollar);
   return Result<UOp>::NotFound();
 }
 
@@ -676,31 +678,31 @@ Parser::parseBinaryOp(unsigned priority, SourceRange& range) {
     case 0: // * / %
       if (tryConsume(TokenKind::Star))
         return success(BinOp::Mul);
-      else if (tryConsume(TokenKind::Slash))
+      if (tryConsume(TokenKind::Slash))
         return success(BinOp::Div);
-      else if (tryConsume(TokenKind::Percent))
+      if (tryConsume(TokenKind::Percent))
         return success(BinOp::Mod);
       break;
     case 1: // + -
       if (tryConsume(TokenKind::Plus))
         return success(BinOp::Add);
-      else if (tryConsume(TokenKind::Minus))
+      if (tryConsume(TokenKind::Minus))
         return success(BinOp::Sub);
       break;
     case 2: // > >= < <=
       if (tryConsume(TokenKind::Less))
         return success(BinOp::LT);
-      else if (tryConsume(TokenKind::LessEqual))
+      if (tryConsume(TokenKind::LessEqual))
         return success(BinOp::LE);
-      else if (tryConsume(TokenKind::Greater))
+      if (tryConsume(TokenKind::Greater))
         return success(BinOp::GT);
-      else if (tryConsume(TokenKind::GreaterEqual))
+      if (tryConsume(TokenKind::GreaterEqual))
         return success(BinOp::GE);
       break;
     case 3:  // == !=
       if (tryConsume(TokenKind::EqualEqual))
         return success(BinOp::Eq);
-      else if (tryConsume(TokenKind::ExclaimEqual))
+      if (tryConsume(TokenKind::ExclaimEqual))
         return success(BinOp::NEq);
       break;
     case 4: // &&
