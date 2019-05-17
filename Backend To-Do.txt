@@ -103,15 +103,13 @@ Basic VM data types and their mappings to Fox types:
   -> Compile the 'Concat' BinOp in BCGenExpr
     -> string+string (Done)
     -> handle chars (change the thunk depending on the type) (Done)
-  -> Default-init variables (based on its type) (Done)
+  -> Default-init variables based on their type (Done)
   -> Implement string interface in full
     -> append, appendStr (done)
     -> length, numBytes (done)
     -> getChar
       -> Add string subscript
     -> Unit test everything of course
-  -> Create a function that can be used to "Expect" a builtin's signature so that I can safely ensure that builtin calls will perform as expected.
-    e.g. check that strConcat indeed takes 2 strings as parameters and returns another string.
   -> Arrays 
     -> Scaffolding
     -> Operations
@@ -159,11 +157,5 @@ Basic VM data types and their mappings to Fox types:
 
   -> Properly diagnose out of range jumps in BCGen::StmtGenerator::calculateJumpOffset
     -> Same as diagnosing register pressure exceeded -> diagnostic like "'if' statement too complex to be compiled: reduce the amount of code contained inside it"
-
-  -> When a mut ParamDecl is never written to 
-     (= never at the top level of the lhs of an assignement)
-     consider it as non mutable, so free it and don't Copy it In/Out
-    I can add this directly to the FuncGenPrologue phase so it's used only by
-    BCGen, or I can detect this at semantic analysis and add a new flag to ParamDecl
-    "isWrittenTo" or something like that
    
+  -> Something that bothers me a bit is that I don't check my builtin calls. I simply emit them
