@@ -66,10 +66,10 @@ void StreamDiagConsumer::consume(SourceManager& sm, const Diagnostic& diag) {
   // If the Diagnostic contains valid location information, and it
   // isn't a file-wide diagnostic, display a snippet (a single line)
   // of the source file with the Diagnostic message.
-  if (diag.hasPreciseLoc()) displayRelevantExtract(sm, diag);
+  if (diag.hasPreciseLoc()) showRelevantSnippet(sm, diag);
 }
 
-// Helper method for "displayRelevantExtract" that creates the "underline" string. 
+// Helper method for "showRelevantSnippet" that creates the "underline" string. 
 std::string createUnderline(char underlineChar, std::size_t beg, std::size_t end) {
   std::string line = "";
 
@@ -110,8 +110,7 @@ std::string embedString(const std::string& a, const std::string& b) {
 // hard. Some characters might be wider (full width chars, e.g. japanese ones)
 // than ascii ones, messing up the whole formatting.
 //
-// This is sort of a FIXME. One day, supporting non ascii characters
-// would be a great feature!
+// FIXME: One day, supporting non ascii characters would be a great feature!
 static bool shouldPrintCaretLine(string_view sourceExtract) {
   for (unsigned char byte : sourceExtract) {
     // Don't the caret line for non ascii chars.
@@ -120,8 +119,8 @@ static bool shouldPrintCaretLine(string_view sourceExtract) {
   return true;
 }
 
-void StreamDiagConsumer::displayRelevantExtract(SourceManager& sm, 
-                                                const Diagnostic& diag) {
+void StreamDiagConsumer::showRelevantSnippet(SourceManager& sm, 
+                                             const Diagnostic& diag) {
   auto range = diag.getSourceRange();
   auto eRange = diag.getExtraRange();
 
@@ -159,7 +158,8 @@ void StreamDiagConsumer::displayRelevantExtract(SourceManager& sm,
   };
 
   std::string underline;
-  // Create the carets underline (^)
+
+  // Underline the primary range with carets
 	{  
     SourceRange preRange(lineBeg, range.getBeginLoc());
     // We'll begin the range at the last codepoint, so uBeg is
@@ -174,7 +174,7 @@ void StreamDiagConsumer::displayRelevantExtract(SourceManager& sm,
     underline = createUnderline('^', uBeg, uEnd);
   }
 
-  // If needed, create the extra range underline (~)
+  // Underline the extra range with tildes
   if(diag.hasExtraLoc()) {
     assert((diag.getExtraRange().getFileID() == 
             diag.getSourceRange().getFileID())
@@ -193,6 +193,6 @@ void StreamDiagConsumer::displayRelevantExtract(SourceManager& sm,
     underline = embedString(underline, createUnderline('~', uBeg, uEnd));
   }
 
-  // Display the carets
+  // Print the underline
   os_ << "    " << underline << '\n';
 }

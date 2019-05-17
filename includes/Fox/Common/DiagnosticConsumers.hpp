@@ -46,7 +46,7 @@ namespace fox {
     private:
       // Displays a line of code along with the caret.
       // Note: this only displays the first line where the problem begins.
-      void displayRelevantExtract(SourceManager& sm, const Diagnostic& diag);
+      void showRelevantSnippet(SourceManager& sm, const Diagnostic& diag);
 
       std::ostream &os_;
   };
