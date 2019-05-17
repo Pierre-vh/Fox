@@ -48,9 +48,9 @@ namespace {
       }
 
       Expr* visitUnaryExpr(UnaryExpr* expr) {
-        if (Expr* child = expr->getExpr()) {
+        if (Expr* child = expr->getChild()) {
           if ((child = doIt(child)))
-            expr->setExpr(child);
+            expr->setChild(child);
           else 
             return nullptr;
         }
@@ -59,9 +59,9 @@ namespace {
       }
 
       Expr* visitCastExpr(CastExpr* expr) {
-        if (Expr* child = expr->getExpr()) {
+        if (Expr* child = expr->getChild()) {
           if ((child = doIt(child)))
-            expr->setExpr(child);
+            expr->setChild(child);
           else 
             return nullptr;
         }

@@ -62,14 +62,14 @@ void ASTDumper::visitCastExpr(CastExpr* node) {
   dumpLine() << getBasicExprInfo(node) << " "
     << makeKeyPairDump("to", toString(node->getCastTypeLoc())) << "\n";
   indent();
-  visit(node->getExpr());
+  visit(node->getChild());
   dedent();
 }
 
 void ASTDumper::visitUnaryExpr(UnaryExpr* node) {
   dumpLine() << getBasicExprInfo(node) << " " << getOperatorDump(node) << "\n";
   indent();
-  visit(node->getExpr());
+  visit(node->getChild());
   dedent();
 }
 

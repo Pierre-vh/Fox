@@ -78,7 +78,7 @@ class Sema::ExprChecker : Checker, ExprVisitor<ExprChecker, Expr*>,  ASTWalker {
     // (Error) Diagnoses an invalid cast 
     void diagnoseInvalidCast(CastExpr* expr) {
       SourceRange range = expr->getCastTypeLoc().getSourceRange();
-      Type childTy = expr->getExpr()->getType();
+      Type childTy = expr->getChild()->getType();
       Type goalTy = expr->getCastTypeLoc().getType();
 
       if(!Sema::isWellFormed({childTy, goalTy})) return;
@@ -87,7 +87,7 @@ class Sema::ExprChecker : Checker, ExprVisitor<ExprChecker, Expr*>,  ASTWalker {
         .report(DiagID::invalid_explicit_cast, range)
         .addArg(childTy)
         .addArg(goalTy)
-        .setExtraRange(expr->getExpr()->getSourceRange());
+        .setExtraRange(expr->getChild()->getSourceRange());
     }
 
     // (Warning) Diagnoses a redudant cast (when the cast goal 
@@ -99,7 +99,7 @@ class Sema::ExprChecker : Checker, ExprVisitor<ExprChecker, Expr*>,  ASTWalker {
       diagEngine
         .report(DiagID::useless_redundant_cast, castTL.getSourceRange())
         .addArg(castTy)
-        .setExtraRange(expr->getExpr()->getSourceRange());
+        .setExtraRange(expr->getChild()->getSourceRange());
     }
 
     void diagnoseHeteroArrLiteral(ArrayLiteralExpr* expr, Expr* faultyElem,
@@ -118,7 +118,7 @@ class Sema::ExprChecker : Checker, ExprVisitor<ExprChecker, Expr*>,  ASTWalker {
     }
 
     void diagnoseInvalidUnaryOpChildType(UnaryExpr* expr) {
-      Expr* child = expr->getExpr();
+      Expr* child = expr->getChild();
       Type childTy = child->getType();
 
       if(!Sema::isWellFormed(childTy)) return;
@@ -490,7 +490,7 @@ class Sema::ExprChecker : Checker, ExprVisitor<ExprChecker, Expr*>,  ASTWalker {
 
     Expr* visitCastExpr(CastExpr* expr) {        
       // Get the types
-      Type childTy = expr->getExpr()->getType();
+      Type childTy = expr->getChild()->getType();
       Type goalTy = expr->getCastTypeLoc().getType();
 
       // Check that the types are well formed. If they aren't, don't
@@ -519,7 +519,7 @@ class Sema::ExprChecker : Checker, ExprVisitor<ExprChecker, Expr*>,  ASTWalker {
 
     Expr* visitUnaryExpr(UnaryExpr* expr) {
       using UOp = UnaryExpr::OpKind;
-      Type childTy = expr->getExpr()->getType();
+      Type childTy = expr->getChild()->getType();
 
       // Check that the type is well formed. If it isn't, don't
       // bother typechecking the expr.
@@ -923,7 +923,7 @@ class Sema::ExprChecker : Checker, ExprVisitor<ExprChecker, Expr*>,  ASTWalker {
     Expr* checkToStringUnaryExpr(UnaryExpr* expr) {
       assert((expr->getOp() == UnaryExpr::OpKind::ToString) &&
         "wrong function");
-      Type childTy = expr->getExpr()->getType();
+      Type childTy = expr->getChild()->getType();
       Type stringType = StringType::get(ctxt);
 
       // We only allow non-void primitive types as the child's type.
@@ -937,7 +937,7 @@ class Sema::ExprChecker : Checker, ExprVisitor<ExprChecker, Expr*>,  ASTWalker {
       if (childTy->isStringType()) {
         diagEngine.report(DiagID::useless_redundant_cast, expr->getOpRange())
           .addArg(stringType)
-          .setExtraRange(expr->getExpr()->getSourceRange());
+          .setExtraRange(expr->getChild()->getSourceRange());
       }
 
       expr->setType(stringType);

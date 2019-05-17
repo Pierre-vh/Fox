@@ -375,20 +375,20 @@ std::string BinaryExpr::getOpName() const {
 // UnaryExpr 
 //----------------------------------------------------------------------------//
 
-UnaryExpr::UnaryExpr(OpKind op, Expr* expr,SourceRange opRange): op_(op), 
-  Expr(ExprKind::UnaryExpr), opRange_(opRange), expr_(expr) {}
+UnaryExpr::UnaryExpr(OpKind op, Expr* child, SourceRange opRange): op_(op), 
+  Expr(ExprKind::UnaryExpr), opRange_(opRange), child_(child) {}
 
-UnaryExpr* UnaryExpr::create(ASTContext& ctxt, OpKind op, Expr* node, 
-  SourceRange opRange) {
-  return new(ctxt) UnaryExpr(op, node, opRange);
+UnaryExpr* UnaryExpr::create(ASTContext& ctxt, OpKind op, Expr* child, 
+                             SourceRange opRange) {
+  return new(ctxt) UnaryExpr(op, child, opRange);
 }
 
-void UnaryExpr::setExpr(Expr* expr) {
-  expr_ = expr;
+void UnaryExpr::setChild(Expr* expr) {
+  child_ = expr;
 }
 
-Expr* UnaryExpr::getExpr() const {
-  return expr_;
+Expr* UnaryExpr::getChild() const {
+  return child_;
 }
 
 UnaryExpr::OpKind UnaryExpr::getOp() const {
@@ -404,8 +404,8 @@ SourceRange UnaryExpr::getOpRange() const {
 }
 
 SourceRange UnaryExpr::getSourceRange() const {
-  assert(opRange_ && expr_ && "ill formed UnaryExpr");
-  return SourceRange(opRange_.getBeginLoc(), expr_->getEndLoc());
+  assert(opRange_ && child_ && "ill formed UnaryExpr");
+  return SourceRange(opRange_.getBeginLoc(), child_->getEndLoc());
 }
 
 std::string UnaryExpr::getOpSign() const {
@@ -439,11 +439,11 @@ std::string UnaryExpr::getOpName() const {
 // CastExpr 
 //----------------------------------------------------------------------------//
 
-CastExpr::CastExpr(TypeLoc castGoal, Expr* expr): Expr(ExprKind::CastExpr), 
-  goal_(castGoal), exprAndIsUseless_(expr, false) {}
+CastExpr::CastExpr(TypeLoc castGoal, Expr* child): Expr(ExprKind::CastExpr), 
+  goal_(castGoal), childAndIsUseless_(child, false) {}
 
-CastExpr* CastExpr::create(ASTContext& ctxt, TypeLoc castGoal, Expr* expr) {
-  return new(ctxt) CastExpr(castGoal, expr);
+CastExpr* CastExpr::create(ASTContext& ctxt, TypeLoc castGoal, Expr* child) {
+  return new(ctxt) CastExpr(castGoal, child);
 }
 
 void CastExpr::setCastTypeLoc(TypeLoc goal) {
@@ -454,26 +454,26 @@ TypeLoc CastExpr::getCastTypeLoc() const {
   return goal_;
 }
 
-void CastExpr::setExpr(Expr* expr) {
-  exprAndIsUseless_.setPointer(expr);
+void CastExpr::setChild(Expr* expr) {
+  childAndIsUseless_.setPointer(expr);
 }
 
-Expr* CastExpr::getExpr() const {
-  return exprAndIsUseless_.getPointer();
+Expr* CastExpr::getChild() const {
+  return childAndIsUseless_.getPointer();
 }
 
 SourceRange CastExpr::getSourceRange() const {
   SourceRange castTLRange = getCastTypeLoc().getSourceRange();
-  assert(castTLRange && getExpr() && "ill-formed CastExpr");
-  return SourceRange(getExpr()->getBeginLoc(), castTLRange.getEndLoc());
+  assert(castTLRange && getChild() && "ill-formed CastExpr");
+  return SourceRange(getChild()->getBeginLoc(), castTLRange.getEndLoc());
 }
 
 bool CastExpr::isUseless() const {
-  return exprAndIsUseless_.getInt();
+  return childAndIsUseless_.getInt();
 }
 
 void CastExpr::markAsUselesss() {
-  exprAndIsUseless_.setInt(true);
+  childAndIsUseless_.setInt(true);
 }
 
 //----------------------------------------------------------------------------//

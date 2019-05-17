@@ -338,7 +338,7 @@ namespace fox {
   ///    by the user, but is used to allow builtin function to
   ///    naturally mix with other Fox declarations.
   ///
-  ///    Currently, BuiltinFuncDecls don't have a parent DeclContext.
+  ///    They also don't have a parent DeclContext.
   class BuiltinFuncDecl final : public ValueDecl {
     public:
       /// \returns the unique BuiltinFuncDecl for the Builtin with id \p id

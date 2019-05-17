@@ -20,9 +20,7 @@
 
 namespace fox   {
   // Forward Declarations
-  class Identifier;
   class ASTContext;
-  class TypeBase;
 
   /// Enum representing every kind of expression that exist.
   enum class ExprKind: std::uint8_t {
@@ -153,11 +151,11 @@ namespace fox   {
         #include "Operators.def"
       };
 
-      static UnaryExpr* create(ASTContext& ctxt, OpKind op, Expr* node,
+      static UnaryExpr* create(ASTContext& ctxt, OpKind op, Expr* child,
         SourceRange opRange);
       
-      void setExpr(Expr* expr);
-      Expr* getExpr() const;
+      void setChild(Expr* expr);
+      Expr* getChild() const;
 
       OpKind getOp() const;
       void setOp(OpKind op);
@@ -179,10 +177,10 @@ namespace fox   {
       std::string getOpID() const;
 
     private:
-      UnaryExpr(OpKind op, Expr* node, SourceRange opRange);
+      UnaryExpr(OpKind op, Expr* child, SourceRange opRange);
 
       SourceRange opRange_;
-      Expr* expr_ = nullptr;
+      Expr* child_ = nullptr;
       OpKind op_ = OpKind::Invalid;
   };
 
@@ -190,13 +188,13 @@ namespace fox   {
   ///    An explicit "as" cast expression: foo as int
   class CastExpr final : public Expr {
     public:      
-      static CastExpr* create(ASTContext& ctxt, TypeLoc castGoal, Expr* expr);
+      static CastExpr* create(ASTContext& ctxt, TypeLoc castGoal, Expr* child);
 
       void setCastTypeLoc(TypeLoc goal);
       TypeLoc getCastTypeLoc() const;
 
-      void setExpr(Expr* expr);
-      Expr* getExpr() const;
+      void setChild(Expr* expr);
+      Expr* getChild() const;
 
       SourceRange getSourceRange() const;
 
@@ -210,13 +208,13 @@ namespace fox   {
       }
 
     private:
-      CastExpr(TypeLoc castGoal, Expr* expr);
+      CastExpr(TypeLoc castGoal, Expr* child);
 
       TypeLoc goal_;
       // The child expr + a "isUseless" flag.
       //  The cast is marked as useless when the child
       //  is already of the desired type (e.g. "0 as int")
-      llvm::PointerIntPair<Expr*, 1, bool> exprAndIsUseless_;
+      llvm::PointerIntPair<Expr*, 1, bool> childAndIsUseless_;
   };
 
   /// AnyLiteralExpr
@@ -364,7 +362,7 @@ namespace fox   {
   };
 
   /// UnresolvedExpr
-  ///    A small common base class for unresolved expressions
+  ///    A small common base for unresolved expressions
   class UnresolvedExpr : public Expr {
     public:
       static bool classof(const Expr* expr) {
@@ -379,7 +377,7 @@ namespace fox   {
   };
 
   /// UnresolvedDeclRefExpr
-  ///    Represents a unresolved DeclRef
+  ///    Represents a unresolved reference to a declaration
   class UnresolvedDeclRefExpr final : public UnresolvedExpr {
     public:
       static UnresolvedDeclRefExpr* create(ASTContext& ctxt, Identifier id,

@@ -501,7 +501,7 @@ class BCGen::ExprGenerator : public Generator,
 
     RegisterValue emitToStringUnOp(UnaryExpr* expr, RegisterValue dest) {
       assert((expr->getOp() == UnOp::ToString) && "wrong function");
-      Expr* child = expr->getExpr();
+      Expr* child = expr->getChild();
 
       // If the child's type is already string, simply emit the child.
       if(child->getType()->isStringType())
@@ -614,7 +614,7 @@ class BCGen::ExprGenerator : public Generator,
     RegisterValue 
     visitCastExpr(CastExpr* expr, RegisterValue dest) {
       // Visit the child
-      Expr* subExpr = expr->getExpr();
+      Expr* subExpr = expr->getChild();
       RegisterValue childReg = visit(subExpr);
 
       // If this is a useless cast (cast from a type to the same type)
@@ -667,7 +667,7 @@ class BCGen::ExprGenerator : public Generator,
       assert((expr->getOp() != UnOp::Invalid)
         && "UnaryExpr with OpKind::Invalid past semantic analysis");
 
-      Expr* child = expr->getExpr();
+      Expr* child = expr->getChild();
 
       // Handle the ToString operator directly since it needs special logic.
       if(expr->getOp() == UnOp::ToString)
