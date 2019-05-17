@@ -161,6 +161,9 @@ To-Do:
 
   > VM, Bytecode, BytecodeGen (Currently being worked on, see Backend To-Do.txt)
 
+  > Do a BIG code re-read in BCGen and Sema. They have grown quite a bit lately and they could use
+    a serious code review to fix some ugly parts.
+
   > Consider removing TypeLoc, it's nearly useless, it's just a SourceRange/Type pack that's
     never used outside AST Nodes.
   > Break and Continue Statements
