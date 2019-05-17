@@ -111,34 +111,56 @@ Basic VM data types and their mappings to Fox types:
       -> Add string subscript
     -> Unit test everything of course
   -> Arrays 
-    -> Scaffolding
-    -> Operations
-    -> Builtins
+    -> Scaffolding: use std::vector for now (until the GC is in)
+    -> Operations & Builtins
     -> Tests
-  -> Support 'Object*' in builtins as a new "Object" type, which is simply a type-erased object (array, string, anything)
-    -> This will allow me to have a single "print(Object*)" builtin instead of one per object kind (when I add overloads)
-  -> Finish the implementation of the language in its current state
 
 ---- Getting feature-complete (with the current feature set) ----
-  -> entry point detection (basic, just the function called 'main' with a '() -> int' signature)
-  -> rewrite the driver
+  -> entry point detection (basic, just the function called 'main' with a '() -> int' signature for now. Update the "run" tests as well)
   -> Global Variables
-  -> Basic debug information & trivial exception system (for proper error management).
+  -> Better (but not yet final) error management system for the VM (at least one that doesn't use assert)
   -> Growable register stack
-  -> Properly diagnose maximum register pressure exceeded:
-    > When the RegisterAllocator runs out of registers, it should call a handler (a BCGen method?)
-      that will emit a diagnostic when possible, or at least tell something like (just a suggestion)
-      "ran out of registers while compiling function 'foo': function is too complex"
-      "note: ran out of registers while compiling this <expr/decl/stmt>" <loc last stmt/expr/decl compiled>
+  -> Properly diagnose maximum register pressure exceeded + max jump ranges exceeded
+    > e.g. When the RegisterAllocator runs out of registers, it should call a handler 
   -> Test/Document as much as possible.
+  -> Rewrite Wiki
 
 ---- Implementing the GC ----
-  (Current ideas, highly subject to changes)
-  -> "ReferenceMap" (Safe points) to track register that contain references if I decide to do a precise GC.
-    -> Implemented in the RegisterAllocator. I'll just need an extra arg to "allocateTemporary" like "RegisterPurpose" to track
-       registers holding refs. When a register dies, the corresponding bit is cleared. Import & use llvm::BitVector for that!
-  -> Basic GC algorithm: mark and sweep, colored object. Non-generational/non-compacting at first. 
-      (I'll try to get decent perf without compacting/generational and then only think about the rest)
+  -> Objects should behave like a linked list
+  -> Change my VM allocator
+    -> Options are:
+      -> new/delete + keep a pointer to the first object of the list
+      -> LinearAllocator (but more complicated since the GC would need to be a moving one)
+  -> Make String and Vector trivially destructible (if needed -> if I use LinearAllocator/a custom heap)
+    -> String: use trailing objects
+    -> Vector: use a separate "Storage" object (ArrayStorageObject
+    
+  -> Add TypeBase::isReference() -> true for string, array. ignores LValues too.
+
+  -> "ReferenceMap" (Safe points) to track register that contain references.
+    -> Implemented in the RegisterAllocator.
+      -> I'll need to track which registers are holding references. The easiest way to do that would be to add a method to
+         RegisterValue "markAsReference" that marks that Register as holding a reference (only for temporaries). 
+         initVar would deduce that using the variable's type probably.
+         When allocating a new register, always clear the corresponding bit in the reference map.
+      -> getReferenceMap()
+
+  -> Add storage of Reference Maps in BCFunction
+
+  -> Generate Reference Maps when I do stuff that allocates data and may trigger a collection, or when
+     the function "gives up" control in some way.
+    -> Instantiating an array or a string, either through a literal or variable declaration
+    -> Doing a call
+    -> etc.?
+
+  -> Proper call stack in the VM that keeps track of called BCFunctions
+
+  -> ObjectVisitor
+
+  -> GC: Mark and Sweep with colored objects. Non-generational/non-compacting at first
+    -> Should be fairly straightforward: when collecting, walk the root set using the reference map as a guide.
+    -> Color objects
+    -> Clear all non-visited objects.
 
 ---- Other To-Dos ----
   -> Implement a Sethi-Ullman -like algorithm to decide the evaluation order
