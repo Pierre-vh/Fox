@@ -503,15 +503,14 @@ class BCGen::ExprGenerator : public Generator,
       assert((expr->getOp() == UnOp::ToString) && "wrong function");
       Expr* child = expr->getChild();
 
-      // If the child's type is already string, simply emit the child.
+      // If the child's type is already string, this is a no-op
       if(child->getType()->isStringType())
         return visit(child, std::move(dest));
 
-      // Construct the "GenThunk" of the child
+
       GenThunk childGT = getGTForExpr(child);
 
-      // Emit the builtin call depending on the type of the child. There should
-      // be one for every possible type.
+      // Emit the builtin call depending on the type of the child
       class ToStringBuiltinChooser 
       : public TypeVisitor<ToStringBuiltinChooser, BuiltinID> {
         public:
@@ -543,6 +542,7 @@ class BCGen::ExprGenerator : public Generator,
         ToStringBuiltinChooser tsbc;
         builtin = tsbc.visit(child->getType()->getRValue());
       }
+
       // Sanity check: check that the builtin's return type is indeed string.
       assert(ctxt.getBuiltinFuncReturnType(builtin)->isStringType()
         && "Builtin doesn't return 'string'");
@@ -669,7 +669,7 @@ class BCGen::ExprGenerator : public Generator,
 
       Expr* child = expr->getChild();
 
-      // Handle the ToString operator directly since it needs special logic.
+      // Handle the ToString operator
       if(expr->getOp() == UnOp::ToString)
         return emitToStringUnOp(expr, std::move(dest));
 
