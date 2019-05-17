@@ -7,6 +7,7 @@
 
 #include "Fox/BCGen/BCGen.hpp"
 #include "Fox/AST/ASTContext.hpp"
+#include "Fox/AST/Type.hpp"
 #include "Fox/BC/BCModule.hpp"
 #include <string>
 
@@ -65,4 +66,9 @@ constant_id_t BCGen::getConstantID(FoxDouble value) {
   auto kID = static_cast<constant_id_t>(rawID);
   map.insert({value, kID});
   return kID;
+}
+
+
+Type BCGen::getBuiltinFuncReturnType(BuiltinID builtin) {
+  return ctxt.getBuiltinFuncReturnType(builtin);
 }

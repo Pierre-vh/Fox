@@ -8,7 +8,6 @@
 #include "Registers.hpp"
 #include "Fox/BCGen/BCGen.hpp"
 #include "Fox/BC/BCBuilder.hpp"
-#include "Fox/AST/ASTContext.hpp"
 #include "Fox/AST/Expr.hpp"
 #include "Fox/AST/Types.hpp"
 #include "Fox/AST/ASTVisitor.hpp"
@@ -25,6 +24,30 @@ using namespace fox;
 using BinOp = BinaryExpr::OpKind;
 /// Unary Operator Kinds
 using UnOp = UnaryExpr::OpKind;
+
+/// A Generation "thunk" function, which delays generation of an expr
+/// for later, when the thunk is actually called
+/// The argument type is the destination register (can be null), and the
+/// return type is the RegisterValue where the result is located.
+using GenThunk = std::function<RegisterValue(RegisterValue)>;
+
+/// Calls a genThunk, enforcing its invariants (if dest != null, the
+/// return value of the thunk must be == dest)
+RegisterValue call(GenThunk thunk, RegisterValue dest = RegisterValue()) {
+  #ifndef NDEBUG
+    // In debug mode, check that the destination is respected
+    bool hadDest = dest.isAlive();
+    regaddr_t expectedAddr = dest ? dest.getAddress() : 0;
+    RegisterValue resultRV = thunk(std::move(dest));
+    if (hadDest) {
+      assert((expectedAddr == resultRV.getAddress())
+      && "A destination register was provided but was not respected");
+    }
+    return resultRV;
+  #else 
+    return thunk(std::move(dest));
+  #endif
+}
 
 //----------------------------------------------------------------------------//
 // AssignementGenerator : Declaration
@@ -115,7 +138,6 @@ class BCGen::ExprGenerator : public Generator,
 
     RegisterAllocator& regAlloc;
 
-
   private:
     /// Binary Operator Kinds
     using BinOp = BinaryExpr::OpKind;
@@ -124,12 +146,7 @@ class BCGen::ExprGenerator : public Generator,
     /// A std::initializer_list of references to objects
     template<typename Ty>
     using reference_initializer_list 
-      = std::initializer_list< std::reference_wrapper<Ty> >;
-    /// A Generation "thunk" function, which delays generation of an expr
-    /// for later, when the thunk is actually called
-    /// The argument type is the destination register (can be null), and the
-    /// return type is the RegisterValue where the result is located.
-    using GenThunk = std::function<RegisterValue(RegisterValue)>;
+      = std::initializer_list< std::reference_wrapper<Ty>>;
 
     //------------------------------------------------------------------------//
     // Helper methods
@@ -137,24 +154,6 @@ class BCGen::ExprGenerator : public Generator,
     // Helper functions performing various tasks. Generalizes/shortens
     // some common patterns used in this generator.
     //------------------------------------------------------------------------//
-
-    /// Calls a genThunk, enforcing its invariants (if dest != null, the
-    /// return value of the thunk must be == dest)
-    RegisterValue call(GenThunk thunk, RegisterValue dest = RegisterValue()) {
-      #ifndef NDEBUG
-        // In debug mode, check that the destination is respected
-        bool hadDest = dest.isAlive();
-        regaddr_t expectedAddr = dest ? dest.getAddress() : 0;
-        RegisterValue resultRV = thunk(std::move(dest));
-        if (hadDest) {
-          assert((expectedAddr == resultRV.getAddress())
-          && "A destination register was provided but was not respected");
-        }
-        return resultRV;
-      #else 
-        return thunk(std::move(dest));
-      #endif
-    }
 
     /// \returns a GenThunk that call visit() on an expr
     GenThunk getGTForExpr(Expr* expr) {
@@ -252,15 +251,9 @@ class BCGen::ExprGenerator : public Generator,
       for (std::size_t k = 0, size = generators.size(); k < size; ++k)
         callRegs[k+1] = call(generators[k], std::move(callRegs[k+1]));
 
-      // Check what the builtin returns
-      // FIXME: Is this a good idea to use the ASTContext for this? What bothers
-      //        me the most is that I need to include the whole ASTContext header
-      //        for this bit. (+getBuiltinFuncReturnType exists only for this
-      //        ATM)
-      bool returnsVoid = ctxt.getBuiltinFuncReturnType(bID)->isVoidType();
 
-      // Gen the call
-      if(returnsVoid) {
+      // Gen the call. If the builtin returns void, use
+      if(bcGen.getBuiltinFuncReturnType(bID)->isVoidType()) {
         assert(!dest && "cannot have a destination if the builtin returns void");
         builder.createCallVoidInstr(baseAddr);
       }
@@ -544,7 +537,7 @@ class BCGen::ExprGenerator : public Generator,
       }
 
       // Sanity check: check that the builtin's return type is indeed string.
-      assert(ctxt.getBuiltinFuncReturnType(builtin)->isStringType()
+      assert(bcGen.getBuiltinFuncReturnType(builtin)->isStringType()
         && "Builtin doesn't return 'string'");
 
       // Emit the builtin call.

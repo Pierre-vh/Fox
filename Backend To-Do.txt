@@ -110,11 +110,8 @@ Basic VM data types and their mappings to Fox types:
     -> getChar
       -> Add string subscript
     -> Unit test everything of course
-  -> Move builtin-related checks/codegen inside "BCGenBuiltin" so I can remove ASTContext.hpp 
-     from BCGenExpr's includes.
-    -> BCGen::getBuiltinFuncReturnType()
-    -> Create a function that can be used to "Expect" a builtin's signature so that I can safely ensure that builtin calls will perform as expected.
-      e.g. check that strConcat indeed takes 2 strings as parameters and returns another string.
+  -> Create a function that can be used to "Expect" a builtin's signature so that I can safely ensure that builtin calls will perform as expected.
+    e.g. check that strConcat indeed takes 2 strings as parameters and returns another string.
   -> Arrays 
     -> Scaffolding
     -> Operations
