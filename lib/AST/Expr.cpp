@@ -375,8 +375,8 @@ std::string BinaryExpr::getOpName() const {
 // UnaryExpr 
 //----------------------------------------------------------------------------//
 
-UnaryExpr::UnaryExpr(OpKind op, Expr* child, SourceRange opRange): op_(op), 
-  Expr(ExprKind::UnaryExpr), opRange_(opRange), child_(child) {}
+UnaryExpr::UnaryExpr(OpKind op, Expr* child, SourceRange opRange):
+  Expr(ExprKind::UnaryExpr), opRange_(opRange), opAndChild_(child, op) {}
 
 UnaryExpr* UnaryExpr::create(ASTContext& ctxt, OpKind op, Expr* child, 
                              SourceRange opRange) {
@@ -384,19 +384,19 @@ UnaryExpr* UnaryExpr::create(ASTContext& ctxt, OpKind op, Expr* child,
 }
 
 void UnaryExpr::setChild(Expr* expr) {
-  child_ = expr;
+  opAndChild_.setPointer(expr);
 }
 
 Expr* UnaryExpr::getChild() const {
-  return child_;
+  return opAndChild_.getPointer();
 }
 
 UnaryExpr::OpKind UnaryExpr::getOp() const {
-  return op_;
+  return opAndChild_.getInt();
 }
 
 void UnaryExpr::setOp(OpKind op) {
-  op_ = op;
+  opAndChild_.setInt(op);
 }
 
 SourceRange UnaryExpr::getOpRange() const {
@@ -404,12 +404,12 @@ SourceRange UnaryExpr::getOpRange() const {
 }
 
 SourceRange UnaryExpr::getSourceRange() const {
-  assert(opRange_ && child_ && "ill formed UnaryExpr");
-  return SourceRange(opRange_.getBeginLoc(), child_->getEndLoc());
+  assert(opRange_ && getChild() && "ill formed UnaryExpr");
+  return SourceRange(opRange_.getBeginLoc(), getChild()->getEndLoc());
 }
 
 std::string UnaryExpr::getOpSign() const {
-  switch (op_) {
+  switch (getOp()) {
     #define UNARY_OP(ID, SIGN, NAME) case OpKind::ID: return SIGN;
     #include "Fox/AST/Operators.def"
     default:
@@ -418,7 +418,7 @@ std::string UnaryExpr::getOpSign() const {
 }
 
 std::string UnaryExpr::getOpID() const {
-  switch (op_) {
+  switch (getOp()) {
     #define UNARY_OP(ID, SIGN, NAME) case OpKind::ID: return #ID;
     #include "Fox/AST/Operators.def"
     default:
@@ -427,7 +427,7 @@ std::string UnaryExpr::getOpID() const {
 }
 
 std::string UnaryExpr::getOpName() const {
-  switch (op_) {
+  switch (getOp()) {
     #define UNARY_OP(ID, SIGN, NAME) case OpKind::ID: return NAME;
     #include "Fox/AST/Operators.def"
     default:

@@ -21,6 +21,10 @@
   #define UNARY_OP(ID, SIGN, NAME)
 #endif
 
+#ifndef LAST_UNARY_OP
+  #define LAST_UNARY_OP(ID)
+#endif
+
 // Binary Operators
 BINARY_OP(Invalid, "", "Invalid")
 BINARY_OP(Concat, "+", "String Concatenation")
@@ -46,6 +50,8 @@ UNARY_OP(LNot, "!", "Logical Negation")
 UNARY_OP(Plus, "+", "Unary Plus")
 UNARY_OP(Minus, "-", "Unary Minus")
 UNARY_OP(ToString, "$", "String Conversion")
+LAST_UNARY_OP(ToString)
 
 #undef BINARY_OP
 #undef UNARY_OP
+#undef LAST_UNARY_OP

@@ -148,6 +148,7 @@ namespace fox   {
     public: 
       enum class OpKind: std::uint8_t {
         #define UNARY_OP(ID, SIGN, NAME) ID,
+        #define LAST_UNARY_OP(ID) last_op = ID
         #include "Operators.def"
       };
 
@@ -179,9 +180,13 @@ namespace fox   {
     private:
       UnaryExpr(OpKind op, Expr* child, SourceRange opRange);
 
+      static constexpr std::size_t numOpBits = 3;
+      static_assert(static_cast<unsigned>(OpKind::last_op) < (1 << numOpBits),
+        "not enough bits in opAndChild_ to represent every unary op kind");
+
+      // The pointer to the child expr + the operation kind
+      llvm::PointerIntPair<Expr*, numOpBits, OpKind> opAndChild_;
       SourceRange opRange_;
-      Expr* child_ = nullptr;
-      OpKind op_ = OpKind::Invalid;
   };
 
   /// CastExpr
