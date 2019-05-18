@@ -297,8 +297,8 @@ std::string ASTDumper::toString(TypeLoc type) const {
 }
 
 std::string ASTDumper::toString(SourceRange range) const {
-  if (!hasSrcMgr())
-    return "";
+  if (!range || !hasSrcMgr())
+    return "<invalid_range>";
   return srcMgr_->getCompleteRange(range).toString(/*printFileName*/ false);
 }
 
