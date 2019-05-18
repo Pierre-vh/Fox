@@ -268,7 +268,7 @@ namespace fox {
       // (needed for class using trailing objects)
       void* operator new(std::size_t , void* mem);
 
-      std::size_t numParams_ = 0;
+      const std::size_t numParams_ = 0;
   };
 
   /// FuncDecl
