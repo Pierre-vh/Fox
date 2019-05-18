@@ -480,8 +480,7 @@ namespace fox   {
       // The loc of the ']'. We only keep this one because it's
       // used to generate the SourceRange of this node, which is calculated
       // from the beginning of the base expression and the loc of the ']'
-      // TODO: Once I add ParenExpr (when I add tuples), we should just store
-      // a ParenExpr with a 'bracket' parent type as the index expr.
+      // Of course, if I ever need the leftBracket's loc, it's an easy addition.
       SourceLoc rightBracketLoc_;
       Expr* base_ = nullptr;
       Expr* idxExpr_ = nullptr;
