@@ -104,12 +104,7 @@ Basic VM data types and their mappings to Fox types:
     -> string+string (Done)
     -> handle chars (change the thunk depending on the type) (Done)
   -> Default-init variables based on their type (Done)
-  -> Implement string interface in full
-    -> append, appendStr (done)
-    -> length, numBytes (done)
-    -> getChar
-      -> Add string subscript
-    -> Unit test everything of course
+  -> Implement string interface in full (done)
   -> Arrays 
     -> Scaffolding: use std::vector for now (until the GC is in)
     -> Operations & Builtins

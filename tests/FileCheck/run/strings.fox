@@ -11,4 +11,9 @@ func stringInterfaceTest() {
   printString("num bytes: " + $numBytes(str) + "\n"); 
   // CHECK-NEXT: length: 5
   printString("length: " + $length(str) + "\n");
+  // CHECK-NEXT:  str[3] = う
+  let idx : int = 3;
+  printString("str[" + $idx + "] = " + str[idx] + '\n');
+  // CHECK-NEXT:  おはよう。
+  printString(str[0] + str[1] + str[2] + str[3] + str[4] + '\n');
 }

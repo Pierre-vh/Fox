@@ -37,4 +37,6 @@ func foo() {
   length("");
   // CHECK: DeclRefExpr '(string) -> int' numBytes
   numBytes("");
+  // CHECK: DeclRefExpr '(string, int) -> char' getChar
+  getChar("a", 0);
 }

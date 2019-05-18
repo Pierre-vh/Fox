@@ -544,6 +544,17 @@ class BCGen::ExprGenerator : public Generator,
       return emitBuiltinCall(builtin, std::move(dest), {childGT});
     }
 
+    RegisterValue 
+    emitStringSubscript(ArraySubscriptExpr* expr, RegisterValue dest) {
+      assert(expr->getBase()->getType()->isStringType() && "wrong function");
+      assert(expr->getType()->isCharType() && "unexpected return type");
+      auto baseGT = getGTForExpr(expr->getBase());
+      auto indexGT = getGTForExpr(expr->getIndex());
+      // getChar has a (string, int) -> char signature.
+      return 
+        emitBuiltinCall(BuiltinID::getChar, std::move(dest), {baseGT, indexGT});
+    }
+
     //------------------------------------------------------------------------//
     // "visit" methods 
     // 
@@ -714,9 +725,13 @@ class BCGen::ExprGenerator : public Generator,
     }
 
     RegisterValue 
-    visitArraySubscriptExpr(ArraySubscriptExpr*, RegisterValue) { 
+    visitArraySubscriptExpr(ArraySubscriptExpr* expr, RegisterValue dest) { 
+      // Subscript on strings
+      if (expr->getBase()->getType()->isStringType())
+        return emitStringSubscript(expr, std::move(dest));
+
       // Needs Arrays implemented in the VM.
-      fox_unimplemented_feature("ArraySubscriptExpr BCGen");
+      fox_unimplemented_feature("ArraySubscriptExpr on Arrays BCGen");
     }
 
     RegisterValue 
