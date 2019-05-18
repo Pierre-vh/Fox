@@ -44,8 +44,11 @@ ASTDumper::ASTDumper(std::ostream& out, std::uint16_t baseIndent)
     : srcMgr_(nullptr), out(out), curIndent_(baseIndent) {}
 
 void ASTDumper::visitBinaryExpr(BinaryExpr* node) {
-  dumpLine() << getBasicExprInfo(node) << " " << getOperatorDump(node)
-             << "\n";
+  dumpLine() 
+    << getBasicExprInfo(node) 
+    << " " << getOperatorDump(node)
+    << " " << getSourceRangeDump("op_range", node->getOpRange())
+    << "\n";
 
   // Print LHS
   indent();
@@ -59,8 +62,12 @@ void ASTDumper::visitBinaryExpr(BinaryExpr* node) {
 }
 
 void ASTDumper::visitCastExpr(CastExpr* node) {
-  dumpLine() << getBasicExprInfo(node) << " "
-    << makeKeyPairDump("to", toString(node->getCastTypeLoc())) << "\n";
+  TypeLoc tl = node->getCastTypeLoc();
+  dumpLine() 
+    << getBasicExprInfo(node) << " "
+    << makeKeyPairDump("to_type", toString(tl.getType())) << " "
+    << getSourceRangeDump("to_type_range", tl.getSourceRange()) << '\n';
+  
   indent();
   visit(node->getChild());
   dedent();

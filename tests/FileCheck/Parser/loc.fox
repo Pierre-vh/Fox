@@ -1,0 +1,52 @@
+// RUN: %fox-dump-parse | %filecheck
+
+// CHECK:  UnitDecl {{.*}} <range:6:1-52:1> {{.*}}
+// CHECK-NEXT:  VarDecl {{.*}} <range:6:1-6:27> <id_range:6:5-6:11> {{.*}}
+// CHECK-NEXT:    BoolLiteralExpr <range:6:22-6:26> {{.*}}
+let foo_bar : bool = false;
+
+// CHECK-NEXT: FuncDecl {{.*}} <range:12:1-52:1> <id_range:12:6-12:8> {{.*}}
+// CHECK-NEXT: ParamDecl {{.*}} <range:12:10-12:15> {{.*}} <id_range:12:10-12:10> {{.*}}
+// CHECK-NEXT: ParamDecl {{.*}} <range:12:18-12:27> {{.*}} <id_range:12:18-12:18> {{.*}}
+// CHECK-NEXT: CompoundStmt <range:12:36-52:1>
+func foo(a: int, b: mut int) : int {
+  // CHECK-NEXT:  BinaryExpr <range:17:3-17:6> {{.*}}
+  // CHECK-NEXT:    UnaryExpr <range:17:3-17:4> {{.*}}
+  // CHECK-NEXT:      IntegerLiteralExpr <range:17:4-17:4> {{.*}}
+  // CHECK-NEXT:    IntegerLiteralExpr <range:17:6-17:6> {{.*}}
+  -1+1;
+  // CHECK-NEXT:  SubscriptExpr <range:21:3-21:12>
+  // CHECK-NEXT:    StringLiteralExpr <range:21:3-21:9> {{.*}}
+  // CHECK-NEXT:    IntegerLiteralExpr <range:21:11-21:11> {{.*}}
+  "hello"[2];
+  // CHECK-NEXT:  VarDecl {{.*}} <range:25:3-25:32> {{.*}} <id_range:25:7-25:10> {{.*}}
+  // CHECK-NEXT:    CastExpr <range:25:20-25:31> <to_type:'int'> <to_type_range:25:29-25:31>
+  // CHECK-NEXT:      DoubleLiteralExpr <range:25:20-25:24> {{.*}}
+  var decl : int = 33.33 as int;
+  // CHECK-NEXT:  CallExpr <range:30:3-30:11>
+  // CHECK-NEXT:    UnresolvedDeclRefExpr <range:30:3-30:5> {{.*}}
+  // CHECK-NEXT:    UnresolvedDeclRefExpr <range:30:7-30:7> {{.*}}
+  // CHECK-NEXT:    UnresolvedDeclRefExpr <range:30:10-30:10> {{.*}}
+  foo(a, b);
+  // CHECK-NEXT:  ConditionStmt <range:37:3-39:3>
+  // CHECK-NEXT:    BinaryExpr <range:37:6-37:14> {{.*}} <op_range:37:11-37:12>
+  // CHECK-NEXT:      UnresolvedDeclRefExpr <range:37:6-37:9> {{.*}}
+  // CHECK-NEXT:      IntegerLiteralExpr <range:37:14-37:14> {{.*}}
+  // CHECK-NEXT:    CompoundStmt <range:37:16-39:3>
+  // CHECK-NEXT:      UnresolvedDeclRefExpr <range:38:5-38:8> {{.*}}
+  if decl == 0 {
+    decl;
+  }
+  // CHECK-NEXT:  WhileStmt <range:46:3-48:3>
+  // CHECK-NEXT:    BinaryExpr <range:46:9-46:17> {{.*}} <op_range:46:14-46:15>
+  // CHECK-NEXT:      UnresolvedDeclRefExpr <range:46:9-46:12> {{.*}}
+  // CHECK-NEXT:      IntegerLiteralExpr <range:46:17-46:17> {{.*}}
+  // CHECK-NEXT:    CompoundStmt <range:46:19-48:3>
+  // CHECK-NEXT:      UnresolvedDeclRefExpr <range:47:5-47:8> {{.*}}
+  while decl != 0 {
+    decl;
+  }
+  // CHECK-NEXT:  ReturnStmt <range:51:3-51:11>
+  // CHECK-NEXT:    IntegerLiteralExpr <range:51:10-51:10> {{.*}}
+  return 0;
+}
