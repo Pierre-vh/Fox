@@ -1,0 +1,40 @@
+// RUN: %fox-dump-ast | %filecheck
+
+//----------------------------------------------------------------------------//
+// Tests that some builtins have the signature we expect them to have
+//
+// Since some builtins are emitted by BCGen, it's good to check that they have
+// the signature we expect them to have.
+//----------------------------------------------------------------------------//
+
+func foo() {
+  // CHECK: DeclRefExpr '(int) -> void' printInt
+  printInt(0);
+  // CHECK: DeclRefExpr '(bool) -> void' printBool
+  printBool(true);
+  // CHECK: DeclRefExpr '(char) -> void' printChar
+  printChar(' ');
+  // CHECK: DeclRefExpr '(double) -> void' printDouble
+  printDouble(0.0);
+  // CHECK: DeclRefExpr '(string) -> void' printString
+  printString("");
+
+  // CHECK: DeclRefExpr '(char) -> string' charToString
+  charToString(' ');
+  // CHECK: DeclRefExpr '(int) -> string' intToString
+  intToString(0);
+  // CHECK: DeclRefExpr '(double) -> string' doubleToString
+  doubleToString(0.0);
+  // CHECK: DeclRefExpr '(bool) -> string' boolToString
+  boolToString(false);
+
+  // CHECK: DeclRefExpr '(string, string) -> string' concat
+  concat("", "");
+  // CHECK: DeclRefExpr '(char, char) -> string' concatChars
+  concatChars(' ', ' ');
+
+  // CHECK: DeclRefExpr '(string) -> int' length
+  length("");
+  // CHECK: DeclRefExpr '(string) -> int' numBytes
+  numBytes("");
+}
