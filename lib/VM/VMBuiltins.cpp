@@ -55,3 +55,9 @@ FoxInt builtin::strNumBytes(StringObject* str) {
   assert(str && "String is null");
   return str->numBytes();
 }
+
+FoxChar builtin::getChar(StringObject* str, FoxInt n) {
+  assert(str && "string is null");
+  assert((n >= 0) && (n < str->length()) && "out of range index");
+  return str->getChar(static_cast<std::size_t>(n));
+}

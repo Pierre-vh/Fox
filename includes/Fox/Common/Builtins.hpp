@@ -79,5 +79,8 @@ namespace fox {
 
     /// \returns the size of \p str in bytes
     FoxInt strNumBytes(StringObject* str);
+
+    /// \returns the nth codepoint (FoxChar) of a string.
+    FoxChar getChar(StringObject* str, FoxInt n);
   }
 }

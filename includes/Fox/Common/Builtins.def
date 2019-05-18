@@ -43,10 +43,11 @@ BUILTIN(charConcat,   concatChars)
 // String Object interface
 BUILTIN(strLength,    length)
 BUILTIN(strNumBytes,  numBytes)
+BUILTIN(getChar,      getChar)
 
 //----------------------------------------------------------------------------//
 
-IGNORED_ARG_TYPE(VM&) // Ignore references VM instances
+IGNORED_ARG_TYPE(VM&) // Ignore references to VM instances
 
 //----------------------------------------------------------------------------//
 
