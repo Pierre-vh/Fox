@@ -45,10 +45,9 @@ namespace fox {
   ///    Note that every Decl will take a DeclContext* argument. That DeclContext
   ///    should be their parent DeclContext.
   class alignas(DeclAlignement) Decl {
-    // Delete copy ctor/operator (can cause corruption with trailing objects)
     Decl(const Decl&) = delete;
     Decl& operator=(const Decl&) = delete;
-    static constexpr unsigned kindBits_ = 4;
+
     public:
       /// The semantic analysis state for a Decl
       enum class CheckState : std::uint8_t {
@@ -128,12 +127,13 @@ namespace fox {
       // The next decl in this DeclContext
       Decl* nextDecl_ = nullptr;
 
+      static constexpr unsigned kindBits_ = 4;
       static_assert(toInt(DeclKind::LastDecl) < (1 << kindBits_),
         "kind_ bitfield doesn't have enough bits to represent every DeclKind");
 
-      // Bitfield : 1 bit left
+      // Bitfield : 2 bit left
       const DeclKind kind_ : kindBits_; // The Kind of Decl this is
-      CheckState checkState_ : 2; // The CheckState of this Decl
+      CheckState checkState_ : 2;       // The CheckState of this Decl
   };
 
   /// NamedDecl
@@ -224,6 +224,9 @@ namespace fox {
       ParamDecl(DeclContext* dc, Identifier id, SourceRange idRange, 
         TypeLoc type, bool isMut);
 
+      // ParamDecl BitField: 2 free bits left
+      // FIXME: Maybe store the type and typeloc separately so we
+      // can compress the bools into the Type pointer?
       const bool isMut_ : 1;
       bool used_ : 1;
       TypeLoc typeLoc_;
