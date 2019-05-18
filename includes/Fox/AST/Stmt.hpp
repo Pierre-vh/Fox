@@ -72,10 +72,10 @@ namespace fox {
       /// Creates a ReturnStmt.
       /// \param ctxt The ASTContext in which memory will be allocated
       /// \param rtr The return expression, if there's one
-      /// \param range The full range of the statement (from the beginning
-      ///        of the 'return' keyword to the semicolon)
-      static ReturnStmt* create(ASTContext& ctxt, Expr* rtr, 
-        SourceRange range);
+      /// \param range The full range of the statement. This should not
+      ///        include the trailing semicolon.
+      static ReturnStmt* 
+      create(ASTContext& ctxt, Expr* rtr, SourceRange range);
 
       void setExpr(Expr* e);
       Expr* getExpr() const;

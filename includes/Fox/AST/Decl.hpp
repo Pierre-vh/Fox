@@ -392,6 +392,17 @@ namespace fox {
         // increase the size of the initAndKW_ pair.
       };
 
+      /// Creates a new VarDecl
+      /// \param ctxt the ASTContext in which the node will be allocated
+      /// \param parent the parent DeclContext
+      /// \param id the Identifier of the function
+      /// \param idRange the range of the identifier of the function
+      /// \param type the TypeLoc of the return type
+      /// \param kw the Keyword (let or var) that was used the declare
+      ///        this variable
+      /// \param init the initializer expression, if present
+      /// \param range the full SourceRange of the VarDecl. This should
+      ///        not include the trailing semicolon.
       static VarDecl* create(ASTContext& ctxt, DeclContext* parent,
         Identifier id, SourceRange idRange, TypeLoc type, 
         Keyword kw, Expr* init, SourceRange range);
@@ -407,6 +418,7 @@ namespace fox {
       /// returns the type as written down by the user.
       Type getValueType() const;
 
+      void setSourceRange(SourceRange range);
       SourceRange getSourceRange() const;
 
       /// Returns true if this variable was declared using the "var" keyword

@@ -441,6 +441,10 @@ Type VarDecl::getValueType() const {
   return typeLoc_.getType();
 }
 
+void VarDecl::setSourceRange(SourceRange range) {
+  range_ = range;
+}
+
 SourceRange VarDecl::getSourceRange() const {
   return range_;
 }
