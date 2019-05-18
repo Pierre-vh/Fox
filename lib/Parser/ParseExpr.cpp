@@ -55,7 +55,7 @@ Parser::Result<Expr*> Parser::parseSuffix(Expr* base) {
       }
 
       return Result<Expr*>(
-        ArraySubscriptExpr::create(ctxt, base, expr.get(), rsquare)
+        SubscriptExpr::create(ctxt, base, expr.get(), rsquare)
       );
     }
     else {

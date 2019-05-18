@@ -29,7 +29,7 @@
 EXPR(BinaryExpr, Expr)
 EXPR(UnaryExpr, Expr)
 EXPR(CastExpr, Expr)
-EXPR(ArraySubscriptExpr, Expr)
+EXPR(SubscriptExpr, Expr)
 ABSTRACT_EXPR(AnyLiteralExpr, Expr)
   EXPR(CharLiteralExpr, AnyLiteralExpr)
   EXPR(BoolLiteralExpr, AnyLiteralExpr)

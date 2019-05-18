@@ -221,9 +221,9 @@ TEST_F(ASTTest, ExprRTTI) {
   EXPECT_EQ(membof->getKind(), ExprKind::MemberOfExpr);
   EXPECT_TRUE(MemberOfExpr::classof(membof));
 
-  auto* arracc = ArraySubscriptExpr::create(ctxt, nullptr, nullptr, SourceLoc());
-  EXPECT_EQ(arracc->getKind(), ExprKind::ArraySubscriptExpr);
-  EXPECT_TRUE(ArraySubscriptExpr::classof(arracc));
+  auto* subscript = SubscriptExpr::create(ctxt, nullptr, nullptr, SourceLoc());
+  EXPECT_EQ(subscript->getKind(), ExprKind::SubscriptExpr);
+  EXPECT_TRUE(SubscriptExpr::classof(subscript));
 
   auto* callexpr = CallExpr::create(ctxt, nullptr,
     ExprVector(), SourceLoc());

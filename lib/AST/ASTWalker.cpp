@@ -69,7 +69,7 @@ namespace {
         return expr;
       }
 
-      Expr* visitArraySubscriptExpr(ArraySubscriptExpr* expr) {
+      Expr* visitSubscriptExpr(SubscriptExpr* expr) {
         if (Expr* base = expr->getBase()) {
           if ((base = doIt(base)))
             expr->setBase(base);

@@ -454,11 +454,12 @@ namespace fox   {
       Identifier memb_;
   };
 
-  /// ArraySubscriptExpr
-  ///    Array access (or subscript): foo[3]
-  class ArraySubscriptExpr final : public Expr {
+  /// SubscriptExpr
+  ///    Subscript on an Array or a string:
+  ///     "hello"[0] or [0, 1, 2][0]
+  class SubscriptExpr final : public Expr {
     public:
-      static ArraySubscriptExpr* create(ASTContext& ctxt, Expr* base, 
+      static SubscriptExpr* create(ASTContext& ctxt, Expr* base, 
         Expr* idx, SourceLoc rightBracketLoc);
       
       void setBase(Expr* expr);
@@ -470,15 +471,17 @@ namespace fox   {
       SourceRange getSourceRange() const;
 
       static bool classof(const Expr* expr) {
-        return (expr->getKind() == ExprKind::ArraySubscriptExpr);
+        return (expr->getKind() == ExprKind::SubscriptExpr);
       }
 
     private:
-      ArraySubscriptExpr(Expr* base, Expr* idx, SourceLoc rightBracketLoc);
+      SubscriptExpr(Expr* base, Expr* idx, SourceLoc rightBracketLoc);
 
-      // The loc of the ']'. We only keep this one because it's only
+      // The loc of the ']'. We only keep this one because it's
       // used to generate the SourceRange of this node, which is calculated
-      // from the beginning of the base expression and the loc of the ']'.
+      // from the beginning of the base expression and the loc of the ']'
+      // TODO: Once I add ParenExpr (when I add tuples), we should just store
+      // a ParenExpr with a 'bracket' parent type as the index expr.
       SourceLoc rightBracketLoc_;
       Expr* base_ = nullptr;
       Expr* idxExpr_ = nullptr;

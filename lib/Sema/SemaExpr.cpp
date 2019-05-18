@@ -131,7 +131,7 @@ class Sema::ExprChecker : Checker, ExprVisitor<ExprChecker, Expr*>,  ASTWalker {
         .addArg(childTy); // %1 is the type of the child
     }
 
-    void diagnoseInvalidArraySubscript(ArraySubscriptExpr* expr,
+    void diagnoseInvalidArraySubscript(SubscriptExpr* expr,
                                        SourceRange range, SourceRange extra) {
       Expr* child = expr->getBase();
       Type childTy = child->getType();
@@ -555,7 +555,7 @@ class Sema::ExprChecker : Checker, ExprVisitor<ExprChecker, Expr*>,  ASTWalker {
       return expr;
     }
 
-    Expr* visitArraySubscriptExpr(ArraySubscriptExpr* expr) {
+    Expr* visitSubscriptExpr(SubscriptExpr* expr) {
       // Fetch the base
       Expr* base = expr->getBase();
       Type baseTy = base->getType();

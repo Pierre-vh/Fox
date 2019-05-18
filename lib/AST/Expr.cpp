@@ -611,36 +611,36 @@ SourceRange MemberOfExpr::getSourceRange() const {
 }
 
 //----------------------------------------------------------------------------//
-// ArraySubscriptExpr 
+// SubscriptExpr 
 //----------------------------------------------------------------------------//
 
-ArraySubscriptExpr::ArraySubscriptExpr(Expr* expr, Expr* idxexpr, 
+SubscriptExpr::SubscriptExpr(Expr* expr, Expr* idxexpr, 
 SourceLoc rightBracketLoc): base_(expr), idxExpr_(idxexpr),
-  rightBracketLoc_(rightBracketLoc), Expr(ExprKind::ArraySubscriptExpr) {}
+  rightBracketLoc_(rightBracketLoc), Expr(ExprKind::SubscriptExpr) {}
 
-ArraySubscriptExpr* 
-ArraySubscriptExpr::create(ASTContext& ctxt, Expr* base, Expr* idx, 
+SubscriptExpr* 
+SubscriptExpr::create(ASTContext& ctxt, Expr* base, Expr* idx, 
   SourceLoc rightBracketLoc) {
-  return new(ctxt) ArraySubscriptExpr(base, idx, rightBracketLoc);
+  return new(ctxt) SubscriptExpr(base, idx, rightBracketLoc);
 }
 
-void ArraySubscriptExpr::setBase(Expr* expr) {
+void SubscriptExpr::setBase(Expr* expr) {
   base_ = expr;
 }
 
-Expr* ArraySubscriptExpr::getBase() const {
+Expr* SubscriptExpr::getBase() const {
   return base_;
 }
 
-void ArraySubscriptExpr::setIndex(Expr* expr) {
+void SubscriptExpr::setIndex(Expr* expr) {
   idxExpr_ = expr;
 }
 
-Expr* ArraySubscriptExpr::getIndex() const {
+Expr* SubscriptExpr::getIndex() const {
   return idxExpr_;
 }
 
-SourceRange ArraySubscriptExpr::getSourceRange() const {
+SourceRange SubscriptExpr::getSourceRange() const {
   assert(base_ && rightBracketLoc_ && "ill-formed ArraySubscriptExpr");
   return SourceRange(base_->getBeginLoc(), rightBracketLoc_);
 }

@@ -73,7 +73,7 @@ void ASTDumper::visitUnaryExpr(UnaryExpr* node) {
   dedent();
 }
 
-void ASTDumper::visitArraySubscriptExpr(ArraySubscriptExpr* node) {
+void ASTDumper::visitSubscriptExpr(SubscriptExpr* node) {
   dumpLine() << getBasicExprInfo(node) << '\n';
 
   indent();

@@ -77,7 +77,7 @@ class BCGen::AssignementGenerator : public Generator,
     ///----------------------------------------------------------------------///
 
     RegisterValue
-    visitArraySubscriptExpr(ArraySubscriptExpr* dst, Expr* src, BinOp op);
+    visitSubscriptExpr(SubscriptExpr* dst, Expr* src, BinOp op);
     RegisterValue
     visitMemberOfExpr(MemberOfExpr* dst, Expr* src, BinOp op);
     RegisterValue
@@ -545,7 +545,7 @@ class BCGen::ExprGenerator : public Generator,
     }
 
     RegisterValue 
-    emitStringSubscript(ArraySubscriptExpr* expr, RegisterValue dest) {
+    emitStringSubscript(SubscriptExpr* expr, RegisterValue dest) {
       assert(expr->getBase()->getType()->isStringType() && "wrong function");
       assert(expr->getType()->isCharType() && "unexpected return type");
       auto baseGT = getGTForExpr(expr->getBase());
@@ -724,8 +724,7 @@ class BCGen::ExprGenerator : public Generator,
       return destReg;
     }
 
-    RegisterValue 
-    visitArraySubscriptExpr(ArraySubscriptExpr* expr, RegisterValue dest) { 
+    RegisterValue visitSubscriptExpr(SubscriptExpr* expr, RegisterValue dest) {
       // Subscript on strings
       if (expr->getBase()->getType()->isStringType())
         return emitStringSubscript(expr, std::move(dest));
@@ -897,7 +896,7 @@ RegisterValue BCGen::AssignementGenerator::generate(BinaryExpr* expr) {
 }
 
 RegisterValue BCGen::AssignementGenerator::
-visitArraySubscriptExpr(ArraySubscriptExpr*, Expr*, BinOp) {
+visitSubscriptExpr(SubscriptExpr*, Expr*, BinOp) {
   // VM doesn't support arrays yet
   fox_unimplemented_feature("ArraySubscript Assignement");
   // -> Gen the Subscripted Expression (SSE) using exprGen
