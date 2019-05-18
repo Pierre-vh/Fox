@@ -29,30 +29,28 @@ class Sema::StmtChecker : Checker, StmtVisitor<StmtChecker, void>{
 
   private:
     //----------------------------------------------------------------------//
-    // Diagnostic methods
+    // "diagnose" methods
     //----------------------------------------------------------------------//
-    // The diagnose family of methods are designed to print the most relevant
-    // diagnostics for a given situation.
-    //
-    // Generally speaking, theses methods won't emit diagnostics if 
-    // ill formed types are involved, because theses have either:
-    //  - been diagnosed already
-    //  - will be diagnosed at finalization
+    // Methods designed to diagnose specific situations.
     //----------------------------------------------------------------------//
       
-    // Diagnoses an expression whose type cannot be used in a condition
+    /// Diagnoses an invalid condition expression
     void diagnoseExprCantCond(Expr* expr) {
-      diagEngine
-        .report(DiagID::cant_use_expr_as_cond, expr->getSourceRange())
-        .addArg(expr->getType());
+      if(Sema::isWellFormed(expr->getType()))
+        diagEngine
+          .report(DiagID::cant_use_expr_as_cond, expr->getSourceRange())
+          .addArg(expr->getType());
     }
 
+    /// Diagnoses an empty return statement in a non-void function
     void diagnoseEmptyReturnStmtInNonVoidFn(ReturnStmt* stmt, Type fnRtrTy) {
       diagEngine
         .report(DiagID::return_with_no_expr, stmt->getSourceRange())
         .addArg(fnRtrTy);
     }
 
+    /// Diagnoses a return type mismatch 
+    /// (type of the return expr != return type of func)
     void diagnoseReturnTypeMistmatch(ReturnStmt* stmt, Expr* expr, 
       Type fnRetTy) {
       Type exprTy = expr->getType();
@@ -66,6 +64,8 @@ class Sema::StmtChecker : Checker, StmtVisitor<StmtChecker, void>{
         .setExtraRange(stmt->getSourceRange());
     }
 
+    /// Diagnoses a return type mismatch for void functions
+    /// (type of the return expr != void)
     void diagnoseUnexpectedRtrExprForNonVoidFn(ReturnStmt* stmt, Expr* expr) {
       diagEngine
         .report(DiagID::unexpected_non_void_rtr_expr, expr->getSourceRange())
@@ -75,14 +75,9 @@ class Sema::StmtChecker : Checker, StmtVisitor<StmtChecker, void>{
     //----------------------------------------------------------------------//
     // "visit" methods
     //----------------------------------------------------------------------//
-    // Theses visit() methods will perform the necessary tasks to check a
-    // single statement.
-    //
-    // Theses methods may call visit on the children of the statement. 
-    // (Visitation is handled by the visit methods, and not through a 
-    // ASTWalker like in the ExprChecker (SemaExpr.cpp))
+    // Does semantic analysis on a single Stmt
     //----------------------------------------------------------------------//
-      
+
     void visitReturnStmt(ReturnStmt* stmt) {
       // Fetch the current FuncDecl
       DeclContext* dc = sema.getDeclCtxt();
@@ -93,49 +88,42 @@ class Sema::StmtChecker : Checker, StmtVisitor<StmtChecker, void>{
       Type rtrTy = fn->getReturnTypeLoc().getType();
       bool isVoid = rtrTy->isVoidType();
 
-      // We'll check the stmt depending on whether it has an expression or not.
       if(Expr* expr = stmt->getExpr()) {
-        // There is an expression, check it.
-        bool succ = sema.typecheckExprOfType(expr, rtrTy);
-        if(!succ) {
-          // If this function returns void, and has an Expr of a non-void type
+        // Check the return expression
+        if(!sema.typecheckExprOfType(expr, rtrTy)) {
+          // Type mismatch: diagnose
           if(isVoid)
             diagnoseUnexpectedRtrExprForNonVoidFn(stmt, expr);
-          // non-void function and expr doesn't unify with it's return type
           else
             diagnoseReturnTypeMistmatch(stmt, expr, rtrTy);
         }
-        // in all cases, replace the expr after checking it
+        // Replace the return expression
         stmt->setExpr(expr);
       } 
-      else {
-        // No expression. If the function's return type isn't void, 
-        // this is an error.
-        if(!isVoid)
-          diagnoseEmptyReturnStmtInNonVoidFn(stmt, rtrTy);
-      }
+      // No return expression & expression doesn't return void
+      else if(!isVoid)
+        diagnoseEmptyReturnStmtInNonVoidFn(stmt, rtrTy);
     }
 
     void visitCompoundStmt(CompoundStmt* stmt) {
-			// Just visit the children
       for (ASTNode& s : stmt->getNodes()) {
         s = checkNode(s);
       }
     }
 
     void visitWhileStmt(WhileStmt* stmt) {
-			// Fetch the cond, typecheck it and replace it.
+      // Check & replace the cond
       stmt->setCond(checkCond(stmt->getCond()));
       // Check the body
       visitCompoundStmt(stmt->getBody());
     }
 
     void visitConditionStmt(ConditionStmt* stmt) {
-	    // Fetch the cond, typecheck it and replace it.
+      // Check & replace the cond
       stmt->setCond(checkCond(stmt->getCond()));
       // Check the if's body
       visitCompoundStmt(stmt->getThen());
-	    // Check the else's body if there is one
+	    // Check the else's body if present
 	    if(Stmt* elseBody = stmt->getElse())
 		    visit(elseBody);
     }
@@ -161,9 +149,9 @@ class Sema::StmtChecker : Checker, StmtVisitor<StmtChecker, void>{
       return node;
     }
 
-		// Does the necessary steps to check an expression which
-		// is used as a condition. Returns the Expr* that should replace
-		// the condition.
+		/// Does the necessary steps to check an expression which
+		/// is used as a condition. 
+    /// \returns the expr that should replace \p cond
 		Expr* checkCond(Expr* cond) {
 			if(!sema.typecheckCondition(cond)) {
         if(!(cond->getType()->is<ErrorType>()))

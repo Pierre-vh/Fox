@@ -44,15 +44,9 @@ class Sema::ExprChecker : Checker, ExprVisitor<ExprChecker, Expr*>,  ASTWalker {
 
   private:
     //----------------------------------------------------------------------//
-    // Diagnostic methods
+    // "diagnose" methods
     //----------------------------------------------------------------------//
-    // The diagnose family of methods are designed to print the most relevant
-    // diagnostics for a given situation.
-    //
-    // Generally speaking, theses methods won't emit diagnostics if 
-    // ill formed types are involved, because theses have either:
-    //  - been diagnosed already
-    //  - will be diagnosed at finalization
+    // Methods designed to diagnose specific situations.
     //----------------------------------------------------------------------//
 
     // (Note) example: "'foo' declared here with type 'int'"
@@ -62,7 +56,7 @@ class Sema::ExprChecker : Checker, ExprVisitor<ExprChecker, Expr*>,  ASTWalker {
       SourceRange range = decl->getIdentifierRange();
       Type declType = decl->getValueType();
 
-      if(!Sema::isWellFormed(declType)) return;
+      if(!isWellFormed(declType)) return;
 
       if (isa<BuiltinFuncDecl>(decl)) {
         diagEngine.report(DiagID::is_a_builtin_func_with_type, inFile)
@@ -81,7 +75,7 @@ class Sema::ExprChecker : Checker, ExprVisitor<ExprChecker, Expr*>,  ASTWalker {
       Type childTy = expr->getChild()->getType();
       Type goalTy = expr->getCastTypeLoc().getType();
 
-      if(!Sema::isWellFormed({childTy, goalTy})) return;
+      if(!isWellFormed({childTy, goalTy})) return;
 
       diagEngine
         .report(DiagID::invalid_explicit_cast, range)
@@ -94,7 +88,7 @@ class Sema::ExprChecker : Checker, ExprVisitor<ExprChecker, Expr*>,  ASTWalker {
     // and the child's type are equal)
     void warnRedundantCastExpr(CastExpr* expr, TypeLoc castTL) {
       Type castTy = castTL.getType();
-      if(!Sema::isWellFormed(castTy)) return;
+      if(!isWellFormed(castTy)) return;
 
       diagEngine
         .report(DiagID::useless_redundant_cast, castTL.getSourceRange())
@@ -121,7 +115,7 @@ class Sema::ExprChecker : Checker, ExprVisitor<ExprChecker, Expr*>,  ASTWalker {
       Expr* child = expr->getChild();
       Type childTy = child->getType();
 
-      if(!Sema::isWellFormed(childTy)) return;
+      if(!isWellFormed(childTy)) return;
 
       diagEngine
         .report(DiagID::unaryop_bad_child_type, expr->getOpRange())
@@ -139,7 +133,7 @@ class Sema::ExprChecker : Checker, ExprVisitor<ExprChecker, Expr*>,  ASTWalker {
       Expr* idxE = expr->getIndex();
       Type idxETy = idxE->getType();
 
-      if(!Sema::isWellFormed({childTy, idxETy})) return;
+      if(!isWellFormed({childTy, idxETy})) return;
 
       diagEngine
         .report(DiagID::arrsub_invalid_types, range)
@@ -155,7 +149,7 @@ class Sema::ExprChecker : Checker, ExprVisitor<ExprChecker, Expr*>,  ASTWalker {
       Type lhsTy = expr->getLHS()->getType();
       Type rhsTy = expr->getRHS()->getType();
 
-      if(!Sema::isWellFormed({lhsTy, rhsTy})) return;
+      if(!isWellFormed({lhsTy, rhsTy})) return;
 
       // Use the specific diagnostic for assignements
       if(expr->isAssignement()) 
@@ -210,7 +204,7 @@ class Sema::ExprChecker : Checker, ExprVisitor<ExprChecker, Expr*>,  ASTWalker {
       SourceRange lhsRange = expr->getLHS()->getSourceRange();
       SourceRange rhsRange = expr->getRHS()->getSourceRange();
 
-      if(!Sema::isWellFormed({lhsTy, rhsTy})) return;
+      if(!isWellFormed({lhsTy, rhsTy})) return;
 
       // Diag is (roughly) "can't assign a value of type (lhs) to type (rhs)
       diagEngine.report(DiagID::invalid_assignement, rhsRange)
@@ -231,7 +225,7 @@ class Sema::ExprChecker : Checker, ExprVisitor<ExprChecker, Expr*>,  ASTWalker {
       SourceRange range = callee->getSourceRange();
       Type ty = callee->getType();
 
-      if(!Sema::isWellFormed(ty)) return;
+      if(!isWellFormed(ty)) return;
 
       diagEngine.report(DiagID::expr_isnt_func, range)
         .addArg(ty);
@@ -301,26 +295,20 @@ class Sema::ExprChecker : Checker, ExprVisitor<ExprChecker, Expr*>,  ASTWalker {
     //----------------------------------------------------------------------//
     // Finalize methods
     //----------------------------------------------------------------------//
-    // The finalize family of methods will perform the finalization of a 
-    // given expr. Example cases where a finalize method should be created:
-    //    -> The finalization logic doesn't fit in 2 or 3 lines of code
-    //    -> The finalization logic is repetitive and called multiple times
-    //    -> Improving readability
+    // There is no set rule on what a finalize() method can do, but generally 
+    // they're used when the expression is known to be correct and we just
+    // need to "finalize" it: guess its type, resolve it, replace it, etc.
     //
-    // Theses methods will often just set the type of the expr, maybe emit
-    // some warnings too.
-    //
-    // /!\ ALL FINALIZE METHODS ASSUME THAT THE EXPR IS SEMANTICALLY CORRECT!
+    // TL;DR: These methods always assume that the Expr is semantically correct.
     //----------------------------------------------------------------------//
 
-    // Finalizes an expression whose type is boolean (e.g. conditional/logical
-    // expressions such as LAnd, LNot, LE, GT, etc..)
+    /// Finalizes a boolean expression (e.g. conditional/logical
+    /// expressions such as LAnd, LNot, LE, GT, etc..)
     Expr* finalizeBooleanExpr(Expr* expr) {
       expr->setType(BoolType::get(ctxt));
       return expr;
     }
 
-    // Finalizes a CastExpr
     Expr* finalizeCastExpr(CastExpr* expr, bool isRedundant) {
       TypeLoc castTL = expr->getCastTypeLoc();
 
@@ -333,7 +321,6 @@ class Sema::ExprChecker : Checker, ExprVisitor<ExprChecker, Expr*>,  ASTWalker {
       return expr;
     }
 
-    // Finalizes an empty Array Literal
     Expr* finalizeEmptyArrayLiteral(ArrayLiteralExpr* expr) {
       assert((expr->numElems() == 0) && "Only for empty Array Literals");
       // For empty array literals, the type is going to be a fresh
@@ -344,7 +331,6 @@ class Sema::ExprChecker : Checker, ExprVisitor<ExprChecker, Expr*>,  ASTWalker {
       return expr;
     }
 
-    // Finalizes a valid concatenation binary operation.
     Expr* finalizeConcatBinaryExpr(BinaryExpr* expr) {
       // For concatenation, the type is always string.
       // We'll also change the add operator to become the concat operator.
@@ -402,12 +388,10 @@ class Sema::ExprChecker : Checker, ExprVisitor<ExprChecker, Expr*>,  ASTWalker {
       assert(expr && "Expr cannot be null!");
       expr = visit(expr);
       assert(expr && "Expr cannot be null!");
-      // Check if the expr is typed. If it isn't, that
-      // means typechecking failed for this node, so set
-      // it's type to ErrorType.
-      if (!expr->getType()) {
+      // Check if the expr is typed. If it isn't, that means typechecking 
+      // failed for this node, so set its type to ErrorType.
+      if (!expr->getType())
         expr->setType(ErrorType::get(ctxt));
-      }
       return expr;
     }
 
@@ -422,20 +406,16 @@ class Sema::ExprChecker : Checker, ExprVisitor<ExprChecker, Expr*>,  ASTWalker {
     //----------------------------------------------------------------------//
     // "visit" methods
     //----------------------------------------------------------------------//
-    // Theses visit() methods will perform the necessary tasks to check a
-    // single expression node. In trivial/simple cases, theses methods will do
-    // everything needed to typecheck the expr (diagnose, finalize, etc), but
-    // they may also delegate the work to some check/finalize methods in more
-    // complex cases.
+    // Typechecks single Expr
     //
-    // Theses methods will never call visit on the Expr's children. Children
-    // visitation is only done through the ASTWalker, as we always want to
-    // visit the Expression tree in postorder.
+    // NOTE: No "visit" method present here will manually visit the children
+    // of the expr. This is always done by the ASTWalker before calling
+    // the "visit" methods. (Visitation is done in postorder)
     //----------------------------------------------------------------------//
 
-    Expr* visitErrorExpr(ErrorExpr* expr) {
-      // no-op
-      return expr;
+    Expr* visitErrorExpr(ErrorExpr*) {
+      // ErrorExprs shouldn't be visited again.
+      fox_unreachable("Expression visited twice");
     }
 
     Expr* visitBinaryExpr(BinaryExpr* expr) {
@@ -450,9 +430,9 @@ class Sema::ExprChecker : Checker, ExprVisitor<ExprChecker, Expr*>,  ASTWalker {
 
       // Check that the types are well formed. If they aren't, don't
       // bother typechecking the expr.
-      if (!Sema::isWellFormed({lhsTy, rhsTy})) return expr;
+      if (!isWellFormed({lhsTy, rhsTy})) return expr;
 
-      // Handle assignements early, let checkAssignementBinaryExpr do it.
+      // Handle assignements early: let checkAssignementBinaryExpr do it.
       if (expr->isAssignement())
         return checkAssignementBinaryExpr(expr, lhsTy, rhsTy);
 
@@ -495,7 +475,7 @@ class Sema::ExprChecker : Checker, ExprVisitor<ExprChecker, Expr*>,  ASTWalker {
 
       // Check that the types are well formed. If they aren't, don't
       // bother typechecking the expr.
-      if (!Sema::isWellFormed({childTy, goalTy})) return expr;
+      if (!isWellFormed({childTy, goalTy})) return expr;
 
       bool isPerfectEquality = false;
       // custom comparator which considers that a and b are
@@ -521,9 +501,9 @@ class Sema::ExprChecker : Checker, ExprVisitor<ExprChecker, Expr*>,  ASTWalker {
       using UOp = UnaryExpr::OpKind;
       Type childTy = expr->getChild()->getType();
 
-      // Check that the type is well formed. If it isn't, don't
+      // Check that the child's type is well formed. If it isn't, don't
       // bother typechecking the expr.
-      if (!Sema::isWellFormed(childTy)) return expr;
+      if (!isWellFormed(childTy)) return expr;
 
       switch (expr->getOp()) {
         case UOp::Invalid:
@@ -565,7 +545,7 @@ class Sema::ExprChecker : Checker, ExprVisitor<ExprChecker, Expr*>,  ASTWalker {
 
       // Check that the types are well formed. If they aren't, don't
       // bother typechecking the expr.
-      if (!Sema::isWellFormed({idxTy, baseTy})) return expr;
+      if (!isWellFormed({idxTy, baseTy})) return expr;
 
       bool canLValue = true;
       Type subscriptType;
@@ -612,14 +592,17 @@ class Sema::ExprChecker : Checker, ExprVisitor<ExprChecker, Expr*>,  ASTWalker {
     Expr* visitUnresolvedDeclRefExpr(UnresolvedDeclRefExpr* expr) {
       Identifier id = expr->getIdentifier();
       SourceRange range = expr->getSourceRange();
+
       LookupResult results;
       sema.doUnqualifiedLookup(results, id, expr->getBeginLoc());
+
       // No results -> undeclared identifier
       if(results.isEmpty()) {
         diagnoseUndeclaredIdentifier(range, id);
         // Return an ErrorExpr on error.
         return ErrorExpr::create(ctxt);
       }
+
       // Ambiguous result
       if(results.isAmbiguous()) {
         // Try to remove illegal redecls from the results
@@ -629,12 +612,15 @@ class Sema::ExprChecker : Checker, ExprVisitor<ExprChecker, Expr*>,  ASTWalker {
           return ErrorExpr::create(ctxt);
         }
       }
+
       // Correct, unambiguous result.
       NamedDecl* decl = results.getIfSingleResult();
       assert(decl 
         && "not ambiguous, not empty, but doens't contain a single result?");
+
       if(ValueDecl* valueDecl = dyn_cast<ValueDecl>(decl)) 
         return finalizeReferenceToValueDecl(expr, valueDecl);
+
       // For now, every NamedDecl is also a ValueDecl
       fox_unreachable("unknown NamedDecl kind");
     }
@@ -647,6 +633,10 @@ class Sema::ExprChecker : Checker, ExprVisitor<ExprChecker, Expr*>,  ASTWalker {
     Expr* visitCallExpr(CallExpr* expr) {
       Expr* callee = expr->getCallee();
       Type calleeTy = callee->getType();
+
+      // If the callee's type isn't well formed, don't bother
+      // typechecking the expr.
+      if(!isWellFormed(calleeTy)) return expr;
       
       if(!calleeTy->is<FunctionType>()) {
         diagnoseExprIsNotAFunction(callee);
@@ -663,8 +653,6 @@ class Sema::ExprChecker : Checker, ExprVisitor<ExprChecker, Expr*>,  ASTWalker {
         return expr;
       }
 
-      bool canDiagnose = true;
-
       // Check that the function is callable with these arguments.
       if(fnTy->numParams()) {
         bool hasArgTypeMismatch = false;
@@ -674,9 +662,8 @@ class Sema::ExprChecker : Checker, ExprVisitor<ExprChecker, Expr*>,  ASTWalker {
           Expr* arg = expr->getArg(idx);
           Type argType = arg->getType();
 
-          // If the argument's type is an error type, don't diagnose.
-          if(argType->is<ErrorType>())
-            canDiagnose = false;
+          // If the argument's type isn't well formed, abort.
+          if(!isWellFormed(argType)) return expr;
 
           assert(paramType && argType && "types cant be nullptrs!");
           // Check that the types match.
@@ -687,8 +674,7 @@ class Sema::ExprChecker : Checker, ExprVisitor<ExprChecker, Expr*>,  ASTWalker {
         }
 
         if (hasArgTypeMismatch) {
-          if(canDiagnose)
-            diagnoseBadFunctionCall(expr);
+          diagnoseBadFunctionCall(expr);
           return expr;
         }
       }
@@ -770,7 +756,7 @@ class Sema::ExprChecker : Checker, ExprVisitor<ExprChecker, Expr*>,  ASTWalker {
         return false;
       }
       // We also forbid ill-formed types.
-      return Sema::isWellFormed(ty);
+      return isWellFormed(ty);
     }
 
     // Typechecks a non empty array literal and deduces it's type.

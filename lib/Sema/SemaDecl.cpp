@@ -5,7 +5,7 @@
 // Author : Pierre van Houtryve                
 //----------------------------------------------------------------------------//
 //  This file implements Sema methods related to Decls and most of the 
-//  decl checking logic.
+//  Decl checking logic.
 //----------------------------------------------------------------------------//
 
 #include "Fox/Sema/Sema.hpp"
@@ -23,11 +23,11 @@ using namespace fox;
 //----------------------------------------------------------------------------//
 
 namespace {
-  // The "Function Flow Checker", which checks that a function body correctly
-  // returns on all control path, and warns about code after return statements.
-  //
-  // Every "visit" function return true if the node returns on all
-  // control paths, false otherwise.
+  /// The "Function Flow Checker", which checks that a function body correctly
+  /// returns on all control path, and warns about code after return statements.
+  ///
+  /// Every "visit" function return true if the node returns on all
+  /// control paths, false otherwise.
   class FuncFlowChecker : StmtVisitor<FuncFlowChecker, bool> {
     using Inherited = StmtVisitor<FuncFlowChecker, bool>;
     friend Inherited;
@@ -40,7 +40,7 @@ namespace {
         if (!returnsOnAllPaths) {
           Type rtrTy = theFunc->getReturnTypeLoc().getType();
           // Function doesn't return void, and doesn't return
-          // on all control paths.
+          // on all control paths:
           if (!rtrTy->isVoidType()) {
             // Diagnose at the } of the body
             SourceLoc loc = theFunc->getBody()->getEndLoc();
@@ -51,12 +51,14 @@ namespace {
         }
       }
 
+      /// The function being checked
       FuncDecl* theFunc;
+      /// The DiagnosticEngine used to report errors
       DiagnosticEngine& diagEngine;
 
     private:
       bool visitNode(ASTNode node) {
-        // Only visit statements
+        // Only statements are interesting.
         if(Stmt* stmt = node.dyn_cast<Stmt*>())
           return visit(stmt);
         return false;
@@ -76,7 +78,8 @@ namespace {
           }
         }
         // If the function returns on all control paths, check if there are
-        // statements left. If there are, warn about unreachable code.
+        // statements left in the CompoundStmt. 
+        // If there are, warn about unreachable code.
         if (returnsOnAllPaths) {
           if ((++it) != end) {
             SourceLoc beg = it->getBeginLoc();
@@ -95,9 +98,8 @@ namespace {
         // Unfortunately, we can't do anything here, so just visit
         // the body and return false.
         visitCompoundStmt(stmt->getBody());
-        // We might do something in the future when we can understand
-        // infinite loops at compile time.
-        // Then, for infinitel loops, check the body and stop the whole search.
+        // We might do something in the future when we can find infinite 
+        // loops at compile time
         return false;
       }
 
@@ -133,17 +135,16 @@ class Sema::DeclChecker : Checker, DeclVisitor<DeclChecker, void> {
 
   private:
     //----------------------------------------------------------------------//
-    // Diagnostic methods
+    // "diagnose" methods
     //----------------------------------------------------------------------//
-    // The diagnose family of methods are designed to print the most relevant
-    // diagnostics for a given situation.
+    // Methods designed to diagnose specific situations.
     //----------------------------------------------------------------------//
 
-    // Diagnoses an illegal variable redeclaration. 
-    // "decl" is the illegal redecl, "decls" is the list of previous decls.
-    //
-    // If the decl shouldn't be considered a illegal redeclaration, returns
-    // false.
+    /// Diagnoses an illegal variable redeclaration. 
+    /// "decl" is the illegal redecl, "decls" is the list of previous decls.
+    ///
+    /// If the decl shouldn't be considered a illegal redeclaration, returns
+    /// false.
     bool diagnoseIllegalRedecl(NamedDecl* decl, const NamedDeclVec& decls) {
       // Find the original decl
       NamedDecl* earliest = findOriginalDecl(decl->getBeginLoc(), decls);
@@ -154,7 +155,7 @@ class Sema::DeclChecker : Checker, DeclVisitor<DeclChecker, void> {
       return (bool)earliest;
     }
 
-    // Helper diagnoseIllegalRedecl
+    /// Helper for diagnoseIllegalRedecl
     DiagID getAppropriateDiagForRedecl(NamedDecl* original, NamedDecl* redecl) {
       // This is a "classic" var redeclaration
       if (isVarOrParamDecl(original) && isVarOrParamDecl(redecl)) {
@@ -169,8 +170,8 @@ class Sema::DeclChecker : Checker, DeclVisitor<DeclChecker, void> {
         return DiagID::invalid_redecl_diff_symbol_kind;
     }
 
-    // Diagnoses an illegal redeclaration where "redecl" is an illegal
-    // redeclaration of "original"
+    /// Diagnoses an illegal redeclaration where "redecl" is an illegal
+    /// redeclaration of "original"
     void diagnoseIllegalRedecl(NamedDecl* original, NamedDecl* redecl) {
       // Quick checks
       Identifier id = original->getIdentifier();
@@ -185,6 +186,7 @@ class Sema::DeclChecker : Checker, DeclVisitor<DeclChecker, void> {
       noteFirstDeclHere(redecl->getFileID(), original);
     }
 
+    /// Prints a "first decl seen here" type of note
     void noteFirstDeclHere(FileID inFile, NamedDecl* decl) {
       assert(inFile && "invalid FileID");
       if (isa<BuiltinFuncDecl>(decl)) {
@@ -198,7 +200,7 @@ class Sema::DeclChecker : Checker, DeclVisitor<DeclChecker, void> {
       }
     }
 
-    // Diagnoses an incompatible variable initializer.
+    /// Diagnoses an incompatible variable initializer.
     void diagnoseInvalidVarInitExpr(VarDecl* decl, Expr* init) {
       Type initType = init->getType();
       Type declType = decl->getValueType();
@@ -215,12 +217,7 @@ class Sema::DeclChecker : Checker, DeclVisitor<DeclChecker, void> {
     //----------------------------------------------------------------------//
     // "visit" methods
     //----------------------------------------------------------------------//
-    // Theses visit() methods will perform the necessary tasks to check a
-    // single declaration.
-    //
-    // Theses methods may call visit on the children of the declaration, or 
-    // call Sema checking functions to perform Typechecking of other node
-    // kinds.
+    // Does semantic analysis on a single Decl
     //----------------------------------------------------------------------//
 
     void visit(Decl* decl) {
@@ -230,42 +227,38 @@ class Sema::DeclChecker : Checker, DeclVisitor<DeclChecker, void> {
     }
 
     void visitParamDecl(ParamDecl* decl) {
-      // Check this decl for being an illegal redecl
       checkForIllegalRedecl(decl);
     }
 
     void visitVarDecl(VarDecl* decl) {
-      // Check this decl for being an illegal redecl
       checkForIllegalRedecl(decl);
 
-      // Check the init expr
       if (Expr* init = decl->getInitExpr()) {
-        // Check the init expr
         bool ok = sema.typecheckExprOfType(init, decl->getValueType());
-        // Replace the expr
         decl->setInitExpr(init);
-        // If the type didn't match, diagnose
         if(!ok)
           diagnoseInvalidVarInitExpr(decl, init);
       }
     }
 
     void visitFuncDecl(FuncDecl* decl) {
-      // Also, tell it that we're entering its DeclContext.
       auto raiiDC = sema.enterDeclCtxtRAII(decl);
-      // Check if this is an invalid redecl
+
       checkForIllegalRedecl(decl);
-      // Check parameters
+
+      // Check params
       if (ParamList* params = decl->getParams()) {
         for (ParamDecl* param : *params)
           visit(param);
       }
+
       // Check the body
       sema.checkStmt(decl->getBody());
+
       // Check the flow
       // NOTE: Ideally this check shouldn't run if the body of the func 
       // emitted errors. Unfortunately, there's no way to know that
-      // for now. 
+      // for now.
       FuncFlowChecker(decl, diagEngine).check();
     }
 
@@ -274,9 +267,8 @@ class Sema::DeclChecker : Checker, DeclVisitor<DeclChecker, void> {
     }
 
     void visitUnitDecl(UnitDecl* unit) {
-      // Tell Sema that we're inside this unit's DC
       auto dcGuard = sema.enterDeclCtxtRAII(unit);
-      // And just visit every decl inside the UnitDecl
+      // Check every decl
       for(Decl* decl : unit->getDecls())
         visit(decl);
     }
@@ -287,25 +279,26 @@ class Sema::DeclChecker : Checker, DeclVisitor<DeclChecker, void> {
     // Various semantics-related helper methods 
     //----------------------------------------------------------------------//
 
-    // Checks if "decl" is a illegal redeclaration.
-    // If "decl" is a illegal redecl, the appropriate diagnostic is emitted
-    // and this function returns false.
-    // Returns true if "decl" is legal redeclaration or not a redeclaration
-    // at all.
+    /// Checks if "decl" is a illegal redeclaration.
+    /// If "decl" is a illegal redecl, the appropriate diagnostic is emitted
+    /// and this function returns false.
+    /// Returns true if "decl" is legal redeclaration or not a redeclaration
+    /// at all.
     void checkForIllegalRedecl(NamedDecl* decl) {        
-      Identifier id = decl->getIdentifier();
-      LookupResult lookupResult;
-      // Build Lookup options:
       LookupOptions options;
       // If the Decl is local, only look in local decl contexts.
       options.onlyLookInLocalDeclContexts = decl->isLocal();
       options.shouldIgnore = [&](NamedDecl* result){
+
         // Ignore if result == decl
         if(result == decl) return true;
         // Ignore if result isn't from the same file
         if(result->getFileID() != decl->getFileID()) return true;
         return false;  // else, don't ignore.
       };
+
+      Identifier id = decl->getIdentifier();
+      LookupResult lookupResult;
       sema.doUnqualifiedLookup(lookupResult, id, decl->getBeginLoc(),
                                options);
       // If there are no matches, this cannot be a redecl
@@ -335,10 +328,10 @@ class Sema::DeclChecker : Checker, DeclVisitor<DeclChecker, void> {
     // Non semantics related helper methods
     //----------------------------------------------------------------------//
     
-    // Searches a lookup result to find the decl that should be considered
-    // the "original" decl when diagnosing for illegal redeclarations.
-    //
-    // The return result may be nullptr!
+    /// Searches a lookup result to find the decl that should be considered
+    /// the "original" decl when diagnosing for illegal redeclarations.
+    ///
+    /// The return result may be nullptr!
     NamedDecl* 
     findOriginalDecl(SourceLoc loc, const NamedDeclVec& decls) {
       assert(decls.size() && "Empty decl set");
@@ -391,12 +384,12 @@ class Sema::DeclChecker : Checker, DeclVisitor<DeclChecker, void> {
       return candidate;
     }
 
-    // Return true if decl is a VarDecl or ParamDecl
+    /// \returns true if decl is a VarDecl or ParamDecl
     bool isVarOrParamDecl(NamedDecl* decl) {
       return isa<ParamDecl>(decl) || isa<VarDecl>(decl);
     }
 
-    // Return true if decl is a FuncDecl or BuiltinFuncDecl
+    /// \returns true if decl is a FuncDecl or BuiltinFuncDecl
     bool isAnyFunc(NamedDecl* decl) {
       return isa<BuiltinFuncDecl>(decl) || isa<FuncDecl>(decl);
     }

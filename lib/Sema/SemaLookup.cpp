@@ -21,10 +21,10 @@ using namespace fox;
 //----------------------------------------------------------------------------//
 
 namespace {
-  // Removes shadowed declarations from a set of declarations.
-  // Shadowing is only allowed "2 times" in Fox.
-  //  1) when a parameter shadows a global declaration
-  //  2) when a local variable shadows a global variable or a parameter.
+  /// Removes shadowed declarations from a set of declarations.
+  /// Shadowing is only allowed in 2 situations in Fox:
+  ///  1) when a parameter shadows a global declaration
+  ///  2) when a local variable shadows a global variable or a parameter.
   void removeShadowedDecls(SmallVectorImpl<NamedDecl*>& decls) {
     // FIXME: I think this can be made more efficient.
 
@@ -55,7 +55,7 @@ namespace {
 }
 
 //----------------------------------------------------------------------------//
-// Sema methods impl
+// Sema
 //----------------------------------------------------------------------------//
 
 void Sema::doUnqualifiedLookup(LookupResult& results, Identifier id,

@@ -28,6 +28,10 @@ bool Sema::unify(Type a, Type b) {
 }
 
 namespace {
+  /// "unwraps" type together, removing equal level of
+  /// Arrays on each type, stopping when one of them
+  /// isn't an array anymore.
+  /// It is recursive and ignores LValues on each iteration.
   void unwrapTypes(Type& a, Type& b) {
     assert(a && b && "args cannot be null");
     // Ignore LValues 
@@ -58,7 +62,8 @@ bool Sema::unify(Type a, Type b, std::function<bool(Type, Type)> comparator)  {
   // Unwrap the types
   unwrapTypes(a, b);
 
-  // Check if well formed
+  // Check if they are well formed. Unification fails automatically if 
+  // they aren't.
   if(!isWellFormed({a, b})) return false;
 
   // Check for a early return using the comparator.
