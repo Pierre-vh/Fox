@@ -53,7 +53,7 @@ namespace fox {
       /// \returns the size of the string in bytes
       std::size_t numBytes() const;
 
-      /// FoxChar getChar(std::size_t idx) const;
+      FoxChar getChar(std::size_t n) const;
 
       static bool classof(const Object* obj) {
         return obj->getKind() == ObjectKind::StringObject;

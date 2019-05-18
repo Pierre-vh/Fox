@@ -41,3 +41,10 @@ std::size_t StringObject::length() const {
 std::size_t StringObject::numBytes() const {
   return str_.size();
 }
+
+FoxChar StringObject::getChar(std::size_t n) const {
+  auto it = str_.begin();
+  auto end = str_.end();
+  utf8::advance(it, n, end);
+  return utf8::peek_next(it, end);
+}
