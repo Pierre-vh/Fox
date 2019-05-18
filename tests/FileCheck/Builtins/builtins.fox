@@ -8,35 +8,35 @@
 //----------------------------------------------------------------------------//
 
 func foo() {
-  // CHECK: DeclRefExpr '(int) -> void' printInt
+  // CHECK: DeclRefExpr {{.*}} '(int) -> void' printInt
   printInt(0);
-  // CHECK: DeclRefExpr '(bool) -> void' printBool
+  // CHECK: DeclRefExpr {{.*}} '(bool) -> void' printBool
   printBool(true);
-  // CHECK: DeclRefExpr '(char) -> void' printChar
+  // CHECK: DeclRefExpr {{.*}} '(char) -> void' printChar
   printChar(' ');
-  // CHECK: DeclRefExpr '(double) -> void' printDouble
+  // CHECK: DeclRefExpr {{.*}} '(double) -> void' printDouble
   printDouble(0.0);
-  // CHECK: DeclRefExpr '(string) -> void' printString
+  // CHECK: DeclRefExpr {{.*}} '(string) -> void' printString
   printString("");
 
-  // CHECK: DeclRefExpr '(char) -> string' charToString
+  // CHECK: DeclRefExpr {{.*}} '(char) -> string' charToString
   charToString(' ');
-  // CHECK: DeclRefExpr '(int) -> string' intToString
+  // CHECK: DeclRefExpr {{.*}} '(int) -> string' intToString
   intToString(0);
-  // CHECK: DeclRefExpr '(double) -> string' doubleToString
+  // CHECK: DeclRefExpr {{.*}} '(double) -> string' doubleToString
   doubleToString(0.0);
-  // CHECK: DeclRefExpr '(bool) -> string' boolToString
+  // CHECK: DeclRefExpr {{.*}} '(bool) -> string' boolToString
   boolToString(false);
 
-  // CHECK: DeclRefExpr '(string, string) -> string' concat
+  // CHECK: DeclRefExpr {{.*}} '(string, string) -> string' concat
   concat("", "");
-  // CHECK: DeclRefExpr '(char, char) -> string' concatChars
+  // CHECK: DeclRefExpr {{.*}} '(char, char) -> string' concatChars
   concatChars(' ', ' ');
 
-  // CHECK: DeclRefExpr '(string) -> int' length
+  // CHECK: DeclRefExpr {{.*}} '(string) -> int' length
   length("");
-  // CHECK: DeclRefExpr '(string) -> int' numBytes
+  // CHECK: DeclRefExpr {{.*}} '(string) -> int' numBytes
   numBytes("");
-  // CHECK: DeclRefExpr '(string, int) -> char' getChar
+  // CHECK: DeclRefExpr {{.*}} '(string, int) -> char' getChar
   getChar("a", 0);
 }

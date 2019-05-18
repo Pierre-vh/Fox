@@ -15,27 +15,27 @@ var b : double;
 // CHECK-NEXT: ParamDecl [[param_a_addr:0x([[:alnum:]]{8,16})]] {{.*}} a 'char'
 // CHECK-NEXT: ParamDecl [[mutParam_addr:0x([[:alnum:]]{8,16})]] {{.*}} mut mutParam '[string]'
 func foo(a : char, mutParam : mut [string]) {
-  // CHECK: DeclRefExpr 'char' a <decl:[[param_a_addr]]>
+  // CHECK: DeclRefExpr {{.*}} 'char' a <decl:[[param_a_addr]]>
   a;
   // Check that a reference to a mutable variable has a "lvalue"
-  // CHECK: DeclRefExpr lvalue 'double' b <decl:[[global_b_addr]]>
+  // CHECK: DeclRefExpr {{.*}} lvalue 'double' b <decl:[[global_b_addr]]>
   b;
-  // CHECK: DeclRefExpr lvalue '[string]' mutParam <decl:[[mutParam_addr]]>
+  // CHECK: DeclRefExpr {{.*}} lvalue '[string]' mutParam <decl:[[mutParam_addr]]>
   mutParam;
-  // CHECK-NEXT: DeclRefExpr '(char, [string]) -> void' foo <decl:[[foo_addr]]>
+  // CHECK-NEXT: DeclRefExpr {{.*}} '(char, [string]) -> void' foo <decl:[[foo_addr]]>
   foo;
-  // CHECK-NEXT: DeclRefExpr lvalue '[double]' c
+  // CHECK-NEXT: DeclRefExpr {{.*}} lvalue '[double]' c
   c;
-  // CHECK-NEXT: DeclRefExpr '() -> void' some_func_before
+  // CHECK-NEXT: DeclRefExpr {{.*}} '() -> void' some_func_before
   some_func_before;
-  // CHECK-NEXT: DeclRefExpr '([bool], string) -> void' another_func_after
+  // CHECK-NEXT: DeclRefExpr {{.*}} '([bool], string) -> void' another_func_after
   another_func_after;
-  // CHECK-NEXT: DeclRefExpr '(int) -> void' printInt {{.*}} (Builtin 'printInt')
+  // CHECK-NEXT: DeclRefExpr {{.*}} '(int) -> void' printInt {{.*}} (Builtin 'printInt')
   printInt;
 }
 
 // CHECK: VarDecl {{0x([[:alnum:]]{8,16}) .*}} var c '[double]'
-// CHECK: DeclRefExpr 'int' a <decl:[[global_a_addr]]>
+// CHECK: DeclRefExpr {{.*}} 'int' a <decl:[[global_a_addr]]>
 var c : [double] = [a as double];
 
 func another_func_after(baz: [bool], foz: string) {}

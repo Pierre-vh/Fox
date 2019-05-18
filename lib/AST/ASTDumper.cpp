@@ -358,17 +358,22 @@ std::string ASTDumper::getDeclNodeName(Decl* decl) const {
 std::string ASTDumper::getBasicStmtInfo(Stmt* stmt) const {
   std::ostringstream ss;
   ss << getStmtNodeName(stmt);
-  if (isDebug())
-    ss << " 0x" << (void*)stmt;
+  // Only print the address of stmts in "debug dump" mode.
+  if (isDebug()) ss << " 0x" << (void*)stmt;
+  // Print the full range of the stmt
   ss << " " << getSourceRangeDump("range", stmt->getSourceRange());
+
   return ss.str();
 }
 
 std::string ASTDumper::getBasicExprInfo(Expr* expr) const {
   std::ostringstream ss;
   ss << getExprNodeName(expr);
-  if (isDebug())
-    ss << " 0x" << (void*)expr;
+  // Only print the address of exprs in "debug dump" mode.
+  if (isDebug()) ss << " 0x" << (void*)expr;
+  // Print the full range of the expr
+  ss << " " << getSourceRangeDump("range", expr->getSourceRange());
+  // Print its type if possible
   if (auto ty = expr->getType()) {
     // Display "lvalue" before the type in non debug mode.
     // In debug mode, types are dumped in a debug form, so
@@ -387,11 +392,13 @@ std::string ASTDumper::getBasicExprInfo(Expr* expr) const {
 std::string ASTDumper::getBasicDeclInfo(Decl* decl) const {
   std::ostringstream ss;
   std::string sourceRangeDump;
-  ss << getDeclNodeName(decl)
-     << " 0x" << (void*)decl
+  // Print the address, range and "locality" of the decL.
+  ss << getDeclNodeName(decl) << " 0x" << (void*)decl
+     << " " << getSourceRangeDump("range", decl->getSourceRange())
      << (decl->isLocal() ? " (local)" : "");
-
-  ss << " " << getSourceRangeDump("range", decl->getSourceRange());
+  // Also print the identifier range for NamedDecls.
+  if(NamedDecl* named = dyn_cast<NamedDecl>(decl))
+    ss << " " << getSourceRangeDump("id_range", named->getIdentifierRange());
   return ss.str();
 }
 

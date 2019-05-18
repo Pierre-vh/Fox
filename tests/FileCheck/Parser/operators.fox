@@ -1,81 +1,81 @@
 // RUN: %fox-dump-parse | %filecheck
 
 func binops() {
-  //  CHECK:      BinaryExpr ** (Power)
-  //        CHECK-NEXT: IntegerLiteralExpr 1
-  //        CHECK-NEXT: IntegerLiteralExpr 2
+  //  CHECK:      BinaryExpr {{.*}} ** (Power)
+  //        CHECK-NEXT: IntegerLiteralExpr {{.*}} 1
+  //        CHECK-NEXT: IntegerLiteralExpr {{.*}} 2
   1**2;
-  //  CHECK-NEXT: BinaryExpr * (Multiplication)
-  //        CHECK-NEXT: IntegerLiteralExpr 1
-  //        CHECK-NEXT: IntegerLiteralExpr 2
+  //  CHECK-NEXT: BinaryExpr {{.*}} * (Multiplication)
+  //        CHECK-NEXT: IntegerLiteralExpr {{.*}} 1
+  //        CHECK-NEXT: IntegerLiteralExpr {{.*}} 2
   1*2;
-  //  CHECK-NEXT: BinaryExpr / (Division)
-  //        CHECK-NEXT: IntegerLiteralExpr 1
-  //        CHECK-NEXT: IntegerLiteralExpr 2
+  //  CHECK-NEXT: BinaryExpr {{.*}} / (Division)
+  //        CHECK-NEXT: IntegerLiteralExpr {{.*}} 1
+  //        CHECK-NEXT: IntegerLiteralExpr {{.*}} 2
   1/2;
-  //  CHECK-NEXT: BinaryExpr % (Modulo)
-  //        CHECK-NEXT: IntegerLiteralExpr 1
-  //        CHECK-NEXT: IntegerLiteralExpr 2
+  //  CHECK-NEXT: BinaryExpr {{.*}} % (Modulo)
+  //        CHECK-NEXT: IntegerLiteralExpr {{.*}} 1
+  //        CHECK-NEXT: IntegerLiteralExpr {{.*}} 2
   1%2;
-  //  CHECK-NEXT: BinaryExpr + (Addition)
-  //        CHECK-NEXT: IntegerLiteralExpr 1
-  //        CHECK-NEXT: IntegerLiteralExpr 2
+  //  CHECK-NEXT: BinaryExpr {{.*}} + (Addition)
+  //        CHECK-NEXT: IntegerLiteralExpr {{.*}} 1
+  //        CHECK-NEXT: IntegerLiteralExpr {{.*}} 2
   1+2;
-  //  CHECK-NEXT: BinaryExpr - (Substraction)
-  //        CHECK-NEXT: IntegerLiteralExpr 1
-  //        CHECK-NEXT: IntegerLiteralExpr 2
+  //  CHECK-NEXT: BinaryExpr {{.*}} - (Substraction)
+  //        CHECK-NEXT: IntegerLiteralExpr {{.*}} 1
+  //        CHECK-NEXT: IntegerLiteralExpr {{.*}} 2
   1-2;
-  //  CHECK-NEXT: BinaryExpr < (Less Than)
-  //        CHECK-NEXT: IntegerLiteralExpr 1
-  //        CHECK-NEXT: IntegerLiteralExpr 2
+  //  CHECK-NEXT: BinaryExpr {{.*}} < (Less Than)
+  //        CHECK-NEXT: IntegerLiteralExpr {{.*}} 1
+  //        CHECK-NEXT: IntegerLiteralExpr {{.*}} 2
   1<2;
-  //  CHECK-NEXT: BinaryExpr > (Greater Than)
-  //        CHECK-NEXT: IntegerLiteralExpr 1
-  //        CHECK-NEXT: IntegerLiteralExpr 2
+  //  CHECK-NEXT: BinaryExpr {{.*}} > (Greater Than)
+  //        CHECK-NEXT: IntegerLiteralExpr {{.*}} 1
+  //        CHECK-NEXT: IntegerLiteralExpr {{.*}} 2
   1>2;
-  //  CHECK-NEXT: BinaryExpr <= (Less Than Or Equal To)
-  //        CHECK-NEXT: IntegerLiteralExpr 1
-  //        CHECK-NEXT: IntegerLiteralExpr 2
+  //  CHECK-NEXT: BinaryExpr {{.*}} <= (Less Than Or Equal To)
+  //        CHECK-NEXT: IntegerLiteralExpr {{.*}} 1
+  //        CHECK-NEXT: IntegerLiteralExpr {{.*}} 2
   1<=2;
-  //  CHECK-NEXT: BinaryExpr >= (Greater Than Or Equal To)
-  //        CHECK-NEXT: IntegerLiteralExpr 1
-  //        CHECK-NEXT: IntegerLiteralExpr 2
+  //  CHECK-NEXT: BinaryExpr {{.*}} >= (Greater Than Or Equal To)
+  //        CHECK-NEXT: IntegerLiteralExpr {{.*}} 1
+  //        CHECK-NEXT: IntegerLiteralExpr {{.*}} 2
   1>=2;
-  //  CHECK-NEXT: BinaryExpr == (Equal To)
-  //        CHECK-NEXT: IntegerLiteralExpr 1
-  //        CHECK-NEXT: IntegerLiteralExpr 2
+  //  CHECK-NEXT: BinaryExpr {{.*}} == (Equal To)
+  //        CHECK-NEXT: IntegerLiteralExpr {{.*}} 1
+  //        CHECK-NEXT: IntegerLiteralExpr {{.*}} 2
   1==2;
-  //  CHECK-NEXT: BinaryExpr != (Not Equal To)
-  //        CHECK-NEXT: IntegerLiteralExpr 1
-  //        CHECK-NEXT: IntegerLiteralExpr 2
+  //  CHECK-NEXT: BinaryExpr {{.*}} != (Not Equal To)
+  //        CHECK-NEXT: IntegerLiteralExpr {{.*}} 1
+  //        CHECK-NEXT: IntegerLiteralExpr {{.*}} 2
   1!=2;
   // Not semantically valid, but since we just do parsing
   // without Sema, we don't care.
-  //  CHECK-NEXT: BinaryExpr && (Logical And)
-  //        CHECK-NEXT: IntegerLiteralExpr 1
-  //        CHECK-NEXT: IntegerLiteralExpr 2
+  //  CHECK-NEXT: BinaryExpr {{.*}} && (Logical And)
+  //        CHECK-NEXT: IntegerLiteralExpr {{.*}} 1
+  //        CHECK-NEXT: IntegerLiteralExpr {{.*}} 2
   1 && 2;
-  //  CHECK-NEXT: BinaryExpr || (Logical Or)
-  //        CHECK-NEXT: IntegerLiteralExpr 1
-  //        CHECK-NEXT: IntegerLiteralExpr 2
+  //  CHECK-NEXT: BinaryExpr {{.*}} || (Logical Or)
+  //        CHECK-NEXT: IntegerLiteralExpr {{.*}} 1
+  //        CHECK-NEXT: IntegerLiteralExpr {{.*}} 2
   1 || 2;
-  //  CHECK-NEXT: BinaryExpr = (Assignement)
-  //        CHECK-NEXT: IntegerLiteralExpr 1
-  //        CHECK-NEXT: IntegerLiteralExpr 2
+  //  CHECK-NEXT: BinaryExpr {{.*}} = (Assignement)
+  //        CHECK-NEXT: IntegerLiteralExpr {{.*}} 1
+  //        CHECK-NEXT: IntegerLiteralExpr {{.*}} 2
   1 = 2;
 }
 
 func uops() {
-  //  CHECK:      UnaryExpr + (Unary Plus)
-  //        CHECK-NEXT: IntegerLiteralExpr 1
+  //  CHECK:      UnaryExpr {{.*}} + (Unary Plus)
+  //        CHECK-NEXT: IntegerLiteralExpr {{.*}} 1
   +1;
-  //  CHECK-NEXT: UnaryExpr - (Unary Minus)
-  //        CHECK-NEXT: IntegerLiteralExpr 1
+  //  CHECK-NEXT: UnaryExpr {{.*}} - (Unary Minus)
+  //        CHECK-NEXT: IntegerLiteralExpr {{.*}} 1
   -1;
-  //  CHECK-NEXT: UnaryExpr ! (Logical Negation)
-  //        CHECK-NEXT: IntegerLiteralExpr 1
+  //  CHECK-NEXT: UnaryExpr {{.*}} ! (Logical Negation)
+  //        CHECK-NEXT: IntegerLiteralExpr {{.*}} 1
   !1;
-  //  CHECK-NEXT: UnaryExpr $ (String Conversion)
-  //        CHECK-NEXT: IntegerLiteralExpr 1
+  //  CHECK-NEXT: UnaryExpr {{.*}} $ (String Conversion)
+  //        CHECK-NEXT: IntegerLiteralExpr {{.*}} 1
   $1;
 }
