@@ -287,17 +287,13 @@ void* ParamList::operator new(std::size_t, void* mem) {
 //----------------------------------------------------------------------------//
 
 FuncDecl::FuncDecl(DeclContext* parent, SourceLoc fnBegLoc, 
-                    Identifier fnId, SourceRange idRange, ParamList* params, 
-                    TypeLoc returnType): fnBegLoc_
-  (fnBegLoc), ValueDecl(DeclKind::FuncDecl, parent, fnId, idRange),
-  DeclContext(DeclContextKind::FuncDecl, parent), params_(params),
-  returnTypeLoc_(returnType) {}
+  Identifier fnId, SourceRange idRange) 
+  : fnBegLoc_(fnBegLoc), ValueDecl(DeclKind::FuncDecl, parent, fnId, idRange),
+    DeclContext(DeclContextKind::FuncDecl, parent) {}
 
-FuncDecl* 
-FuncDecl::create(ASTContext& ctxt, DeclContext* parent, SourceLoc fnBegLoc,
-  Identifier id, SourceRange idRange, ParamList* params, TypeLoc returnType) {
-  return new(ctxt) 
-    FuncDecl(parent, fnBegLoc, id, idRange, params, returnType);
+FuncDecl* FuncDecl::create(ASTContext& ctxt, DeclContext* parent, 
+  SourceLoc fnBegLoc, Identifier id, SourceRange idRange) {
+  return new(ctxt) FuncDecl(parent, fnBegLoc, id, idRange);
 }
 
 void FuncDecl::setReturnTypeLoc(TypeLoc ty) {

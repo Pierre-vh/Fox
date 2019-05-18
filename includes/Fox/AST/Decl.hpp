@@ -279,8 +279,7 @@ namespace fox {
   class FuncDecl final: public DeclContext, public ValueDecl {
     public:
       static FuncDecl* create(ASTContext& ctxt, DeclContext* parent,
-        SourceLoc fnBegLoc, Identifier id,SourceRange idRange,
-        ParamList* params, TypeLoc returnType);
+        SourceLoc fnBegLoc, Identifier id, SourceRange idRange);
 
       /// Sets the return type of this FuncDecl. 
       /// This will nullify the ValueDecl type.
@@ -326,8 +325,8 @@ namespace fox {
       }
       
     private:
-      FuncDecl(DeclContext* parent, SourceLoc fnBegLoc, Identifier fnId, 
-               SourceRange idRange, ParamList* params, TypeLoc returnType);
+      FuncDecl(DeclContext* parent, SourceLoc fnBegLoc, Identifier fnId,
+        SourceRange idRange);
       
       Type valueType_;
       SourceLoc fnBegLoc_;

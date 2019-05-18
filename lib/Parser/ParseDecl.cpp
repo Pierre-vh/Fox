@@ -105,10 +105,8 @@ Parser::Result<Decl*> Parser::parseFuncDecl() {
   }
 
   // Once we know the Identifier, we can create the FuncDecl instance.
-  // That instance will be completed later, or simply discarded if
-  // parsing errors occur.
-  FuncDecl* func = FuncDecl::create(ctxt, getCurrentDeclCtxt(), begLoc,
-  id, idRange, nullptr, TypeLoc());
+  FuncDecl* func = 
+    FuncDecl::create(ctxt, getCurrentDeclCtxt(), begLoc, id, idRange);
 
   // Enter this func's DeclContext
   RAIIDeclCtxt raiiDC(this, func);
