@@ -279,20 +279,21 @@ Parser::Result<Decl*> Parser::parseVarDecl() {
   }
 
   // <type>
-  TypeLoc type;
+  TypeLoc typeLoc;
   if (auto typeRes = parseType())
-    type = typeRes.get();
+    typeLoc = typeRes.get();
   else {
     if (typeRes.isNotFound())
       reportErrorExpected(DiagID::expected_type);
     return Result<Decl*>::Error();
   }
+  assert(typeLoc.isComplete() && "Incomplete TypeLoc!");
 
   // ['=' <expr>]
-  Expr* iExpr = nullptr;
+  Expr* initializer = nullptr;
   if (tryConsume(TokenKind::Equal)) {
     if (auto expr = parseExpr())
-      iExpr = expr.get();
+      initializer = expr.get();
     else {
       if (expr.isNotFound())
         reportErrorExpected(DiagID::expected_expr);
@@ -301,17 +302,28 @@ Parser::Result<Decl*> Parser::parseVarDecl() {
   }
 
   // ';'
-  SourceLoc endLoc = tryConsume(TokenKind::Semi).getBeginLoc();
-  if (!endLoc) {
+  if (!tryConsume(TokenKind::Semi).getBeginLoc()) {
     reportErrorExpected(DiagID::expected_semi);
     return Result<Decl*>::Error();
   }
 
+  // Deduce the endLoc: it's either the Expr's EndLoc or the
+  // TypeLoc's.
+  SourceLoc endLoc;
+  if (initializer) {
+    endLoc = initializer->getEndLoc();
+    assert(endLoc && "initializer doesn't have an end loc?");
+  }
+  else {
+    endLoc = typeLoc.getEndLoc();
+    assert(endLoc && "TypeLoc doesn't have an end loc?");
+  }
+
   SourceRange range(begLoc, endLoc);
   assert(range && idRange && "Invalid loc info");
-  assert(type.isComplete() && "Incomplete TypeLoc!");
+
   auto rtr = VarDecl::create(ctxt, getCurrentDeclCtxt(), id, idRange,
-    type, kw, iExpr, range);
+    typeLoc, kw, initializer, range);
 
   finishDecl(rtr);
   return Result<Decl*>(rtr);

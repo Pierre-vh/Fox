@@ -531,15 +531,28 @@ namespace fox   {
   };
 
   /// ErrorExpr
-  ///   Represents a failed expr that couldn't be resolved.
+  ///   Represents an expression that couldn't be resolved.
+  ///
+  ///   ErrorExpr is always generated during semantic analysis, never
+  ///   during parsing.
+  ///
   ///   This expression always has an ErrorType, and has no
-  ///   source location information.
+  ///   source location information
+  ///
+  ///   FIXME: Should ErrorExpr preserve the SourceRange of the
+  ///   original expression? This would allow ReturnStmt and VarDecl
+  ///   to infer their end location through the initializer's end loc.
+  ///   For now, ErrorExpr is the only thing that makes this impossible
+  ///   because it's the only Expr that doesn't store SourceLoc info.
+  ///   
+  ///   It would also make it possible to generate them during parsing
+  ///   without breaking the Parser.
   class ErrorExpr final : public Expr {
     public:
-      // Creates an ErrorExpr with ErrorType as the type.
+      /// Creates an ErrorExpr. Automatically sets its type to ErrorExpr.
       static ErrorExpr* create(ASTContext& ctxt);
 
-      // Returns SourceRange()
+      /// \returns SourceRange()
       SourceRange getSourceRange() const;
 
       static bool classof(const Expr* expr) {

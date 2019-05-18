@@ -426,6 +426,10 @@ namespace fox {
         TypeLoc type, Keyword kw, Expr* init, SourceRange range);
 
       TypeLoc typeLoc_;
+      // FIXME: Instead of storing the whole range, wouldn't it be
+      // better to infer it from the identifier/type/expr's range?
+      // The problem lies with ErrorExpr: it doesn't have a valid
+      // SourceRange, so if the init is an ErrorExpr
       SourceRange range_;
       // This VarDecl's initializer + the Keyword used to declare
       // this Variable.
