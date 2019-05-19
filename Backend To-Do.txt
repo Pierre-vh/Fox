@@ -107,14 +107,15 @@ Basic VM data types and their mappings to Fox types:
   -> Implement string interface in full (done)
   -> Arrays 
     -> Scaffolding: use std::vector for now (Done)
+    -> Add "isObjectArray" bool to ArrayObject + "isObjectArray()" + ctor arg
     -> Operations & Builtins
-      > Array creation
+      > Array creation: NewValueArray and NewObjectArray
       > ArrayLiteral compilation
         -> LoadBuiltin once + Load the array
         -> Always compile the arg to the following register
         -> Call builtin
             e.g. code would be (for [1, 2, 3])
-              NewArray 0 3                    // create the new array with 3 reserved elements
+              NewValueArray 0 3               // create the new array with 3 reserved elements
               LoadBuiltinFunc 1 arrayPushBack // load the push_back builtin
               Copy 0 1                        // use the array as first argument
               StoreSmallInt 2 1               // compile first element
