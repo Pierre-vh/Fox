@@ -19,6 +19,8 @@
 namespace fox {
   enum class ObjectKind : std::uint8_t {
     #define OBJECT(CLASS) CLASS,
+    #define OBJECT_RANGE(NAME, FIRST, LAST)\
+      First_##NAME = FIRST, Last_##NAME = LAST,
     #include "Objects.def"
   };
 
@@ -64,11 +66,11 @@ namespace fox {
       const std::string str_;
   };
 
-  /// ArrayObject is a dynamic, untyped array.
-  class ArrayObject : public Object {
+  /// AggregateObject is a common base class between Objects that group multiple
+  ///   Objects togethers, such as Arrays (and Tuples in the future)
+  class AggregateObject : public Object {
     public:
-      /// The type of a single element in the Array.
-      /// FIXME: This is some duplicated code with the VM's Register type.
+      /// The type of a single element of the AggregateObject
       union Element {
         Element()                           : raw(0) {}
         explicit Element(std::uint64_t raw) : raw(raw) {}
@@ -95,6 +97,20 @@ namespace fox {
       static_assert(sizeof(Element) == 8, 
         "Size of a single element is not 64 bits");
 
+      static bool classof(const Object* obj) {
+        auto kind = obj->getKind();
+        return (kind >= ObjectKind::First_AggregateObject) &&
+          (kind <= ObjectKind::Last_AggregateObject);
+      }
+
+    protected:
+      AggregateObject(ObjectKind kind) : Object(kind) {}
+  };
+
+  /// ArrayObject is a dynamic, untyped array.
+  class ArrayObject : public AggregateObject {
+    public:
+      /// The type of the internal array
       using ArrayT = std::vector<Element>;
 
       /// Creates an empty array
@@ -123,6 +139,10 @@ namespace fox {
       ArrayT& data();
       /// \returns a const reference to the internal array of the ArrayObject
       const ArrayT& data() const;
+
+      static bool classof(const Object* obj) {
+        return obj->getKind() == ObjectKind::ArrayObject;
+      }
 
     private:
       ArrayT data_;

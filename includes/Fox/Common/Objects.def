@@ -7,16 +7,30 @@
 //  x-macros for macro-metaprogramming with Objects
 //----------------------------------------------------------------------------//
 
-// The basic 'Object' macro
+// Concrete classes derived from Object
 //    CLASS is the name of the object class.
 #ifndef OBJECT
   #define OBJECT(CLASS)
 #endif
 
+// Abstract classes derived from Object
+//    CLASS is the name of the object class.
+#ifndef ABSTRACT_OBJECT
+  #define ABSTRACT_OBJECT(CLASS)
+#endif
+
+// Ranges of objects
+//    CLASS is the name of the object class.
+#ifndef OBJECT_RANGE
+  #define OBJECT_RANGE(NAME, FIRST, LAST)
+#endif
+
 //----------------------------------------------------------------------------//
 
 OBJECT(StringObject)
-OBJECT(ArrayObject)
+ABSTRACT_OBJECT(AggregateObject)
+  OBJECT(ArrayObject)
+  OBJECT_RANGE(AggregateObject, ArrayObject, ArrayObject)
 
 //----------------------------------------------------------------------------//
 
