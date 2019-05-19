@@ -48,3 +48,17 @@ FoxChar StringObject::getChar(std::size_t n) const {
   utf8::advance(it, n, end);
   return utf8::peek_next(it, end);
 }
+
+ArrayObject::ArrayObject() : Object(ObjectKind::ArrayObject) {}
+
+ArrayObject::ArrayObject(std::size_t n) : ArrayObject() {
+  data_.reserve(n);
+}
+
+ArrayObject::ArrayT& ArrayObject::data() {
+  return data_;
+}
+
+const ArrayObject::ArrayT& ArrayObject::data() const {
+  return data_;
+}

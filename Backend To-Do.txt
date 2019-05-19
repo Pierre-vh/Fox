@@ -106,8 +106,25 @@ Basic VM data types and their mappings to Fox types:
   -> Default-init variables based on their type (Done)
   -> Implement string interface in full (done)
   -> Arrays 
-    -> Scaffolding: use std::vector for now (until the GC is in)
+    -> Scaffolding: use std::vector for now (Done)
     -> Operations & Builtins
+      > Array creation
+      > ArrayLiteral compilation
+        -> LoadBuiltin once + Load the array
+        -> Always compile the arg to the following register
+        -> Call builtin
+            e.g. code would be (for [1, 2, 3])
+              NewArray 0 3                    // create the new array with 3 reserved elements
+              LoadBuiltinFunc 1 arrayPushBack // load the push_back builtin
+              Copy 0 1                        // use the array as first argument
+              StoreSmallInt 2 1               // compile first element
+              CallVoid 0                      // push it
+              StoreSmallInt 2 2               // compile first element
+              CallVoid 0                      // push it
+              StoreSmallInt 2 3               // compile first element
+              CallVoid 0                      // push it
+      > get/set subscript
+      > size() and others
     -> Tests
 
 ---- Getting feature-complete (with the current feature set) ----
