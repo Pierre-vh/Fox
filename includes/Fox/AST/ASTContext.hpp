@@ -136,13 +136,13 @@ namespace fox {
       std::unordered_map<BuiltinID, BuiltinFuncDecl*> builtinFuncs_;
 
       // Singleton/unique types. Lazily created by their respective classes.
-      ErrorType*  theErrorType_   = nullptr;
-      IntegerType*    theIntType_     = nullptr;
-      DoubleType* theDoubleType   = nullptr;
-      CharType*   theCharType_    = nullptr;
-      BoolType*   theBoolType_    = nullptr;
-      StringType* theStringType_  = nullptr;
-      VoidType*   theVoidType_    = nullptr;
+      ErrorType*   theErrorType_   = nullptr;
+      IntegerType* theIntType_     = nullptr;
+      DoubleType*  theDoubleType   = nullptr;
+      CharType*    theCharType_    = nullptr;
+      BoolType*    theBoolType_    = nullptr;
+      StringType*  theStringType_  = nullptr;
+      VoidType*    theVoidType_    = nullptr;
 
       /// The set of unique identifier strings.
       std::unordered_set<string_view> idents_;
