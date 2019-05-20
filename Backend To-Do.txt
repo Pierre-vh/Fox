@@ -109,7 +109,6 @@ Basic VM data types and their mappings to Fox types:
     -> Scaffolding: use std::vector for now (Done)
     -> Add "isObjectArray" bool to ArrayObject + "isObjectArray()" + ctor arg
     -> Operations & Builtins
-      > PROBLEM: See below, I'll need to improve builtins a bit.
       > Array creation: NewValueArray and NewObjectArray
       > ArrayLiteral compilation
         -> LoadBuiltin once + Load the array
@@ -128,26 +127,6 @@ Basic VM data types and their mappings to Fox types:
       > get/set subscript
       > size() and others
     -> Tests
-
----- Builtins Fix ----
-  -> Move ASTContext::getTypeOfBuiltinFuncs and the likes to a BuiltinTypes.cpp in /lib/AST
-
-  -> Separate builtins in "AUTO_BUILTIN" and "BUILTIN", where "BUILTIN" is for "manual" builtins that don't
-     use type inference. BUILTIN should take an extra argument "isGeneric"? It's always set to false for AUTO_BUILTIN
-
-  -> Add support for manual builtins in BuiltinTypes.cpp
-
-  -> Add support for FunctionType in Sema::unify (use a TypeVisitor)
-
-  -> Change BuiltinFuncDecl::getValueType()
-    -> For builtins where isGeneric = true, use the ASTContext to rebuild the type on each getValueType().
-      -> Can do something like PointerUnion<ASTContext*, Type> -> if ASTContext*, rebuild, else use Type.
-      -> Add ".isGeneric()"
-
-  -> Add ArrayGet, ArraySet, ArrayAppend builtins. 
-    -> Manually built signatures using type variables + isGeneric will be true for them.
-
-  -> Test.
 
 ---- Getting feature-complete (with the current feature set) ----
   -> entry point detection (basic, just the function called 'main' with a '() -> int' signature for now. Update the "run" tests as well)
