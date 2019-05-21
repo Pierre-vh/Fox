@@ -230,12 +230,12 @@ Parser::createCharLiteralExprFromToken(const Token& tok) {
   // A Char literal cannot be empty
   if (numCPs == 0) {
     diagEngine.report(DiagID::empty_char_lit, tok.range);
-    theExpr = ErrorExpr::create(ctxt);
+    theExpr = ErrorExpr::create(ctxt, tok.range);
   }
   // A Char literal cannot contain more than one codepoint
   else if (numCPs > 1) {
     diagEngine.report(DiagID::multiple_cp_in_char_lit, tok.range);
-    theExpr = ErrorExpr::create(ctxt);
+    theExpr = ErrorExpr::create(ctxt, tok.range);
   }
   // Else we're good, create a valid CharLiteralExpr.
   else {

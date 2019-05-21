@@ -261,7 +261,7 @@ TEST_F(ASTTest, ExprRTTI) {
   }
 
   {
-    auto* expr = ErrorExpr::create(ctxt);
+    auto* expr = ErrorExpr::create(ctxt, SourceRange());
     EXPECT_EQ(expr->getKind(), ExprKind::ErrorExpr);
     EXPECT_TRUE(ErrorExpr::classof(expr));
   }

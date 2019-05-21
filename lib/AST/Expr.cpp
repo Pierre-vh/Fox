@@ -767,14 +767,23 @@ SourceRange UnresolvedDeclRefExpr::getSourceRange() const {
 // ErrorExpr
 //----------------------------------------------------------------------------//
 
-ErrorExpr* ErrorExpr::create(ASTContext& ctxt) {
-  ErrorExpr* expr = new(ctxt) ErrorExpr();
+ErrorExpr* ErrorExpr::create(ASTContext& ctxt, Expr* expr) {
+  return ErrorExpr::create(ctxt, expr->getSourceRange());
+}
+
+ErrorExpr* ErrorExpr::create(ASTContext& ctxt, SourceRange range) {
+  ErrorExpr* expr = new(ctxt) ErrorExpr(range);
   expr->setType(ErrorType::get(ctxt));
   return expr;
 }
 
-SourceRange ErrorExpr::getSourceRange() const {
-  return SourceRange();
+void ErrorExpr::setSourceRange(SourceRange range) {
+  range_ = range;
 }
 
-ErrorExpr::ErrorExpr() : Expr(ExprKind::ErrorExpr) {}
+SourceRange ErrorExpr::getSourceRange() const {
+  return range_;
+}
+
+ErrorExpr::ErrorExpr(SourceRange range) 
+  : Expr(ExprKind::ErrorExpr), range_(range) {}

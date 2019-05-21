@@ -461,6 +461,8 @@ namespace fox   {
   /// BuiltinMemberRefExpr
   ///   A resolved reference to a builtin member of a type.
   ///   e.g. "string".size(), array.append(x), etc.
+  ///
+  ///   FIXME: This node is a bit... messy to say the least.
   class BuiltinMemberRefExpr final : public Expr {
     public:
       using BTMKind = BuiltinTypeMemberKind;
@@ -593,26 +595,21 @@ namespace fox   {
   /// ErrorExpr
   ///   Represents an expression that couldn't be resolved.
   ///
-  ///   ErrorExpr is generated during semantic analysis when an
-  ///   UnresolvedExpr couldn't be resolved.
+  ///   ErrorExprs are generated during semantic analysis when
+  ///   UnresolvedExprs can't be resolved.
   ///
-  ///   This expression always has an ErrorType, and has no
-  ///   source location information
-  ///
-  ///   FIXME: Should ErrorExpr preserve the SourceRange of the
-  ///   original expression? This would allow ReturnStmt and VarDecl
-  ///   to infer their end location through the initializer's end loc.
-  ///   For now, ErrorExpr is the only thing that makes this impossible
-  ///   because it's the only Expr that doesn't store SourceLoc info.
-  ///   
-  ///   It would also make it possible to generate them during parsing
-  ///   without breaking the Parser.
+  ///   This expression always has an ErrorType.
   class ErrorExpr final : public Expr {
     public:
-      /// Creates an ErrorExpr. Automatically sets its type to ErrorExpr.
-      static ErrorExpr* create(ASTContext& ctxt);
+      /// Creates an ErrorExpr using \p expr ->getSourceRange()
+      /// Automatically sets this node's type to ErrorType.
+      static ErrorExpr* create(ASTContext& ctxt, Expr* expr);
 
-      /// \returns SourceRange()
+      /// Creates an ErrorExpr.
+      /// Automatically sets this node's type to ErrorType.
+      static ErrorExpr* create(ASTContext& ctxt, SourceRange range);
+
+      void setSourceRange(SourceRange range);
       SourceRange getSourceRange() const;
 
       static bool classof(const Expr* expr) {
@@ -620,7 +617,9 @@ namespace fox   {
       }
 
     private:
-      ErrorExpr();
+      ErrorExpr(SourceRange range);
+
+      SourceRange range_;
   };
 }
 
