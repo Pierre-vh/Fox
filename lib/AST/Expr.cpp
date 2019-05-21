@@ -568,45 +568,46 @@ SourceRange CallExpr::getSourceRange() const {
 }
 
 //----------------------------------------------------------------------------//
-// MemberOfExpr 
+// UnresolvedDotExpr 
 //----------------------------------------------------------------------------//
 
-MemberOfExpr::MemberOfExpr(Expr* base, Identifier membID,
-  SourceRange membIDRange, SourceLoc dotLoc): Expr(ExprKind::MemberOfExpr), 
-  base_(base), memb_(membID), membIDRange_(membIDRange), dotLoc_(dotLoc) {}
+UnresolvedDotExpr::UnresolvedDotExpr(Expr* base, Identifier membID,
+  SourceRange membIDRange, SourceLoc dotLoc) : 
+    UnresolvedExpr(ExprKind::UnresolvedDotExpr), 
+    base_(base), memb_(membID), membIDRange_(membIDRange), dotLoc_(dotLoc) {}
 
-MemberOfExpr* 
-MemberOfExpr::create(ASTContext& ctxt, Expr* base, Identifier membID, 
+UnresolvedDotExpr* 
+UnresolvedDotExpr::create(ASTContext& ctxt, Expr* base, Identifier membID, 
   SourceRange membIDRange, SourceLoc dotLoc) {
-  return new(ctxt) MemberOfExpr(base, membID, membIDRange, dotLoc);
+  return new(ctxt) UnresolvedDotExpr(base, membID, membIDRange, dotLoc);
 }
 
-void MemberOfExpr::setExpr(Expr* expr) {
+void UnresolvedDotExpr::setExpr(Expr* expr) {
   base_ = expr;
 }
 
-Expr* MemberOfExpr::getExpr() const {
+Expr* UnresolvedDotExpr::getExpr() const {
   return base_;
 }
 
-void MemberOfExpr::setMemberID(Identifier id) {
+void UnresolvedDotExpr::setMemberID(Identifier id) {
   memb_ = id;
 }
 
-Identifier MemberOfExpr::getMemberID() const {
+Identifier UnresolvedDotExpr::getMemberID() const {
   return memb_;
 }
 
-SourceRange MemberOfExpr::getMemberIDRange() const {
+SourceRange UnresolvedDotExpr::getMemberIDRange() const {
   return membIDRange_;
 }
 
-SourceLoc MemberOfExpr::getDotLoc() const {
+SourceLoc UnresolvedDotExpr::getDotLoc() const {
   return dotLoc_;
 }
 
-SourceRange MemberOfExpr::getSourceRange() const {
-  assert(base_ && membIDRange_ && "ill-formed MemberOfExpr");
+SourceRange UnresolvedDotExpr::getSourceRange() const {
+  assert(base_ && membIDRange_ && "ill-formed UnresolvedDotExpr");
   return SourceRange(base_->getBeginLoc(), membIDRange_.getEndLoc());
 }
 

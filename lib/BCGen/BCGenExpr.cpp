@@ -79,8 +79,6 @@ class BCGen::AssignementGenerator : public Generator,
     RegisterValue
     visitSubscriptExpr(SubscriptExpr* dst, Expr* src, BinOp op);
     RegisterValue
-    visitMemberOfExpr(MemberOfExpr* dst, Expr* src, BinOp op);
-    RegisterValue
     visitDeclRefExpr(DeclRefExpr* dst, Expr* src, BinOp op);
 
     ///----------------------------------------------------------------------///
@@ -90,6 +88,11 @@ class BCGen::AssignementGenerator : public Generator,
     RegisterValue
     visitUnresolvedDeclRefExpr(UnresolvedDeclRefExpr*, Expr*, BinOp) {
       fox_unreachable("UnresolvedDeclRefExpr found past Semantic Analysis");
+    }
+
+    RegisterValue
+    visitUnresolvedDotExpr(UnresolvedDotExpr*, Expr*, BinOp) {
+      fox_unreachable("UnresolvedDotExpr found past Semantic Analysis");
     }
 
     RegisterValue 
@@ -734,12 +737,6 @@ class BCGen::ExprGenerator : public Generator,
     }
 
     RegisterValue 
-    visitMemberOfExpr(MemberOfExpr*, RegisterValue) { 
-      // Unused for now.
-      fox_unimplemented_feature("MemberOfExpr BCGen");
-    }
-
-    RegisterValue 
     visitDeclRefExpr(DeclRefExpr* expr, RegisterValue dest) { 
       ValueDecl* decl = expr->getDecl();
       // References to Functions
@@ -868,16 +865,22 @@ class BCGen::ExprGenerator : public Generator,
       fox_unimplemented_feature("ArrayLiteralExpr BCGen");
     }
 
-    // ErrorExprs shouldn't be found in BCGen.
+    // ErrorExprs shouldn't be found past Sema
     RegisterValue 
     visitErrorExpr(ErrorExpr*, RegisterValue) { 
       fox_unreachable("ErrorExpr found past semantic analysis");
     }
 
-    // UnresolvedDeclRefExprs shouldn't be found in BCGen.
+    // UnresolvedDeclRefExprs shouldn't be found past Sema
     RegisterValue 
     visitUnresolvedDeclRefExpr(UnresolvedDeclRefExpr*, RegisterValue) { 
       fox_unreachable("UnresolvedDeclRefExpr found past semantic analysis");
+    }
+
+    // UnresolvedDotExprs shouldn't be found past Sema
+    RegisterValue 
+    visitUnresolvedDotExpr(UnresolvedDotExpr*, RegisterValue) { 
+      fox_unreachable("UnresolvedDotExpr found past semantic analysis");
     }
 
 };
@@ -903,11 +906,6 @@ visitSubscriptExpr(SubscriptExpr*, Expr*, BinOp) {
   // -> Gen the Index (IDX) using exprGen
   // -> Gen something like "SetSubscript SSE IDX SRC
 }
-
-RegisterValue BCGen::AssignementGenerator::
-visitMemberOfExpr(MemberOfExpr*, Expr*, BinOp) {
-  // VM doesn't support objects yet
-  fox_unimplemented_feature("MemberOfExpr Assignement");}
 
 RegisterValue BCGen::AssignementGenerator::
 visitDeclRefExpr(DeclRefExpr* dst, Expr* src, BinOp op) {

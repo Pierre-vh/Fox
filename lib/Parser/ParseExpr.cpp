@@ -29,7 +29,7 @@ Parser::Result<Expr*> Parser::parseSuffix(Expr* base) {
       SourceRange idRange;
       std::tie(id, idRange) = consumeIdentifier();
       return Result<Expr*>(
-        MemberOfExpr::create(ctxt, base , id, idRange, dotLoc)
+        UnresolvedDotExpr::create(ctxt, base , id, idRange, dotLoc)
       );
     }
     else  {

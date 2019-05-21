@@ -111,7 +111,7 @@ namespace {
         return expr;
       }
 
-      Expr* visitMemberOfExpr(MemberOfExpr* expr) {
+      Expr* visitUnresolvedDotExpr(UnresolvedDotExpr* expr) {
         if (Expr* child = expr->getExpr()) {
           if ((child = doIt(child)))
             expr->setExpr(child);

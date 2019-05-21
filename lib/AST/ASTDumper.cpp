@@ -92,7 +92,7 @@ void ASTDumper::visitSubscriptExpr(SubscriptExpr* node) {
   dedent();
 }
 
-void ASTDumper::visitMemberOfExpr(MemberOfExpr* node) {
+void ASTDumper::visitUnresolvedDotExpr(UnresolvedDotExpr* node) {
   dumpLine() << getBasicExprInfo(node) << " ." << node->getMemberID() << "\n";
   indent();
   visit(node->getExpr());

@@ -216,10 +216,10 @@ TEST_F(ASTTest, ExprRTTI) {
   EXPECT_EQ(declref->getKind(), ExprKind::DeclRefExpr);
   EXPECT_TRUE(DeclRefExpr::classof(declref));
 
-  auto* membof = MemberOfExpr::create(ctxt, nullptr, Identifier(),
+  auto* dotexpr = UnresolvedDotExpr::create(ctxt, nullptr, Identifier(),
     SourceRange(), SourceLoc());
-  EXPECT_EQ(membof->getKind(), ExprKind::MemberOfExpr);
-  EXPECT_TRUE(MemberOfExpr::classof(membof));
+  EXPECT_EQ(dotexpr->getKind(), ExprKind::UnresolvedDotExpr);
+  EXPECT_TRUE(UnresolvedDotExpr::classof(dotexpr));
 
   auto* subscript = SubscriptExpr::create(ctxt, nullptr, nullptr, SourceLoc());
   EXPECT_EQ(subscript->getKind(), ExprKind::SubscriptExpr);

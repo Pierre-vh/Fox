@@ -426,13 +426,11 @@ namespace fox   {
       ValueDecl* decl_ = nullptr;
   };
 
-  // NOTE: MemberOfExpr is currently unused and will be reworked
-  // when adding UFCS to Fox.
-  /// MemberOfExpr
-  ///    A member access : foo.bar
-  class MemberOfExpr final : public Expr {
+  /// UnresolvedDotExpr
+  ///    A unresolved "dot" expr : expr.foo
+  class UnresolvedDotExpr final : public UnresolvedExpr {
     public:
-      static MemberOfExpr* create(ASTContext& ctxt, Expr* base, 
+      static UnresolvedDotExpr* create(ASTContext& ctxt, Expr* base, 
         Identifier membID, SourceRange membIDRange, SourceLoc dotLoc);
 
       void setExpr(Expr* expr);
@@ -446,11 +444,11 @@ namespace fox   {
       SourceRange getSourceRange() const;
 
       static bool classof(const Expr* expr) {
-        return (expr->getKind() == ExprKind::MemberOfExpr);
+        return (expr->getKind() == ExprKind::UnresolvedDotExpr);
       }
 
     private:
-      MemberOfExpr(Expr* base, Identifier membID, 
+      UnresolvedDotExpr(Expr* base, Identifier membID, 
 				SourceRange range, SourceLoc dotLoc);
 
       SourceLoc dotLoc_;
@@ -533,8 +531,8 @@ namespace fox   {
   /// ErrorExpr
   ///   Represents an expression that couldn't be resolved.
   ///
-  ///   ErrorExpr is always generated during semantic analysis, never
-  ///   during parsing.
+  ///   ErrorExpr is generated during semantic analysis when an
+  ///   UnresolvedExpr couldn't be resolved.
   ///
   ///   This expression always has an ErrorType, and has no
   ///   source location information

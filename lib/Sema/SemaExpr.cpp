@@ -585,8 +585,8 @@ class Sema::ExprChecker : Checker, ExprVisitor<ExprChecker, Expr*>,  ASTWalker {
       return expr;
     }
 
-    Expr* visitMemberOfExpr(MemberOfExpr*) {
-      fox_unimplemented_feature("MemberOfExpr TypeChecking");
+    Expr* visitUnresolvedDotExpr(UnresolvedDotExpr*) {
+      fox_unimplemented_feature("UnresolvedDotExpr TypeChecking");
     }
 
     Expr* visitUnresolvedDeclRefExpr(UnresolvedDeclRefExpr* expr) {
