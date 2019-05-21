@@ -397,7 +397,7 @@ namespace fox {
       /// \param id the Identifier of the function
       /// \param idRange the range of the identifier of the function
       /// \param type the TypeLoc of the return type
-      /// \param kw the Keyword (let or var) that was used the declare
+      /// \param kw the Keyword (let or var) that was used to declare
       ///        this variable
       /// \param init the initializer expression, if present
       /// \param range the full SourceRange of the VarDecl. This should
