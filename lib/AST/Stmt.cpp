@@ -74,15 +74,21 @@ void* Stmt::operator new(std::size_t, void* mem) {
 // ReturnStmt
 //----------------------------------------------------------------------------//
 
-ReturnStmt::ReturnStmt(Expr* rtr_expr, SourceRange range):
-  Stmt(StmtKind::ReturnStmt), expr_(rtr_expr), range_(range) {}
+ReturnStmt::ReturnStmt(Expr* rtr_expr, SourceRange returnRange):
+  Stmt(StmtKind::ReturnStmt), expr_(rtr_expr), returnRange_(returnRange) {}
 
 bool ReturnStmt::hasExpr() const {
   return (bool)expr_;
 }
 
+SourceRange ReturnStmt::getReturnSourceRange() const {
+  return returnRange_;
+}
+
 SourceRange ReturnStmt::getSourceRange() const {
-  return range_;
+  if(Expr* expr = getExpr()) 
+    return SourceRange(returnRange_.getBeginLoc(), expr->getEndLoc());
+  return returnRange_;
 }
 
 Expr* ReturnStmt::getExpr() const {
@@ -90,8 +96,8 @@ Expr* ReturnStmt::getExpr() const {
 }
 
 ReturnStmt* 
-ReturnStmt::create(ASTContext& ctxt, Expr* rtr, SourceRange range) {
-  return new(ctxt) ReturnStmt(rtr, range);
+ReturnStmt::create(ASTContext& ctxt, Expr* rtr, SourceRange returnRange) {
+  return new(ctxt) ReturnStmt(rtr, returnRange);
 }
 
 void ReturnStmt::setExpr(Expr* e) {
