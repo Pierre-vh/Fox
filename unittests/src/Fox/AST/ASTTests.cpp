@@ -165,74 +165,106 @@ TEST_F(ASTTest, TypeRTTI) {
 }
 
 TEST_F(ASTTest, ExprRTTI) {
-  // Binary Exprs
-  auto* binexpr = BinaryExpr::create(ctxt, BinaryExpr::OpKind::Invalid,
-    nullptr, nullptr, SourceRange());
-  EXPECT_EQ(binexpr->getKind(), ExprKind::BinaryExpr);
-  EXPECT_TRUE(BinaryExpr::classof(binexpr));
+  {
+    auto* expr = BinaryExpr::create(ctxt, BinaryExpr::OpKind::Invalid,
+      nullptr, nullptr, SourceRange());
+    EXPECT_EQ(expr->getKind(), ExprKind::BinaryExpr);
+    EXPECT_TRUE(BinaryExpr::classof(expr));
+  }
 
-  // Unary Exprs
-  auto* unaryexpr = UnaryExpr::create(ctxt, UnaryExpr::OpKind::Invalid, 
-    nullptr, SourceRange());
-  EXPECT_EQ(unaryexpr->getKind(), ExprKind::UnaryExpr);
-  EXPECT_TRUE(UnaryExpr::classof(unaryexpr));
+  {
+    auto* expr = UnaryExpr::create(ctxt, UnaryExpr::OpKind::Invalid, 
+      nullptr, SourceRange());
+    EXPECT_EQ(expr->getKind(), ExprKind::UnaryExpr);
+    EXPECT_TRUE(UnaryExpr::classof(expr));
+  }
 
-  // Cast Exprs
-  auto* castexpr = CastExpr::create(ctxt, TypeLoc(), nullptr);
-  EXPECT_EQ(castexpr->getKind(), ExprKind::CastExpr);
-  EXPECT_TRUE(CastExpr::classof(castexpr));
+  {
+    auto* expr = CastExpr::create(ctxt, TypeLoc(), nullptr);
+    EXPECT_EQ(expr->getKind(), ExprKind::CastExpr);
+    EXPECT_TRUE(CastExpr::classof(expr));
+  }
 
-  // Literals
-  auto* charlit = CharLiteralExpr::create(ctxt, '0', SourceRange());
-  EXPECT_EQ(charlit->getKind(), ExprKind::CharLiteralExpr);
-  EXPECT_TRUE(CharLiteralExpr::classof(charlit));
+  {
+    auto* expr = CharLiteralExpr::create(ctxt, '0', SourceRange());
+    EXPECT_EQ(expr->getKind(), ExprKind::CharLiteralExpr);
+    EXPECT_TRUE(CharLiteralExpr::classof(expr));
+  }
 
-  auto* intlit = IntegerLiteralExpr::create(ctxt, 0, SourceRange());
-  EXPECT_EQ(intlit->getKind(), ExprKind::IntegerLiteralExpr);
-  EXPECT_TRUE(IntegerLiteralExpr::classof(intlit));
+  {
+    auto* expr = IntegerLiteralExpr::create(ctxt, 0, SourceRange());
+    EXPECT_EQ(expr->getKind(), ExprKind::IntegerLiteralExpr);
+    EXPECT_TRUE(IntegerLiteralExpr::classof(expr));
+  }
 
-  auto* floatlit = DoubleLiteralExpr::create(ctxt, 0.0, SourceRange());
-  EXPECT_EQ(floatlit->getKind(), ExprKind::DoubleLiteralExpr);
-  EXPECT_TRUE(DoubleLiteralExpr::classof(floatlit));
+  {
+    auto* expr = DoubleLiteralExpr::create(ctxt, 0.0, SourceRange());
+    EXPECT_EQ(expr->getKind(), ExprKind::DoubleLiteralExpr);
+    EXPECT_TRUE(DoubleLiteralExpr::classof(expr));
+  }
 
-  auto* strlit = StringLiteralExpr::create(ctxt, string_view(), SourceRange());
-  EXPECT_EQ(strlit->getKind(), ExprKind::StringLiteralExpr);
-  EXPECT_TRUE(StringLiteralExpr::classof(strlit));
+  {
+    auto* expr = StringLiteralExpr::create(ctxt, string_view(), SourceRange());
+    EXPECT_EQ(expr->getKind(), ExprKind::StringLiteralExpr);
+    EXPECT_TRUE(StringLiteralExpr::classof(expr));
+  }
 
-  auto* boollit = BoolLiteralExpr::create(ctxt, false, SourceRange());
-  EXPECT_EQ(boollit->getKind(), ExprKind::BoolLiteralExpr);
-  EXPECT_TRUE(BoolLiteralExpr::classof(boollit));
+  {
+    auto* expr = BoolLiteralExpr::create(ctxt, false, SourceRange());
+    EXPECT_EQ(expr->getKind(), ExprKind::BoolLiteralExpr);
+    EXPECT_TRUE(BoolLiteralExpr::classof(expr));
+  }
 
-  auto* arrlit = ArrayLiteralExpr::create(ctxt, (ExprVector()), SourceRange());
-  EXPECT_EQ(arrlit->getKind(), ExprKind::ArrayLiteralExpr);
-  EXPECT_TRUE(ArrayLiteralExpr::classof(arrlit));
+  {
+    auto* expr = ArrayLiteralExpr::create(ctxt, (ExprVector()), SourceRange());
+    EXPECT_EQ(expr->getKind(), ExprKind::ArrayLiteralExpr);
+    EXPECT_TRUE(ArrayLiteralExpr::classof(expr));
+  }
 
-  auto* undeclref = UnresolvedDeclRefExpr::create(ctxt,
-    (Identifier()), SourceRange());
-  EXPECT_EQ(undeclref->getKind(), ExprKind::UnresolvedDeclRefExpr);
-  EXPECT_TRUE(UnresolvedDeclRefExpr::classof(undeclref));
+  {
+    auto* expr = UnresolvedDeclRefExpr::create(ctxt,
+      (Identifier()), SourceRange());
+    EXPECT_EQ(expr->getKind(), ExprKind::UnresolvedDeclRefExpr);
+    EXPECT_TRUE(UnresolvedDeclRefExpr::classof(expr));
+  }
 
-  auto* declref = DeclRefExpr::create(ctxt, nullptr, SourceRange());
-  EXPECT_EQ(declref->getKind(), ExprKind::DeclRefExpr);
-  EXPECT_TRUE(DeclRefExpr::classof(declref));
+  {
+    auto* expr = DeclRefExpr::create(ctxt, nullptr, SourceRange());
+    EXPECT_EQ(expr->getKind(), ExprKind::DeclRefExpr);
+    EXPECT_TRUE(DeclRefExpr::classof(expr));
+  }
 
-  auto* dotexpr = UnresolvedDotExpr::create(ctxt, nullptr, Identifier(),
-    SourceRange(), SourceLoc());
-  EXPECT_EQ(dotexpr->getKind(), ExprKind::UnresolvedDotExpr);
-  EXPECT_TRUE(UnresolvedDotExpr::classof(dotexpr));
+  {
+    auto* expr = UnresolvedDotExpr::create(ctxt, nullptr, Identifier(),
+      SourceRange(), SourceLoc());
+    EXPECT_EQ(expr->getKind(), ExprKind::UnresolvedDotExpr);
+    EXPECT_TRUE(UnresolvedDotExpr::classof(expr));
+  }
 
-  auto* subscript = SubscriptExpr::create(ctxt, nullptr, nullptr, SourceLoc());
-  EXPECT_EQ(subscript->getKind(), ExprKind::SubscriptExpr);
-  EXPECT_TRUE(SubscriptExpr::classof(subscript));
+  {
+    auto* expr = BuiltinMemberRefExpr::create(ctxt, nullptr, Identifier(),
+      SourceRange(), SourceLoc(), BuiltinTypeMemberKind(-1));
+    EXPECT_EQ(expr->getKind(), ExprKind::BuiltinMemberRefExpr);
+    EXPECT_TRUE(BuiltinMemberRefExpr::classof(expr));
+  }
 
-  auto* callexpr = CallExpr::create(ctxt, nullptr,
-    ExprVector(), SourceLoc());
-  EXPECT_EQ(callexpr->getKind(), ExprKind::CallExpr);
-  EXPECT_TRUE(CallExpr::classof(callexpr));
+  {
+    auto* expr = SubscriptExpr::create(ctxt, nullptr, nullptr, SourceLoc());
+    EXPECT_EQ(expr->getKind(), ExprKind::SubscriptExpr);
+    EXPECT_TRUE(SubscriptExpr::classof(expr));
+  }
 
-  auto* errExpr = ErrorExpr::create(ctxt);
-  EXPECT_EQ(errExpr->getKind(), ExprKind::ErrorExpr);
-  EXPECT_TRUE(ErrorExpr::classof(errExpr));
+  {
+    auto* expr = CallExpr::create(ctxt, nullptr, ExprVector(), SourceLoc());
+    EXPECT_EQ(expr->getKind(), ExprKind::CallExpr);
+    EXPECT_TRUE(CallExpr::classof(expr));
+  }
+
+  {
+    auto* expr = ErrorExpr::create(ctxt);
+    EXPECT_EQ(expr->getKind(), ExprKind::ErrorExpr);
+    EXPECT_TRUE(ErrorExpr::classof(expr));
+  }
 }
 
 TEST_F(ASTTest, ExprFlags) {

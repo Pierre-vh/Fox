@@ -574,7 +574,7 @@ SourceRange CallExpr::getSourceRange() const {
 UnresolvedDotExpr::UnresolvedDotExpr(Expr* base, Identifier membID,
   SourceRange membIDRange, SourceLoc dotLoc) : 
     UnresolvedExpr(ExprKind::UnresolvedDotExpr), 
-    base_(base), memb_(membID), membIDRange_(membIDRange), dotLoc_(dotLoc) {}
+    base_(base), memb_(membID), membRange_(membIDRange), dotLoc_(dotLoc) {}
 
 UnresolvedDotExpr* 
 UnresolvedDotExpr::create(ASTContext& ctxt, Expr* base, Identifier membID, 
@@ -582,11 +582,11 @@ UnresolvedDotExpr::create(ASTContext& ctxt, Expr* base, Identifier membID,
   return new(ctxt) UnresolvedDotExpr(base, membID, membIDRange, dotLoc);
 }
 
-void UnresolvedDotExpr::setExpr(Expr* expr) {
+void UnresolvedDotExpr::setBase(Expr* expr) {
   base_ = expr;
 }
 
-Expr* UnresolvedDotExpr::getExpr() const {
+Expr* UnresolvedDotExpr::getBase() const {
   return base_;
 }
 
@@ -599,7 +599,7 @@ Identifier UnresolvedDotExpr::getMemberID() const {
 }
 
 SourceRange UnresolvedDotExpr::getMemberIDRange() const {
-  return membIDRange_;
+  return membRange_;
 }
 
 SourceLoc UnresolvedDotExpr::getDotLoc() const {
@@ -607,9 +607,94 @@ SourceLoc UnresolvedDotExpr::getDotLoc() const {
 }
 
 SourceRange UnresolvedDotExpr::getSourceRange() const {
-  assert(base_ && membIDRange_ && "ill-formed UnresolvedDotExpr");
-  return SourceRange(base_->getBeginLoc(), membIDRange_.getEndLoc());
+  assert(base_ && membRange_ && "ill-formed UnresolvedDotExpr");
+  return SourceRange(base_->getBeginLoc(), membRange_.getEndLoc());
 }
+
+//----------------------------------------------------------------------------//
+// BuiltinMemberRefExpr
+//----------------------------------------------------------------------------//
+
+BuiltinMemberRefExpr* 
+BuiltinMemberRefExpr::create(ASTContext& ctxt, UnresolvedDotExpr* expr, 
+                             BTMKind kind) {
+  auto base = expr->getBase();
+  auto membID = expr->getMemberID();
+  auto membRange = expr->getMemberIDRange();
+  auto dotLoc = expr->getDotLoc();
+  return 
+    BuiltinMemberRefExpr::create(ctxt, base, membID, membRange, dotLoc, kind);
+}
+
+BuiltinMemberRefExpr* 
+BuiltinMemberRefExpr::create(ASTContext& ctxt, Expr* base, Identifier membID, 
+                             SourceRange membIDRange, SourceLoc dotLoc, 
+                             BTMKind kind) {
+  return new(ctxt) BuiltinMemberRefExpr(base, membID, membIDRange, dotLoc, kind);
+}
+
+void BuiltinMemberRefExpr::setBase(Expr* expr) {
+  base_ = expr;
+}
+
+Expr* BuiltinMemberRefExpr::getBase() const {
+  return base_;
+}
+
+void BuiltinMemberRefExpr::setMemberID(Identifier id) {
+  memb_ = id;
+}
+
+Identifier BuiltinMemberRefExpr::getMemberID() const {
+  return memb_;
+}
+
+SourceRange BuiltinMemberRefExpr::getMemberIDRange() const {
+  return membRange_;
+}
+
+SourceLoc BuiltinMemberRefExpr::getDotLoc() const {
+  return dotLoc_;
+}
+
+SourceRange BuiltinMemberRefExpr::getSourceRange() const {
+  assert(base_ && membRange_ && "ill-formed BuiltinMemberRefExpr");
+  return SourceRange(base_->getBeginLoc(), membRange_.getEndLoc());
+}
+
+bool BuiltinMemberRefExpr::isCalled() const {
+  assert(isMethod() && "only for methods");
+  return isCalled_;
+}
+
+void BuiltinMemberRefExpr::setIsCalled(bool value) {
+  assert(isMethod() && "only for methods");
+  isCalled_ = value;
+}
+
+bool BuiltinMemberRefExpr::isMethod() const {
+  return isMethod_;
+}
+
+void BuiltinMemberRefExpr::setIsMethod(bool value) {
+  isMethod_ = value;
+}
+
+BuiltinTypeMemberKind BuiltinMemberRefExpr::getBuiltinTypeMemberKind() const {
+  return kind_;
+}
+
+void BuiltinMemberRefExpr::setBuiltinTypeMemberKind(BuiltinTypeMemberKind value) {
+  kind_ = value;
+}
+
+BuiltinMemberRefExpr::
+BuiltinMemberRefExpr(Expr* base, Identifier membID, SourceRange membIDRange, 
+                     SourceLoc dotLoc, BTMKind kind) :
+                     Expr(ExprKind::BuiltinMemberRefExpr),
+                     base_(base), kind_(kind), memb_(membID), 
+                     membRange_(membIDRange), dotLoc_(dotLoc), isCalled_(false),
+                     isMethod_(false) { }
 
 //----------------------------------------------------------------------------//
 // SubscriptExpr 
@@ -680,7 +765,7 @@ SourceRange UnresolvedDeclRefExpr::getSourceRange() const {
 
 //----------------------------------------------------------------------------//
 // ErrorExpr
-//----------------------------------------------------------------------------///
+//----------------------------------------------------------------------------//
 
 ErrorExpr* ErrorExpr::create(ASTContext& ctxt) {
   ErrorExpr* expr = new(ctxt) ErrorExpr();

@@ -10,9 +10,10 @@
 #pragma once
 
 #include "ASTAligns.hpp"
+#include "Type.hpp"
+#include "Identifier.hpp"
+#include "BuiltinTypeMembers.hpp"
 #include "Fox/Common/FoxTypes.hpp"
-#include "Fox/AST/Type.hpp"
-#include "Fox/AST/Identifier.hpp"
 #include "llvm/ADT/SmallVector.h"
 #include "llvm/ADT/ArrayRef.h"
 #include "llvm/ADT/PointerIntPair.h"
@@ -433,8 +434,8 @@ namespace fox   {
       static UnresolvedDotExpr* create(ASTContext& ctxt, Expr* base, 
         Identifier membID, SourceRange membIDRange, SourceLoc dotLoc);
 
-      void setExpr(Expr* expr);
-      Expr* getExpr() const;
+      void setBase(Expr* expr);
+      Expr* getBase() const;
 
       void setMemberID(Identifier id);
       Identifier getMemberID() const;
@@ -451,8 +452,69 @@ namespace fox   {
       UnresolvedDotExpr(Expr* base, Identifier membID, 
 				SourceRange range, SourceLoc dotLoc);
 
+      Expr* base_ = nullptr;
       SourceLoc dotLoc_;
-      SourceRange membIDRange_;
+      SourceRange membRange_;
+      Identifier memb_;
+  };
+
+  /// BuiltinMemberRefExpr
+  ///   A resolved reference to a builtin member of a type.
+  ///   e.g. "string".size(), array.append(x), etc.
+  class BuiltinMemberRefExpr final : public Expr {
+    public:
+      using BTMKind = BuiltinTypeMemberKind;
+
+      /// Creates a BuiltinMemberRefExpr from a UnresolvedDotExpr
+      static BuiltinMemberRefExpr* 
+      create(ASTContext& ctxt, UnresolvedDotExpr* expr, BTMKind kind);
+
+      static BuiltinMemberRefExpr* 
+      create(ASTContext& ctxt, Expr* base, Identifier membID, 
+        SourceRange membIDRange, SourceLoc dotLoc, BTMKind kind);
+
+      void setBase(Expr* expr);
+      Expr* getBase() const;
+
+      void setMemberID(Identifier id);
+      Identifier getMemberID() const;
+      SourceRange getMemberIDRange() const;
+      SourceLoc getDotLoc() const;
+
+      SourceRange getSourceRange() const;
+
+      /// \returns true if this method is called. 
+      /// Only available when isMethod() returns true.
+      bool isCalled() const;
+      /// Marks this method as being called.
+      /// Only available when isMethod() returns true.
+      void setIsCalled(bool value = true);
+      
+      /// \returns true if this is a reference to a method.
+      bool isMethod() const;
+      /// Marks this node as a reference to a method.
+      void setIsMethod(bool value = true);
+
+      /// \returns the BuiltinTypeMemberKind
+      BuiltinTypeMemberKind getBuiltinTypeMemberKind() const;
+      void setBuiltinTypeMemberKind(BuiltinTypeMemberKind value);
+
+      static bool classof(const Expr* expr) {
+        return (expr->getKind() == ExprKind::BuiltinMemberRefExpr);
+      }
+
+    private:
+      BuiltinMemberRefExpr(Expr* base, Identifier membID, 
+        SourceRange membIDRange, SourceLoc dotLoc, BTMKind kind);
+       
+      // Bit field: 0 bits left
+      //  14 bits for the BuiltinTypeMemberKind should be more than enough!
+      BTMKind kind_ : 14; 
+      bool isCalled_ : 1;
+      bool isMethod_ : 1;
+      // End bit field
+      SourceLoc dotLoc_;
+      SourceRange membRange_;
       Expr* base_ = nullptr;
       Identifier memb_;
   };

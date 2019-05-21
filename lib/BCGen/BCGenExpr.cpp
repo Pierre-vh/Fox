@@ -109,6 +109,7 @@ class BCGen::AssignementGenerator : public Generator,
     IMPOSSIBLE_ASSIGNEMENT(CastExpr)
     IMPOSSIBLE_ASSIGNEMENT(AnyLiteralExpr)
     IMPOSSIBLE_ASSIGNEMENT(CallExpr)
+    IMPOSSIBLE_ASSIGNEMENT(BuiltinMemberRefExpr)
     #undef IMPOSSIBLE_ASSIGNEMENT
 };
 
@@ -767,6 +768,11 @@ class BCGen::ExprGenerator : public Generator,
         return dest;
       }
       return varReg;
+    }
+
+    RegisterValue 
+    visitBuiltinMemberRefExpr(BuiltinMemberRefExpr*, RegisterValue dest) {
+      fox_unimplemented_feature("BuiltinMemberRefExpr BCGen");
     }
 
     RegisterValue

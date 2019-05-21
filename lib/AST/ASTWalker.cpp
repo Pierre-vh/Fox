@@ -112,9 +112,19 @@ namespace {
       }
 
       Expr* visitUnresolvedDotExpr(UnresolvedDotExpr* expr) {
-        if (Expr* child = expr->getExpr()) {
+        if (Expr* child = expr->getBase()) {
           if ((child = doIt(child)))
-            expr->setExpr(child);
+            expr->setBase(child);
+          else 
+            return nullptr;
+        }
+        return expr;
+      }
+
+      Expr* visitBuiltinMemberRefExpr(BuiltinMemberRefExpr* expr) {
+        if (Expr* child = expr->getBase()) {
+          if ((child = doIt(child)))
+            expr->setBase(child);
           else 
             return nullptr;
         }

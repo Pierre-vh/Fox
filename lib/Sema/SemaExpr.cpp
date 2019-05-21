@@ -589,6 +589,11 @@ class Sema::ExprChecker : Checker, ExprVisitor<ExprChecker, Expr*>,  ASTWalker {
       fox_unimplemented_feature("UnresolvedDotExpr TypeChecking");
     }
 
+    Expr* visitBuiltinMemberRefExpr(BuiltinMemberRefExpr*) {
+      // Shouldn't happen at all.
+      fox_unreachable("Expr checked twice!");
+    }
+
     Expr* visitUnresolvedDeclRefExpr(UnresolvedDeclRefExpr* expr) {
       Identifier id = expr->getIdentifier();
       SourceRange range = expr->getSourceRange();
