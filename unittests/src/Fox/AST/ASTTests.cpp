@@ -622,7 +622,7 @@ TEST_F(ASTBuiltinsTest, unambiguousBuiltins) {
     string_view, 
     SmallVector<std::pair<string_view, Type>, 2>
   > buitlins;
-  #define BUILTIN(FUNC, FOX)\
+  #define PUBLIC_BUILTIN(FUNC, FOX)\
     buitlins[#FOX].push_back({#FUNC, ctxt.getBuiltinFuncType(BuiltinID::FUNC)});
   #include "Fox/Common/Builtins.def"
   // For now, simply check that every vector in the array has a size of one.

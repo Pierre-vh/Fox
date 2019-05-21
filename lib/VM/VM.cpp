@@ -446,7 +446,7 @@ namespace {
 
 VM::Register VM::callBuiltinFunc(BuiltinID id) {
   switch (id) {
-    #define BUILTIN(FUNC, FOX)\
+    #define PUBLIC_BUILTIN(FUNC, FOX)\
       case BuiltinID::FUNC:   \
         return doBuiltinCall(*this, getRegPtr(0), builtin::FUNC);
     #include "Fox/Common/Builtins.def"

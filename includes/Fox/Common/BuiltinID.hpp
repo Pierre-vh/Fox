@@ -16,9 +16,9 @@ namespace fox {
   /// The underlying type of the BuiltinID enum
   using builtin_id_t = std::uint8_t;
 
-  /// Enumeration representing every kind of builtin
+  /// Enumeration representing every kind of builtin function.
   enum class BuiltinID : builtin_id_t {
-    #define BUILTIN(FUNC, ID) FUNC,
+    #define BUILTIN(FUNC) FUNC,
     #include "Builtins.def"
   };
 
