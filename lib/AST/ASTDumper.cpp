@@ -293,8 +293,7 @@ bool ASTDumper::isDebug() const {
 }
 
 std::string ASTDumper::toString(Type type) const {
-  // Type might be null in untyped ASTs, so check for that.
-  if(!type) return "";
+  if(!type) return "<null>";
   std::string typeStr = isDebug() ? type->toDebugString() : type->toString();
   return "'" + typeStr + "'";
 }
