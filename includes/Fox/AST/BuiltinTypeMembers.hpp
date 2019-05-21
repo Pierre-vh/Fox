@@ -23,7 +23,7 @@ namespace fox {
   };
 
   /// \returns true if \p kind is a kind of String builtin
-  bool isStringBuiltin(BuiltinTypeMemberKind kind) {
+  inline bool isStringBuiltin(BuiltinTypeMemberKind kind) {
     return (kind >= BuiltinTypeMemberKind::First_StringMember) &&
            (kind <= BuiltinTypeMemberKind::Last_StringMember);
   }
