@@ -93,14 +93,14 @@ void ASTDumper::visitSubscriptExpr(SubscriptExpr* node) {
 }
 
 void ASTDumper::visitUnresolvedDotExpr(UnresolvedDotExpr* node) {
-  dumpLine() << getBasicExprInfo(node) << " ." << node->getMemberID() << "\n";
+  dumpLine() << getBasicExprInfo(node) << " ." << node->getMemberIdentifier() << "\n";
   indent();
   visit(node->getBase());
   dedent();
 }
 
 void ASTDumper::visitBuiltinMemberRefExpr(BuiltinMemberRefExpr* node) {
-  dumpLine() << getBasicExprInfo(node) << " ." << node->getMemberID() << "\n";
+  dumpLine() << getBasicExprInfo(node) << " ." << node->getMemberIdentifier() << "\n";
   indent();
   visit(node->getBase());
   dedent();

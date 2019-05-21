@@ -567,11 +567,11 @@ Expr* UnresolvedDotExpr::getBase() const {
   return base_;
 }
 
-Identifier UnresolvedDotExpr::getMemberID() const {
+Identifier UnresolvedDotExpr::getMemberIdentifier() const {
   return memb_;
 }
 
-SourceRange UnresolvedDotExpr::getMemberIDRange() const {
+SourceRange UnresolvedDotExpr::getMemberIdentifierRange() const {
   return membRange_;
 }
 
@@ -592,8 +592,8 @@ BuiltinMemberRefExpr*
 BuiltinMemberRefExpr::create(ASTContext& ctxt, UnresolvedDotExpr* expr, 
                              BTMKind kind) {
   auto base = expr->getBase();
-  auto membID = expr->getMemberID();
-  auto membRange = expr->getMemberIDRange();
+  auto membID = expr->getMemberIdentifier();
+  auto membRange = expr->getMemberIdentifierRange();
   auto dotLoc = expr->getDotLoc();
   return 
     BuiltinMemberRefExpr::create(ctxt, base, membID, membRange, dotLoc, kind);
@@ -614,11 +614,11 @@ Expr* BuiltinMemberRefExpr::getBase() const {
   return base_;
 }
 
-Identifier BuiltinMemberRefExpr::getMemberID() const {
+Identifier BuiltinMemberRefExpr::getMemberIdentifier() const {
   return memb_;
 }
 
-SourceRange BuiltinMemberRefExpr::getMemberIDRange() const {
+SourceRange BuiltinMemberRefExpr::getMemberIdentifierRange() const {
   return membRange_;
 }
 

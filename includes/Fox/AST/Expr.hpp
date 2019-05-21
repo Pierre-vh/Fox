@@ -434,8 +434,8 @@ namespace fox   {
       void setBase(Expr* expr);
       Expr* getBase() const;
 
-      Identifier getMemberID() const;
-      SourceRange getMemberIDRange() const;
+      Identifier getMemberIdentifier() const;
+      SourceRange getMemberIdentifierRange() const;
       SourceLoc getDotLoc() const;
 
       SourceRange getSourceRange() const;
@@ -474,8 +474,8 @@ namespace fox   {
       void setBase(Expr* expr);
       Expr* getBase() const;
 
-      Identifier getMemberID() const;
-      SourceRange getMemberIDRange() const;
+      Identifier getMemberIdentifier() const;
+      SourceRange getMemberIdentifierRange() const;
       SourceLoc getDotLoc() const;
 
       SourceRange getSourceRange() const;
