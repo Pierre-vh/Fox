@@ -92,17 +92,6 @@ void* Expr::operator new(std::size_t, void* mem) {
 }
 
 //----------------------------------------------------------------------------//
-// AnyLiteralExpr 
-//----------------------------------------------------------------------------//
-
-SourceRange AnyLiteralExpr::getSourceRange() const {
-  return range_;
-}
-
-AnyLiteralExpr::AnyLiteralExpr(ExprKind kind, SourceRange range):
-  Expr(kind), range_(range){}
-
-//----------------------------------------------------------------------------//
 // CharLiteralExpr 
 //----------------------------------------------------------------------------//
 
@@ -710,13 +699,6 @@ SourceRange SubscriptExpr::getSourceRange() const {
   assert(base_ && rightBracketLoc_ && "ill-formed ArraySubscriptExpr");
   return SourceRange(base_->getBeginLoc(), rightBracketLoc_);
 }
-
-//----------------------------------------------------------------------------//
-// UnresolvedExpr 
-//----------------------------------------------------------------------------///
-
-UnresolvedExpr::UnresolvedExpr(ExprKind kind):
-Expr(kind) {}
 
 //----------------------------------------------------------------------------//
 // UnresolvedDeclRefExpr 

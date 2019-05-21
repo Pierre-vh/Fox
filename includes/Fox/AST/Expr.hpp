@@ -225,7 +225,7 @@ namespace fox   {
   ///  Common base class for any literal expression.
   class AnyLiteralExpr : public Expr {
     public:
-      SourceRange getSourceRange() const;
+      SourceRange getSourceRange() const { return range_; }
 
       static bool classof(const Expr* expr) {
         using EK = ExprKind;
@@ -235,7 +235,8 @@ namespace fox   {
       }
 
     protected:
-      AnyLiteralExpr(ExprKind kind, SourceRange range);
+      AnyLiteralExpr(ExprKind kind, SourceRange range) 
+        : Expr(kind), range_(range) {}
 
     private:
       SourceRange range_;
@@ -257,7 +258,7 @@ namespace fox   {
     private:
       CharLiteralExpr(FoxChar val, SourceRange range);
 
-      const FoxChar val_ = ' ';
+      const FoxChar val_ = 0;
   };
 
   /// IntegerLiteralExpr
@@ -377,7 +378,7 @@ namespace fox   {
       }
 
     protected:
-      UnresolvedExpr(ExprKind kind);
+      UnresolvedExpr(ExprKind kind) : Expr(kind) {}
   };
 
   /// UnresolvedDeclRefExpr
