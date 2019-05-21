@@ -120,11 +120,6 @@ Identifier NamedDecl::getIdentifier() const {
   return identifier_;
 }
 
-void NamedDecl::setIdentifier(Identifier id, SourceRange idRange) {
-  identifier_ = id;
-  identifierRange_ = idRange;
-}
-
 bool NamedDecl::hasIdentifier() const {
   return !identifier_.isNull();
 }
@@ -441,10 +436,6 @@ Type VarDecl::getValueType() const {
   return typeLoc_.getType();
 }
 
-void VarDecl::setSourceRange(SourceRange range) {
-  range_ = range;
-}
-
 SourceRange VarDecl::getSourceRange() const {
   return range_;
 }
@@ -463,10 +454,6 @@ UnitDecl* UnitDecl::create(ASTContext& ctxt,Identifier id, FileID file) {
 
 Identifier UnitDecl::getIdentifier() const {
   return identifier_;
-}
-
-void UnitDecl::setIdentifier(Identifier id) {
-  identifier_ = id;
 }
 
 ASTContext& UnitDecl::getASTContext() const {

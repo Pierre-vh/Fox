@@ -160,7 +160,6 @@ namespace fox   {
       Expr* getChild() const;
 
       OpKind getOp() const;
-      void setOp(OpKind op);
 
       SourceRange getOpRange() const;
       SourceRange getSourceRange() const;
@@ -196,7 +195,6 @@ namespace fox   {
     public:      
       static CastExpr* create(ASTContext& ctxt, TypeLoc castGoal, Expr* child);
 
-      void setCastTypeLoc(TypeLoc goal);
       TypeLoc getCastTypeLoc() const;
 
       void setChild(Expr* expr);
@@ -389,7 +387,6 @@ namespace fox   {
       static UnresolvedDeclRefExpr* create(ASTContext& ctxt, Identifier id,
         SourceRange range);
 
-      void setIdentifier(Identifier id);
       Identifier getIdentifier() const;
 
       SourceRange getSourceRange() const;
@@ -412,7 +409,6 @@ namespace fox   {
         SourceRange range);
 
       ValueDecl* getDecl() const;
-      void setDecl(ValueDecl* decl);
 
       SourceRange getSourceRange() const;
 
@@ -437,7 +433,6 @@ namespace fox   {
       void setBase(Expr* expr);
       Expr* getBase() const;
 
-      void setMemberID(Identifier id);
       Identifier getMemberID() const;
       SourceRange getMemberIDRange() const;
       SourceLoc getDotLoc() const;
@@ -478,7 +473,6 @@ namespace fox   {
       void setBase(Expr* expr);
       Expr* getBase() const;
 
-      void setMemberID(Identifier id);
       Identifier getMemberID() const;
       SourceRange getMemberIDRange() const;
       SourceLoc getDotLoc() const;
@@ -609,7 +603,6 @@ namespace fox   {
       /// Automatically sets this node's type to ErrorType.
       static ErrorExpr* create(ASTContext& ctxt, SourceRange range);
 
-      void setSourceRange(SourceRange range);
       SourceRange getSourceRange() const;
 
       static bool classof(const Expr* expr) {

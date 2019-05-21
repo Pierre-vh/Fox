@@ -395,10 +395,6 @@ UnaryExpr::OpKind UnaryExpr::getOp() const {
   return opAndChild_.getInt();
 }
 
-void UnaryExpr::setOp(OpKind op) {
-  opAndChild_.setInt(op);
-}
-
 SourceRange UnaryExpr::getOpRange() const {
   return opRange_;
 }
@@ -446,10 +442,6 @@ CastExpr* CastExpr::create(ASTContext& ctxt, TypeLoc castGoal, Expr* child) {
   return new(ctxt) CastExpr(castGoal, child);
 }
 
-void CastExpr::setCastTypeLoc(TypeLoc goal) {
-  goal_ = goal;
-}
-
 TypeLoc CastExpr::getCastTypeLoc() const {
   return goal_;
 }
@@ -492,10 +484,6 @@ DeclRefExpr* DeclRefExpr::create(ASTContext& ctxt, ValueDecl* decl,
 
 ValueDecl* DeclRefExpr::getDecl() const {
   return decl_;
-}
-
-void DeclRefExpr::setDecl(ValueDecl* decl) {
-  decl_ = decl;
 }
 
 SourceRange DeclRefExpr::getSourceRange() const {
@@ -590,10 +578,6 @@ Expr* UnresolvedDotExpr::getBase() const {
   return base_;
 }
 
-void UnresolvedDotExpr::setMemberID(Identifier id) {
-  memb_ = id;
-}
-
 Identifier UnresolvedDotExpr::getMemberID() const {
   return memb_;
 }
@@ -639,10 +623,6 @@ void BuiltinMemberRefExpr::setBase(Expr* expr) {
 
 Expr* BuiltinMemberRefExpr::getBase() const {
   return base_;
-}
-
-void BuiltinMemberRefExpr::setMemberID(Identifier id) {
-  memb_ = id;
 }
 
 Identifier BuiltinMemberRefExpr::getMemberID() const {
@@ -751,10 +731,6 @@ UnresolvedDeclRefExpr::create(ASTContext& ctxt, Identifier id,
   return new(ctxt) UnresolvedDeclRefExpr(id, range);
 }
 
-void UnresolvedDeclRefExpr::setIdentifier(Identifier id) {
-  id_ = id;
-}
-
 Identifier UnresolvedDeclRefExpr::getIdentifier() const {
   return id_;
 }
@@ -775,10 +751,6 @@ ErrorExpr* ErrorExpr::create(ASTContext& ctxt, SourceRange range) {
   ErrorExpr* expr = new(ctxt) ErrorExpr(range);
   expr->setType(ErrorType::get(ctxt));
   return expr;
-}
-
-void ErrorExpr::setSourceRange(SourceRange range) {
-  range_ = range;
 }
 
 SourceRange ErrorExpr::getSourceRange() const {

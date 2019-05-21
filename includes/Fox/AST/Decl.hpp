@@ -142,7 +142,6 @@ namespace fox {
   class NamedDecl : public Decl {
     public:
       Identifier getIdentifier() const;
-      void setIdentifier(Identifier id, SourceRange idRange);
       bool hasIdentifier() const;
 
       bool isIllegalRedecl() const;
@@ -418,7 +417,7 @@ namespace fox {
       /// returns the type as written down by the user.
       Type getValueType() const;
 
-      void setSourceRange(SourceRange range);
+      /// \returns the SourceRange of this VarDecl
       SourceRange getSourceRange() const;
 
       /// Returns true if this variable was declared using the "var" keyword
@@ -453,12 +452,13 @@ namespace fox {
     public:
       static UnitDecl* create(ASTContext& ctxt, Identifier id, FileID file);
 
+      /// \returns the Identifier of this UnitDecl
       Identifier getIdentifier() const;
-      void setIdentifier(Identifier id);
 
-      /// Return the ASTContext this UnitDecl lives in.
+      /// \returns the ASTContext this UnitDecl lives in.
       ASTContext& getASTContext() const;
 
+      /// \returns the full SourceRange of this UnitDecl
       SourceRange getSourceRange() const;
 
       static bool classof(const Decl* decl) {
