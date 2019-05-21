@@ -1,14 +1,14 @@
 // RUN: %fox-dump-parse | %filecheck
 
-// CHECK:  UnitDecl {{.*}} <range:6:1-52:1> {{.*}}
+// CHECK:  UnitDecl {{.*}} <range:6:1-53:1> {{.*}}
 // CHECK-NEXT:  VarDecl {{.*}} <range:6:1-6:26> <id_range:6:5-6:11> {{.*}}
 // CHECK-NEXT:    BoolLiteralExpr <range:6:22-6:26> {{.*}}
 let foo_bar : bool = false;
 
-// CHECK-NEXT: FuncDecl {{.*}} <range:12:1-52:1> <id_range:12:6-12:8> {{.*}}
+// CHECK-NEXT: FuncDecl {{.*}} <range:12:1-53:1> <id_range:12:6-12:8> {{.*}}
 // CHECK-NEXT: ParamDecl {{.*}} <range:12:10-12:15> {{.*}} <id_range:12:10-12:10> {{.*}}
 // CHECK-NEXT: ParamDecl {{.*}} <range:12:18-12:27> {{.*}} <id_range:12:18-12:18> {{.*}}
-// CHECK-NEXT: CompoundStmt <range:12:36-52:1>
+// CHECK-NEXT: CompoundStmt <range:12:36-53:1>
 func foo(a: int, b: mut int) : int {
   // CHECK-NEXT:  BinaryExpr <range:17:3-17:6> {{.*}}
   // CHECK-NEXT:    UnaryExpr <range:17:3-17:4> {{.*}}
@@ -28,25 +28,29 @@ func foo(a: int, b: mut int) : int {
   // CHECK-NEXT:    UnresolvedDeclRefExpr <range:30:7-30:7> {{.*}}
   // CHECK-NEXT:    UnresolvedDeclRefExpr <range:30:10-30:10> {{.*}}
   foo(a, b);
-  // CHECK-NEXT:  ConditionStmt <range:37:3-39:3>
-  // CHECK-NEXT:    BinaryExpr <range:37:6-37:14> {{.*}} <op_range:37:11-37:12>
-  // CHECK-NEXT:      UnresolvedDeclRefExpr <range:37:6-37:9> {{.*}}
-  // CHECK-NEXT:      IntegerLiteralExpr <range:37:14-37:14> {{.*}}
-  // CHECK-NEXT:    CompoundStmt <range:37:16-39:3>
-  // CHECK-NEXT:      UnresolvedDeclRefExpr <range:38:5-38:8> {{.*}}
+  // CHECK-NEXT:  ConditionStmt <range:38:3-40:3>
+  // CHECK-NEXT:    BinaryExpr <range:38:6-38:14> {{.*}} <op_range:38:11-38:12>
+  // CHECK-NEXT:      UnresolvedDeclRefExpr <range:38:6-38:9> {{.*}}
+  // CHECK-NEXT:      IntegerLiteralExpr <range:38:14-38:14> {{.*}}
+  // CHECK-NEXT:    CompoundStmt <range:38:16-40:3>
+  // CHECK-NEXT:      UnresolvedDotExpr <range:39:5-39:9> .foo
+  // CHECK-NEXT:        IntegerLiteralExpr <range:39:5-39:5> 1
   if decl == 0 {
-    decl;
+    1.foo;
   }
-  // CHECK-NEXT:  WhileStmt <range:46:3-48:3>
-  // CHECK-NEXT:    BinaryExpr <range:46:9-46:17> {{.*}} <op_range:46:14-46:15>
-  // CHECK-NEXT:      UnresolvedDeclRefExpr <range:46:9-46:12> {{.*}}
-  // CHECK-NEXT:      IntegerLiteralExpr <range:46:17-46:17> {{.*}}
-  // CHECK-NEXT:    CompoundStmt <range:46:19-48:3>
-  // CHECK-NEXT:      UnresolvedDeclRefExpr <range:47:5-47:8> {{.*}}
+  // CHECK-NEXT:  WhileStmt <range:47:3-49:3>
+  // CHECK-NEXT:    BinaryExpr <range:47:9-47:17> {{.*}} <op_range:47:14-47:15>
+  // CHECK-NEXT:      UnresolvedDeclRefExpr <range:47:9-47:12> {{.*}}
+  // CHECK-NEXT:      IntegerLiteralExpr <range:47:17-47:17> {{.*}}
+  // CHECK-NEXT:    CompoundStmt <range:47:19-49:3>
+  // CHECK-NEXT:      UnresolvedDeclRefExpr <range:48:5-48:8> {{.*}}
   while decl != 0 {
     decl;
   }
-  // CHECK-NEXT:  ReturnStmt <range:51:3-51:10>
-  // CHECK-NEXT:    IntegerLiteralExpr <range:51:10-51:10> {{.*}}
+  // CHECK-NEXT:  ReturnStmt <range:52:3-52:10>
+  // CHECK-NEXT:    IntegerLiteralExpr <range:52:10-52:10> {{.*}}
   return 0;
 }
+
+// TODO: Break up this test in a lot of small tests for each node. It's a pain
+// to work on this test in its current state.
