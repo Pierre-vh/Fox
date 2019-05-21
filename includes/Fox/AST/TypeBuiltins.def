@@ -1,0 +1,46 @@
+//----------------------------------------------------------------------------//
+// This file is part of the Fox project.        
+// See the LICENSE.txt file at the root of the project for license information.            
+// File : TypeBuiltins.def                      
+// Author : Pierre van Houtryve                
+//----------------------------------------------------------------------------//
+//  x-macros for macro-metaprogramming with members of builtin types
+//----------------------------------------------------------------------------//
+
+/// Builtin Methods of Types
+///   TYPE is the type to which the method belongs, e.g. "String", "Array".
+///   ID is the unique ID of this builtin.
+///   FOX is the name that the builtin should have in Fox code
+/// Note: The final ID of the builtin in the "TypeBuiltinKind" enum
+///   will be TYPE##ID, so for BUILTIN_TYPE_METHOD(String, Size, "size"),
+///   it'll be StringSize.
+#ifndef TYPE_BUILTIN_METHOD
+  #define TYPE_BUILTIN_METHOD(ID, FOX)
+#endif
+
+/// Range of builtin members
+///   ID is the ID to give to this range of builtin
+///   FIRST is the first builtin in this range
+///   LAST is the last builtin in this range
+#ifndef TYPE_BUILTIN_RANGE
+  #define TYPE_BUILTIN_RANGE(ID, FIRST, LAST)
+#endif
+
+//----------------------------------------------------------------------------//
+// String Builtin Members
+//----------------------------------------------------------------------------//
+
+TYPE_BUILTIN_METHOD(StringSize,       "size")
+TYPE_BUILTIN_METHOD(StringNumBytes,   "numBytes")
+TYPE_BUILTIN_RANGE(StringBuiltin, StringSize, StringNumBytes)
+
+//----------------------------------------------------------------------------//
+// Array Builtin Members
+//----------------------------------------------------------------------------//
+
+// TODO
+
+//----------------------------------------------------------------------------//
+
+#undef TYPE_BUILTIN_METHOD
+#undef TYPE_BUILTIN_RANGE
