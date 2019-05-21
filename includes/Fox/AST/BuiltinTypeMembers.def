@@ -1,7 +1,7 @@
 //----------------------------------------------------------------------------//
 // This file is part of the Fox project.        
 // See the LICENSE.txt file at the root of the project for license information.            
-// File : TypeMembers.def                      
+// File : BuiltinTypeMembers.def                      
 // Author : Pierre van Houtryve                
 //----------------------------------------------------------------------------//
 //  x-macros for macro-metaprogramming with members of builtin types
