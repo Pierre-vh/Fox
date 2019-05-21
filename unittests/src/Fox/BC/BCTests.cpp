@@ -28,17 +28,14 @@ TEST(OpcodeTest, opcodeToString) {
   Opcode a = Opcode::StoreSmallInt;
   Opcode b = Opcode::NoOp;
   Opcode c = Opcode::LAnd;
-  Opcode illegal = static_cast<Opcode>(255);
 
-  const char* strA = toString(a);
-  const char* strB = toString(b);
-  const char* strC = toString(c);
-  const char* strIllegal = toString(illegal);
+  const char* strA = to_string(a);
+  const char* strB = to_string(b);
+  const char* strC = to_string(c);
 
   ASSERT_NE(strA, nullptr);
   ASSERT_NE(strB, nullptr);
   ASSERT_NE(strC, nullptr);
-  ASSERT_EQ(strIllegal, nullptr);
 
   EXPECT_STRCASEEQ(strA, "StoreSmallInt");
   EXPECT_STRCASEEQ(strB, "NoOp");

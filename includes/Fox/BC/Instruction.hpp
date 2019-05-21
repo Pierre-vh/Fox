@@ -28,10 +28,8 @@ namespace fox {
     #include "Instruction.def"
   };
 
-  /// Converts an Opcode to a human-readable string representation.
-  /// \return A C-String of the Opcode's name, or nullptr if the
-  /// opcode isn't valid.
-  const char* toString(Opcode op);
+  /// Converts an Opcode to a human-readable string.
+  const char* to_string(Opcode op);
   
   /// Dumps a single instruction to os
   void dumpInstruction(std::ostream& os, Instruction instr);

@@ -21,10 +21,12 @@ static bool isLegal(Opcode op) {
   return std::uint8_t(op) <= std::uint8_t(Opcode::last_opcode);
 }
 
-const char* fox::toString(Opcode op) {
-  if(isLegal(op))
-    return opcodeStrings[std::uint8_t(op)];
-  return nullptr;
+const char* fox::to_string(Opcode op) {
+  switch (op) {
+    #define INSTR(OP) case Opcode::OP: return #OP;
+    #include "Fox/BC/Instruction.def"
+    default: fox_unreachable("unknown Opcode");
+  }
 }
 
 //----------------------------------------------------------------------------//
