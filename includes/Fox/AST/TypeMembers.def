@@ -1,0 +1,59 @@
+//----------------------------------------------------------------------------//
+// This file is part of the Fox project.        
+// See the LICENSE.txt file at the root of the project for license information.            
+// File : TypeMembers.def                      
+// Author : Pierre van Houtryve                
+//----------------------------------------------------------------------------//
+//  x-macros for macro-metaprogramming with members of builtin types
+//----------------------------------------------------------------------------//
+
+/// Any Member regardless of its category.
+///   ID is the ID of the member.
+#ifndef ANY_MEMBER
+  #define ANY_MEMBER(ID)
+#endif
+
+/// String Members
+///   ID is the unique ID of the member
+///   FOX is the name that the member should have in Fox code.
+#ifndef STRING_MEMBER
+  #define STRING_MEMBER(ID, FOX) ANY_MEMBER(ID)
+#endif
+
+/// Array Members
+///   ID is the unique ID of the member
+///   FOX is the name that the member should have in Fox code.
+#ifndef ARRAY_MEMBER
+  #define ARRAY_MEMBER(ID, FOX) ANY_MEMBER(ID)
+#endif
+
+
+/// Range of members
+///   ID is the ID of the range
+///   FIRST is the first type member in the range
+///   LAST is the last type member in the range
+#ifndef MEMBER_RANGE
+  #define MEMBER_RANGE(ID, FIRST, LAST)
+#endif
+
+//----------------------------------------------------------------------------//
+// String Members
+//----------------------------------------------------------------------------//
+
+STRING_MEMBER(StringSize,       "size")
+STRING_MEMBER(StringNumBytes,   "numBytes")
+
+MEMBER_RANGE(StringMember, StringSize, StringNumBytes)
+
+//----------------------------------------------------------------------------//
+// Array Members
+//----------------------------------------------------------------------------//
+
+// TODO
+
+//----------------------------------------------------------------------------//
+
+#undef ANY_MEMBER
+#undef STRING_MEMBER
+#undef ARRAY_MEMBER
+#undef MEMBER_RANGE

@@ -9,6 +9,6 @@ add_source(ast_src
   "Identifier.cpp"
   "Stmt.cpp"
   "Types.cpp"
-  "TypeBuiltins.cpp"
+  "TypeMembers.cpp"
   "TypeWalker.cpp"
 )
