@@ -16,6 +16,11 @@ func foo3() {
   return 3; // expect-error: unexpected non-void return expression in void function
 }
 
+func foo4() {
+  // Return shouldn't complain since 'azathot' couldn't be resolved
+  return azathoth; // expect-error: undeclared identifier 'azathoth'
+}
+
 func bar() : int {
   // ok
   return 1;

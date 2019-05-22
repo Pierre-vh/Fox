@@ -52,7 +52,10 @@ class Sema::StmtChecker : Checker, StmtVisitor<StmtChecker, void>{
     /// Diagnoses a return type mismatch 
     /// (type of the return expr != return type of func)
     void diagnoseReturnTypeMistmatch(ReturnStmt* stmt, Expr* expr, 
-      Type fnRetTy) {
+                                     Type fnRetTy) {
+      // Don't diagnose if the return expression's type isn't well formed
+      if(!Sema::isWellFormed(expr->getType())) return;
+
       Type exprTy = expr->getType();
 
       if(!Sema::isWellFormed({exprTy, fnRetTy})) return;
@@ -61,15 +64,17 @@ class Sema::StmtChecker : Checker, StmtVisitor<StmtChecker, void>{
         .report(DiagID::cannot_convert_return_expr, expr->getSourceRange())
         .addArg(exprTy)
         .addArg(fnRetTy)
-        .setExtraRange(stmt->getSourceRange());
+        .setExtraRange(stmt->getReturnSourceRange());
     }
 
     /// Diagnoses a return type mismatch for void functions
     /// (type of the return expr != void)
     void diagnoseUnexpectedRtrExprForNonVoidFn(ReturnStmt* stmt, Expr* expr) {
+      // Don't diagnose if the return expression's type isn't well formed
+      if(!Sema::isWellFormed(expr->getType())) return;
       diagEngine
         .report(DiagID::unexpected_non_void_rtr_expr, expr->getSourceRange())
-        .setExtraRange(stmt->getSourceRange());
+        .setExtraRange(stmt->getReturnSourceRange());
     }
 
     //----------------------------------------------------------------------//

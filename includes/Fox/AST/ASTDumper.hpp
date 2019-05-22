@@ -60,7 +60,8 @@ namespace fox {
       void visitCastExpr(CastExpr* node);
       void visitUnaryExpr(UnaryExpr* node);
       void visitSubscriptExpr(SubscriptExpr* node);
-      void visitMemberOfExpr(MemberOfExpr* node);
+      void visitUnresolvedDotExpr(UnresolvedDotExpr* node);
+      void visitBuiltinMemberRefExpr(BuiltinMemberRefExpr* node);
       void visitDeclRefExpr(DeclRefExpr* node);
       void visitUnresolvedDeclRefExpr(UnresolvedDeclRefExpr* node);
       void visitCallExpr(CallExpr* node);

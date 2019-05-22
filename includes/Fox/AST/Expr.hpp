@@ -10,9 +10,10 @@
 #pragma once
 
 #include "ASTAligns.hpp"
+#include "Type.hpp"
+#include "Identifier.hpp"
+#include "BuiltinTypeMembers.hpp"
 #include "Fox/Common/FoxTypes.hpp"
-#include "Fox/AST/Type.hpp"
-#include "Fox/AST/Identifier.hpp"
 #include "llvm/ADT/SmallVector.h"
 #include "llvm/ADT/ArrayRef.h"
 #include "llvm/ADT/PointerIntPair.h"
@@ -159,7 +160,6 @@ namespace fox   {
       Expr* getChild() const;
 
       OpKind getOp() const;
-      void setOp(OpKind op);
 
       SourceRange getOpRange() const;
       SourceRange getSourceRange() const;
@@ -195,7 +195,6 @@ namespace fox   {
     public:      
       static CastExpr* create(ASTContext& ctxt, TypeLoc castGoal, Expr* child);
 
-      void setCastTypeLoc(TypeLoc goal);
       TypeLoc getCastTypeLoc() const;
 
       void setChild(Expr* expr);
@@ -226,7 +225,7 @@ namespace fox   {
   ///  Common base class for any literal expression.
   class AnyLiteralExpr : public Expr {
     public:
-      SourceRange getSourceRange() const;
+      SourceRange getSourceRange() const { return range_; }
 
       static bool classof(const Expr* expr) {
         using EK = ExprKind;
@@ -236,7 +235,8 @@ namespace fox   {
       }
 
     protected:
-      AnyLiteralExpr(ExprKind kind, SourceRange range);
+      AnyLiteralExpr(ExprKind kind, SourceRange range) 
+        : Expr(kind), range_(range) {}
 
     private:
       SourceRange range_;
@@ -258,7 +258,7 @@ namespace fox   {
     private:
       CharLiteralExpr(FoxChar val, SourceRange range);
 
-      const FoxChar val_ = ' ';
+      const FoxChar val_ = 0;
   };
 
   /// IntegerLiteralExpr
@@ -378,7 +378,7 @@ namespace fox   {
       }
 
     protected:
-      UnresolvedExpr(ExprKind kind);
+      UnresolvedExpr(ExprKind kind) : Expr(kind) {}
   };
 
   /// UnresolvedDeclRefExpr
@@ -388,7 +388,6 @@ namespace fox   {
       static UnresolvedDeclRefExpr* create(ASTContext& ctxt, Identifier id,
         SourceRange range);
 
-      void setIdentifier(Identifier id);
       Identifier getIdentifier() const;
 
       SourceRange getSourceRange() const;
@@ -411,7 +410,6 @@ namespace fox   {
         SourceRange range);
 
       ValueDecl* getDecl() const;
-      void setDecl(ValueDecl* decl);
 
       SourceRange getSourceRange() const;
 
@@ -426,35 +424,94 @@ namespace fox   {
       ValueDecl* decl_ = nullptr;
   };
 
-  // NOTE: MemberOfExpr is currently unused and will be reworked
-  // when adding UFCS to Fox.
-  /// MemberOfExpr
-  ///    A member access : foo.bar
-  class MemberOfExpr final : public Expr {
+  /// UnresolvedDotExpr
+  ///    A unresolved "dot" expr : expr.foo
+  class UnresolvedDotExpr final : public UnresolvedExpr {
     public:
-      static MemberOfExpr* create(ASTContext& ctxt, Expr* base, 
+      static UnresolvedDotExpr* create(ASTContext& ctxt, Expr* base, 
         Identifier membID, SourceRange membIDRange, SourceLoc dotLoc);
 
-      void setExpr(Expr* expr);
-      Expr* getExpr() const;
+      void setBase(Expr* expr);
+      Expr* getBase() const;
 
-      void setMemberID(Identifier id);
-      Identifier getMemberID() const;
-      SourceRange getMemberIDRange() const;
+      Identifier getMemberIdentifier() const;
+      SourceRange getMemberIdentifierRange() const;
       SourceLoc getDotLoc() const;
 
       SourceRange getSourceRange() const;
 
       static bool classof(const Expr* expr) {
-        return (expr->getKind() == ExprKind::MemberOfExpr);
+        return (expr->getKind() == ExprKind::UnresolvedDotExpr);
       }
 
     private:
-      MemberOfExpr(Expr* base, Identifier membID, 
+      UnresolvedDotExpr(Expr* base, Identifier membID, 
 				SourceRange range, SourceLoc dotLoc);
 
+      Expr* base_ = nullptr;
       SourceLoc dotLoc_;
-      SourceRange membIDRange_;
+      SourceRange membRange_;
+      Identifier memb_;
+  };
+
+  /// BuiltinMemberRefExpr
+  ///   A resolved reference to a builtin member of a type.
+  ///   e.g. "string".size(), array.append(x), etc.
+  ///
+  ///   FIXME: This node is a bit... messy to say the least.
+  class BuiltinMemberRefExpr final : public Expr {
+    public:
+      using BTMKind = BuiltinTypeMemberKind;
+
+      /// Creates a BuiltinMemberRefExpr from a UnresolvedDotExpr
+      static BuiltinMemberRefExpr* 
+      create(ASTContext& ctxt, UnresolvedDotExpr* expr, BTMKind kind);
+
+      static BuiltinMemberRefExpr* 
+      create(ASTContext& ctxt, Expr* base, Identifier membID, 
+        SourceRange membIDRange, SourceLoc dotLoc, BTMKind kind);
+
+      void setBase(Expr* expr);
+      Expr* getBase() const;
+
+      Identifier getMemberIdentifier() const;
+      SourceRange getMemberIdentifierRange() const;
+      SourceLoc getDotLoc() const;
+
+      SourceRange getSourceRange() const;
+
+      /// \returns true if this method is called. 
+      /// Only available when isMethod() returns true.
+      bool isCalled() const;
+      /// Marks this method as being called.
+      /// Only available when isMethod() returns true.
+      void setIsCalled(bool value = true);
+      
+      /// \returns true if this is a reference to a method.
+      bool isMethod() const;
+      /// Marks this node as a reference to a method.
+      void setIsMethod(bool value = true);
+
+      /// \returns the BuiltinTypeMemberKind
+      BuiltinTypeMemberKind getBuiltinTypeMemberKind() const;
+      void setBuiltinTypeMemberKind(BuiltinTypeMemberKind value);
+
+      static bool classof(const Expr* expr) {
+        return (expr->getKind() == ExprKind::BuiltinMemberRefExpr);
+      }
+
+    private:
+      BuiltinMemberRefExpr(Expr* base, Identifier membID, 
+        SourceRange membIDRange, SourceLoc dotLoc, BTMKind kind);
+       
+      // Bit field: 0 bits left
+      //  14 bits for the BuiltinTypeMemberKind should be more than enough!
+      BTMKind kind_ : 14; 
+      bool isCalled_ : 1;
+      bool isMethod_ : 1;
+      // End bit field
+      SourceLoc dotLoc_;
+      SourceRange membRange_;
       Expr* base_ = nullptr;
       Identifier memb_;
   };
@@ -533,26 +590,20 @@ namespace fox   {
   /// ErrorExpr
   ///   Represents an expression that couldn't be resolved.
   ///
-  ///   ErrorExpr is always generated during semantic analysis, never
-  ///   during parsing.
+  ///   ErrorExprs are generated during semantic analysis when
+  ///   UnresolvedExprs can't be resolved.
   ///
-  ///   This expression always has an ErrorType, and has no
-  ///   source location information
-  ///
-  ///   FIXME: Should ErrorExpr preserve the SourceRange of the
-  ///   original expression? This would allow ReturnStmt and VarDecl
-  ///   to infer their end location through the initializer's end loc.
-  ///   For now, ErrorExpr is the only thing that makes this impossible
-  ///   because it's the only Expr that doesn't store SourceLoc info.
-  ///   
-  ///   It would also make it possible to generate them during parsing
-  ///   without breaking the Parser.
+  ///   This expression always has an ErrorType.
   class ErrorExpr final : public Expr {
     public:
-      /// Creates an ErrorExpr. Automatically sets its type to ErrorExpr.
-      static ErrorExpr* create(ASTContext& ctxt);
+      /// Creates an ErrorExpr using \p expr ->getSourceRange()
+      /// Automatically sets this node's type to ErrorType.
+      static ErrorExpr* create(ASTContext& ctxt, Expr* expr);
 
-      /// \returns SourceRange()
+      /// Creates an ErrorExpr.
+      /// Automatically sets this node's type to ErrorType.
+      static ErrorExpr* create(ASTContext& ctxt, SourceRange range);
+
       SourceRange getSourceRange() const;
 
       static bool classof(const Expr* expr) {
@@ -560,7 +611,9 @@ namespace fox   {
       }
 
     private:
-      ErrorExpr();
+      ErrorExpr(SourceRange range);
+
+      SourceRange range_;
   };
 }
 

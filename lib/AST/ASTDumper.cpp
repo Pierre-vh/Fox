@@ -92,10 +92,17 @@ void ASTDumper::visitSubscriptExpr(SubscriptExpr* node) {
   dedent();
 }
 
-void ASTDumper::visitMemberOfExpr(MemberOfExpr* node) {
-  dumpLine() << getBasicExprInfo(node) << " ." << node->getMemberID() << "\n";
+void ASTDumper::visitUnresolvedDotExpr(UnresolvedDotExpr* node) {
+  dumpLine() << getBasicExprInfo(node) << " ." << node->getMemberIdentifier() << "\n";
   indent();
-  visit(node->getExpr());
+  visit(node->getBase());
+  dedent();
+}
+
+void ASTDumper::visitBuiltinMemberRefExpr(BuiltinMemberRefExpr* node) {
+  dumpLine() << getBasicExprInfo(node) << " ." << node->getMemberIdentifier() << "\n";
+  indent();
+  visit(node->getBase());
   dedent();
 }
 
@@ -286,8 +293,7 @@ bool ASTDumper::isDebug() const {
 }
 
 std::string ASTDumper::toString(Type type) const {
-  // Type might be null in untyped ASTs, so check for that.
-  if(!type) return "";
+  if(!type) return "<null>";
   std::string typeStr = isDebug() ? type->toDebugString() : type->toString();
   return "'" + typeStr + "'";
 }

@@ -79,3 +79,9 @@ func uops() {
   //        CHECK-NEXT: IntegerLiteralExpr {{.*}} 1
   $1;
 }
+
+func dot() {
+  // CHECK:     UnresolvedDotExpr {{.*}}  .foo
+  // CHECK-NEXT: IntegerLiteralExpr {{.*}} 1
+  1.foo;
+}

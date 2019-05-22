@@ -356,7 +356,7 @@ class Sema::ExprChecker : Checker, ExprVisitor<ExprChecker, Expr*>,  ASTWalker {
                   .contains(udre->getSourceRange()));
           diagnoseVarInitSelfRef(var, udre);
           // This is an error, so return an ErrorExpr
-          return ErrorExpr::create(ctxt);
+          return ErrorExpr::create(ctxt, udre);
         }
       }
 
@@ -585,8 +585,13 @@ class Sema::ExprChecker : Checker, ExprVisitor<ExprChecker, Expr*>,  ASTWalker {
       return expr;
     }
 
-    Expr* visitMemberOfExpr(MemberOfExpr*) {
-      fox_unimplemented_feature("MemberOfExpr TypeChecking");
+    Expr* visitUnresolvedDotExpr(UnresolvedDotExpr*) {
+      fox_unimplemented_feature("UnresolvedDotExpr TypeChecking");
+    }
+
+    Expr* visitBuiltinMemberRefExpr(BuiltinMemberRefExpr*) {
+      // Shouldn't happen at all.
+      fox_unreachable("Expr checked twice!");
     }
 
     Expr* visitUnresolvedDeclRefExpr(UnresolvedDeclRefExpr* expr) {
@@ -600,7 +605,7 @@ class Sema::ExprChecker : Checker, ExprVisitor<ExprChecker, Expr*>,  ASTWalker {
       if(results.isEmpty()) {
         diagnoseUndeclaredIdentifier(range, id);
         // Return an ErrorExpr on error.
-        return ErrorExpr::create(ctxt);
+        return ErrorExpr::create(ctxt, expr);
       }
 
       // Ambiguous result
@@ -609,7 +614,7 @@ class Sema::ExprChecker : Checker, ExprVisitor<ExprChecker, Expr*>,  ASTWalker {
         if (!removeIllegalRedecls(results)) {
           diagnoseAmbiguousIdentifier(range, id, results);
           // Return an ErrorExpr on error.
-          return ErrorExpr::create(ctxt);
+          return ErrorExpr::create(ctxt, expr);
         }
       }
 

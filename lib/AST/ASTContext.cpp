@@ -122,14 +122,14 @@ void ASTContext::lookupBuiltin(Identifier id,
   /// Especially since this is going to be called fairly often
   /// (at nearly every lookup)
   /// Of course, back this up by measurements before optimizing anything.
-  #define BUILTIN(FUNC, FOX) if(id.getStr() == #FOX)\
+  #define PUBLIC_BUILTIN(FUNC, FOX) if(id.getStr() == #FOX)\
     results.push_back(BuiltinFuncDecl::get(*this, BuiltinID::FUNC));
   #include "Fox/Common/Builtins.def"
 }
 
 Type ASTContext::getBuiltinFuncType(BuiltinID id) {
   switch (id) {
-    #define BUILTIN(FUNC, FOX)\
+    #define PUBLIC_BUILTIN(FUNC, FOX)\
       case BuiltinID::FUNC:\
         return getFoxTypeOfFunc(*this, builtin::FUNC);
     #include "Fox/Common/Builtins.def"
@@ -140,7 +140,7 @@ Type ASTContext::getBuiltinFuncType(BuiltinID id) {
 
 Type ASTContext::getBuiltinFuncReturnType(BuiltinID id) {
   switch (id) {
-    #define BUILTIN(FUNC, FOX)\
+    #define PUBLIC_BUILTIN(FUNC, FOX)\
       case BuiltinID::FUNC:\
         return getFoxReturnTypeOfFunc(*this, builtin::FUNC);
     #include "Fox/Common/Builtins.def"
@@ -167,7 +167,7 @@ Identifier ASTContext::getIdentifier(string_view str) {
 
 Identifier ASTContext::getIdentifier(BuiltinID id) {
   switch (id) {
-    #define BUILTIN(FUNC, FOX) case BuiltinID::FUNC:\
+    #define PUBLIC_BUILTIN(FUNC, FOX) case BuiltinID::FUNC:\
       return getIdentifier(#FOX);
     #include "Fox/Common/Builtins.def"
     default:

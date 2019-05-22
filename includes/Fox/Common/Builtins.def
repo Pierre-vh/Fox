@@ -7,11 +7,33 @@
 //  x-macros for macro-metaprogramming with builtin functions
 //----------------------------------------------------------------------------//
 
-/// The 'builtin' declaration macro:
+/// Basic builtin declaration macro
+///   FUNC is the name of the function in the fox::builtin namespace
+#ifndef BUILTIN
+  #define BUILTIN(FUNC)
+#endif 
+
+/// The public builtin declaration macro.
+/// Public builtins:
+///   - are accessible to Fox code, they act and feel like any other function
+///   - have their type automatically inferred from their signature
+///     (with arguments of type IGNORED_ARG_TYPE ignored)
 ///   FUNC is the name of the function in the fox::builtin namespace
 ///   FOX is the name the function should have in Fox code
-#ifndef BUILTIN
-  #define BUILTIN(FUNC, FOX)
+#ifndef PUBLIC_BUILTIN
+  #define PUBLIC_BUILTIN(FUNC, FOX) BUILTIN(FUNC)
+#endif 
+
+/// The private builtin declaration macro.
+/// Private builtins:
+///   - are NOT accessible to Fox code, they act and feel like any other function
+///   - their type is NOT inferred from their signature. 
+///   - are mostly used in bytecode generation to do special operations not
+///     supported by the Fox VM.
+///   FUNC is the name of the function in the fox::builtin namespace
+///   FOX is the name the function should have in Fox code
+#ifndef PRIVATE_BUILTIN
+  #define PRIVATE_BUILTIN(FUNC) BUILTIN(FUNC)
 #endif 
 
 /// This macro is used to tell the routine that converts a Builtin's signature
@@ -23,33 +45,45 @@
 #endif 
 
 //----------------------------------------------------------------------------//
-
-// TODO: Once I get overloads to work, rename all of these to 'print'
-BUILTIN(printInt,     printInt)
-BUILTIN(printBool,    printBool)
-BUILTIN(printChar,    printChar)
-BUILTIN(printDouble,  printDouble)
-BUILTIN(printString,  printString)
-
-// TODO: Once I get overloads to work, rename all of these to 'toString'
-BUILTIN(charToString,   charToString)
-BUILTIN(intToString,    intToString)
-BUILTIN(doubleToString, doubleToString)
-BUILTIN(boolToString,   boolToString)
-
-// String operations
-BUILTIN(strConcat,    concat)
-BUILTIN(charConcat,   concatChars)
-// String Object interface
-BUILTIN(strLength,    length)
-BUILTIN(strNumBytes,  numBytes)
-BUILTIN(getChar,      getChar)
-
+// Ignored argument types for public builtins
 //----------------------------------------------------------------------------//
 
 IGNORED_ARG_TYPE(VM&) // Ignore references to VM instances
 
 //----------------------------------------------------------------------------//
+// Public Builtins
+//----------------------------------------------------------------------------//
+
+// TODO: Once I get overloads to work, rename all of these to 'print'
+PUBLIC_BUILTIN(printInt,     printInt)
+PUBLIC_BUILTIN(printBool,    printBool)
+PUBLIC_BUILTIN(printChar,    printChar)
+PUBLIC_BUILTIN(printDouble,  printDouble)
+PUBLIC_BUILTIN(printString,  printString)
+
+// TODO: Once I get overloads to work, rename all of these to 'toString'
+PUBLIC_BUILTIN(charToString,   charToString)
+PUBLIC_BUILTIN(intToString,    intToString)
+PUBLIC_BUILTIN(doubleToString, doubleToString)
+PUBLIC_BUILTIN(boolToString,   boolToString)
+
+// String operations
+PUBLIC_BUILTIN(strConcat,    concat)
+PUBLIC_BUILTIN(charConcat,   concatChars)
+// String Object interface
+PUBLIC_BUILTIN(strLength,    length)
+PUBLIC_BUILTIN(strNumBytes,  numBytes)
+PUBLIC_BUILTIN(getChar,      getChar)
+
+//----------------------------------------------------------------------------//
+// Private Builtins
+//----------------------------------------------------------------------------//
+
+// To-Do
+
+//----------------------------------------------------------------------------//
 
 #undef BUILTIN
+#undef PUBLIC_BUILTIN
+#undef PRIVATE_BUILTIN
 #undef IGNORED_ARG_TYPE

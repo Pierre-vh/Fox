@@ -170,17 +170,12 @@ Parser::Result<Stmt*> Parser::parseReturnStmt() {
   auto rtrKw = tryConsume(TokenKind::ReturnKw);
   if (!rtrKw)
     return Result<Stmt*>::NotFound();
-  
-  Expr* expr = nullptr;
-  SourceLoc begLoc = rtrKw.getBeginLoc();
-  SourceLoc endLoc = rtrKw.getEndLoc();
-  assert(begLoc && endLoc && "Return keyword didn't have source loc info");
 
   // [<expr>]
+  Expr* expr = nullptr;
   if (auto expr_res = parseExpr()) {
     expr = expr_res.get();
-    endLoc = expr->getEndLoc();
-    assert(endLoc && "Expr doesn't have an end loc?");
+    assert(expr->getSourceRange() && "Expr has invalid loc info");
   }
   else if(expr_res.isError())
     return Result<Stmt*>::Error();
@@ -191,9 +186,7 @@ Parser::Result<Stmt*> Parser::parseReturnStmt() {
     return Result<Stmt*>::Error();
   }
     
-  SourceRange range(begLoc, endLoc);
-  assert(range && "Invalid loc info");
-  return Result<Stmt*>(ReturnStmt::create(ctxt, expr, range));
+  return Result<Stmt*>(ReturnStmt::create(ctxt, expr, rtrKw));
 }
 
 Parser::Result<ASTNode> Parser::parseStmt() {
