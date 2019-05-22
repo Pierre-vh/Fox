@@ -403,8 +403,8 @@ namespace fox {
       /// \param range the full SourceRange of the VarDecl. This should
       ///        not include the trailing semicolon.
       static VarDecl* create(ASTContext& ctxt, DeclContext* parent,
-        Identifier id, SourceRange idRange, TypeLoc type, 
-        Keyword kw, Expr* init, SourceRange range);
+        Keyword kw, SourceRange kwRange, Identifier id, SourceRange idRange,
+        TypeLoc type, Expr* init);
 
       Expr* getInitExpr() const;
       void setInitExpr(Expr* expr);
@@ -417,8 +417,11 @@ namespace fox {
       /// returns the type as written down by the user.
       Type getValueType() const;
 
-      /// \returns the SourceRange of this VarDecl
       SourceRange getSourceRange() const;
+
+      /// \returns the SourceRange of the keyword used to declare this
+      /// variable.
+      SourceRange getKeywordRange() const;
 
       /// Returns true if this variable was declared using the "var" keyword
       /// (and thus, is mutable)
@@ -432,17 +435,11 @@ namespace fox {
       }
 
     private:
-      VarDecl(DeclContext* parent, Identifier id, SourceRange idRange, 
-        TypeLoc type, Keyword kw, Expr* init, SourceRange range);
+      VarDecl(DeclContext* parent, Keyword kw, SourceRange kwRange, 
+        Identifier id, SourceRange idRange, TypeLoc type, Expr* init);
 
       TypeLoc typeLoc_;
-      // FIXME: Instead of storing the whole range, wouldn't it be
-      // better to infer it from the identifier/type/expr's range?
-      // The problem lies with ErrorExpr: it doesn't have a valid
-      // SourceRange, so if the init is an ErrorExpr
-      SourceRange range_;
-      // This VarDecl's initializer + the Keyword used to declare
-      // this Variable.
+      SourceRange kwRange_;
       llvm::PointerIntPair<Expr*, 1, Keyword> initAndKW_;
   };
 

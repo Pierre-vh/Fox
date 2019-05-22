@@ -247,18 +247,19 @@ Parser::Result<Decl*> Parser::parseVarDecl() {
 
   // ("let" | "var")
   VarDecl::Keyword kw;
-  SourceLoc begLoc;
+  SourceRange kwRange;
   if (auto letKw = tryConsume(TokenKind::LetKw)) {
     kw = VarDecl::Keyword::Let;
-    begLoc = letKw.getBeginLoc();
+    kwRange = letKw;
   } 
   else if(auto varKw = tryConsume(TokenKind::VarKw)) {
     kw = VarDecl::Keyword::Var;
-    begLoc = varKw.getBeginLoc();
+    kwRange = varKw;
   }
   else
     return Result<Decl*>::NotFound();
- 
+
+  assert(kwRange && "token doesn't have source loc info");
 
   // <id>
   if(!isCurTokAnIdentifier()) {
@@ -269,6 +270,7 @@ Parser::Result<Decl*> Parser::parseVarDecl() {
   Identifier id;
   SourceRange idRange;
   std::tie(id, idRange) = consumeIdentifier();
+  assert(idRange &&  "token doesn't have source loc info");
 
   // ':'
   if (!tryConsume(TokenKind::Colon)) {
@@ -305,23 +307,14 @@ Parser::Result<Decl*> Parser::parseVarDecl() {
     return Result<Decl*>::Error();
   }
 
-  // Deduce the endLoc: it's either the Expr's EndLoc or the
-  // TypeLoc's.
-  SourceLoc endLoc;
-  if (initializer) {
-    endLoc = initializer->getEndLoc();
-    assert(endLoc && "initializer doesn't have an end loc?");
-  }
-  else {
-    endLoc = typeLoc.getEndLoc();
-    assert(endLoc && "TypeLoc doesn't have an end loc?");
-  }
-
-  SourceRange range(begLoc, endLoc);
-  assert(range && idRange && "Invalid loc info");
-
-  auto rtr = VarDecl::create(ctxt, getCurrentDeclCtxt(), id, idRange,
-    typeLoc, kw, initializer, range);
+  auto rtr = VarDecl::create(
+    ctxt, 
+    getCurrentDeclCtxt(), 
+    kw, kwRange, 
+    id, idRange, 
+    typeLoc, 
+    initializer
+  );
 
   finishDecl(rtr);
   return Result<Decl*>(rtr);

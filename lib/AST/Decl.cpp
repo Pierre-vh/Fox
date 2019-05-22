@@ -396,15 +396,15 @@ void BuiltinFuncDecl::load(ASTContext& ctxt, BuiltinID id) {
 // VarDecl
 //----------------------------------------------------------------------------//
 
-VarDecl::VarDecl(DeclContext* dc, Identifier id, SourceRange idRange, 
-  TypeLoc type, Keyword kw, Expr* init, SourceRange range):
-  ValueDecl(DeclKind::VarDecl, dc, id, idRange), typeLoc_(type),
-  range_(range), initAndKW_(init, kw) {}
+VarDecl::VarDecl(DeclContext* parent, Keyword kw, SourceRange kwRange, 
+  Identifier id, SourceRange idRange, TypeLoc type, Expr* init):
+  ValueDecl(DeclKind::VarDecl, parent, id, idRange), typeLoc_(type),
+  kwRange_(kwRange), initAndKW_(init, kw) {}
 
-VarDecl* VarDecl::create(ASTContext& ctxt, DeclContext* dc, Identifier id,
-  SourceRange idRange, TypeLoc type, Keyword kw, Expr* init, 
-  SourceRange range) {
-  return new(ctxt) VarDecl(dc, id, idRange, type, kw, init, range);
+VarDecl* VarDecl::create(ASTContext& ctxt, DeclContext* parent,
+  Keyword kw, SourceRange kwRange, Identifier id, SourceRange idRange,
+  TypeLoc type, Expr* init) {
+  return new(ctxt) VarDecl(parent, kw, kwRange, id, idRange, type, init);
 }
 
 Expr* VarDecl::getInitExpr() const {
@@ -437,7 +437,23 @@ Type VarDecl::getValueType() const {
 }
 
 SourceRange VarDecl::getSourceRange() const {
-  return range_;
+  SourceLoc beg = kwRange_.getBeginLoc();
+  SourceLoc end;
+  if (Expr* init = getInitExpr()) {
+    end = init->getEndLoc();
+    assert(end && "expr doesn't have end loc");
+  }
+  else if (SourceRange range = typeLoc_.getSourceRange())
+    end = range.getEndLoc();
+  else {
+    assert(hasIdentifierRange() && "should at least have a id range");
+    end = getIdentifierRange().getEndLoc();
+  }
+  return SourceRange(beg, end);
+}
+
+SourceRange VarDecl::getKeywordRange() const {
+  return kwRange_;
 }
 
 //----------------------------------------------------------------------------//
