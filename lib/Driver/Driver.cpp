@@ -6,7 +6,6 @@
 //----------------------------------------------------------------------------//
 
 #include "Fox/Driver/Driver.hpp"
-
 #include "Fox/AST/ASTDumper.hpp"
 #include "Fox/AST/ASTContext.hpp"
 #include "Fox/AST/Decl.hpp"
@@ -20,43 +19,78 @@
 #include "Fox/Parser/Parser.hpp"
 #include "Fox/Sema/Sema.hpp"
 #include "Fox/VM/VM.hpp"
-
+#include "llvm/ADT/Optional.h"
+#include <chrono>
 #include <fstream>
 
 
 using namespace fox;
 
-Driver::Driver(std::ostream& os): out(os), diagEngine_(srcMgr_, os),
-  ctxt_(srcMgr_, diagEngine_) {}
+namespace {
+  class RAIITimer {
+    public:
+      std::ostream& out;
+      std::chrono::high_resolution_clock::time_point beg;
+      string_view label;
 
-bool Driver::processFile(string_view filepath) {
-  auto finish = [&]() {
-    auto chrono = createChrono("ASTContext::reset()");
-    ctxt_.reset();
-    return !diagEngine_.hadAnyError(); 
+      RAIITimer(std::ostream& out, string_view label) 
+        : out(out), label(label) {
+        beg = std::chrono::high_resolution_clock::now();
+      }
+
+      ~RAIITimer() {
+        auto end = std::chrono::high_resolution_clock::now();
+        auto micro = std::chrono::duration_cast
+          <std::chrono::microseconds>(end-beg).count();
+        auto milli = std::chrono::duration_cast
+          <std::chrono::milliseconds>(end-beg).count();
+        out 
+          << label << " time:" 
+          << micro << " microseconds | " 
+          << milli << " milliseconds\n";
+      }
   };
 
-  // Remove quotes if there's quotes around the file
-  if ((filepath.front() == '"') && (filepath.back() == '"'))
-    filepath = filepath.substr(1, filepath.size()-2);
-
-  // Load the file in the source manager
-  auto result = srcMgr_.readFile(filepath);
-  FileID file = result.first;
-  if (!file) {
-    out << "Could not open file \"" << filepath << "\"\n"
-      "\tReason:" << toString(result.second) << '\n';
-    return false;
+  Optional<RAIITimer> createTimer(Driver& driver, string_view label) {
+    // Don't create the timer if we don't want to time the stages.
+    if(!driver.options.timeStages)
+      return None;
+    return RAIITimer(driver.out, label);
   }
 
-	// (Verify Mode) Create the DiagnosticVerifier
+  string_view cleanupPath(string_view path) {
+    if ((path.front() == '"') && (path.back() == '"'))
+      return path.substr(1, path.size()-2);
+    return path;
+  }
+}
+
+Driver::Driver(std::ostream& out) : out(out), 
+  diagEngine(sourceMgr, out), ctxt(sourceMgr, diagEngine) {}
+
+bool Driver::processFile(string_view path) {
+  // Function to wrap-up the file processing.
+  auto finish = [&]() {
+    auto timer = createTimer(*this, "ASTContext::reset()");
+    ctxt.reset();
+    return !diagEngine.hadAnyError(); 
+  };
+
+  // Cleanup the file path
+  path = cleanupPath(path);
+
+  // Load the file in the source manager.
+  FileID file = tryLoadFile(path);
+  if(!file) return false; // Stop if it can't be loaded.
+
+	// Create the DiagnosticVerifier if we're in verify mode.
   std::unique_ptr<DiagnosticVerifier> dv;
-  if (isVerifyModeEnabled()) {
-    dv = std::make_unique<DiagnosticVerifier>(diagEngine_, srcMgr_);
+  if (options.verifyMode) {
+    dv = std::make_unique<DiagnosticVerifier>(diagEngine, sourceMgr);
     // Parse the file
     dv->parseFile(file);
-    // Enable the verify mode in the diagnostic engine
-    diagEngine_.enableVerifyMode(dv.get());
+    // Enable the verify mode in the DiagnosticEngine
+    diagEngine.enableVerifyMode(dv.get());
   }
 
   // The parsed unit
@@ -64,55 +98,56 @@ bool Driver::processFile(string_view filepath) {
 
   {
     // Do lexing
-    Lexer lex(srcMgr_, diagEngine_, file);
+    Lexer lex(sourceMgr, diagEngine, file);
     {
-      auto chrono = createChrono("Lexing");
+      auto timer = createTimer(*this, "Lexing");
       lex.lex();
     }
 
     // Dump tokens if needed
-    if (getDumpTokens()) {
+    if (options.dumpTokens) {
       auto& toks = lex.getTokens();
-      out << toks.size() << " tokens found in '" << srcMgr_.getFileName(file) << "'\n";
+      out << toks.size() << " tokens found in '" 
+          << sourceMgr.getFileName(file) << "'\n";
       for (Token& tok : toks) {
         out << "    ";
-        tok.dump(out, srcMgr_, /*printFileName*/ false);
+        tok.dump(out, sourceMgr, /*printFileName*/ false);
       }
     }
 
     // Parse the file if we did not have any error
-    if(!diagEngine_.hadAnyError()) {
-      auto chrono = createChrono("Parsing");
-      unit = Parser(ctxt_, lex).parseUnit(ctxt_.getIdentifier("TestUnit"));
+    if(!diagEngine.hadAnyError()) {
+      auto timer = createTimer(*this, "Parsing");
+      // TODO: Give an actual name to the unit
+      unit = Parser(ctxt, lex).parseUnit(ctxt.getIdentifier("TestUnit"));
     }
   }
 
   auto canContinue = [&](){
-    return (unit != nullptr) && !diagEngine_.hadAnyError();
+    return (unit != nullptr) && !diagEngine.hadAnyError();
   };
 
   // Dump alloc if needed
-  if (getDumpAlloc()) {
+  if (options.dumpASTAllocator) {
     out << "Allocator Dump:\n";
-    ctxt_.dumpAllocator();
+    ctxt.dumpAllocator();
   }
  
-  // Semantic analysis
-  if(canContinue() && !isParseOnly()) {
-    Sema s(ctxt_);
+  // Do semantic analysis unless the client doesn't want it.
+  if(canContinue() && !options.parseOnly) {
+    Sema s(ctxt);
     s.checkUnitDecl(unit);
   }
 
   // Dump AST if needed, and if the unit isn't null
-  if (unit && getDumpAST()) {
-    auto chrono = createChrono("ASTDumper");
+  if (unit && options.dumpAST) {
+    auto timer = createTimer(*this, "ASTDumper");
     out << "AST Dump:\n";
-    ASTDumper(srcMgr_, out, 1).print(unit);
+    ASTDumper(sourceMgr, out, 1).print(unit);
   }
 
-
   // (Verify mode) Finish Verification
-  if (verify_) {
+  if (options.verifyMode) {
     assert(dv && "DiagnosticVerifier is null");
     // Return directly after finishing. We won't do BCGen or execute
     // anything in verify mode
@@ -122,94 +157,27 @@ bool Driver::processFile(string_view filepath) {
   if(!canContinue())
     return finish();
 
-  if(!(willRun() || getDumpBCGen()))
+  if(!needsToGenerateBytecode())
     return finish();
 
   BCModule theModule;
-  BCGen generator(ctxt_, theModule);
+  BCGen generator(ctxt, theModule);
   generator.genUnit(unit);
 
-  if (getDumpBCGen())
+  // Dump the bytecode if needed
+  if (options.dumpBCGen)
     theModule.dump(out);
-  if (willRun()) {
-    VM vm(theModule);
-    // Use '!' because we want to return EXIT_SUCCESS when 
-    // the function returns nothing (0)
-    return !vm.call(theModule.getFunction(0)).raw;
+
+  // Run the bytecode if needed
+  if (options.run) {
+    VM(theModule).call(theModule.getFunction(0));
+    return true;
   }
 
   return true;
 }
 
-bool Driver::getPrintChrono() const {
-  return chrono_;
-}
-
-void Driver::setPrintChrono(bool val) {
-  chrono_ = val;
-}
-
-bool Driver::isVerifyModeEnabled() const {
-  return verify_;
-}
-
-void Driver::setVerifyModeEnabled(bool val) {
-  verify_ = val;
-}
-
-bool Driver::getDumpAlloc() const {
-  return dumpAlloc_;
-}
-
-void Driver::setDumpAlloc(bool val) {
-  dumpAlloc_ = val;
-}
-
-bool Driver::getDumpBCGen() const {
-  return dumpBCGen_;
-}
-
-void Driver::setDumpBCGen(bool val) {
-  dumpBCGen_ = val;
-}
-
-bool Driver::getDumpAST() const {
-  return dumpAST_;
-}
-
-void Driver::setDumpAST(bool val) {
-  dumpAST_ = val;
-}
-
-bool Driver::getDumpTokens() const {
-  return dumpTokens_;
-}
-
-void Driver::setDumpTokens(bool val) {
-  dumpTokens_ = val;
-}
-
-bool Driver::willRun() const {
-  return run_;
-}
-
-void Driver::setRun(bool val) {
-  run_ = val;
-}
-
-bool Driver::isParseOnly() const {
-  return parseOnly_;
-}
-
-void Driver::setIsParseOnly(bool val) {
-  parseOnly_ = val;
-}
-
-Driver::RAIIChrono Driver::createChrono(string_view label) {
-  return RAIIChrono(*this, label);
-}
-
-bool Driver::doCL(int argc, char* argv[]) {
+int Driver::main(int argc, char* argv[]) {
   // Must have 2 args, first is executable path, second should
   // be filepath => argc must be >= 2
   if (argc < 2) {
@@ -225,19 +193,19 @@ bool Driver::doCL(int argc, char* argv[]) {
   for(int idx = 2; idx < argc; ++idx) {
     string_view str(argv[idx]);
     if (str == "-verify")
-      setVerifyModeEnabled(true);
+      options.verifyMode = true;
     else if (str == "-werr")
-      diagEngine_.setWarningsAreErrors(true);
+      diagEngine.setWarningsAreErrors(true);
     else if (str == "-dump-ast")
-      setDumpAST(true);
+      options.dumpAST = true;
     else if(str == "-parse-only")
-      setIsParseOnly(true);
+      options.parseOnly = true;
     else if(str == "-dump-bcgen") 
-      setDumpBCGen(true);
+      options.dumpBCGen = true;
     else if(str == "-dump-tokens") 
-      setDumpTokens(true);
+      options.dumpTokens = true;
     else if(str == "-run") 
-      setRun(true);
+      options.run = true;
     else {
       // TODO: Emit a diagnostic for this.
       out << "Unknown argument \"" << str << "\"\n";
@@ -245,5 +213,20 @@ bool Driver::doCL(int argc, char* argv[]) {
     }
   }
  
-  return processFile(filepath);
+  return processFile(filepath) ? EXIT_SUCCESS : EXIT_FAILURE;
+}
+
+FileID Driver::tryLoadFile(string_view path) {
+  auto result = sourceMgr.readFile(path);
+  FileID file = result.first;
+  if (!file) {
+    // TO-DO: Emit a diagnostic instead
+    out << "Could not open file \"" << path << "\"\n"
+      "\tReason:" << toString(result.second) << '\n';
+  }
+  return file;
+}
+
+bool Driver::needsToGenerateBytecode() const {
+  return options.run || options.dumpBCGen;
 }

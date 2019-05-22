@@ -50,14 +50,10 @@ int interactiveMain() {
     if (uinput == "*")
       break;
     Driver drv(std::cout);
-    drv.setDumpAST(true);
+    drv.options.dumpAST = true;
     res = drv.processFile(uinput);
   }
   return res ? EXIT_SUCCESS : EXIT_FAILURE;
-}
-
-int cliMain(int argc, char *argv[]) {
-  return Driver(std::cout).doCL(argc, argv) ? EXIT_SUCCESS : EXIT_FAILURE;
 }
 
 int main(int argc, char *argv[]) {
@@ -69,6 +65,6 @@ int main(int argc, char *argv[]) {
   #endif
   setConsoleEnv();
   if (argc > 1) 
-    return cliMain(argc, argv);
+    return Driver(std::cout).main(argc, argv);
   return interactiveMain();
 }
