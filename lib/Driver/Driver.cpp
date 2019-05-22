@@ -6,6 +6,7 @@
 //----------------------------------------------------------------------------//
 
 #include "Fox/Driver/Driver.hpp"
+
 #include "Fox/AST/ASTDumper.hpp"
 #include "Fox/AST/ASTContext.hpp"
 #include "Fox/AST/Decl.hpp"
@@ -66,16 +67,9 @@ namespace {
 }
 
 Driver::Driver(std::ostream& out) : out(out), 
-  diagEngine(sourceMgr, out), ctxt(sourceMgr, diagEngine) {}
+  diagEngine(sourceMgr, out) {}
 
 bool Driver::processFile(string_view path) {
-  // Function to wrap-up the file processing.
-  auto finish = [&]() {
-    auto timer = createTimer(*this, "ASTContext::reset()");
-    ctxt.reset();
-    return !diagEngine.hadAnyError(); 
-  };
-
   // Cleanup the file path
   path = cleanupPath(path);
 
@@ -93,9 +87,9 @@ bool Driver::processFile(string_view path) {
     diagEngine.enableVerifyMode(dv.get());
   }
 
-  // The parsed unit
-  UnitDecl* unit = nullptr;
+  ASTContext ctxt(sourceMgr, diagEngine);
 
+  UnitDecl* unit = nullptr;
   {
     // Do lexing
     Lexer lex(sourceMgr, diagEngine, file);
@@ -138,6 +132,14 @@ bool Driver::processFile(string_view path) {
     Sema s(ctxt);
     s.checkUnitDecl(unit);
   }
+
+  // Helper
+  auto finish = [&]() {
+    auto timer = createTimer(*this, "ASTContext::reset()");
+    ctxt.reset();
+    return !diagEngine.hadAnyError(); 
+  };
+
 
   // Dump AST if needed, and if the unit isn't null
   if (unit && options.dumpAST) {
