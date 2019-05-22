@@ -85,19 +85,17 @@ namespace fox {
       /// The pointer to the beginning of the current pool
       byte_type* begPool_ = nullptr;
 
-      /// Make the allocator non-copyable and non-movable. This is 
-      /// needed to avoid allocators sharing pools (that'd be a
-      /// disaster!)
-      CustomLinearAllocator(ThisType&) = delete;
-      CustomLinearAllocator(ThisType&&) = delete;
-      CustomLinearAllocator& operator=(ThisType&) = delete;
-      CustomLinearAllocator& operator=(ThisType&&) = delete;
-
     public:
       /// The maximum size of a pool. Currently, 4GB.
       static constexpr size_type maxPoolSize = 0xFFFFFFFF;
 
       CustomLinearAllocator() = default;
+
+      /// Make the allocator non-copyable but movable. 
+      CustomLinearAllocator(ThisType&) = delete;
+      CustomLinearAllocator(ThisType&&) = default;
+      CustomLinearAllocator& operator=(ThisType&) = delete;
+      CustomLinearAllocator& operator=(ThisType&&) = default;
 
       /// Resets the allocator, freeing any allocated memory.
       void reset() {
