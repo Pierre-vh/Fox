@@ -4,7 +4,7 @@ Fox is a language that aims to be small and easily embeddable.
 
 This is a project that I started to learn more about compilers and interpreter but even if the main goal is to learn, I'm still developing it seriously, hoping that it might be useful to someone someday. 
 
-My current plan is to implement a few last features (Arrays/Global Variables/GC/Imports/Function Overloading/UFCS) before moving on to another project.
+My current plan is to implement a few last features (Arrays/Global Variables/GC/Imports and a few more) before moving on to another project.
 
 ## Quick language tour
 
