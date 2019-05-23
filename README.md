@@ -42,7 +42,7 @@ func foo(x: int, y: mut int) : [int] {
 
 func bar(count: mut int) {
   while count > 0 {
-    print("Count: " + $count + '\n'); // the unary $ operator converts an int/double/bool/char to string.
+    printString("Count: " + $count + '\n'); // the unary $ operator converts an int/double/bool/char to string.
     count = count-1;
   }
 }
