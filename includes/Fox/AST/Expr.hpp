@@ -457,8 +457,6 @@ namespace fox   {
   /// BuiltinMemberRefExpr
   ///   A resolved reference to a builtin member of a type.
   ///   e.g. "string".size(), array.append(x), etc.
-  ///
-  ///   FIXME: This node is a bit... messy to say the least.
   class BuiltinMemberRefExpr final : public Expr {
     public:
       using BTMKind = BuiltinTypeMemberKind;
