@@ -237,18 +237,33 @@ class Sema::ExprChecker : Checker, ExprVisitor<ExprChecker, Expr*>,  ASTWalker {
         .addArg(ty);
     }
 
+    // for a ill-formed call, emits a note depending on the nature of the 
+    // callee.
+    // if it's a reference to a declaration: highlights the declaration
+    // if it's something else: prints "'prettyName' has type 'type'"
+    void noteCallee(Expr* callee, string_view calleePrettyName) {
+      // If the callee is a DeclRefExpr, emit a note to show the decl
+      // it references.
+      if(auto declref = dyn_cast<DeclRefExpr>(callee))
+        noteIsDeclaredHereWithType(callee->getBeginLoc().getFileID(), 
+                                   declref->getDecl());
+      // If it's something else, just print "'..' has type '..'",
+      // e.g. "'string.size' has type '() -> int'"
+      else {
+        diagEngine.report(DiagID::note_has_type, callee->getSourceRange())
+          .addArg(calleePrettyName)
+          .addArg(callee->getType());
+      }
+    }
+
     // Diagnoses a bad function call where the number of arguments
-    // provided didn't match the number of parameters expected.
+    // was incorrect.
     void diagnoseArgcMismatch(CallExpr* call, std::size_t argsProvided, 
-      std::size_t argsExpected) {
+                              std::size_t argsExpected) {
       assert(argsProvided != argsExpected);
 
       Expr* callee = call->getCallee();
       std::string calleePrettyName = getCalleePrettyName(callee);
-
-      // For now, only a DeclRefExpr can have a FunctionType. But if that
-      // changes in the future, remove this assert and add alternative diags.
-      assert(callee && "callee isn't a DeclRefExpr");
 
       DiagID diag;
       // Use the most appropriate diagnostic based on the situation
@@ -259,39 +274,24 @@ class Sema::ExprChecker : Checker, ExprVisitor<ExprChecker, Expr*>,  ASTWalker {
       else 
         diag = DiagID::too_many_args_in_func_call;
 
-      // Report the diagnostic
       diagEngine.report(diag, callee->getSourceRange())
         .addArg(calleePrettyName);
-
-      // If the callee is a DeclRefExpr, emit a note to point at the
-      // decl it references.
-      if(auto declref = dyn_cast<DeclRefExpr>(callee))
-        noteIsDeclaredHereWithType(call->getBeginLoc().getFileID(), 
-                                   declref->getDecl());
+      noteCallee(callee, calleePrettyName);
     }
 
     // Diagnoses a bad function call where the types of the arguments
-    // didn't match
+    // was incorrect.
     void diagnoseBadFunctionCall(CallExpr* call) {
-      assert((call->getCallee() != nullptr) && "no callee");
       assert(call->numArgs() && "numArgs cannot be zero!");
 
       Expr* callee = call->getCallee();
       std::string calleePrettyName = getCalleePrettyName(callee);
 
-      // Retrieve a user-friendly presentation of the args
-      std::string argsAsStr = getArgsAsString(call);
-
       diagEngine.report(DiagID::cannot_call_func_with_args, call->getArgsRange())
         .addArg(calleePrettyName)
-        .addArg(argsAsStr)
+        .addArg(getArgsAsString(call))
         .setExtraRange(callee->getSourceRange());
-
-      // If the callee is a DeclRefExpr, emit a note to point at the
-      // decl it references.
-      if(auto declref = dyn_cast<DeclRefExpr>(callee))
-        noteIsDeclaredHereWithType(call->getBeginLoc().getFileID(), 
-                                   declref->getDecl());
+      noteCallee(callee, calleePrettyName);
     }
 
     // Diagnoses the presence of a function type in an array literal.

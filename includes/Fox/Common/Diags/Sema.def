@@ -70,6 +70,8 @@ WARNING(code_after_return_not_reachable,
 WARNING(useless_redundant_cast,
   "useless cast to '%0': expression is already of type '%0'")
 
+NOTE(note_has_type,
+  "'%0' has type '%1'")
 NOTE(declared_here_with_type,
   "'%0' declared here with type '%1'")
 NOTE(is_a_builtin_func_with_type,
