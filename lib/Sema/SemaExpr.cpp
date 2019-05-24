@@ -413,8 +413,6 @@ class Sema::ExprChecker : Checker, ExprVisitor<ExprChecker, Expr*>,  ASTWalker {
       assert(ret && "function return type is null");
       expr->setType(ret);
 
-      // Check if the callee is a BuiltinMemberRefExpr.
-      // In that case, mark it as called.
       if (auto bmr = dyn_cast<BuiltinMemberRefExpr>(expr->getCallee()))
         bmr->setIsCalled();
 
@@ -629,9 +627,9 @@ class Sema::ExprChecker : Checker, ExprVisitor<ExprChecker, Expr*>,  ASTWalker {
     Expr* visitUnresolvedDotExpr(UnresolvedDotExpr* expr) {
       // Currently there's only builtin types, no user-defined ones, 
       // so we know the base's type is always a builtin one.
-      // This means that we can directly call resolveBuiltinMember to
-      // try to resolve the expr.
-      BuiltinMemberRefExpr* resolved = sema.resolveBuiltinMember(expr);
+      // This means that we can directly call resolveBuiltinTypeMember to
+      // try to resolve this expr.
+      BuiltinMemberRefExpr* resolved = sema.resolveBuiltinTypeMember(expr);
       if (resolved) return resolved;
 
       // Failed resolution : diagnose & return ErrorExpr.
@@ -1110,11 +1108,12 @@ class Sema::ExprFinalizer : ASTWalker {
     Expr* handleExprPost(Expr* expr) {
       tryUnmuteDiags(expr);
 
-      // If the Expr is a BuiltinMemberRefExpr and it's not called,
-      // we got an error.
+      // If the Expr is a BuiltinMemberRefExpr and it's not called, it's
+      // an error.
       if (auto bmr = dyn_cast<BuiltinMemberRefExpr>(expr)) {
         if (!bmr->isCalled())
-          diags.report(DiagID::uncalled_bound_member_function, bmr->getSourceRange());
+          diags.report(DiagID::uncalled_bound_member_function, 
+                       bmr->getSourceRange());
       }
 
       return expr;

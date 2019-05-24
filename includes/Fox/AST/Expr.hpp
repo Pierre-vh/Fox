@@ -455,7 +455,8 @@ namespace fox   {
   };
 
   /// BuiltinMemberRefExpr
-  ///   A resolved reference to a builtin member of a type.
+  ///   A resolved reference to a builtin member of a type
+  ///   (usually a member of a builtin type)
   ///   e.g. "string".size(), array.append(x), etc.
   class BuiltinMemberRefExpr final : public Expr {
     public:

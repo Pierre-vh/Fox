@@ -4,8 +4,8 @@
 // File : SemaBuiltins.cpp                    
 // Author : Pierre van Houtryve                
 //----------------------------------------------------------------------------//
-//  Contains the functions responsible for resolving references to builtin
-//  members of builtin types
+//  Contains the functions responsible for resolving references to members of
+//  builtin types.
 //----------------------------------------------------------------------------//
 
 #include "Fox/Sema/Sema.hpp"
@@ -44,7 +44,7 @@ namespace {
   }
 
   /// \returns the type of a builtin string member \p kind 
-  Type getTypeOfBuiltinStringMember(ASTContext& ctxt, 
+  Type getTypeOfStringMember(ASTContext& ctxt, 
                                     BuiltinTypeMemberKind kind) {
     assert(isStringBuiltin(kind) && "wrong function");
     using BTMK = BuiltinTypeMemberKind;
@@ -59,7 +59,7 @@ namespace {
   }
 
   /// \returns the type of a builtin array member \p kind 
-  Type getTypeOfBuiltinArrayMember(ASTContext& ctxt, BuiltinTypeMemberKind kind,
+  Type getTypeOfArrayMember(ASTContext& ctxt, BuiltinTypeMemberKind kind,
                                    Type baseType) {
     assert(isArrayBuiltin(kind) && "wrong function");
     using BTMK = BuiltinTypeMemberKind;
@@ -88,23 +88,22 @@ namespace {
 
   /// \returns the type of a BuiltinTypeMemberKind.
   /// Never nullptr.
-  Type getTypeOfBuiltinMember(ASTContext& ctxt, BuiltinMemberRefExpr* expr) {
+  Type getTypeOfBuiltinMemberRef(ASTContext& ctxt, BuiltinMemberRefExpr* expr) {
     Type baseType = expr->getBase()->getType();
     auto kind = expr->getBuiltinTypeMemberKind();
 
     if(isStringBuiltin(kind))
-      return getTypeOfBuiltinStringMember(ctxt, kind);
+      return getTypeOfStringMember(ctxt, kind);
     if(isArrayBuiltin(kind))
-      return getTypeOfBuiltinArrayMember(ctxt, kind, baseType);
+      return getTypeOfArrayMember(ctxt, kind, baseType);
     fox_unreachable("unknown BuiltinTypeMemberKind category");
   }
 }
 
-/// Attempts to resolve a reference to a builtin member of a type.
+/// Attempts to resolve a reference to a member of a builtin type.
 /// \returns nullptr if the member couldn't be resolved (= unknown),
 /// else returns the resolved expression.
-BuiltinMemberRefExpr* 
-Sema::resolveBuiltinMember(UnresolvedDotExpr* expr) {
+BuiltinMemberRefExpr* Sema::resolveBuiltinTypeMember(UnresolvedDotExpr* expr) {
   Identifier memberID = expr->getMemberIdentifier();
   // Lookup the builtin member
   SmallVector<BuiltinTypeMemberKind, 4> results;
@@ -113,23 +112,23 @@ Sema::resolveBuiltinMember(UnresolvedDotExpr* expr) {
     lookupStringMember(results, memberID);
   else if(baseType->isArrayType())
     lookupArrayMember(results, memberID);
-  // No other type have builtin members.
+  // No other builtin type have members.
   else return nullptr;
 
-  // If there's no result, the builtin doesn't exist.
+  // If there's no result, the member doesn't exist.
   if(results.size() == 0)
     return nullptr;
 
-  // There should be only one result since we don't support overloading builtin
-  // members.
+  // There should be only one result since we don't support overloading members
+  // of builtin types.
   assert((results.size() == 1) && "unsupported overloaded builtin type member");
 
   // Create the resolved expression
   BuiltinTypeMemberKind builtinKind = results[0];
   auto resolved = BuiltinMemberRefExpr::create(ctxt, expr, builtinKind);
   // Set its type
-  resolved->setType(getTypeOfBuiltinMember(ctxt, resolved));
-  // Currently, builtins are always functions.
+  resolved->setType(getTypeOfBuiltinMemberRef(ctxt, resolved));
+  // Currently, members of builtin types are always functions.
   resolved->setIsMethod();
   return resolved;
 }
