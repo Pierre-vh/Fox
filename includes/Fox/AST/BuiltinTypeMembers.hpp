@@ -22,10 +22,16 @@ namespace fox {
     #include "BuiltinTypeMembers.def"
   };
 
-  /// \returns true if \p kind is a kind of String builtin
+  /// \returns true if \p kind is a string member
   inline bool isStringBuiltin(BuiltinTypeMemberKind kind) {
     return (kind >= BuiltinTypeMemberKind::First_StringMember) &&
            (kind <= BuiltinTypeMemberKind::Last_StringMember);
+  }
+
+  /// \returns true if \p kind is an array member
+  inline bool isArrayBuiltin(BuiltinTypeMemberKind kind) {
+    return (kind >= BuiltinTypeMemberKind::First_ArrayMember) &&
+           (kind <= BuiltinTypeMemberKind::Last_ArrayMember);
   }
 
   /// Converts a BuiltinTypeMemberKind to a human-readable string.

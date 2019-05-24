@@ -4,7 +4,8 @@
 // File : BuiltinTypeMembers.def                      
 // Author : Pierre van Houtryve                
 //----------------------------------------------------------------------------//
-//  x-macros for macro-metaprogramming with members of builtin types
+//  x-macros for macro-metaprogramming with members of builtin types.
+//  "member" here means any kind of member (variable, method, etc.)
 //----------------------------------------------------------------------------//
 
 /// Any Member regardless of its category.
@@ -27,7 +28,6 @@
   #define ARRAY_MEMBER(ID, FOX) ANY_MEMBER(ID)
 #endif
 
-
 /// Range of members
 ///   ID is the ID of the range
 ///   FIRST is the first type member in the range
@@ -49,7 +49,13 @@ MEMBER_RANGE(StringMember, StringSize, StringNumBytes)
 // Array Members
 //----------------------------------------------------------------------------//
 
-// TODO
+ARRAY_MEMBER(ArraySize,   "size")
+ARRAY_MEMBER(ArrayAppend, "append")
+ARRAY_MEMBER(ArrayPop,    "pop")
+ARRAY_MEMBER(ArrayFront,  "front")
+ARRAY_MEMBER(ArrayBack,   "back")
+
+MEMBER_RANGE(ArrayMember, ArraySize, ArrayBack)
 
 //----------------------------------------------------------------------------//
 
