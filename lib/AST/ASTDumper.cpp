@@ -103,6 +103,8 @@ void ASTDumper::visitBuiltinMemberRefExpr(BuiltinMemberRefExpr* node) {
   dumpLine() << getBasicExprInfo(node) 
     << " ." << node->getMemberIdentifier() 
     << " (Builtin '" << to_string(node->getBuiltinTypeMemberKind()) << "')"
+    << (node->isMethod() ? " method" : "") 
+    << (node->isCalled() ? " called" : "")
     << "\n";
   indent();
   visit(node->getBase());
