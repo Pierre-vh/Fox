@@ -242,8 +242,9 @@ class Sema::ExprChecker : Checker, ExprVisitor<ExprChecker, Expr*>,  ASTWalker {
     void diagnoseArgcMismatch(CallExpr* call, std::size_t argsProvided, 
       std::size_t argsExpected) {
       assert(argsProvided != argsExpected);
-      assert((call->getCallee() != nullptr) && "no callee");
-      DeclRefExpr* callee = dyn_cast<DeclRefExpr>(call->getCallee());
+
+      Expr* callee = call->getCallee();
+      std::string calleePrettyName = getCalleePrettyName(callee);
 
       // For now, only a DeclRefExpr can have a FunctionType. But if that
       // changes in the future, remove this assert and add alternative diags.
@@ -260,37 +261,37 @@ class Sema::ExprChecker : Checker, ExprVisitor<ExprChecker, Expr*>,  ASTWalker {
 
       // Report the diagnostic
       diagEngine.report(diag, callee->getSourceRange())
-        .addArg(callee->getDecl()->getIdentifier());
-      // Also emit a "is declared here with type" note.
-      noteIsDeclaredHereWithType(call->getBeginLoc().getFileID(), 
-                                 callee->getDecl());
+        .addArg(calleePrettyName);
+
+      // If the callee is a DeclRefExpr, emit a note to point at the
+      // decl it references.
+      if(auto declref = dyn_cast<DeclRefExpr>(callee))
+        noteIsDeclaredHereWithType(call->getBeginLoc().getFileID(), 
+                                   declref->getDecl());
     }
 
-    // Diagnoses a bad function call where the types didn't match
+    // Diagnoses a bad function call where the types of the arguments
+    // didn't match
     void diagnoseBadFunctionCall(CallExpr* call) {
       assert((call->getCallee() != nullptr) && "no callee");
       assert(call->numArgs() && "numArgs cannot be zero!");
-      DeclRefExpr* callee = dyn_cast<DeclRefExpr>(call->getCallee());
 
-      // For now, only a DeclRefExpr can have a FunctionType. But if that
-      // changes in the future, remove this assert and add alternative diags.
-      assert(callee && "callee isn't a DeclRefExpr");
+      Expr* callee = call->getCallee();
+      std::string calleePrettyName = getCalleePrettyName(callee);
 
       // Retrieve a user-friendly presentation of the args
       std::string argsAsStr = getArgsAsString(call);
 
-      // Get the args range
-      SourceRange argsRange = call->getArgsRange();
-      assert(argsRange && "argsRange is invalid in CallExpr with a non-zero "
-        "number of arguments");
-
-      diagEngine.report(DiagID::cannot_call_func_with_args, callee->getSourceRange())
-        .addArg(callee->getDecl()->getIdentifier())
+      diagEngine.report(DiagID::cannot_call_func_with_args, call->getArgsRange())
+        .addArg(calleePrettyName)
         .addArg(argsAsStr)
-        .setExtraRange(argsRange);
+        .setExtraRange(callee->getSourceRange());
 
-      noteIsDeclaredHereWithType(call->getBeginLoc().getFileID(), 
-                                 callee->getDecl());
+      // If the callee is a DeclRefExpr, emit a note to point at the
+      // decl it references.
+      if(auto declref = dyn_cast<DeclRefExpr>(callee))
+        noteIsDeclaredHereWithType(call->getBeginLoc().getFileID(), 
+                                   declref->getDecl());
     }
 
     // Diagnoses the presence of a function type in an array literal.
@@ -405,6 +406,19 @@ class Sema::ExprChecker : Checker, ExprVisitor<ExprChecker, Expr*>,  ASTWalker {
 
       resolved->setType(valueType);
       return resolved;
+    }
+
+    CallExpr* finalizeCallExpr(CallExpr* expr, FunctionType* calledFnTy) {
+      Type ret = calledFnTy->getReturnType();
+      assert(ret && "function return type is null");
+      expr->setType(ret);
+
+      // Check if the callee is a BuiltinMemberRefExpr.
+      // In that case, mark it as called.
+      if (auto bmr = dyn_cast<BuiltinMemberRefExpr>(expr->getCallee()))
+        bmr->setIsCalled();
+
+      return expr;
     }
 
     //----------------------------------------------------------------------//
@@ -722,10 +736,7 @@ class Sema::ExprChecker : Checker, ExprVisitor<ExprChecker, Expr*>,  ASTWalker {
 
       // Call should be ok. The type of the CallExpr is the return type
       // of the function.
-      Type ret = fnTy->getReturnType();
-      assert(ret && "types cant be nullptrs!");
-      expr->setType(ret);
-      return expr;
+      return finalizeCallExpr(expr, fnTy);
     }
       
     // Trivial literals: the expr's type is simply the corresponding
@@ -1008,6 +1019,23 @@ class Sema::ExprChecker : Checker, ExprVisitor<ExprChecker, Expr*>,  ASTWalker {
       ss << ")";
       return ss.str();
     }
+
+    /// \returns the pretty name of a callee.
+    ///     For DeclRefExprs, returns the name of the declaration it
+    ///     references.
+    ///     For BuiltinMemberRefExpr, returns type.member
+    std::string getCalleePrettyName(Expr* expr) {
+      if(auto declref = dyn_cast<DeclRefExpr>(expr))
+        return declref->getDecl()->getIdentifier().getStr().to_string();
+      if (auto builtinMemb = dyn_cast<BuiltinMemberRefExpr>(expr)) {
+        std::stringstream ss;
+        ss << builtinMemb->getBase()->getType()
+           << '.' 
+           << builtinMemb->getMemberIdentifier();
+        return ss.str();
+      }
+      fox_unreachable("unknown callee kind");
+    }
 };
 
 // ExprFinalizer
@@ -1081,6 +1109,14 @@ class Sema::ExprFinalizer : ASTWalker {
 
     Expr* handleExprPost(Expr* expr) {
       tryUnmuteDiags(expr);
+
+      // If the Expr is a BuiltinMemberRefExpr and it's not called,
+      // we got an error.
+      if (auto bmr = dyn_cast<BuiltinMemberRefExpr>(expr)) {
+        if (!bmr->isCalled())
+          diags.report(DiagID::uncalled_bound_member_function, bmr->getSourceRange());
+      }
+
       return expr;
     }
 };

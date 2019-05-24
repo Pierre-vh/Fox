@@ -19,4 +19,9 @@ func builtins() {
   arr.pop();
   let front : int = arr.front();
   let back : int = arr.back();
+
+  // ill-formed calls
+  "s".size;         // expect-error: reference to a bound member function must be called
+  [[0]].append();   // expect-error: cannot call '[[int]].append' with no arguments
+  "string".size(1); // expect-error: too many arguments in call to 'string.size'
 }
