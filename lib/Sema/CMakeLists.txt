@@ -1,8 +1,9 @@
 add_source(sema_src
   "Sema.cpp"
-  "SemaTypes.cpp"
-  "SemaExpr.cpp"
-  "SemaStmt.cpp"
+  "SemaBuiltins.cpp"
   "SemaDecl.cpp"
+  "SemaExpr.cpp"
   "SemaLookup.cpp"
+  "SemaStmt.cpp"
+  "SemaTypes.cpp"
 )

@@ -1,0 +1,22 @@
+// RUN: %fox-verify
+
+func builtins() {
+  // types without builtins
+  0.size;     // expect-error: type 'int' has no member named 'size'
+  0.0.size;   // expect-error: type 'double' has no member named 'size'
+  true.size;  // expect-error: type 'bool' has no member named 'size'
+  'c'.size;   // expect-error: type 'char' has no member named 'size'
+
+  // string builtins
+  let str : string = "hello";
+  let strSize : int = str.size();
+  let strNumBytes : int = str.numBytes();
+
+  // array builtins
+  let arr : [int] = [0,1];
+  let arrSize : int = arr.size();
+  arr.append(2);
+  arr.pop();
+  let front : int = arr.front();
+  let back : int = arr.back();
+}

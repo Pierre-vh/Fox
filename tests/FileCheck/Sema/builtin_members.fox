@@ -1,0 +1,37 @@
+// RUN: %fox-verify-dump-ast | %filecheck
+
+func foo() {
+  // CHECK: ErrorExpr {{.*}} '<error>'
+  'c'.foo; // expect-error: type 'char' has no member named 'foo'
+
+  // string builtins
+  let str : string = "hello";
+  // CHECK: BuiltinMemberRefExpr {{.*}} '() -> int' .size (Builtin 'StringSize')
+  str.size;
+  // CHECK: BuiltinMemberRefExpr {{.*}} '() -> int' .numBytes (Builtin 'StringNumBytes')
+  str.numBytes;
+
+  // array builtins
+  let arr : [int] = [0, 1];
+  let arrB : [[double]] = [];
+  // CHECK: BuiltinMemberRefExpr {{.*}} '() -> int' .size (Builtin 'ArraySize')
+  arr.size;
+  // CHECK: BuiltinMemberRefExpr {{.*}} '() -> int' .size (Builtin 'ArraySize')
+  arrB.size; 
+  // CHECK: BuiltinMemberRefExpr {{.*}} '(int) -> void' .append (Builtin 'ArrayAppend')
+  arr.append;
+  // CHECK: BuiltinMemberRefExpr {{.*}} '([double]) -> void' .append (Builtin 'ArrayAppend')
+  arrB.append;
+  // CHECK: BuiltinMemberRefExpr {{.*}} '() -> void' .pop (Builtin 'ArrayPop')
+  arr.pop;
+  // CHECK: BuiltinMemberRefExpr {{.*}} '() -> void' .pop (Builtin 'ArrayPop')
+  arrB.pop;
+  // CHECK: BuiltinMemberRefExpr {{.*}} '() -> int' .front (Builtin 'ArrayFront')
+  arr.front;
+  // CHECK: BuiltinMemberRefExpr {{.*}} '() -> [double]' .front (Builtin 'ArrayFront')
+  arrB.front;
+  // CHECK: BuiltinMemberRefExpr {{.*}} '() -> int' .back (Builtin 'ArrayBack')
+  arr.back;
+  // CHECK: BuiltinMemberRefExpr {{.*}} '() -> [double]' .front (Builtin 'ArrayFront')
+  arrB.front;
+}

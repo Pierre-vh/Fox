@@ -97,7 +97,7 @@ class Sema::ExprChecker : Checker, ExprVisitor<ExprChecker, Expr*>,  ASTWalker {
     }
 
     void diagnoseHeteroArrLiteral(ArrayLiteralExpr* expr, Expr* faultyElem,
-      Type supposedType) {
+                                  Type supposedType) {
       assert(faultyElem && "no element pointed");
       diagEngine
         // Precise error loc is the first element that failed the inferrence,
@@ -170,7 +170,7 @@ class Sema::ExprChecker : Checker, ExprVisitor<ExprChecker, Expr*>,  ASTWalker {
 
     // Diagnoses an ambiguous identifier
     void diagnoseAmbiguousIdentifier(SourceRange range, Identifier id,
-      const LookupResult& results) {
+                                     const LookupResult& results) {
       // First, display the "x" is ambiguous error
       diagEngine.report(DiagID::ambiguous_ref, range).addArg(id);
       // Now, iterate over the lookup results and emit notes
@@ -191,20 +191,24 @@ class Sema::ExprChecker : Checker, ExprVisitor<ExprChecker, Expr*>,  ASTWalker {
       }
     }
 
+    // Diagnoses an unassignable expression
     void diagnoseUnassignableExpr(BinaryExpr* expr) {
       assert(expr->isAssignement());
+      if(!isWellFormed(expr->getLHS()->getType())) return;
+
       SourceRange lhsRange = expr->getLHS()->getSourceRange();
       SourceRange opRange = expr->getOpRange();
       diagEngine.report(DiagID::unassignable_expr, lhsRange)
         .setExtraRange(opRange);
     }
 
+    // Diagnoses an illegal assignement.
     void diagnoseInvalidAssignement(BinaryExpr* expr, Type lhsTy, Type rhsTy) {
       assert(expr->isAssignement());
+      if(!isWellFormed({lhsTy, rhsTy})) return;
+
       SourceRange lhsRange = expr->getLHS()->getSourceRange();
       SourceRange rhsRange = expr->getRHS()->getSourceRange();
-
-      if(!isWellFormed({lhsTy, rhsTy})) return;
 
       // Diag is (roughly) "can't assign a value of type (lhs) to type (rhs)
       diagEngine.report(DiagID::invalid_assignement, rhsRange)
@@ -221,6 +225,8 @@ class Sema::ExprChecker : Checker, ExprVisitor<ExprChecker, Expr*>,  ASTWalker {
         .setExtraRange(extra);
     }
 
+    // Diagnoses an expression that isn't a function but was
+    // expected to be one.
     void diagnoseExprIsNotAFunction(Expr* callee) {
       SourceRange range = callee->getSourceRange();
       Type ty = callee->getType();
@@ -231,6 +237,8 @@ class Sema::ExprChecker : Checker, ExprVisitor<ExprChecker, Expr*>,  ASTWalker {
         .addArg(ty);
     }
 
+    // Diagnoses a bad function call where the number of arguments
+    // provided didn't match the number of parameters expected.
     void diagnoseArgcMismatch(CallExpr* call, std::size_t argsProvided, 
       std::size_t argsExpected) {
       assert(argsProvided != argsExpected);
@@ -285,11 +293,30 @@ class Sema::ExprChecker : Checker, ExprVisitor<ExprChecker, Expr*>,  ASTWalker {
                                  callee->getDecl());
     }
 
+    // Diagnoses the presence of a function type in an array literal.
     void diagnoseFunctionTypeInArrayLiteral(ArrayLiteralExpr* lit, Expr* fn) {
+      assert(fn->getType()->getRValue()->is<FunctionType>() && "wrong func");
       diagEngine.report(DiagID::func_type_in_arrlit, fn->getSourceRange())
         // Maybe displaying the whole array is too much? I think it's great
         // because it gives some context, but maybe I'm wrong.
         .setExtraRange(lit->getSourceRange());
+    }
+
+    // Diagnoses an attempt to access an unknown member of a type.
+    // e.g. "string".foobar (foobar doesn't exist)
+    void diagnoseUnknownTypeMember(UnresolvedDotExpr* expr) {
+      Expr* base = expr->getBase();
+      SourceRange baseRange = base->getSourceRange();
+      Type baseType = base->getType();
+      Identifier membID = expr->getMemberIdentifier();
+      SourceRange memberRange = expr->getMemberIdentifierRange();
+
+      if(!isWellFormed(baseType)) return;
+
+      diagEngine.report(DiagID::type_has_no_member_named, memberRange)
+        .addArg(baseType)
+        .addArg(membID)
+        .setExtraRange(baseRange);
     }
 
     //----------------------------------------------------------------------//
@@ -585,8 +612,17 @@ class Sema::ExprChecker : Checker, ExprVisitor<ExprChecker, Expr*>,  ASTWalker {
       return expr;
     }
 
-    Expr* visitUnresolvedDotExpr(UnresolvedDotExpr*) {
-      fox_unimplemented_feature("UnresolvedDotExpr TypeChecking");
+    Expr* visitUnresolvedDotExpr(UnresolvedDotExpr* expr) {
+      // Currently there's only builtin types, no user-defined ones, 
+      // so we know the base's type is always a builtin one.
+      // This means that we can directly call resolveBuiltinMember to
+      // try to resolve the expr.
+      BuiltinMemberRefExpr* resolved = sema.resolveBuiltinMember(expr);
+      if (resolved) return resolved;
+
+      // Failed resolution : diagnose & return ErrorExpr.
+      diagnoseUnknownTypeMember(expr);
+      return ErrorExpr::create(ctxt, expr); 
     }
 
     Expr* visitBuiltinMemberRefExpr(BuiltinMemberRefExpr*) {
@@ -751,7 +787,8 @@ class Sema::ExprChecker : Checker, ExprVisitor<ExprChecker, Expr*>,  ASTWalker {
       return isa<DeclRefExpr>(base);
     }
 
-    // visitArrayLiteralExpr helpers
+    /// Checks if an expression can legally appear inside an array literal.
+    /// If it can't and it can be diagnosed, diagnoses it.
     bool checkIfLegalWithinArrayLiteral(ArrayLiteralExpr* lit, Expr* expr) {
       Type ty = expr->getType()->getRValue();
       // Functions aren't first-class yet, so we can't allow
@@ -764,7 +801,7 @@ class Sema::ExprChecker : Checker, ExprVisitor<ExprChecker, Expr*>,  ASTWalker {
       return isWellFormed(ty);
     }
 
-    // Typechecks a non empty array literal and deduces it's type.
+    /// Typechecks a non empty array literal and deduces its type.
     Expr* checkNonEmptyArrayLiteralExpr(ArrayLiteralExpr* expr) {
       assert(expr->numElems() && "Size must be >0");
 

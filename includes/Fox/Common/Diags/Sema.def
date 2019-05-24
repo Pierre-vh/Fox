@@ -60,6 +60,8 @@ ERROR(func_type_in_arrlit,
   "function types cannot be used within an array literals")
 ERROR(missing_return_in_func,
   "missing return statement in function '%0' expected to return '%1'")
+ERROR(type_has_no_member_named,
+  "type '%0' has no member named '%1'")
 
 WARNING(code_after_return_not_reachable,
   "code after 'return' will never be executed")

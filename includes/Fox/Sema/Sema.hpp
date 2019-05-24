@@ -80,6 +80,11 @@ namespace fox {
       /// Performs semantic analysis on a declaration and its children.
       void checkDecl(Decl* decl);
 
+      /// Attempts to resolve a reference to a builtin member of a 
+      /// type.
+      /// \returns nullptr if the member couldn't be resolved (= unknown),
+      /// else returns the resolved expression.
+      BuiltinMemberRefExpr* resolveBuiltinMember(UnresolvedDotExpr* expr);
 
       /// The unification algorithm which uses the "default" comparator,
       /// which basically allows numeric types to be considered equal.
