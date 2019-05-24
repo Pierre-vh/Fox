@@ -106,6 +106,10 @@ namespace fox {
       /// 'double' type. Ignores LValues.
       bool isNumericType() const;
 
+      /// \returns true if this type is an array type.
+      /// Ignores LValues
+      bool isArrayType() const;
+
       /// \returns true if this type is any primitive type. Ignores LValues.
       bool isPrimitiveType() const;
 

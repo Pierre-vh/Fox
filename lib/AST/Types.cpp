@@ -265,6 +265,10 @@ bool TypeBase::isNumericType() const {
   return rvalue->is<IntegerType>() || rvalue->is<DoubleType>();
 }
 
+bool TypeBase::isArrayType() const {
+  return getRValue()->is<ArrayType>();
+}
+
 bool TypeBase::isPrimitiveType() const {
   return getRValue()->is<PrimitiveType>();
 }
