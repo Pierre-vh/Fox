@@ -100,7 +100,10 @@ void ASTDumper::visitUnresolvedDotExpr(UnresolvedDotExpr* node) {
 }
 
 void ASTDumper::visitBuiltinMemberRefExpr(BuiltinMemberRefExpr* node) {
-  dumpLine() << getBasicExprInfo(node) << " ." << node->getMemberIdentifier() << "\n";
+  dumpLine() << getBasicExprInfo(node) 
+    << " ." << node->getMemberIdentifier() 
+    << " (Builtin '" << to_string(node->getBuiltinTypeMemberKind()) << "')"
+    << "\n";
   indent();
   visit(node->getBase());
   dedent();
