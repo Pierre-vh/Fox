@@ -261,7 +261,8 @@ class Sema::ExprChecker : Checker, ExprVisitor<ExprChecker, Expr*>,  ASTWalker {
         diag = DiagID::too_many_args_in_func_call;
 
       diagEngine.report(diag, callee->getSourceRange())
-        .addArg(calleePrettyName);
+        .addArg(calleePrettyName)
+        .setExtraRange(call->getCallParenRange());
       noteCallee(callee, calleePrettyName);
     }
 
@@ -273,10 +274,11 @@ class Sema::ExprChecker : Checker, ExprVisitor<ExprChecker, Expr*>,  ASTWalker {
       Expr* callee = call->getCallee();
       std::string calleePrettyName = getCalleePrettyName(callee);
 
-      diagEngine.report(DiagID::cannot_call_func_with_args, call->getArgsRange())
-        .addArg(calleePrettyName)
-        .addArg(getArgsAsString(call))
-        .setExtraRange(callee->getSourceRange());
+      diagEngine
+        .report(DiagID::cannot_call_func_with_args, callee->getSourceRange())
+          .addArg(calleePrettyName)
+          .addArg(getArgsAsString(call))
+          .setExtraRange(call->getCallParenRange());
       noteCallee(callee, calleePrettyName);
     }
 

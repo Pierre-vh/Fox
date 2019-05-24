@@ -127,9 +127,10 @@ namespace fox {
       // Parses a list of expressions
       Result<ExprVector> parseExprList();
 
-      // Parse a list of expression between parentheses
+      /// Parse a list of expression between parentheses.
+      /// \param parenRange will be completed with the range of the
       Result<ExprVector> 
-			parseParensExprList(SourceLoc *RParenLoc = nullptr);
+			parseParensExprList(SourceRange *parenRange = nullptr);
 
       // Parse an expression between parentheses
       Result<Expr*> parseParensExpr();

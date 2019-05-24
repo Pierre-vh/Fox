@@ -557,7 +557,7 @@ namespace fox   {
       static constexpr auto maxArgs = std::numeric_limits<SizeTy>::max();
 
       static CallExpr* create(ASTContext& ctxt, Expr* callee,
-        ArrayRef<Expr*> args, SourceLoc rRoBrLoc);
+        ArrayRef<Expr*> args, SourceRange parenRange);
 
       void setCallee(Expr* base);
       Expr* getCallee() const;
@@ -568,9 +568,8 @@ namespace fox   {
       Expr* getArg(std::size_t idx) const;
       void setArg(Expr* arg, std::size_t idx);
 
-      /// Returns a SourceRange that covers every argument passed
-      /// to the Call. Returns an invalid SourceRange if numArgs() == 0.
-      SourceRange getArgsRange() const;
+      /// \returns the range of the call parentheses
+      SourceRange getCallParenRange() const;
 
       SourceRange getSourceRange() const;
 
@@ -579,9 +578,9 @@ namespace fox   {
       }
 
     private:
-      CallExpr(Expr* callee, ArrayRef<Expr*> args, SourceLoc rRoBrLoc);
+      CallExpr(Expr* callee, ArrayRef<Expr*> args, SourceRange parenRange);
 
-      SourceLoc rightRoBrLoc_;
+      SourceRange parenRange_;
       const SizeTy numArgs_ = 0;
       Expr* callee_ = nullptr;
   };

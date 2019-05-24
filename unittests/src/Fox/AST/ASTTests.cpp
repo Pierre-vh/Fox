@@ -255,7 +255,7 @@ TEST_F(ASTTest, ExprRTTI) {
   }
 
   {
-    auto* expr = CallExpr::create(ctxt, nullptr, ExprVector(), SourceLoc());
+    auto* expr = CallExpr::create(ctxt, nullptr, ExprVector(), SourceRange());
     EXPECT_EQ(expr->getKind(), ExprKind::CallExpr);
     EXPECT_TRUE(CallExpr::classof(expr));
   }

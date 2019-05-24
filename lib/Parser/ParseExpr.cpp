@@ -18,7 +18,6 @@ Parser::Result<Expr*> Parser::parseSuffix(Expr* base) {
   assert(base && "Base cannot be nullptr!");
 
   // <suffix> = '.' <id> | '[' <expr> ']' | <parens_expr_list>
-  SourceLoc endLoc;
 
   // "." <id> 
   // '.'
@@ -32,16 +31,15 @@ Parser::Result<Expr*> Parser::parseSuffix(Expr* base) {
         UnresolvedDotExpr::create(ctxt, base , id, idRange, dotLoc)
       );
     }
-    else  {
-      reportErrorExpected(DiagID::expected_iden);
-      return Result<Expr*>::Error();
-    }
+    reportErrorExpected(DiagID::expected_iden);
+    return Result<Expr*>::Error();
   }
+
   // '[' <expr> ']
   // '['
-  else if (SourceLoc lsquare = tryConsume(TokenKind::LSquare).getBeginLoc()) {
+  if (SourceLoc lsquare = tryConsume(TokenKind::LSquare).getBeginLoc()) {
     // <expr>
-    if (auto expr = parseExpr()) {
+    if (auto exprResult = parseExpr()) {
       // ']'
       SourceLoc rsquare = tryConsume(TokenKind::RSquare).getBeginLoc();
       if (!rsquare) {
@@ -55,31 +53,31 @@ Parser::Result<Expr*> Parser::parseSuffix(Expr* base) {
       }
 
       return Result<Expr*>(
-        SubscriptExpr::create(ctxt, base, expr.get(), rsquare)
+        SubscriptExpr::create(ctxt, base, exprResult.get(), rsquare)
       );
     }
-    else {
-      if (expr.isNotFound())
-        reportErrorExpected(DiagID::expected_expr);
+    else if (exprResult.isNotFound())
+      reportErrorExpected(DiagID::expected_expr);
 
-      // Try to recover
-      if (skipUntilDeclStmtOr(TokenKind::RSquare)) {
-        consume();
-        return Result<Expr*>(base);
-      }
-      else
-        return Result<Expr*>::Error();
+    if (skipUntilDeclStmtOr(TokenKind::RSquare)) {
+      consume();
+      return Result<Expr*>(base);
     }
+
+    return Result<Expr*>::Error();
   }
+
   // <parens_expr_list>
-  else if (auto exprlist = parseParensExprList(&endLoc)) {
-    assert(endLoc && "parseParensExprList didn't complete the endLoc?");
+  SourceRange parenRange;
+  if (auto exprlist = parseParensExprList(&parenRange)) {
+    assert(parenRange && "parseParensExprList didn't complete the parenRange?");
     return Result<Expr*>(
-      CallExpr::create(ctxt, base, exprlist.move(), endLoc)
+      CallExpr::create(ctxt, base, exprlist.move(), parenRange)
     );
   }
   else if (exprlist.isError())
     return Result<Expr*>::Error();
+
   return Result<Expr*>::NotFound();
 }
 
@@ -592,7 +590,8 @@ Parser::Result<ExprVector> Parser::parseExprList() {
   return Result<ExprVector>(exprs);
 }
 
-Parser::Result<ExprVector> Parser::parseParensExprList(SourceLoc *RParenLoc) {
+Parser::Result<ExprVector> 
+Parser::parseParensExprList(SourceRange *parenRange) {
   // <parens_expr_list>  = '(' [ <expr_list> ] ')'
   // '('
   auto leftParens = tryConsume(TokenKind::LParen).getBeginLoc();
@@ -610,8 +609,8 @@ Parser::Result<ExprVector> Parser::parseParensExprList(SourceLoc *RParenLoc) {
       return Result<ExprVector>::Error();
   }
 
-  SourceLoc rightParens = tryConsume(TokenKind::RParen).getBeginLoc();
   // ')'
+  SourceLoc rightParens = tryConsume(TokenKind::RParen).getBeginLoc();
   if (!rightParens) {
     reportErrorExpected(DiagID::expected_rparen);
     diagEngine.report(DiagID::to_match_this_paren, leftParens);
@@ -622,9 +621,8 @@ Parser::Result<ExprVector> Parser::parseParensExprList(SourceLoc *RParenLoc) {
       return Result<ExprVector>::Error();
   }
 
-  assert(rightParens && "invalid loc");
-  if (RParenLoc)
-    *RParenLoc = rightParens;
+  if (parenRange)
+    *parenRange = SourceRange(leftParens, rightParens);
 
   return Result<ExprVector>(exprs);
 }

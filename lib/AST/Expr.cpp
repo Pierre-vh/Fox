@@ -483,8 +483,8 @@ SourceRange DeclRefExpr::getSourceRange() const {
 // CallExpr 
 //----------------------------------------------------------------------------//
 
-CallExpr::CallExpr(Expr* callee, ArrayRef<Expr*> args, SourceLoc rRoBrLoc):
-  Expr(ExprKind::CallExpr), rightRoBrLoc_(rRoBrLoc), callee_(callee), 
+CallExpr::CallExpr(Expr* callee, ArrayRef<Expr*> args, SourceRange parenRange):
+  Expr(ExprKind::CallExpr), parenRange_(parenRange), callee_(callee), 
   numArgs_(static_cast<SizeTy>(args.size())) {
   assert((args.size() < maxArgs) && "Too many args for CallExpr. "
     "Change the type of SizeTy to something bigger!");
@@ -494,10 +494,10 @@ CallExpr::CallExpr(Expr* callee, ArrayRef<Expr*> args, SourceLoc rRoBrLoc):
 
 CallExpr* 
 CallExpr::create(ASTContext& ctxt, Expr* callee, ArrayRef<Expr*> args, 
-  SourceLoc rRoBrLoc) {
+                  SourceRange parenRange) {
   auto totalSize = totalSizeToAlloc<Expr*>(args.size());
   void* mem = ctxt.allocate(totalSize, alignof(CallExpr));
-  return new(mem) CallExpr(callee, args, rRoBrLoc);
+  return new(mem) CallExpr(callee, args, parenRange);
 }
 
 void CallExpr::setCallee(Expr* callee) {
@@ -530,18 +530,13 @@ void CallExpr::setArg(Expr* arg, std::size_t idx) {
   getArgs()[idx] = arg;
 }
 
-SourceRange CallExpr::getArgsRange() const {
-  if(!numArgs_)
-    return SourceRange();
-  auto args = getArgs();
-  SourceLoc beg = args.front()->getBeginLoc();
-  SourceLoc end = args.back()->getEndLoc();
-  return SourceRange(beg, end);
+SourceRange CallExpr::getCallParenRange() const {
+  return parenRange_;
 }
 
 SourceRange CallExpr::getSourceRange() const {
-  assert(callee_ && rightRoBrLoc_ && "ill-formed CallExpr");
-  return SourceRange(callee_->getBeginLoc(), rightRoBrLoc_);
+  assert(callee_ && parenRange_ && "ill-formed CallExpr");
+  return SourceRange(callee_->getBeginLoc(), parenRange_.getEndLoc());
 }
 
 //----------------------------------------------------------------------------//
