@@ -4,10 +4,6 @@
 // File : Parser.hpp                      
 // Author : Pierre van Houtryve                
 //----------------------------------------------------------------------------//
-// This file declares the recursive descent parser for Fox.
-//
-// The grammar can be found in  /doc/ 
-//----------------------------------------------------------------------------//
 
 #pragma once
 
@@ -30,13 +26,14 @@ namespace fox {
   class Lexer;
   enum class DiagID : std::uint16_t;
 
-  /// The Fox Parser
+  /// The Fox Parser. It is a simple recursive descent parser.
+  /// The Fox Grammar can be found in /doc/.
   class Parser {
     public:
       /// The kind of results for the \ref Result class
       enum class ResultKind : std::uint8_t {
         Success, Error, NotFound
-        // There's still room for one more ParserResultKind. If more is 
+        // There's still room for 1 more ParserResultKind. If more is 
         // added, update bitsForPRK in the detail namespace below
         // the Parser class.
       };
@@ -45,13 +42,10 @@ namespace fox {
       class Result;
 
     private:
-      // The type of the Token iterator
+      /// The type of the Token iterator
       using TokenIteratorTy = TokenVector::iterator;
 
     public:
-      //----------------------------------------------------------------------//
-      // Public Parser Interface
-      //----------------------------------------------------------------------//
 
       /// Constructor for the Parser. 
       /// If you plan to use the parser by calling parseDecl/parseFuncDecl/
@@ -75,10 +69,6 @@ namespace fox {
       /// Parse a single function or variable declaration
       Result<Decl*> parseDecl();
 
-      //----------------------------------------------------------------------//
-      // References to other important Fox classes
-      //----------------------------------------------------------------------//
-
       /// The ASTContext, used to allocate every node in the AST.
       ASTContext& ctxt;
 
@@ -98,33 +88,29 @@ namespace fox {
       /// \returns the FileID of the current File (same as lexer.theFile)
       FileID getFileID() const;
 
-      //---------------------------------//
-      // Expression parsing helpers
-      //---------------------------------//
-
-      // Normalizes the literal "str". 
-      //  1) Removes the delimiter 
-      //      (remove the first and last char of the string)
-      //  2) Replaces valid escape sequences with the correct character
-      //      '\' + 'n' becomes \n
-      //      '\' + 'r' becomes \r
-      //      '\' + 't' becomes \t
-      //      '\' + ''' becomes '
-      //      '\' + '"' becomes "
-      //      '\' + '\' becomes \
-      //      '\' + '0' becomes 0
-      //  This method will also diagnose invalid escape sequences
-      //  and ignore them.
+      /// Normalizes the literal "str". 
+      ///  1) Removes the delimiter 
+      ///      (remove the first and last char of the string)
+      ///  2) Replaces valid escape sequences with the correct character
+      ///      '\' + 'n' becomes \n
+      ///      '\' + 'r' becomes \r
+      ///      '\' + 't' becomes \t
+      ///      '\' + ''' becomes '
+      ///      '\' + '"' becomes "
+      ///      '\' + '\' becomes \
+      ///      '\' + '0' becomes 0
+      ///  This method will also diagnose invalid escape sequences
+      ///  and ignore them.
       std::string normalizeString(string_view str);
 
-      // Creates a string literal from a "DoubleQuoteText" token.
+      /// Creates a string literal from a "DoubleQuoteText" token.
       StringLiteralExpr* createStringLiteralExprFromToken(const Token& tok);
 
-      // Attempts to create a char literal from a "SingleQuoteText" token.
-      // Returns ErrorExpr on error, never nullptr.
+      /// Attempts to create a char literal from a "SingleQuoteText" token.
+      /// Returns ErrorExpr on error, never nullptr.
       Expr* createCharLiteralExprFromToken(const Token& tok);
 
-      // Parses a list of expressions
+      /// Parses a list of expressions
       Result<ExprVector> parseExprList();
 
       /// Parse a list of expression between parentheses.
@@ -132,7 +118,7 @@ namespace fox {
       Result<ExprVector> 
 			parseParensExprList(SourceRange *parenRange = nullptr);
 
-      // Parse an expression between parentheses
+      /// Parse an expression between parentheses
       Result<Expr*> parseParensExpr();
 
       Result<Expr*> parseSuffix(Expr* base);
@@ -148,10 +134,6 @@ namespace fox {
       Result<Expr*> parseBinaryExpr(unsigned precedence = 5);
       Result<Expr*> parseExpr(); 
 
-      //---------------------------------//
-      // Statement parsing helpers
-      //---------------------------------//
-
       Result<Stmt*> parseReturnStmt();
       Result<ASTNode> parseExprStmt();
       Result<Stmt*> parseCompoundStatement();
@@ -159,69 +141,49 @@ namespace fox {
       Result<Stmt*> parseCondition();
       Result<Stmt*> parseWhileLoop();
 
-      //---------------------------------//
-      // Declaration parsing helpers
-      //---------------------------------//
-
-      // Parses a parameter declaration.
+      /// Parses a parameter declaration.
       Result<Decl*> parseParamDecl();
 
-      //---------------------------------//
-      // Type parsing helpers
-      //---------------------------------//
-
-      // Parses a builtin type name
+      /// Parses a builtin type name
       Result<TypeLoc> parseBuiltinTypename();
 
-      // Parses a complete type e.g. [[float]]
+      /// Parses a complete type e.g. [[float]]
       Result<TypeLoc> parseType();
 
-      //---------------------------------//
-      // Operators parsing helpers
-      //---------------------------------//
+      /// Theses methods return a Result object that
+      /// doesn't contain the SourceRange. For now, the workaround I use is 
+      /// to ask for a SourceRange& as param, and I place the SourceRange 
+      /// there on success. This workaround will go away with the lexer rework,
+      /// because operators won't be parsed anymore, they'll be handled
+      /// by the lexer directly.
 
-      // Theses methods return a Result object that
-      // doesn't contain the SourceRange. For now, the workaround I use is 
-      // to ask for a SourceRange& as param, and I place the SourceRange 
-      // there on success. This workaround will go away with the lexer rework,
-      // because operators won't be parsed anymore, they'll be handled
-      // by the lexer directly.
-
-      // Parses any assignment operator. The SourceRange of the operator
-      // is placed in "range" if the parsing finishes successfully.
+      /// Parses any assignment operator. The SourceRange of the operator
+      /// is placed in "range" if the parsing finishes successfully.
       Result<BinaryExpr::OpKind> parseAssignOp(SourceRange& range);
 
-      // Parses any unary operator. The SourceRange of the operator
-      // is placed in "range" if the parsing finishes successfully.
+      /// Parses any unary operator. The SourceRange of the operator
+      /// is placed in "range" if the parsing finishes successfully.
       Result<UnaryExpr::OpKind> parseUnaryOp(SourceRange& range);
       
-      // Parses any binary operator. The SourceRange of the operator
-      // is placed in "range" if the parsing finishes successfully.
+      /// Parses any binary operator. The SourceRange of the operator
+      /// is placed in "range" if the parsing finishes successfully.
       Result<BinaryExpr::OpKind> 
       parseBinaryOp(unsigned priority, SourceRange& range);
 
-      //---------------------------------//
-      // Current Decl Parent (curParent_) helpers
-      //---------------------------------//
-
-      // This should always be called after successfully parsing a decl.
-      //
-      // This method will handle registration of the decl if possible,
-      // or it'll add it to the current instance of DelayedDeclRegistration.
+      /// This should always be called after successfully parsing a decl.
+      ///
+      /// This method will handle registration of the decl if possible,
+      /// or it'll add it to the current instance of DelayedDeclRegistration.
       void finishDecl(Decl* decl);
 
-      // This is a method called by DelayedDeclRegistration and
-      // finishDecl to perform the actual Decl registration.
-      // 
-      // It should never be called by parsing methods directly.
-      // Always use finishDecl instead!
+      /// This is a method called by DelayedDeclRegistration and
+      /// finishDecl to perform the actual Decl registration.
+      /// 
+      /// It should never be called by parsing methods directly.
+      /// Always use finishDecl instead!
       void registerDecl(Decl* decl, ScopeInfo scopeInfo);
 
       DeclContext* getCurrentDeclCtxt() const;
-
-      //---------------------------------//
-      // Token consumption
-      //---------------------------------//
 
       /// \returns true if the current token is an identifier
       bool isCurTokAnIdentifier() const;
@@ -247,10 +209,6 @@ namespace fox {
       
       /// \returns the previous token
       Token getPreviousToken() const;
-      
-      //---------------------------------//
-      // Recovery helpers
-      //---------------------------------//
       
       /// \param tok the token to check
       /// \return true if 'tok' is a token that begins a declaration
@@ -299,42 +257,40 @@ namespace fox {
       // Error reporting
       //---------------------------------//
 
-      // Reports an error of the "unexpected" family.
-      // The SourceLoc of the error is right past the end of the undo token.
+      /// Reports an error of the "unexpected" family.
+      /// The SourceLoc of the error is right past the end of the undo token.
       Diagnostic reportErrorExpected(DiagID diag);
 
       //---------------------------------//
       // Parser "state" variables & methods
       //---------------------------------//
 
-      // Iterator to the current token being considered by the parser.
+      /// Iterator to the current token being considered by the parser.
       TokenIteratorTy tokenIterator_;
 
-      // The currently active DeclContext
+      /// The currently active DeclContext
       DeclContext* curDeclCtxt_ = nullptr;
 
-      // Returns true if the parser is done parsing.
+      /// Returns true if the parser is done parsing.
       bool isDone() const;
 
       //----------------------------------------------------------------------//
       // Private parser objects
       //----------------------------------------------------------------------//
 
-      //---------------------------------//
-      // RAIIDeclCtxt
-      //
-      // This class sets the current DeclContext at construction, 
-			// and restores the last one at destruction.
-      // If the previous parent wasn't null and the new parent passed
-      // to the constructor is a DeclContext, set the parent of the
-      // DC passed to the constructor to the last one active.
-      // (TL;DR: It automatically handles "parent" registration)
-      //---------------------------------//
+      /// RAIIDeclCtxt
+      ///
+      /// This class sets the current DeclContext at construction, 
+			/// and restores the last one at destruction.
+      /// If the previous parent wasn't null and the new parent passed
+      /// to the constructor is a DeclContext, set the parent of the
+      /// DC passed to the constructor to the last one active.
+      /// (TL;DR: It automatically handles "parent" registration)
       class RAIIDeclCtxt {
         public:
           RAIIDeclCtxt(Parser *p, DeclContext* dc);
-          // Restores the original DeclContext early, instead of waiting
-          // for the destruction of this object.
+          /// Restores the original DeclContext early, instead of waiting
+          /// for the destruction of this object.
           void restore();
           ~RAIIDeclCtxt();
 
@@ -345,75 +301,67 @@ namespace fox {
           DeclContext* lastDC_ = nullptr;
       };
 
-      //---------------------------------//
-      // DelayedDeclRegistration 
-      // 
-      // This class represents a "transaction". It is used
-      // to delay calls to finishDecl until the transaction
-      // is completed or abandoned. 
-      //
-      // This class solves a very important problem: ScopeInfo
-      // of CompoundStmts: To correctly parse the Decls inside
-      // a CompoundStmt, I need to have ScopeInfo of the CompoundStmt,
-      // but to create the CompoundStmt, I need to parse it all since
-      // it uses trailing objects. This chicken-and-egg problem is solved
-      // by this class that delays the registration of the declarations 
-      // that are direct children of the CompoundStmt.
-      //
-      // Note: this object is relatively large (8+2 pointers) in order to
-      //       minimize allocations in common cases.
-      // 
-      // The transaction can be completed in 3 ways:
-      // - by calling "complete" with a ScopeInfo instance
-      //
-      // - by calling abandon(), which discards the decls.
-      //
-      // - by destroying this object (that calls abandon())
-      //
-      // NOTE: Theses aren't nested. When a DDR completes its transaction,
-      //       it'll register the decls directly (registerDecl), it won't add
-      //       them to the previous DDR (e.g. by calling finishDecl)
-      //---------------------------------//      
+      
+      /// DelayedDeclRegistration 
+      /// 
+      /// This class represents a "transaction". It is used
+      /// to delay calls to finishDecl until the transaction
+      /// is completed or abandoned. 
+      ///
+      /// This class solves a very important problem: ScopeInfo
+      /// of CompoundStmts: To correctly parse the Decls inside
+      /// a CompoundStmt, I need to have ScopeInfo of the CompoundStmt,
+      /// but to create the CompoundStmt, I need to parse it all since
+      /// it uses trailing objects. This chicken-and-egg problem is solved
+      /// by this class that delays the registration of the declarations 
+      /// that are direct children of the CompoundStmt.
+      ///
+      /// Note: this object is relatively large (8+2 pointers) in order to
+      ///       minimize allocations in common cases.
+      /// 
+      /// The transaction can be completed in 3 ways:
+      /// - by calling "complete" with a ScopeInfo instance
+      ///
+      /// - by calling abandon(), which discards the decls.
+      ///
+      /// - by destroying this object (that calls abandon())
+      ///
+      /// NOTE: Theses aren't nested. When a DDR completes its transaction,
+      ///       it'll register the decls directly (registerDecl), it won't add
+      ///       them to the previous DDR (e.g. by calling finishDecl)
       class DelayedDeclRegistration {
         public:
           DelayedDeclRegistration(Parser* p);
           ~DelayedDeclRegistration();
 
-          // Adds a Decl to this transaction, this should only be called
-          // by finishDecl when it notices that a transaction is currently
-          // active.
+          /// Adds a Decl to this transaction, this should only be called
+          /// by finishDecl when it notices that a transaction is currently
+          /// active.
           void addDecl(Decl* decl);
 
-          // Abandons this transaction, discarding the stored decls.
+          /// Abandons this transaction, discarding the stored decls.
           void abandon();
 
-          // Completes this 'transaction', registering the stored decls using
-          // the ScopeInfo passed as parameter.
+          /// Completes this 'transaction', registering the stored decls using
+          /// the ScopeInfo passed as parameter.
           void complete(ScopeInfo scope);
 
           DelayedDeclRegistration(const DelayedDeclRegistration&) = delete;
           DelayedDeclRegistration& 
           operator=(const DelayedDeclRegistration&) = delete;
         private:
-          // The parser instance, or nullptr if the transaction
-          // has already been completed.
+          /// The parser instance, or nullptr if the transaction
+          /// has already been completed.
           Parser* parser_ = nullptr;
 
-          // The pending decls
+          /// The pending decls
           SmallVector<Decl*, 8> decls_;
           
-          // The previous curDDR_, if there's one.
+          /// The previous curDDR_, if there's one.
           DelayedDeclRegistration* prevCurDDR_ = nullptr;
       };
 
       DelayedDeclRegistration* curDDR_ = nullptr;
-
-      //----------------------------------------------------------------------//
-      // Parser constants
-      //----------------------------------------------------------------------//
-      
-      static constexpr uint8_t 
-			maxBraceDepth_ = (std::numeric_limits<std::uint8_t>::max)();
   };
 
   namespace detail {
