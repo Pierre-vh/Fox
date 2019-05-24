@@ -21,83 +21,100 @@ namespace {
   /// Searches for string builtin members with the identifier "id"
   void lookupStringMember(SmallVectorImpl<BuiltinTypeMemberKind>& results,
                           Identifier id) {
-    // FIXME: A chain of "if"s is suboptimal, but the number of builtins is
-    //        currently really small so it shouldn't be a problem.
-    //        A cached lookup map would be ideal though.
-    //        See lookupArrayMember for a similar FIXME.
-    using BTMK = BuiltinTypeMemberKind;
+    // FIXME: A chain of ifs is suboptimal (but it shouldn't really be a
+    //        problem here due to the relatively small amount of entries)
+    //        lookupArrayMember below has the same problem.
     string_view str = id.getStr();
-    #define STRING_MEMBER(ID, FOX) if(str == #FOX) results.push_back(BTMK::ID);
+    #define STRING_MEMBER(ID, FOX)\
+      if(str == #FOX) results.push_back(BuiltinTypeMemberKind::ID);
     #include "Fox/AST/BuiltinTypeMembers.def"
   }
 
   /// Searches for array builtin members with the identifier "id"
   void lookupArrayMember(SmallVectorImpl<BuiltinTypeMemberKind>& results,
-                          Identifier id) {
-    // FIXME: A chain of "if"s is suboptimal, but the number of builtins is
-    //        currently really small so it shouldn't be a problem.
-    //        A cached lookup map would be ideal though.
-    using BTMK = BuiltinTypeMemberKind;
+                         Identifier id) {
     string_view str = id.getStr();
-    #define ARRAY_MEMBER(ID, FOX) if(str == #FOX) results.push_back(BTMK::ID);
+    #define ARRAY_MEMBER(ID, FOX)\
+      if(str == #FOX) results.push_back(BuiltinTypeMemberKind::ID);
     #include "Fox/AST/BuiltinTypeMembers.def"
   }
 
-  /// \returns the type of a builtin string member \p kind 
-  Type getTypeOfStringMember(ASTContext& ctxt, 
-                                    BuiltinTypeMemberKind kind) {
-    assert(isStringBuiltin(kind) && "wrong function");
-    using BTMK = BuiltinTypeMemberKind;
+  /// Helps creating BuiltinMemberRefExprs.
+  struct BuiltinMemberRefBuilder {
+    ASTContext& ctxt;
+    Type voidType, intType;
 
-    switch (kind) {
-      default: fox_unreachable("Unknown String Builtin Kind");
-      case BTMK::StringSize:
-      case BTMK::StringNumBytes:
-        /// string.numBytes and .size are function of type '() -> int'
-        return FunctionType::get(ctxt, {}, IntegerType::get(ctxt));
+    BuiltinMemberRefBuilder(ASTContext& ctxt) : ctxt(ctxt) {
+      voidType = VoidType::get(ctxt);
+      intType = IntegerType::get(ctxt);
     }
-  }
 
-  /// \returns the type of a builtin array member \p kind 
-  Type getTypeOfArrayMember(ASTContext& ctxt, BuiltinTypeMemberKind kind,
-                                   Type baseType) {
-    assert(isArrayBuiltin(kind) && "wrong function");
-    using BTMK = BuiltinTypeMemberKind;
-
-    ArrayType* baseArray = baseType->getRValue()->getAs<ArrayType>();
-    assert(baseArray && "base isn't an array type?");
-    Type elementType = baseArray->getElementType();
-
-    switch (kind) {
-      default: fox_unreachable("Unknown Array Builtin Kind");
-      case BTMK::ArraySize:
-        /// array.size is a function of type '() -> int' 
-        return FunctionType::get(ctxt, {}, IntegerType::get(ctxt));
-      case BTMK::ArrayAppend:
-        /// array.append is a function of type '(elementType) -> void'
-        return FunctionType::get(ctxt, {elementType}, VoidType::get(ctxt));
-      case BTMK::ArrayPop:
-        /// array.pop is a function of type '() -> void'
-        return FunctionType::get(ctxt, {}, VoidType::get(ctxt));
-      case BTMK::ArrayFront:
-      case BTMK::ArrayBack:
-        /// array.front and .back are functions of type '() -> elementType'
-        return FunctionType::get(ctxt, {}, elementType);
+    /// Builds a BuiltinMemberRefExpr of kind \p builtinKind from \p ude
+    BuiltinMemberRefExpr* build(UnresolvedDotExpr* ude, 
+                                BuiltinTypeMemberKind builtinKind) {
+      auto expr = BuiltinMemberRefExpr::create(ctxt, ude, builtinKind);
+      expr->setType(getType(builtinKind, expr->getBase()->getType()));
+      // Currently, members of builtin types are always methods (functions)
+      expr->setIsMethod(); 
+      return expr;
     }
-  }
 
-  /// \returns the type of a BuiltinTypeMemberKind.
-  /// Never nullptr.
-  Type getTypeOfBuiltinMemberRef(ASTContext& ctxt, BuiltinMemberRefExpr* expr) {
-    Type baseType = expr->getBase()->getType();
-    auto kind = expr->getBuiltinTypeMemberKind();
+    /// \returns the type of a builtin type member \p builtinKind used in
+    /// on a type \p baseType
+    Type getType(BuiltinTypeMemberKind builtinKind, Type baseType) {
+      switch (builtinKind) { 
+        default: fox_unreachable("unknown BuiltinTypeMemberKind");
+        #define ARRAY_MEMBER(ID, FOX) case BuiltinTypeMemberKind::ID:\
+          return getTypeOf##ID(baseType->castTo<ArrayType>());
+        #define STRING_MEMBER(ID, FOX)\
+          case BuiltinTypeMemberKind::ID: return getTypeOf##ID();
+        #include "Fox/AST/BuiltinTypeMembers.def"
+      }
+    }
 
-    if(isStringBuiltin(kind))
-      return getTypeOfStringMember(ctxt, kind);
-    if(isArrayBuiltin(kind))
-      return getTypeOfArrayMember(ctxt, kind, baseType);
-    fox_unreachable("unknown BuiltinTypeMemberKind category");
-  }
+    //------------------------------------------------------------------------//
+    // Array Members
+    //------------------------------------------------------------------------//
+
+    /// array.append is a function of type '(elementType) -> void'
+    Type getTypeOfArrayAppend(ArrayType* baseType) {
+      return FunctionType::get(ctxt, {baseType->getElementType()}, voidType);
+    }
+
+    /// array.size is a function of type '() -> int' 
+    Type getTypeOfArraySize(ArrayType*) {
+      return FunctionType::get(ctxt, {}, intType);
+    }
+
+    /// array.pop is a function of type '() -> void'
+    Type getTypeOfArrayPop(ArrayType*) {
+      return FunctionType::get(ctxt, {}, voidType);
+    }
+
+    /// array.back is a function of type '() -> elementType'
+    Type getTypeOfArrayFront(ArrayType* baseType) {
+      return FunctionType::get(ctxt, {}, baseType->getElementType());
+    }
+
+    /// array.front is a function of type '() -> elementType'
+    Type getTypeOfArrayBack(ArrayType* baseType) {
+      return FunctionType::get(ctxt, {}, baseType->getElementType());
+    }
+
+    //------------------------------------------------------------------------//
+    // String Members
+    //------------------------------------------------------------------------//
+    
+    /// string.size is a function of type '() -> int'
+    Type getTypeOfStringSize() {
+      return FunctionType::get(ctxt, {}, intType);
+    }
+
+    /// string.numBytes is a function of type '() -> int'
+    Type getTypeOfStringNumBytes() {
+      return FunctionType::get(ctxt, {}, intType);
+    }
+  };
 }
 
 /// Attempts to resolve a reference to a member of a builtin type.
@@ -105,6 +122,7 @@ namespace {
 /// else returns the resolved expression.
 BuiltinMemberRefExpr* Sema::resolveBuiltinTypeMember(UnresolvedDotExpr* expr) {
   Identifier memberID = expr->getMemberIdentifier();
+
   // Lookup the builtin member
   SmallVector<BuiltinTypeMemberKind, 4> results;
   Type baseType = expr->getBase()->getType();
@@ -112,8 +130,9 @@ BuiltinMemberRefExpr* Sema::resolveBuiltinTypeMember(UnresolvedDotExpr* expr) {
     lookupStringMember(results, memberID);
   else if(baseType->isArrayType())
     lookupArrayMember(results, memberID);
-  // No other builtin type have members.
-  else return nullptr;
+  // No other builtin type have members, so bail directly.
+  else 
+    return nullptr;
 
   // If there's no result, the member doesn't exist.
   if(results.size() == 0)
@@ -123,12 +142,6 @@ BuiltinMemberRefExpr* Sema::resolveBuiltinTypeMember(UnresolvedDotExpr* expr) {
   // of builtin types.
   assert((results.size() == 1) && "unsupported overloaded builtin type member");
 
-  // Create the resolved expression
-  BuiltinTypeMemberKind builtinKind = results[0];
-  auto resolved = BuiltinMemberRefExpr::create(ctxt, expr, builtinKind);
-  // Set its type
-  resolved->setType(getTypeOfBuiltinMemberRef(ctxt, resolved));
-  // Currently, members of builtin types are always functions.
-  resolved->setIsMethod();
-  return resolved;
+  // Build the BuiltinMemberRefExpr and return.
+  return BuiltinMemberRefBuilder(ctxt).build(expr, results[0]);
 }
