@@ -40,8 +40,8 @@
 // String Members
 //----------------------------------------------------------------------------//
 
-STRING_MEMBER(StringSize,       "size")
-STRING_MEMBER(StringNumBytes,   "numBytes")
+STRING_MEMBER(StringSize,       size)
+STRING_MEMBER(StringNumBytes,   numBytes)
 
 MEMBER_RANGE(StringMember, StringSize, StringNumBytes)
 
@@ -49,11 +49,11 @@ MEMBER_RANGE(StringMember, StringSize, StringNumBytes)
 // Array Members
 //----------------------------------------------------------------------------//
 
-ARRAY_MEMBER(ArraySize,   "size")
-ARRAY_MEMBER(ArrayAppend, "append")
-ARRAY_MEMBER(ArrayPop,    "pop")
-ARRAY_MEMBER(ArrayFront,  "front")
-ARRAY_MEMBER(ArrayBack,   "back")
+ARRAY_MEMBER(ArraySize,   size)
+ARRAY_MEMBER(ArrayAppend, append)
+ARRAY_MEMBER(ArrayPop,    pop)
+ARRAY_MEMBER(ArrayFront,  front)
+ARRAY_MEMBER(ArrayBack,   back)
 
 MEMBER_RANGE(ArrayMember, ArraySize, ArrayBack)
 
