@@ -91,12 +91,12 @@ namespace {
       return FunctionType::get(ctxt, {}, voidType);
     }
 
-    /// array.back is a function of type '() -> elementType'
+    /// array.front is a function of type '() -> elementType'
     Type getTypeOfArrayFront(ArrayType* baseType) {
       return FunctionType::get(ctxt, {}, baseType->getElementType());
     }
 
-    /// array.front is a function of type '() -> elementType'
+    /// array.back is a function of type '() -> elementType'
     Type getTypeOfArrayBack(ArrayType* baseType) {
       return FunctionType::get(ctxt, {}, baseType->getElementType());
     }
