@@ -163,11 +163,6 @@ class Sema::ExprChecker : Checker, ExprVisitor<ExprChecker, Expr*>,  ASTWalker {
         .setExtraRange(exprRange);
     }
 
-    // Diagnoses an undeclared identifier
-    void diagnoseUndeclaredIdentifier(SourceRange range, Identifier id) {
-      diagEngine.report(DiagID::undeclared_id, range).addArg(id);
-    }
-
     // Diagnoses an ambiguous identifier
     void diagnoseAmbiguousIdentifier(SourceRange range, Identifier id,
                                      const LookupResult& results) {
@@ -214,15 +209,6 @@ class Sema::ExprChecker : Checker, ExprVisitor<ExprChecker, Expr*>,  ASTWalker {
       diagEngine.report(DiagID::invalid_assignement, rhsRange)
         .setExtraRange(lhsRange)
         .addArg(rhsTy).addArg(lhsTy);
-    }
-
-    // Diagnoses a variable being used inside it's own initial value.
-    void diagnoseVarInitSelfRef(VarDecl* decl, 
-      UnresolvedDeclRefExpr* udre) {
-      SourceRange range = udre->getSourceRange();
-      SourceRange extra = decl->getIdentifierRange();
-      diagEngine.report(DiagID::var_init_self_ref, range)
-        .setExtraRange(extra);
     }
 
     // Diagnoses an expression that isn't a function but was
@@ -294,15 +280,6 @@ class Sema::ExprChecker : Checker, ExprVisitor<ExprChecker, Expr*>,  ASTWalker {
       noteCallee(callee, calleePrettyName);
     }
 
-    // Diagnoses the presence of a function type in an array literal.
-    void diagnoseFunctionTypeInArrayLiteral(ArrayLiteralExpr* lit, Expr* fn) {
-      assert(fn->getType()->getRValue()->is<FunctionType>() && "wrong func");
-      diagEngine.report(DiagID::func_type_in_arrlit, fn->getSourceRange())
-        // Maybe displaying the whole array is too much? I think it's great
-        // because it gives some context, but maybe I'm wrong.
-        .setExtraRange(lit->getSourceRange());
-    }
-
     // Diagnoses an attempt to access an unknown member of a type.
     // e.g. "string".foobar (foobar doesn't exist)
     void diagnoseUnknownTypeMember(UnresolvedDotExpr* expr) {
@@ -368,7 +345,7 @@ class Sema::ExprChecker : Checker, ExprVisitor<ExprChecker, Expr*>,  ASTWalker {
     }
 
     Expr* finalizeReferenceToValueDecl(UnresolvedDeclRefExpr* udre, 
-      ValueDecl* found) {
+                                       ValueDecl* found) {
       assert(found);
 
       // Check that we aren't using a variable inside it's own initial value
@@ -382,7 +359,8 @@ class Sema::ExprChecker : Checker, ExprVisitor<ExprChecker, Expr*>,  ASTWalker {
           // by conditions.
           assert(var->getInitExpr() && var->getInitExpr()->getSourceRange()
                   .contains(udre->getSourceRange()));
-          diagnoseVarInitSelfRef(var, udre);
+          diagEngine.report(DiagID::var_init_self_ref, udre->getSourceRange())
+            .setExtraRange(found->getIdentifierRange());
           // This is an error, so return an ErrorExpr
           return ErrorExpr::create(ctxt, udre);
         }
@@ -640,8 +618,7 @@ class Sema::ExprChecker : Checker, ExprVisitor<ExprChecker, Expr*>,  ASTWalker {
 
       // No results -> undeclared identifier
       if(results.isEmpty()) {
-        diagnoseUndeclaredIdentifier(range, id);
-        // Return an ErrorExpr on error.
+        diagEngine.report(DiagID::undeclared_id, range).addArg(id);
         return ErrorExpr::create(ctxt, expr);
       }
 
@@ -650,7 +627,6 @@ class Sema::ExprChecker : Checker, ExprVisitor<ExprChecker, Expr*>,  ASTWalker {
         // Try to remove illegal redecls from the results
         if (!removeIllegalRedecls(results)) {
           diagnoseAmbiguousIdentifier(range, id, results);
-          // Return an ErrorExpr on error.
           return ErrorExpr::create(ctxt, expr);
         }
       }
@@ -802,7 +778,8 @@ class Sema::ExprChecker : Checker, ExprVisitor<ExprChecker, Expr*>,  ASTWalker {
       // Functions aren't first-class yet, so we can't allow
       // function types inside array literals.
       if(ty->is<FunctionType>()) {
-        diagnoseFunctionTypeInArrayLiteral(lit, expr);
+        diagEngine.report(DiagID::func_type_in_arrlit, expr->getSourceRange())
+          .setExtraRange(lit->getSourceRange());
         return false;
       }
       // We also forbid ill-formed types.
