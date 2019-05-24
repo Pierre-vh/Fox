@@ -1,9 +1,55 @@
 # The Fox Programming Language
-NOTE: This is a project that I started to learn more about compilers and interpreter but even if the main goal is to learn, I'm still developing it seriously, hoping that (if I do finish it entirely) it might be useful to someone someday.
 
-Fox is a language that aims to be easily embeddable in other projects and easy to dive into. Fox is still under development and is not functional as of now.
+Fox is a language that aims to be small and easily embeddable. 
 
-## Building the project
+This is a project that I started to learn more about compilers and interpreter but even if the main goal is to learn, I'm still developing it seriously, hoping that it might be useful to someone someday. 
+
+My current plan is to implement a few last features (Arrays/Global Variables/GC/Imports and a few more) before moving on to another project.
+
+## Quick language tour
+
+NOTE: Not all features described here are fully working
+
+Here's a few examples of Fox code:
+```swift
+
+// 5 Basic types + Arrays
+// let = immutable variable, var = mutable variable. Only the variable's value is (im)mutable, but
+// if it's a reference type, the value it references might still change.
+
+// (value type) 64 Bit signed integers
+let i : int = 42;
+// (value type) Double precision floating point numbers
+var d : double = 3.14;
+// (value type) booleans
+let b : bool = false;
+// (reference type) immutable utf-8 encoded string
+var s : string = "Hello, Fox!";
+// (value type) 32 bit unicode code point
+let c : char = '禅'; 
+// Arrays of dynamic size
+var a : [[int]] = []; // Array literals are inferred based on their use
+
+// Function parameters are always passed by value, and are immutable by default. Using 'mut' makes them mutable.
+// ': bool' marks the return type of the function. Omitting it will just make the function return void.
+func foo(x: int, y: mut int) : [int] {
+  // This is a test function that doesn't do anything interesting.
+  if y == 0 {
+    return []; // automatically inferred to [int]
+  }
+  return [x, y];
+}
+
+func bar(count: mut int) {
+  while count > 0 {
+    printString("Count: " + $count + '\n'); // the unary $ operator converts an int/double/bool/char to string.
+    count = count-1;
+  }
+}
+
+```
+
+## Building Fox
 Required:
  * CMake
  * Git
@@ -40,7 +86,7 @@ However, the documentation in the code should be enough to understand what's goi
 Licensed under the terms of the MIT license. 
 
 ## Contact
-If you have any questions don't hesitate to send me a mail at `pierre.vanhoutryve@gmail.com`
+If you have any questions don't hesitate to send me an email at `pierre.vanhoutryve@gmail.com`
 
 ## Project structure
 * /includes/ Contains the headers
