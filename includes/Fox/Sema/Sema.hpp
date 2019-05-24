@@ -51,10 +51,6 @@ namespace fox {
       class ExprChecker;
       class ExprFinalizer;
 
-      //---------------------------------//
-      // Entry points for semantics checkers
-      //---------------------------------//
-
       /// Typechecks an expression and its children.
       /// 
       /// \returns the expression or another equivalent expression that should
@@ -84,11 +80,6 @@ namespace fox {
       /// Performs semantic analysis on a declaration and its children.
       void checkDecl(Decl* decl);
 
-      //---------------------------------//
-      // Type related methods
-      //
-      // Type checking, comparison, ranking, etc.
-      //---------------------------------//
 
       /// The unification algorithm which uses the "default" comparator,
       /// which basically allows numeric types to be considered equal.
@@ -132,10 +123,6 @@ namespace fox {
       /// Calls "isWellFormed" on every type in types.
       static bool isWellFormed(ArrayRef<Type> types);
 
-      //---------------------------------//
-      // Name binding 
-      //---------------------------------//
-
       /// Class that encapsulates the result of a Lookup request.
       class LookupResult;
 
@@ -165,10 +152,6 @@ namespace fox {
       void doUnqualifiedLookup(LookupResult& results, Identifier id, 
         SourceLoc loc, const LookupOptions& options = LookupOptions());
 
-      //---------------------------------//
-      // Type variables management
-      //---------------------------------//
-
       /// Creates a new TypeVariable
       Type createNewTypeVariable();
 
@@ -176,10 +159,6 @@ namespace fox {
       void resetTypeVariables();
 
       std::uint16_t tyVarsCounter_ = 0;
-
-      //---------------------------------//
-      // DeclContext management
-      //---------------------------------//
 
       /// RAII object for enterDeclCtxtRAII
       class RAIIDeclCtxt;
@@ -194,10 +173,6 @@ namespace fox {
 
       /// \returns true if there's a currently active DeclContext.
       bool hasDeclCtxt() const;
-
-      //---------------------------------//
-      // Other members
-      //---------------------------------//
 
       /// The current active DeclContext.
       DeclContext* currentDC_ = nullptr;
