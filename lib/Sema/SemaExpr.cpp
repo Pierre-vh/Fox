@@ -408,17 +408,6 @@ class Sema::ExprChecker : Checker, ExprVisitor<ExprChecker, Expr*>,  ASTWalker {
       return resolved;
     }
 
-    CallExpr* finalizeCallExpr(CallExpr* expr, FunctionType* calledFnTy) {
-      Type ret = calledFnTy->getReturnType();
-      assert(ret && "function return type is null");
-      expr->setType(ret);
-
-      if (auto bmr = dyn_cast<BuiltinMemberRefExpr>(expr->getCallee()))
-        bmr->setIsCalled();
-
-      return expr;
-    }
-
     //----------------------------------------------------------------------//
     // ASTWalker overrides
     //----------------------------------------------------------------------//
@@ -696,6 +685,13 @@ class Sema::ExprChecker : Checker, ExprVisitor<ExprChecker, Expr*>,  ASTWalker {
         return expr;
       }
 
+      // If the callee is a BuiltinMemberRefExpr, mark it as being
+      // called. This is done early because it must be set
+      // even when the call isn't valid to avoid useless diagnostics
+      // being emitted during expression finalization.
+      if(auto bmr = dyn_cast<BuiltinMemberRefExpr>(callee))
+        bmr->setIsCalled(true);
+
       FunctionType* fnTy = calleeTy->castTo<FunctionType>();
 
       // Check arg count
@@ -734,7 +730,10 @@ class Sema::ExprChecker : Checker, ExprVisitor<ExprChecker, Expr*>,  ASTWalker {
 
       // Call should be ok. The type of the CallExpr is the return type
       // of the function.
-      return finalizeCallExpr(expr, fnTy);
+      Type ret = fnTy->getReturnType();
+      assert(ret && "function return type is null");
+      expr->setType(ret);
+      return expr;
     }
       
     // Trivial literals: the expr's type is simply the corresponding
@@ -1050,19 +1049,20 @@ class Sema::ExprFinalizer : ASTWalker {
     DiagnosticEngine& diags;
 
     // This is a pointer to the expression which has an ErrorType and has 
-    // requested to mute every diagnostic that might be emitted when visiting
-    // it's children.
-    Expr* diagsMuter = nullptr;
+    // requested to mute every diagnostic pertaining to inference issues for
+    // its children.
+    Expr* inferenceDiagMuter = nullptr;
+    bool canEmitInferenceDiagnostics = true;
 
-    void muteDiagsForChildren(Expr* expr) {
-      diags.setIgnoreAll(true);
-      diagsMuter = expr;
+    void muteInferenceErrors(Expr* expr) {
+      canEmitInferenceDiagnostics = false;
+      inferenceDiagMuter = expr;
     }
 
-    void tryUnmuteDiags(Expr* expr) {
-      if(expr == diagsMuter) {
-        diags.setIgnoreAll(false);
-        diagsMuter = nullptr;
+    void unmuteInferenceErrors(Expr* expr) {
+      if(expr == inferenceDiagMuter) {
+        canEmitInferenceDiagnostics = true;
+        inferenceDiagMuter = nullptr;
       }
     }
 
@@ -1090,15 +1090,16 @@ class Sema::ExprFinalizer : ASTWalker {
       // If the type is nullptr, it means we have an inference error.
       // Set the type to ErrorType and diagnose.
       if (!type) {
-        diags.report(DiagID::expr_failed_infer, expr->getSourceRange());
+        if(canEmitInferenceDiagnostics)
+          diags.report(DiagID::expr_failed_infer, expr->getSourceRange());
         type = ErrorType::get(ctxt);
         // Mute inference errors for the children.
-        muteDiagsForChildren(expr);
+        muteInferenceErrors(expr);
       }
       // Inference succeeded, but maybe we have an ErrorType somewhere in
       // there. If that's the case, mute diagnostics for the children exprs.
       else if(type->hasErrorType()) {
-        muteDiagsForChildren(expr);
+        muteInferenceErrors(expr);
       }
       // Set the type
       expr->setType(type);
@@ -1106,7 +1107,7 @@ class Sema::ExprFinalizer : ASTWalker {
     }
 
     Expr* handleExprPost(Expr* expr) {
-      tryUnmuteDiags(expr);
+      unmuteInferenceErrors(expr);
 
       // If the Expr is a BuiltinMemberRefExpr and it's not called, it's
       // an error.
