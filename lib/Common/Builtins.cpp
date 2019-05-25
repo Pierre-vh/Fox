@@ -20,7 +20,7 @@ using namespace fox;
 
 const char* fox::to_string(BuiltinID id) {
   switch (id) {
-    #define PUBLIC_BUILTIN(FUNC, FOX) case BuiltinID::FUNC: return #FUNC;
+    #define BUILTIN(FUNC) case BuiltinID::FUNC: return #FUNC;
     #include "Fox/Common/Builtins.def"
     default:
       fox_unreachable("unknown BuiltinID");
