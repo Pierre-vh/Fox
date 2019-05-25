@@ -128,6 +128,7 @@ void ASTContext::lookupBuiltin(Identifier id,
 }
 
 Type ASTContext::getBuiltinFuncType(BuiltinID id) {
+  assert(isPublic(id) && "not a public builtin");
   switch (id) {
     #define PUBLIC_BUILTIN(FUNC, FOX)\
       case BuiltinID::FUNC:\
@@ -139,6 +140,7 @@ Type ASTContext::getBuiltinFuncType(BuiltinID id) {
 }
 
 Type ASTContext::getBuiltinFuncReturnType(BuiltinID id) {
+  assert(isPublic(id) && "not a public builtin");
   switch (id) {
     #define PUBLIC_BUILTIN(FUNC, FOX)\
       case BuiltinID::FUNC:\

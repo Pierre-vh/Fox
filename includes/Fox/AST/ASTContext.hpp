@@ -63,11 +63,11 @@ namespace fox {
       void lookupBuiltin(Identifier id, 
                          SmallVectorImpl<BuiltinFuncDecl*>& results);
 
-      /// \returns the FunctionType of the builtin function with ID \p id
+      /// \returns the FunctionType of the public builtin function with ID \p id
       ///          for this ASTContext.
       Type getBuiltinFuncType(BuiltinID id);
 
-      /// \returns the return type of the builtin function with ID \p id
+      /// \returns the return type of the public builtin function with ID \p id
       ///          for this ASTContext.
       Type getBuiltinFuncReturnType(BuiltinID id);
 
