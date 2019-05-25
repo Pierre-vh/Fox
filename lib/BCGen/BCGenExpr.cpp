@@ -839,6 +839,11 @@ class BCGen::ExprGenerator : public Generator,
 
     RegisterValue
     visitCallExpr(CallExpr* expr, RegisterValue dest) { 
+      // If this CallExpr's callee is a BuiltinMemberRefExpr,
+      // bail and let emitBuiltinTypeMemberCall do the work.
+      if(isa<BuiltinMemberRefExpr>(expr->getCallee()))
+        return emitBuiltinTypeMemberCall(expr, std::move(dest));
+
       // The list of expressions to compile, in order.
       SmallVector<Expr*, 8> exprs;
       exprs.reserve(1 + expr->numArgs());
