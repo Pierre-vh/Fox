@@ -81,7 +81,11 @@ PUBLIC_BUILTIN(intToString,    intToString)
 PUBLIC_BUILTIN(doubleToString, doubleToString)
 PUBLIC_BUILTIN(boolToString,   boolToString)
 
-BUILTIN_RANGE(Public, printInt, boolToString)
+// String operations
+PUBLIC_BUILTIN(strConcat,    concat)
+PUBLIC_BUILTIN(charConcat,   concatChars)
+
+BUILTIN_RANGE(Public, printInt, charConcat)
 
 //----------------------------------------------------------------------------//
 // Private Builtins
@@ -90,8 +94,6 @@ BUILTIN_RANGE(Public, printInt, boolToString)
 PRIVATE_BUILTIN(strLength)
 PRIVATE_BUILTIN(strNumBytes)
 PRIVATE_BUILTIN(getChar)
-PRIVATE_BUILTIN(strConcat)
-PRIVATE_BUILTIN(charConcat)
 
 //----------------------------------------------------------------------------//
 

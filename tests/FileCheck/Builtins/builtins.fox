@@ -24,4 +24,9 @@ func foo() {
   doubleToString(0.0);
   // CHECK: DeclRefExpr {{.*}} '(bool) -> string' boolToString
   boolToString(false);
+
+  // CHECK: DeclRefExpr {{.*}} '(string, string) -> string' concat
+  concat("", "");
+  // CHECK: DeclRefExpr {{.*}} '(char, char) -> string' concatChars
+  concatChars(' ', ' ');
 }
