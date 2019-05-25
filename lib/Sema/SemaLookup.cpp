@@ -9,6 +9,7 @@
 
 #include "Fox/Sema/Sema.hpp"
 #include "Fox/AST/ASTContext.hpp"
+#include "Fox/AST/BuiltinTypeMembers.hpp"
 #include "Fox/AST/DeclContext.hpp"
 #include "Fox/AST/Decl.hpp"
 #include <functional>
@@ -204,4 +205,29 @@ NamedDeclVec::iterator Sema::LookupResult::end() {
 
 NamedDeclVec::const_iterator Sema::LookupResult::end() const {
   return results_.end();
+}
+
+//----------------------------------------------------------------------------//
+// Builtin Type Members Lookup
+//----------------------------------------------------------------------------//
+
+/// Searches for string builtin members with the identifier "id"
+void Sema::lookupStringMember(SmallVectorImpl<BuiltinTypeMemberKind>& results,
+                              Identifier id) {
+  // FIXME: A chain of ifs is suboptimal (but it shouldn't really be a
+  //        problem here due to the relatively small amount of entries)
+  //        lookupArrayMember below has the same problem.
+  string_view str = id.getStr();
+  #define STRING_MEMBER(ID, FOX)\
+    if(str == #FOX) results.push_back(BuiltinTypeMemberKind::ID);
+  #include "Fox/AST/BuiltinTypeMembers.def"
+}
+
+/// Searches for array builtin members with the identifier "id"
+void Sema::lookupArrayMember(SmallVectorImpl<BuiltinTypeMemberKind>& results,
+                             Identifier id) {
+  string_view str = id.getStr();
+  #define ARRAY_MEMBER(ID, FOX)\
+    if(str == #FOX) results.push_back(BuiltinTypeMemberKind::ID);
+  #include "Fox/AST/BuiltinTypeMembers.def"
 }

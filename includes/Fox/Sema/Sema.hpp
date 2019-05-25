@@ -22,6 +22,7 @@ namespace fox {
   class SourceLoc;
   class Identifier;
   using NamedDeclVec = SmallVector<NamedDecl*, 4>;
+  enum class BuiltinTypeMemberKind : std::uint16_t;
 
   /// This is the class that handles Semantic Analysis of the Fox AST.
   class Sema {
@@ -79,11 +80,6 @@ namespace fox {
 
       /// Performs semantic analysis on a declaration and its children.
       void checkDecl(Decl* decl);
-
-      /// Attempts to resolve a reference to a member of a builtin type.
-      /// \returns nullptr if the member couldn't be resolved (= unknown),
-      /// else returns the resolved expression.
-      BuiltinMemberRefExpr* resolveBuiltinTypeMember(UnresolvedDotExpr* expr);
 
       /// The unification algorithm which uses the "default" comparator,
       /// which basically allows numeric types to be considered equal.
@@ -155,6 +151,14 @@ namespace fox {
       /// decls inside the current LocalScope.
       void doUnqualifiedLookup(LookupResult& results, Identifier id, 
         SourceLoc loc, const LookupOptions& options = LookupOptions());
+
+      /// Searches for string builtin members with the identifier "id"
+      void lookupStringMember(SmallVectorImpl<BuiltinTypeMemberKind>& results,
+                              Identifier id);
+
+      /// Searches for array builtin members with the identifier "id"
+      void lookupArrayMember(SmallVectorImpl<BuiltinTypeMemberKind>& results,
+                             Identifier id);
 
       /// Creates a new TypeVariable
       Type createNewTypeVariable();

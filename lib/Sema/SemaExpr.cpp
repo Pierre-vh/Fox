@@ -23,13 +23,94 @@
 
 using namespace fox;
 
-// Expression checker: Classic visitor, the visitXXX functions
-// all check a single node. They do not orchestrate visitation of
-// the children, because that is done by the ASTWalker logic
-//
-// Every visitation method return a pointer to an Expr*, which is the current 
-// expr
-// OR the expr that should take it's place. This can NEVER be null.
+//----------------------------------------------------------------------------//
+// BuiltinMemberRefBuilder
+//----------------------------------------------------------------------------//
+
+namespace {
+  /// Helps creating BuiltinMemberRefExprs.
+  struct BuiltinMemberRefBuilder {
+    ASTContext& ctxt;
+    Type voidType, intType;
+
+    BuiltinMemberRefBuilder(ASTContext& ctxt) : ctxt(ctxt) {
+      voidType = VoidType::get(ctxt);
+      intType = IntegerType::get(ctxt);
+    }
+
+    /// Builds a BuiltinMemberRefExpr of kind \p builtinKind from \p ude
+    BuiltinMemberRefExpr* build(UnresolvedDotExpr* ude, 
+                                BuiltinTypeMemberKind builtinKind) {
+      auto expr = BuiltinMemberRefExpr::create(ctxt, ude, builtinKind);
+      expr->setType(getType(builtinKind, expr->getBase()->getType()));
+      // Currently, members of builtin types are always methods (functions)
+      expr->setIsMethod(); 
+      return expr;
+    }
+
+    /// \returns the type of a builtin type member \p builtinKind used in
+    /// on a type \p baseType
+    Type getType(BuiltinTypeMemberKind builtinKind, Type baseType) {
+      switch (builtinKind) { 
+        default: fox_unreachable("unknown BuiltinTypeMemberKind");
+        #define ARRAY_MEMBER(ID, FOX) case BuiltinTypeMemberKind::ID:\
+          return getTypeOf##ID(baseType->castTo<ArrayType>());
+        #define STRING_MEMBER(ID, FOX)\
+          case BuiltinTypeMemberKind::ID: return getTypeOf##ID();
+        #include "Fox/AST/BuiltinTypeMembers.def"
+      }
+    }
+
+    //------------------------------------------------------------------------//
+    // Array Members
+    //------------------------------------------------------------------------//
+
+    /// array.append is a function of type '(elementType) -> void'
+    Type getTypeOfArrayAppend(ArrayType* baseType) {
+      return FunctionType::get(ctxt, {baseType->getElementType()}, voidType);
+    }
+
+    /// array.size is a function of type '() -> int' 
+    Type getTypeOfArraySize(ArrayType*) {
+      return FunctionType::get(ctxt, {}, intType);
+    }
+
+    /// array.pop is a function of type '() -> void'
+    Type getTypeOfArrayPop(ArrayType*) {
+      return FunctionType::get(ctxt, {}, voidType);
+    }
+
+    /// array.front is a function of type '() -> elementType'
+    Type getTypeOfArrayFront(ArrayType* baseType) {
+      return FunctionType::get(ctxt, {}, baseType->getElementType());
+    }
+
+    /// array.back is a function of type '() -> elementType'
+    Type getTypeOfArrayBack(ArrayType* baseType) {
+      return FunctionType::get(ctxt, {}, baseType->getElementType());
+    }
+
+    //------------------------------------------------------------------------//
+    // String Members
+    //------------------------------------------------------------------------//
+    
+    /// string.size is a function of type '() -> int'
+    Type getTypeOfStringSize() {
+      return FunctionType::get(ctxt, {}, intType);
+    }
+
+    /// string.numBytes is a function of type '() -> int'
+    Type getTypeOfStringNumBytes() {
+      return FunctionType::get(ctxt, {}, intType);
+    }
+  };
+}
+
+//----------------------------------------------------------------------------//
+// ExprChecker
+//----------------------------------------------------------------------------//
+
+/// The Expression checker: a simple visitor + walker combo.
 class Sema::ExprChecker : Checker, ExprVisitor<ExprChecker, Expr*>,  ASTWalker {
   using Inherited = ExprVisitor<ExprChecker, Expr*>;
   friend Inherited;
@@ -598,7 +679,7 @@ class Sema::ExprChecker : Checker, ExprVisitor<ExprChecker, Expr*>,  ASTWalker {
       // so we know the base's type is always a builtin one.
       // This means that we can directly call resolveBuiltinTypeMember to
       // try to resolve this expr.
-      BuiltinMemberRefExpr* resolved = sema.resolveBuiltinTypeMember(expr);
+      BuiltinMemberRefExpr* resolved = resolveBuiltinTypeMember(expr);
       if (resolved) return resolved;
 
       // Failed resolution : diagnose & return ErrorExpr.
@@ -959,6 +1040,36 @@ class Sema::ExprChecker : Checker, ExprVisitor<ExprChecker, Expr*>,  ASTWalker {
       return expr;
     }
 
+    /// Attempts to resolve a reference to a member of a builtin type.
+    /// \returns nullptr if the member couldn't be resolved (= unknown),
+    /// else returns the resolved expression.
+    BuiltinMemberRefExpr* resolveBuiltinTypeMember(UnresolvedDotExpr* expr) {
+      Identifier memberID = expr->getMemberIdentifier();
+
+      // Lookup the builtin member
+      SmallVector<BuiltinTypeMemberKind, 4> results;
+      Type baseType = expr->getBase()->getType();
+      if(baseType->isStringType())
+        sema.lookupStringMember(results, memberID);
+      else if(baseType->isArrayType())
+        sema.lookupArrayMember(results, memberID);
+      // No other builtin type have members, so bail directly.
+      else 
+        return nullptr;
+
+      // If there's no result, the member doesn't exist.
+      if(results.size() == 0)
+        return nullptr;
+
+      // There should be only one result since we don't support overloading members
+      // of builtin types.
+      assert((results.size() == 1) 
+        && "unsupported overloaded builtin type member");
+
+      // Build the BuiltinMemberRefExpr and return.
+      return BuiltinMemberRefBuilder(ctxt).build(expr, results[0]);
+    }
+
     //----------------------------------------------------------------------//
     // Other helper methods
     //----------------------------------------------------------------------//
@@ -1014,10 +1125,14 @@ class Sema::ExprChecker : Checker, ExprVisitor<ExprChecker, Expr*>,  ASTWalker {
     }
 };
 
+//----------------------------------------------------------------------------//
 // ExprFinalizer
-//  This class walks the Expression tree, simplifying every type.
-//  When a type cannot be simplified (due to an inference error)
-//  it diagnoses it and replaces the type with ErrorType.
+//----------------------------------------------------------------------------//
+
+/// ExprFinalizer
+///  This class walks the Expression tree, simplifying every type.
+///  When a type cannot be simplified (due to an inference error)
+///  it diagnoses it and replaces the type with ErrorType.
 class Sema::ExprFinalizer : ASTWalker {
   using Inherited = TypeVisitor<ExprFinalizer, Type>;
   friend Inherited;
@@ -1099,6 +1214,10 @@ class Sema::ExprFinalizer : ASTWalker {
       return expr;
     }
 };
+
+//----------------------------------------------------------------------------//
+// Sema
+//----------------------------------------------------------------------------//
 
 Expr* Sema::typecheckExpr(Expr* expr) {
   assert(expr && "null input");
