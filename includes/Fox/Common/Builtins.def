@@ -5,6 +5,12 @@
 // Author : Pierre van Houtryve                
 //----------------------------------------------------------------------------//
 //  x-macros for macro-metaprogramming with builtin functions
+//
+//  NOTE: If you're adding new built-ins, put them at the end of each category.
+//        avoid modifying existing builtins unless you know what you're doing
+//        because the bytecode generator uses some builtins, assuming their
+//        return type and arguments. (e.g. don't change the return type of the
+//        intToString builtin to int unless you want to see some fireworks)
 //----------------------------------------------------------------------------//
 
 /// Basic builtin declaration macro
