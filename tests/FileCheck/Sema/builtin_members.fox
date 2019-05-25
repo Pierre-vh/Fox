@@ -6,8 +6,8 @@ func foo() {
 
   // string builtins
   let str : string = "hello";
-  // CHECK: BuiltinMemberRefExpr {{.*}} '() -> int' .size (Builtin 'StringSize') method
-  str.size; // expect-error: reference to a bound member function must be called
+  // CHECK: BuiltinMemberRefExpr {{.*}} '() -> int' .length (Builtin 'StringLength') method
+  str.length; // expect-error: reference to a bound member function must be called
   // CHECK: BuiltinMemberRefExpr {{.*}} '() -> int' .numBytes (Builtin 'StringNumBytes') method
   str.numBytes; // expect-error: reference to a bound member function must be called
 

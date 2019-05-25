@@ -40,10 +40,10 @@
 // String Members
 //----------------------------------------------------------------------------//
 
-STRING_MEMBER(StringSize,       size)
+STRING_MEMBER(StringLength,     length)
 STRING_MEMBER(StringNumBytes,   numBytes)
 
-MEMBER_RANGE(StringMember, StringSize, StringNumBytes)
+MEMBER_RANGE(StringMember, StringLength, StringNumBytes)
 
 //----------------------------------------------------------------------------//
 // Array Members

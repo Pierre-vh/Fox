@@ -613,7 +613,7 @@ class BCGen::ExprGenerator : public Generator,
       return emitBuiltinCall(BuiltinID::strNumBytes, std::move(dest), {gen});
     }
 
-    RegisterValue emitStringSize(ArrayRef<Expr*> args, RegisterValue dest) {
+    RegisterValue emitStringLength(ArrayRef<Expr*> args, RegisterValue dest) {
       /// Emit a call to the strSize builtin.
       assert((args.size() == 1) 
         && "incorrect number of args for strSize");

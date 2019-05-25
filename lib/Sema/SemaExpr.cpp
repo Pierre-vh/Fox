@@ -94,8 +94,8 @@ namespace {
     // String Members
     //------------------------------------------------------------------------//
     
-    /// string.size is a function of type '() -> int'
-    Type getTypeOfStringSize() {
+    /// string.length is a function of type '() -> int'
+    Type getTypeOfStringLength() {
       return FunctionType::get(ctxt, {}, intType);
     }
 
