@@ -605,12 +605,20 @@ class BCGen::ExprGenerator : public Generator,
       fox_unimplemented_feature("ArraySize emission");
     }
 
-    RegisterValue emitStringNumBytes(ArrayRef<Expr*>, RegisterValue) {
-      fox_unimplemented_feature("StringNumBytes emission");
+    RegisterValue emitStringNumBytes(ArrayRef<Expr*> args, RegisterValue dest) {
+      /// Emit a call to the strNumBytes builtin.
+      assert((args.size() == 1) 
+        && "incorrect number of args for strNumBytes");
+      GenThunk gen = getGTForExpr(args[0]);
+      return emitBuiltinCall(BuiltinID::strNumBytes, std::move(dest), {gen});
     }
 
-    RegisterValue emitStringSize(ArrayRef<Expr*>, RegisterValue) {
-      fox_unimplemented_feature("StringSize emission");
+    RegisterValue emitStringSize(ArrayRef<Expr*> args, RegisterValue dest) {
+      /// Emit a call to the strSize builtin.
+      assert((args.size() == 1) 
+        && "incorrect number of args for strSize");
+      GenThunk gen = getGTForExpr(args[0]);
+      return emitBuiltinCall(BuiltinID::strLength, std::move(dest), {gen});
     }
 
     //------------------------------------------------------------------------//
