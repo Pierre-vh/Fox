@@ -4,7 +4,9 @@
 // File : BuiltinID.hpp                      
 // Author : Pierre van Houtryve                
 //----------------------------------------------------------------------------//
-// This file contains the BuiltinID enum.
+// This file contains the BuiltinID enum as well as some builtin-related
+// helper functions that do not need the builtin function to be visible
+// in the header (e.g. isPublic, hasNonVoidReturnType)
 //----------------------------------------------------------------------------//
 
 #pragma once
