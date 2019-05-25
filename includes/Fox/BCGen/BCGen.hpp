@@ -32,8 +32,8 @@ namespace fox {
     public:
       /// \param ctxt the ASTContext
       /// \param theModule the BCModule in which bytecode will be emitted.
-      ///        The BCModule is assumed to be empty. The initial data that
-      ///        might be contained inside it will not be read/considered.
+      ///        The BCModule is assumed to be empty. (The data that's
+      ///        already in it will not be read/considered)
       BCGen(ASTContext& ctxt, BCModule& theModule);
 
       /// Make this class non copyable
@@ -60,33 +60,33 @@ namespace fox {
       BCModule& theModule;
 
     private:
-      // A simple wrapper around ASTContext::getBuiltinFuncReturnType
-      // so that files don't have to include ASTContext if they wish to
-      // use it.
+      /// A simple wrapper around ASTContext::getBuiltinFuncReturnType
+      /// so that files don't have to include ASTContext if they wish to
+      /// use it.
       Type getBuiltinFuncReturnType(BuiltinID builtin);
 
-      // Generates (emits) the bytecode for a GLOBAL VarDecl "var" 
+      /// Emits the bytecode for a GLOBAL VarDecl "var" 
       void genGlobalVar(BCBuilder& builder, VarDecl* var);
 
-      // Generates (emits) the bytecode for a function declaration "func" 
+      /// Emits the bytecode for a function declaration "func" 
       void genFunc(FuncDecl* func);
 
-      // Generates (emits) the bytecode for a statement "stmt"
+      /// Emits the bytecode for a statement "stmt"
       void genStmt(BCBuilder& builder, 
                    RegisterAllocator& regAlloc, Stmt* stmt);
 
-      // Generates (emits) the bytecode for an expression "expr".
-      // Returns the RegisterValue managing the register containing the
-      // result of the expr.
+      /// Emits the bytecode for an expression "expr".
+      /// Returns the RegisterValue managing the register containing the
+      /// result of the expr.
       RegisterValue genExpr(BCBuilder& builder, 
-                   RegisterAllocator& regAlloc, Expr* expr);
+                            RegisterAllocator& regAlloc, Expr* expr);
 
-      // Generates (emits) the bytecode for an expression "expr", but
-      // immediately discards the result.
+      /// Emits the bytecode for an expression "expr", but
+      /// immediately discards the result.
       void genDiscardedExpr(BCBuilder& builder, 
                             RegisterAllocator& regAlloc, Expr* expr);
 
-      // Generates (emits) the bytecode for a local declaration "decl"
+      /// Emits the bytecode for a local declaration "decl"
       void genLocalDecl(BCBuilder& builder, 
                         RegisterAllocator& regAlloc, Decl* decl);
 
@@ -99,7 +99,6 @@ namespace fox {
       class LocalDeclGenerator;
       class StmtGenerator;
 
-      // The map of functions to BCFunction&
       std::unordered_map<FuncDecl*, BCFunction&> funcs_;
 
       // Constant maps, used to 'unique' constants.

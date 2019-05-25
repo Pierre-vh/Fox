@@ -407,7 +407,7 @@ class BCGen::ExprGenerator : public Generator,
 
     // Generates the code for a BinaryExpr whose type is a Numeric or
     // Boolean Binary Expr.
-    RegisterValue genNumericOrBoolBinaryExpr(BinaryExpr* expr, 
+    RegisterValue emitNumericOrBoolBinaryExpr(BinaryExpr* expr, 
                                              RegisterValue dest) {
       assert((expr->getType()->isNumericOrBool()));
       
@@ -559,6 +559,60 @@ class BCGen::ExprGenerator : public Generator,
         emitBuiltinCall(BuiltinID::getChar, std::move(dest), {baseGT, indexGT});
     }
 
+    /// Emits a CallExpr whose callee is a BuiltinMemberRef.
+    RegisterValue emitBuiltinTypeMemberCall(CallExpr* call, RegisterValue dest) {
+      auto membRef = dyn_cast<BuiltinMemberRefExpr>(call->getCallee());
+      assert(membRef && "callee isn't a BuiltinMemberRefExpr");
+      assert(membRef->isMethod() && "callee is not a method");
+      // Collect all of the arguments in a single vector
+      SmallVector<Expr*, 4> args;
+      args.reserve(call->numArgs()+1);    // reserve enough space directly
+      args.push_back(membRef->getBase()); // The BMR's base is always first arg
+      for(Expr* expr: call->getArgs())    // Then push the call's args.
+        args.push_back(expr);
+      // Get the BuiltinTypeMemberKind
+      auto kind = membRef->getBuiltinTypeMemberKind();
+      // Dispatch to the appropriate emission function.
+      switch (kind) {
+        default: fox_unreachable("unknown BuiltinTypeMemberKind");
+        #define ANY_MEMBER(ID) case BuiltinTypeMemberKind::ID:\
+          return emit##ID(args, std::move(dest));
+        #include "Fox/AST/BuiltinTypeMembers.def"
+      }
+    }
+
+    //------------------------------------------------------------------------//
+    // Builtin Type Member Emitters
+    //------------------------------------------------------------------------//
+
+    RegisterValue emitArrayAppend(ArrayRef<Expr*>, RegisterValue) {
+      fox_unimplemented_feature("ArrayAppend emission");
+    }
+
+    RegisterValue emitArrayBack(ArrayRef<Expr*>, RegisterValue) {
+      fox_unimplemented_feature("ArrayBack emission");
+    }
+
+    RegisterValue emitArrayFront(ArrayRef<Expr*>, RegisterValue) {
+      fox_unimplemented_feature("ArrayFront emission");
+    }
+
+    RegisterValue emitArrayPop(ArrayRef<Expr*>, RegisterValue) {
+      fox_unimplemented_feature("ArrayPop emission");
+    }
+
+    RegisterValue emitArraySize(ArrayRef<Expr*>, RegisterValue) {
+      fox_unimplemented_feature("ArraySize emission");
+    }
+
+    RegisterValue emitStringNumBytes(ArrayRef<Expr*>, RegisterValue) {
+      fox_unimplemented_feature("StringNumBytes emission");
+    }
+
+    RegisterValue emitStringSize(ArrayRef<Expr*>, RegisterValue) {
+      fox_unimplemented_feature("StringSize emission");
+    }
+
     //------------------------------------------------------------------------//
     // "visit" methods 
     // 
@@ -615,7 +669,7 @@ class BCGen::ExprGenerator : public Generator,
       if (expr->isConcat())
         return emitConcatBinaryExpr(expr, std::move(dest));
       if (expr->getType()->isNumericOrBool())
-        return genNumericOrBoolBinaryExpr(expr, std::move(dest));
+        return emitNumericOrBoolBinaryExpr(expr, std::move(dest));
       fox_unimplemented_feature("Non-numeric BinaryExpr BCGen");
     }
 
@@ -772,7 +826,7 @@ class BCGen::ExprGenerator : public Generator,
 
     RegisterValue 
     visitBuiltinMemberRefExpr(BuiltinMemberRefExpr*, RegisterValue dest) {
-      fox_unimplemented_feature("BuiltinMemberRefExpr BCGen");
+      fox_unreachable("Shouldn't appear alone");
     }
 
     RegisterValue
