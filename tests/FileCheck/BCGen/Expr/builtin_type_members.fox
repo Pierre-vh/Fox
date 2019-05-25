@@ -1,0 +1,12 @@
+// RUN: %fox-dump-bcgen | %filecheck
+
+func foo() {
+  // CHECK:       LoadBuiltinFunc 0 strLength
+  // CHECK-NEXT:  LoadStringK 1 0
+  // CHECK-NEXT:  Call 0 0
+  "s".length();
+  // CHECK:       LoadBuiltinFunc 0 strNumBytes
+  // CHECK-NEXT:  LoadStringK 1 0
+  // CHECK-NEXT:  Call 0 0
+  "s".numBytes();
+}
