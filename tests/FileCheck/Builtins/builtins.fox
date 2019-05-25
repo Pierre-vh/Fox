@@ -2,9 +2,6 @@
 
 //----------------------------------------------------------------------------//
 // Tests that some builtins have the signature we expect them to have
-//
-// Since some builtins are emitted by BCGen, it's good to check that they have
-// the signature we expect them to have.
 //----------------------------------------------------------------------------//
 
 func foo() {
@@ -32,11 +29,4 @@ func foo() {
   concat("", "");
   // CHECK: DeclRefExpr {{.*}} '(char, char) -> string' concatChars
   concatChars(' ', ' ');
-
-  // CHECK: DeclRefExpr {{.*}} '(string) -> int' length
-  length("");
-  // CHECK: DeclRefExpr {{.*}} '(string) -> int' numBytes
-  numBytes("");
-  // CHECK: DeclRefExpr {{.*}} '(string, int) -> char' getChar
-  getChar("a", 0);
 }

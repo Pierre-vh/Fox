@@ -8,9 +8,9 @@ func stringInterfaceTest() {
   let str : string = "おはよう。";
   // numBytes counts the null terminator
   // CHECK: num bytes: 15
-  printString("num bytes: " + $numBytes(str) + "\n"); 
+  printString("num bytes: " + $str.numBytes() + "\n"); 
   // CHECK-NEXT: length: 5
-  printString("length: " + $length(str) + "\n");
+  printString("length: " + $str.length() + "\n");
   // CHECK-NEXT:  str[3] = う
   let idx : int = 3;
   printString("str[" + $idx + "] = " + str[idx] + '\n');
