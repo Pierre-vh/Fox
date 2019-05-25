@@ -29,6 +29,11 @@ namespace fox {
     return (id >= BuiltinID::First_Public) && (id <= BuiltinID::Last_Public);
   }
 
+  /// \returns true if the builtin with id \p id has a non-void return type.
+  /// For example, this is used by the bytecode generator to choose between
+  /// Call and CallVoid to call the builtin.
+  bool hasNonVoidReturnType(BuiltinID id);
+
   const char* to_string(BuiltinID id);
   std::ostream& operator<<(std::ostream& os, BuiltinID id);
 }

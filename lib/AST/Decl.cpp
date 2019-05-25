@@ -382,7 +382,7 @@ BuiltinFuncDecl* BuiltinFuncDecl::get(ASTContext& ctxt, BuiltinID id) {
 BuiltinFuncDecl::BuiltinFuncDecl(ASTContext& ctxt, BuiltinID id) : 
   ValueDecl(DeclKind::BuiltinFuncDecl, nullptr, 
             ctxt.getIdentifier(id), SourceRange()), 
-  type_(ctxt.getBuiltinFuncType(id)), bID_(id) {
+  type_(ctxt.getPublicBuiltinFuncType(id)), bID_(id) {
   /// BuiltinFuncDecls are always checked
   setCheckState(CheckState::Checked);
 }

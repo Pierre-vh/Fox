@@ -257,15 +257,15 @@ class BCGen::ExprGenerator : public Generator,
 
 
       // Gen the call. If the builtin returns void, use
-      if(bcGen.getBuiltinFuncReturnType(bID)->isVoidType()) {
-        assert(!dest && "cannot have a destination if the builtin returns void");
-        builder.createCallVoidInstr(baseAddr);
-      }
-      else {
+      if(hasNonVoidReturnType(bID)) {
         // Choose a destination register
         dest = getDestReg(std::move(dest), callRegs);
         // Emit.
         builder.createCallInstr(baseAddr, dest.getAddress());
+      }
+      else {
+        assert(!dest && "cannot have a destination if the builtin returns void");
+        builder.createCallVoidInstr(baseAddr);
       }
 
       return dest;
@@ -539,10 +539,6 @@ class BCGen::ExprGenerator : public Generator,
         ToStringBuiltinChooser tsbc;
         builtin = tsbc.visit(child->getType()->getRValue());
       }
-
-      // Sanity check: check that the builtin's return type is indeed string.
-      assert(bcGen.getBuiltinFuncReturnType(builtin)->isStringType()
-        && "Builtin doesn't return 'string'");
 
       // Emit the builtin call.
       return emitBuiltinCall(builtin, std::move(dest), {childGT});

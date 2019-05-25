@@ -18,6 +18,29 @@ using namespace fox;
 // BuiltinID
 //----------------------------------------------------------------------------//
 
+namespace {
+  template<typename Rtr, typename ... Args>
+  constexpr bool isReturnTypeVoid(Rtr(*)(Args...)) {
+    return false;
+  }
+
+  template<typename ... Args>
+  constexpr bool isReturnTypeVoid(void(*)(Args...)) {
+    return true;
+  }
+}
+
+bool fox::hasNonVoidReturnType(BuiltinID id) {
+  switch (id) {
+    #define BUILTIN(FUNC) \
+    case BuiltinID::FUNC: \
+      return !isReturnTypeVoid(builtin::FUNC);
+    #include "Fox/Common/Builtins.def"
+    default:
+      fox_unreachable("unknown BuiltinID");
+  }
+}
+
 const char* fox::to_string(BuiltinID id) {
   switch (id) {
     #define BUILTIN(FUNC) case BuiltinID::FUNC: return #FUNC;

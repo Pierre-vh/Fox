@@ -60,11 +60,6 @@ namespace fox {
       BCModule& theModule;
 
     private:
-      /// A simple wrapper around ASTContext::getBuiltinFuncReturnType
-      /// so that files don't have to include ASTContext if they wish to
-      /// use it.
-      Type getBuiltinFuncReturnType(BuiltinID builtin);
-
       /// Emits the bytecode for a GLOBAL VarDecl "var" 
       void genGlobalVar(BCBuilder& builder, VarDecl* var);
 

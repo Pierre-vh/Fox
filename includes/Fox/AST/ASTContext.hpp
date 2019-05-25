@@ -65,11 +65,7 @@ namespace fox {
 
       /// \returns the FunctionType of the public builtin function with ID \p id
       ///          for this ASTContext.
-      Type getBuiltinFuncType(BuiltinID id);
-
-      /// \returns the return type of the public builtin function with ID \p id
-      ///          for this ASTContext.
-      Type getBuiltinFuncReturnType(BuiltinID id);
+      Type getPublicBuiltinFuncType(BuiltinID id);
 
 			/// \param str an identifier string
       /// \returns the unique "Identifier" object for this string.

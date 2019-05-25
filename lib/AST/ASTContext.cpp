@@ -64,11 +64,6 @@ namespace {
     ParamConverter<Args...>::add(ctxt, paramTypes);
     return FunctionType::get(ctxt, paramTypes, returnType);
   }
-
-  template<typename Rtr, typename ... Args>
-  Type getFoxReturnTypeOfFunc(ASTContext& ctxt, Rtr(*)(Args...)) {
-    return TypeConverter<Rtr>::get(ctxt);
-  }
 }
 
 //----------------------------------------------------------------------------//
@@ -127,24 +122,12 @@ void ASTContext::lookupBuiltin(Identifier id,
   #include "Fox/Common/Builtins.def"
 }
 
-Type ASTContext::getBuiltinFuncType(BuiltinID id) {
+Type ASTContext::getPublicBuiltinFuncType(BuiltinID id) {
   assert(isPublic(id) && "not a public builtin");
   switch (id) {
     #define PUBLIC_BUILTIN(FUNC, FOX)\
       case BuiltinID::FUNC:\
         return getFoxTypeOfFunc(*this, builtin::FUNC);
-    #include "Fox/Common/Builtins.def"
-    default:
-      fox_unreachable("unknown BuiltinID");
-  }
-}
-
-Type ASTContext::getBuiltinFuncReturnType(BuiltinID id) {
-  assert(isPublic(id) && "not a public builtin");
-  switch (id) {
-    #define PUBLIC_BUILTIN(FUNC, FOX)\
-      case BuiltinID::FUNC:\
-        return getFoxReturnTypeOfFunc(*this, builtin::FUNC);
     #include "Fox/Common/Builtins.def"
     default:
       fox_unreachable("unknown BuiltinID");

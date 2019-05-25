@@ -67,8 +67,3 @@ constant_id_t BCGen::getConstantID(FoxDouble value) {
   map.insert({value, kID});
   return kID;
 }
-
-
-Type BCGen::getBuiltinFuncReturnType(BuiltinID builtin) {
-  return ctxt.getBuiltinFuncReturnType(builtin);
-}
