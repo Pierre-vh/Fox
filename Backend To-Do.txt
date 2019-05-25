@@ -107,9 +107,11 @@ Basic VM data types and their mappings to Fox types:
   -> Implement string interface in full (done)
   -> Arrays 
     -> Scaffolding: use std::vector for now (Done)
-    -> Add "isObjectArray" bool to ArrayObject + "isObjectArray()" + ctor arg
+    -> Add "isObjectArray" bool to ArrayObject + "isObjectArray" + ctor arg
+      (needed for GC)
     -> Operations & Builtins
-      > Array creation: NewValueArray and NewObjectArray
+      > Array creation: NewValueArray and NewObjectArray instructions
+        -> <dest> <num_start_elems>
       > ArrayLiteral compilation
         -> LoadBuiltin once + Load the array
         -> Always compile the arg to the following register
@@ -124,16 +126,18 @@ Basic VM data types and their mappings to Fox types:
               CallVoid 0                      // push it
               StoreSmallInt 2 3               // compile first element
               CallVoid 0                      // push it
-      > get/set subscript
-      > size() and others
+      > Subscripts
+      > Array-related builtins
     -> Tests
 
 ---- Getting feature-complete (with the current feature set) ----
-  -> entry point detection (basic, just the function called 'main' with a '() -> int' signature for now. Update the "run" tests as well)
+  -> Entry point detection (basic, just the function called 'main' with a '() -> int' signature for now. Update the "run" tests as well)
+      -> Store the entry point in the ASTContext (FuncDecl* ASTContext::getEntryPoint() + corresponding setter)
   -> Global Variables
   -> Better (but not yet final) error management system for the VM (at least one that doesn't use assert)
     -> Used when dividing by zero, getChar out of range/negative, etc.
-  -> Growable register stack
+     -> Add debug info only for risky instructions (calls, division) (Instruction n° -> SourceRange)      
+  -> Allow the register stack to grow
   -> Properly diagnose maximum register pressure exceeded + max jump ranges exceeded
     > e.g. When the RegisterAllocator runs out of registers, it should call a handler 
   -> Test/Document as much as possible.
