@@ -240,7 +240,10 @@ class BCGen::ExprGenerator : public Generator,
     // emission
     //------------------------------------------------------------------------//
 
-    // Emits a call to a builtin function from a list of expressions
+    // Emits a simple call to a builtin function, using GenThunks to generate
+    // the arguments as needed.
+    //
+    // NOTE: This doesn't check that the call is well formed, it just emits it.
     RegisterValue emitBuiltinCall(BuiltinID bID, RegisterValue dest, 
                                   ArrayRef<GenThunk> generators) {
       // Reserve registers
@@ -276,7 +279,7 @@ class BCGen::ExprGenerator : public Generator,
     void emitStoreIntConstant(regaddr_t dest, FoxInt val) {
       auto ssi_min = bc_limits::storeSmallInt_min;
       auto ssi_max = bc_limits::storeSmallInt_max;
-      // Check if the value can be stored using StoreSmallInt
+      // Check if the value can be emitted using StoreSmallInt
       if ((val >= ssi_min) && (val <= ssi_max)) {
         builder.createStoreSmallIntInstr(dest, val);
         return;
