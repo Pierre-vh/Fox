@@ -11,6 +11,7 @@
 #pragma once
 
 #include "FoxTypes.hpp"
+#include "FoxAny.hpp"
 #include "string_view.hpp"
 #include "LLVM.hpp"
 #include <cstddef>
@@ -72,62 +73,9 @@ namespace fox {
   /// object/values together, such as Arrays (and Tuples in the future)
   class AggregateObject : public Object {
     public:
-      /// The type of a single element of an AggregateObject
-      union Element {
-        Element()                           : raw(0) {}
-        explicit Element(std::uint64_t raw) : raw(raw) {}
-        explicit Element(FoxInt v)          : intVal(v) {}
-        explicit Element(FoxDouble v)       : doubleVal(v) {}
-        explicit Element(bool v)            : boolVal(v) {}
-        explicit Element(FoxChar v)         : charVal(v) {}
-        explicit Element(Object* v)         : objectVal(v) {}
-
-        template<typename T>
-        T get() const = delete;
-
-        /// Templated getter that returns the intValue of this union.
-        /// This is not a checked operation, so if the union doesn't
-        /// contain a FoxInt, this is call will result in UB.
-        template<>
-        FoxInt get<FoxInt>() const        { return intVal;  }
-
-        /// Templated getter that returns the doubleValue of this union.
-        /// This is not a checked operation, so if the union doesn't
-        /// contain a FoxDouble, this is call will result in UB.
-        template<>
-        FoxDouble get<FoxDouble>() const  { return doubleVal; }
-
-        /// Templated getter that returns the boolVal of this union.
-        /// This is not a checked operation, so if the union doesn't
-        /// contain a FoxBool, this is call will result in UB.
-        template<>
-        bool get<bool>() const            { return boolVal; }
-
-        /// Templated getter that returns the charVal of this union.
-        /// This is not a checked operation, so if the union doesn't
-        /// contain a FoxChar, this is call will result in UB.
-        template<>
-        FoxChar get<FoxChar>() const      { return charVal; }
-
-        /// Templated getter that returns the objectVal of this union.
-        /// This is not a checked operation, so if the union doesn't
-        /// contain a Object*, this is call will result in UB.
-        template<>
-        Object* get<Object*>() const      { return objectVal; }
-
-        /// the raw value of the element
-        std::uint64_t raw;
-        /// Integer elements
-        FoxInt    intVal;
-        /// Floating-point elements
-        FoxDouble doubleVal;
-        /// Boolean elements
-        bool      boolVal;
-        /// Char elements
-        FoxChar   charVal;
-        /// Object elements
-        Object*   objectVal;
-      };
+      /// The type used to represent elements of aggregate objects.
+      /// Always 64 bits in size.
+      using Element = FoxAny;
 
       static_assert(sizeof(Element) == 8, 
         "Size of a single element is not 64 bits");
