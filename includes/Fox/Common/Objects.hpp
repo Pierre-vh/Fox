@@ -116,10 +116,7 @@ namespace fox {
       /// Creates an empty array
       ArrayObject();
 
-      /// Creates an array object, reserving \p n elements.
-      /// NOTE: Elements are allocated, which means memory is allocated for them, but
-      /// size() will still return 0 and attempting to retrieve this element will
-      /// result in an out of range access.
+      /// Creates an array object, reserving enough space for \p n elements.
       ArrayObject(std::size_t n);
 
       /// void push_back(Element elem);
