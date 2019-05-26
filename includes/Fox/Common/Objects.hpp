@@ -17,7 +17,6 @@
 #include <cstddef>
 #include <string>
 #include <vector>
-#include <type_traits>
 
 namespace fox {
   enum class ObjectKind : std::uint8_t {
