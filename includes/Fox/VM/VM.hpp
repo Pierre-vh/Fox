@@ -174,12 +174,12 @@ namespace fox {
       LLVM_ATTRIBUTE_RETURNS_NONNULL LLVM_ATTRIBUTE_RETURNS_NOALIAS
       StringObject* newStringObjectFromK(constant_id_t kID);
 
-      /// Creates a new ArrayObject intended to store values,
+      /// Creates a new ArrayObject intended to store value types,
       /// with \p reservedElems reserved elements.
       LLVM_ATTRIBUTE_RETURNS_NONNULL LLVM_ATTRIBUTE_RETURNS_NOALIAS
       ArrayObject* newValueArrayObject(std::size_t reservedElems = 0);
 
-      /// Creates a new ArrayObject intended to store references,
+      /// Creates a new ArrayObject intended to store reference types,
       /// with \p reservedElems reserved elements.
       LLVM_ATTRIBUTE_RETURNS_NONNULL LLVM_ATTRIBUTE_RETURNS_NOALIAS
       ArrayObject* newRefArrayObject(std::size_t reservedElems = 0);

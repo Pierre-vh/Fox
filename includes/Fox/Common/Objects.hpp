@@ -41,7 +41,7 @@ namespace fox {
   };
 
   /// StringObject is an immutable UTF8 String.
-  ///   TODO: Trail-allocate the string once I get a proper allocator in
+  ///   TODO: Trail-allocate the string's data once I get a proper allocator in
   ///         the VM.
   class StringObject : public Object {
     public:
@@ -92,15 +92,15 @@ namespace fox {
 
   /// ArrayObject is a dynamic, untyped array.
   /// It is intended to store homogenous data -> it doesn't provide support
-  /// for storing data of different types inside the same array. 
+  /// for storing both value/reference types at the same time. 
   /// (It has a single "containsReference" tag, and not a full "reference" map!)
   class ArrayObject : public AggregateObject {
     public:
       using ArrayT = std::vector<Element>;
 
       /// Creates an empty array
-      /// \param containsReferences true if this array will contain references,
-      ///                           false otherwise.
+      /// \param containsReferences true if this array will contain 
+      ///                           reference types, false otherwise.
       /// \param minCapacity the minimum capacity that the array should have
       ///                     (enough space will be reserved to store 
       ///                      \p minCapacity elems)
@@ -119,7 +119,7 @@ namespace fox {
       /// void erase(std::size_t start, std::size_t num);
       /// Element get(std::size_t elem);
 
-      /// \returns true if this array contains references (pointers) to Objects.
+      /// \returns true if this array contains references types.
       bool containsReferences() const;
 
       /// \returns a reference to the internal array of the ArrayObject
