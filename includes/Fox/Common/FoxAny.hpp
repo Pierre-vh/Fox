@@ -60,7 +60,6 @@ namespace fox {
     std::uint64_t raw;
     /// Integer elements
     FoxInt    intVal;
-    FoxInt    intVal;
     /// Floating-point elements
     FoxDouble doubleVal;
     /// Boolean elements
