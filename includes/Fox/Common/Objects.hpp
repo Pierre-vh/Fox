@@ -108,16 +108,20 @@ namespace fox {
   };
 
   /// ArrayObject is a dynamic, untyped array.
+  /// It is intended to store homogenous data -> it doesn't provide support
+  /// for storing data of different types inside the same array. 
+  /// (It has a single "containsReference" tag, and not a full "reference" map!)
   class ArrayObject : public AggregateObject {
     public:
-      /// The type of the internal array
       using ArrayT = std::vector<Element>;
 
       /// Creates an empty array
-      ArrayObject();
-
-      /// Creates an array object, reserving enough space for \p n elements.
-      ArrayObject(std::size_t n);
+      /// \param containsReferences true if this array will contain references,
+      ///                           false otherwise.
+      /// \param minCapacity the minimum capacity that the array should have
+      ///                     (enough space will be reserved to store 
+      ///                      \p minCapacity elems)
+      ArrayObject(bool containsReferences, std::size_t minCapacity = 0);
 
       /// void push_back(Element elem);
       /// void set(std::size_t elem, Element)
@@ -132,6 +136,9 @@ namespace fox {
       /// void erase(std::size_t start, std::size_t num);
       /// Element get(std::size_t elem);
 
+      /// \returns true if this array contains references (pointers) to Objects.
+      bool containsReferences() const;
+
       /// \returns a reference to the internal array of the ArrayObject
       ArrayT& data();
       /// \returns a const reference to the internal array of the ArrayObject
@@ -142,6 +149,7 @@ namespace fox {
       }
 
     private:
+      const bool containsReferences_ : 1;
       ArrayT data_;
   };
 }

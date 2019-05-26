@@ -53,10 +53,16 @@ FoxChar StringObject::getChar(std::size_t n) const {
 // ArrayObject
 //----------------------------------------------------------------------------//
 
-ArrayObject::ArrayObject() : AggregateObject(ObjectKind::ArrayObject) {}
 
-ArrayObject::ArrayObject(std::size_t n) : ArrayObject() {
-  data_.reserve(n);
+fox::ArrayObject::ArrayObject(bool containsReferences, std::size_t minCapacity) 
+  : AggregateObject(ObjectKind::ArrayObject), 
+    containsReferences_(containsReferences) {
+  if(minCapacity != 0)
+    data_.reserve(minCapacity);
+}
+
+bool ArrayObject::containsReferences() const {
+  return containsReferences_;
 }
 
 ArrayObject::ArrayT& ArrayObject::data() {
