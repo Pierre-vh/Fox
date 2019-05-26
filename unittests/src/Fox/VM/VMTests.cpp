@@ -474,7 +474,7 @@ TEST_F(VMTest, NewStringAndLoadStringK) {
 
   // Helper to get a register's value as a StringObject*
   auto getReg = [&](std::size_t idx) {
-    return (StringObject*)vm.getRegisterStack()[idx].object;
+    return cast<StringObject>(vm.getRegisterStack()[idx].object);
   };
 
   // Check that the values are correct
@@ -622,5 +622,45 @@ TEST_F(VMTest, stringCreation) {
     StringObject* string = vm.newStringObject();
     ASSERT_NE(string, nullptr);
     ASSERT_EQ(string->str(), "");
+  }
+}
+
+TEST_F(VMTest, newArray) {
+  builder.createNewRefArrayInstr(0, 16);
+  builder.createNewValueArrayInstr(1, 0);
+  builder.createRetVoidInstr();
+
+  VM vm(theModule);
+  vm.run(instrs);
+
+  // Helper to get a register's value as an ArrayObject*
+  auto getReg = [&](std::size_t idx) {
+    return cast<ArrayObject>(vm.getRegisterStack()[idx].object);
+  };
+
+  ArrayObject* r0 = getReg(0);
+  ArrayObject* r1 = getReg(1);
+
+  EXPECT_TRUE(r0->containsReferences());
+  EXPECT_FALSE(r1->containsReferences());
+  EXPECT_EQ(r0->size(), 0u);
+  EXPECT_EQ(r1->size(), 0u);
+}
+
+TEST_F(VMTest, arrayCreation) {
+  VM vm(theModule);
+
+  {
+    ArrayObject* arr = vm.newValueArrayObject(10);
+    ASSERT_NE(arr, nullptr);
+    EXPECT_FALSE(arr->containsReferences());
+    EXPECT_EQ(arr->size(), 0u);
+  }
+
+  {
+    ArrayObject* arr = vm.newRefArrayObject(10);
+    ASSERT_NE(arr, nullptr);
+    EXPECT_TRUE(arr->containsReferences());
+    EXPECT_EQ(arr->size(), 0u);
   }
 }

@@ -92,6 +92,18 @@ VM::Register VM::run(ArrayRef<Instruction> instrs) {
         getReg(instr.LoadStringK.dest).object =
           newStringObjectFromK(instr.LoadStringK.kID);
         continue;
+      case Opcode::NewValueArray:
+        // Creates a new ArrayObject of values with n reserved elements and
+        // stores a reference to it in dest.
+        getReg(instr.NewValueArray.dest).object =
+          newValueArrayObject(instr.NewValueArray.n);
+        continue;
+      case Opcode::NewRefArray:
+        // Creates a new ArrayObject of references with n reserved elements and
+        // stores a reference to it in dest.
+        getReg(instr.NewRefArray.dest).object =
+          newRefArrayObject(instr.NewRefArray.n);
+        continue;
       case Opcode::AddInt: 
         // AddInt dest lhs rhs: dest = lhs + rhs (FoxInts)
         TRIVIAL_TAC_BINOP_IMPL(AddInt, intVal, +);
@@ -311,6 +323,26 @@ StringObject* VM::newStringObjectFromK(constant_id_t kID) {
   const auto& str = bcModule.getStringConstant(kID);
   stringObjects_.emplace_back(std::make_unique<StringObject>(str));
   StringObject* ptr = stringObjects_.back().get();
+  assert(ptr && "Pointer to allocated object is nullptr");
+  return ptr;
+}
+
+LLVM_ATTRIBUTE_RETURNS_NONNULL LLVM_ATTRIBUTE_RETURNS_NOALIAS 
+ArrayObject* VM::newValueArrayObject(std::size_t reservedElems) {
+  arrayObjects_.emplace_back(
+    std::make_unique<ArrayObject>(/*containsReferences*/ false, reservedElems)
+  );
+  ArrayObject* ptr = arrayObjects_.back().get();
+  assert(ptr && "Pointer to allocated object is nullptr");
+  return ptr;
+}
+
+LLVM_ATTRIBUTE_RETURNS_NONNULL LLVM_ATTRIBUTE_RETURNS_NOALIAS 
+ArrayObject* VM::newRefArrayObject(std::size_t reservedElems) {
+  arrayObjects_.emplace_back(
+    std::make_unique<ArrayObject>(/*containsReferences*/ true, reservedElems)
+  );
+  ArrayObject* ptr = arrayObjects_.back().get();
   assert(ptr && "Pointer to allocated object is nullptr");
   return ptr;
 }

@@ -70,6 +70,10 @@ UNARY_INSTR(NewString, dest, regaddr_t)
   // Creates a new StringObject from a string constant with it 'kID' and stores
   // a pointer to it in dest
 BINARY_INSTR(LoadStringK, dest, regaddr_t, kID, constant_id_t)
+  // Creates an ArrayObject of values, reserving enough space for N elements
+BINARY_INSTR(NewValueArray, dest, regaddr_t, n, std::uint16_t)
+  // Creates an ArrayObject of references, reserving enough space for N elements
+BINARY_INSTR(NewRefArray, dest, regaddr_t, n, std::uint16_t)
 
 // Arithmetic : dest = lhs (op) rhs. Result's type is the type of the operand.
 BINARY_REG_OP(AddInt)    // Int Addition

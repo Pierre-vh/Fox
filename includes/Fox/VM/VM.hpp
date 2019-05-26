@@ -31,6 +31,7 @@ namespace fox {
   class BCModule;
   class Object;
   class StringObject;
+  class ArrayObject;
 
   class VM {
     public:
@@ -173,6 +174,16 @@ namespace fox {
       LLVM_ATTRIBUTE_RETURNS_NONNULL LLVM_ATTRIBUTE_RETURNS_NOALIAS
       StringObject* newStringObjectFromK(constant_id_t kID);
 
+      /// Creates a new ArrayObject intended to store values,
+      /// with \p reservedElems reserved elements.
+      LLVM_ATTRIBUTE_RETURNS_NONNULL LLVM_ATTRIBUTE_RETURNS_NOALIAS
+      ArrayObject* newValueArrayObject(std::size_t reservedElems = 0);
+
+      /// Creates a new ArrayObject intended to store references,
+      /// with \p reservedElems reserved elements.
+      LLVM_ATTRIBUTE_RETURNS_NONNULL LLVM_ATTRIBUTE_RETURNS_NOALIAS
+      ArrayObject* newRefArrayObject(std::size_t reservedElems = 0);
+
       ///--------------------------------------------------------------------///
       /// Public Member Variables
       ///--------------------------------------------------------------------///
@@ -219,5 +230,6 @@ namespace fox {
       // when the GC is implemented.
       // For now, objects are simply never freed.
       SmallVector<std::unique_ptr<StringObject>, 4> stringObjects_;
+      SmallVector<std::unique_ptr<ArrayObject>, 4> arrayObjects_;
   };
 }
