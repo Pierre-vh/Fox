@@ -107,12 +107,10 @@ Basic VM data types and their mappings to Fox types:
   -> Implement string interface in full (done)
   -> Arrays 
     -> Scaffolding: use std::vector for now (Done)
-    -> Add "isObjectArray" bool to ArrayObject + "isObjectArray" + ctor arg
-      (needed for GC)
     -> Operations & Builtins
-      > Array creation: NewValueArray and NewObjectArray instructions
-        -> <dest> <num_start_elems>
+      > Array creation: NewValueArray and NewObjectArray instructions (Done)
       > ArrayLiteral compilation
+        -> Have a special case for [] (just use newValue/RefArray <dest> 0)
         -> LoadBuiltin once + Load the array
         -> Always compile the arg to the following register
         -> Call builtin
