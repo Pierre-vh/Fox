@@ -129,7 +129,7 @@ namespace fox {
       /// Element& operator[](std::size_t idx)
       /// const Element& operator[](std::size_t idx)
 
-      /// std::size_t size()
+      std::size_t size() const;
       /// void reset()
 
       /// void pop_back();

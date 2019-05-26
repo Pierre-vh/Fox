@@ -61,6 +61,10 @@ fox::ArrayObject::ArrayObject(bool containsReferences, std::size_t minCapacity)
     data_.reserve(minCapacity);
 }
 
+std::size_t ArrayObject::size() const {
+  return data_.size();
+}
+
 bool ArrayObject::containsReferences() const {
   return containsReferences_;
 }
