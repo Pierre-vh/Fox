@@ -13,24 +13,10 @@
   #define OBJECT(CLASS)
 #endif
 
-// Abstract classes derived from Object
-//    CLASS is the name of the object class.
-#ifndef ABSTRACT_OBJECT
-  #define ABSTRACT_OBJECT(CLASS)
-#endif
-
-// Ranges of objects
-//    CLASS is the name of the object class.
-#ifndef OBJECT_RANGE
-  #define OBJECT_RANGE(NAME, FIRST, LAST)
-#endif
-
 //----------------------------------------------------------------------------//
 
 OBJECT(StringObject)
-ABSTRACT_OBJECT(AggregateObject)
-  OBJECT(ArrayObject)
-  OBJECT_RANGE(AggregateObject, ArrayObject, ArrayObject)
+OBJECT(ArrayObject)
 
 //----------------------------------------------------------------------------//
 

@@ -22,8 +22,6 @@
 namespace fox {
   enum class ObjectKind : std::uint8_t {
     #define OBJECT(CLASS) CLASS,
-    #define OBJECT_RANGE(NAME, FIRST, LAST)\
-      First_##NAME = FIRST, Last_##NAME = LAST,
     #include "Objects.def"
   };
 
@@ -69,34 +67,13 @@ namespace fox {
       const std::string str_;
   };
 
-  /// AggregateObject is a common base class between Objects that group multiple
-  /// object/values together, such as Arrays (and Tuples in the future)
-  class AggregateObject : public Object {
-    public:
-      /// The type used to represent elements of aggregate objects.
-      /// Always 64 bits in size.
-      using Element = FoxAny;
-
-      static_assert(sizeof(Element) == 8, 
-        "Size of a single element is not 64 bits");
-
-      static bool classof(const Object* obj) {
-        auto kind = obj->getKind();
-        return (kind >= ObjectKind::First_AggregateObject) &&
-          (kind <= ObjectKind::Last_AggregateObject);
-      }
-
-    protected:
-      AggregateObject(ObjectKind kind) : Object(kind) {}
-  };
-
   /// ArrayObject is a dynamic, untyped array.
   /// It is intended to store homogenous data -> it doesn't provide support
   /// for storing both value/reference types at the same time. 
   /// (It has a single "containsReference" tag, and not a full "reference" map!)
-  class ArrayObject : public AggregateObject {
+  class ArrayObject : public Object {
     public:
-      using ArrayT = std::vector<Element>;
+      using ArrayT = std::vector<FoxAny>;
 
       /// Creates an empty array
       /// \param containsReferences true if this array will contain 
