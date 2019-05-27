@@ -109,21 +109,7 @@ Basic VM data types and their mappings to Fox types:
     -> Scaffolding: use std::vector for now (Done)
     -> Operations & Builtins
       > Array creation: NewValueArray and NewObjectArray instructions (Done)
-      > ArrayLiteral compilation
-        -> Have a special case for [] (just use newValue/RefArray <dest> 0)
-        -> LoadBuiltin once + Load the array
-        -> Always compile the arg to the following register
-        -> Call builtin
-            e.g. code would be (for [1, 2, 3])
-              NewValueArray 0 3               // create the new array with 3 reserved elements
-              LoadBuiltinFunc 1 arrayPushBack // load the push_back builtin
-              Copy 0 1                        // use the array as first argument
-              StoreSmallInt 2 1               // compile first element
-              CallVoid 0                      // push it
-              StoreSmallInt 2 2               // compile first element
-              CallVoid 0                      // push it
-              StoreSmallInt 2 3               // compile first element
-              CallVoid 0                      // push it
+      > ArrayLiteral compilation (Done)
       > Subscripts
       > Array-related builtins
     -> Tests
@@ -196,4 +182,5 @@ Basic VM data types and their mappings to Fox types:
   -> Properly diagnose out of range jumps in BCGen::StmtGenerator::calculateJumpOffset
     -> Same as diagnosing register pressure exceeded -> diagnostic like "'if' statement too complex to be compiled: reduce the amount of code contained inside it"
    
-  -> Something that bothers me a bit is that I don't check my builtin calls. I simply emit them
+  -> (opt) When we have an assignement with the RHS being an empty array literal, simply
+    emit something like "arrReset" on the LHS instead of generating a new literal. 

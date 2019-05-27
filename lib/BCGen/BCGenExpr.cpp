@@ -932,9 +932,55 @@ class BCGen::ExprGenerator : public Generator,
     }
 
     RegisterValue 
-    visitArrayLiteralExpr(ArrayLiteralExpr*, RegisterValue) {
-      // Needs array implemented in the VM
-      fox_unimplemented_feature("ArrayLiteralExpr BCGen");
+    visitArrayLiteralExpr(ArrayLiteralExpr* expr, RegisterValue dest) {
+      Type arrayType = expr->getType();
+      Type elemType = arrayType->castTo<ArrayType>()->getElementType();
+      bool elemTypeIsRefType = elemType->isReferenceType();
+
+      dest = tryUse(std::move(dest));
+      regaddr_t arrAddr = dest.getAddress();
+
+      {
+        // Use the number of elements inside the array literal as the
+        // initial size of the array, but max out at 65535 (the max of uint16,
+        // the type of the second operand);
+        auto initialSize = (std::uint16_t)std::min(expr->numElems(), 0xFFFFu);
+        // Create the array
+        if(elemTypeIsRefType)
+          builder.createNewRefArrayInstr(arrAddr, initialSize);
+        else
+          builder.createNewValueArrayInstr(arrAddr, initialSize);
+      }
+
+      // Stop here if the array literal is empty.
+      if(expr->numElems() == 0) return dest;
+
+      // FIXME: Can this be made a bit more efficient?
+
+      // Setup a call to arrAppend to fill the array
+      SmallVector<RegisterValue, 4> callRegs;
+      regAlloc.allocateCallRegisters(callRegs, 3);
+
+      regaddr_t baseAddr = callRegs[0].getAddress();
+      // Base = Reference to arrAppend.
+      builder.createLoadBuiltinFuncInstr(baseAddr, BuiltinID::arrAppend);
+
+      // arg0 = reference to the array
+      RegisterValue& arg0 = callRegs[1];
+      // FIXME: Can we avoid the copy?
+      builder.createCopyInstr(arg0.getAddress(), arrAddr);
+
+      // arg1 = the expression.
+      // We'll loop over each expression, generate them with arg1
+      // as the destination then call the base and so on.
+      RegisterValue& arg1 = callRegs[2];
+      assert(arg1 && "arg1 is dead");
+      for (Expr* elem : expr->getExprs()) {
+        arg1 = visit(elem, std::move(arg1));    // gen the expr in arg1
+        builder.createCallVoidInstr(baseAddr);  // Call arrAppend
+      }
+
+      return dest;
     }
 
     // ErrorExprs shouldn't be found past Sema

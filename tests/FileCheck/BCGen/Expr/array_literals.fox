@@ -1,0 +1,70 @@
+// RUN: %fox-dump-bcgen | %filecheck
+
+
+func emptyLiterals() {
+  // CHECK: NewValueArray 0 0
+  let a : [int]     = [];
+  // CHECK: NewValueArray 0 0
+  let b : [double]  = [];
+  // CHECK: NewValueArray 0 0
+  let c : [bool]    = [];
+  // CHECK: NewValueArray 0 0
+  let d : [char]    = [];
+  // CHECK: NewRefArray 0 0
+  let e : [string]  = [];
+  // CHECK: NewRefArray 0 0
+  let f : [[int]]   = [];
+}
+
+func arrLiterals() {
+  // CHECK:       NewValueArray 0 4
+  // CHECK-NEXT:  LoadBuiltinFunc 1 arrAppend
+  // CHECK-NEXT:  Copy 2 0
+  // CHECK-NEXT:  StoreSmallInt 3 0
+  // CHECK-NEXT:  CallVoid 1
+  // CHECK-NEXT:  StoreSmallInt 3 1
+  // CHECK-NEXT:  CallVoid 1
+  // CHECK-NEXT:  StoreSmallInt 3 2
+  // CHECK-NEXT:  CallVoid 1
+  // CHECK-NEXT:  StoreSmallInt 3 3
+  // CHECK-NEXT:  CallVoid 1
+  let a : [int]     = [0, 1, 2, 3];
+  // CHECK-NEXT:  NewValueArray 0 3
+  // CHECK-NEXT:  LoadBuiltinFunc 1 arrAppend
+  // CHECK-NEXT:  Copy 2 0
+  // CHECK-NEXT:  StoreSmallInt 3 1
+  // CHECK-NEXT:  CallVoid 1
+  // CHECK-NEXT:  StoreSmallInt 3 0
+  // CHECK-NEXT:  CallVoid 1
+  // CHECK-NEXT:  StoreSmallInt 3 1
+  // CHECK-NEXT:  CallVoid 1
+  let c : [bool]    = [true, false, true];
+  // CHECK-NEXT:  NewRefArray 0 3
+  // CHECK-NEXT:  LoadBuiltinFunc 1 arrAppend
+  // CHECK-NEXT:  Copy 2 0
+  // CHECK-NEXT:  LoadStringK 3 0
+  // CHECK-NEXT:  CallVoid 1
+  // CHECK-NEXT:  LoadStringK 3 1
+  // CHECK-NEXT:  CallVoid 1
+  // CHECK-NEXT:  LoadStringK 3 2
+  // CHECK-NEXT:  CallVoid 1
+  let e : [string]  = ["Pierre", "Jules", "David"];
+  // CHECK-NEXT:  NewRefArray 0 2
+  // CHECK-NEXT:  LoadBuiltinFunc 1 arrAppend
+  // CHECK-NEXT:  Copy 2 0
+  // CHECK-NEXT:  NewValueArray 3 1
+  // CHECK-NEXT:  LoadBuiltinFunc 4 arrAppend
+  // CHECK-NEXT:  Copy 5 3
+  // CHECK-NEXT:  StoreSmallInt 6 0
+  // CHECK-NEXT:  CallVoid 4
+  // CHECK-NEXT:  CallVoid 1
+  // CHECK-NEXT:  NewValueArray 3 2
+  // CHECK-NEXT:  LoadBuiltinFunc 4 arrAppend
+  // CHECK-NEXT:  Copy 5 3
+  // CHECK-NEXT:  StoreSmallInt 6 1
+  // CHECK-NEXT:  CallVoid 4
+  // CHECK-NEXT:  StoreSmallInt 6 2
+  // CHECK-NEXT:  CallVoid 4
+  // CHECK-NEXT:  CallVoid 1
+  let f : [[int]]   = [[0], [1, 2]];
+}
