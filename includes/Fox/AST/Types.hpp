@@ -110,6 +110,10 @@ namespace fox {
       /// Ignores LValues
       bool isArrayType() const;
 
+      /// \returns true if this type has reference semantics.
+      /// Ignores LValues
+      bool isReferenceType() const;
+
       /// \returns true if this type is any primitive type. Ignores LValues.
       bool isPrimitiveType() const;
 

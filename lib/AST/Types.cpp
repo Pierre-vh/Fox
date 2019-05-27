@@ -269,6 +269,12 @@ bool TypeBase::isArrayType() const {
   return getRValue()->is<ArrayType>();
 }
 
+bool TypeBase::isReferenceType() const {
+  if(auto rvalue = getRValue())
+    return rvalue->is<ArrayType>() || rvalue->is<StringType>();
+  return false;
+}
+
 bool TypeBase::isPrimitiveType() const {
   return getRValue()->is<PrimitiveType>();
 }
