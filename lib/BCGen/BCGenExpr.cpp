@@ -584,8 +584,16 @@ class BCGen::ExprGenerator : public Generator,
     // Builtin Type Member Emitters
     //------------------------------------------------------------------------//
 
-    RegisterValue emitArrayAppend(ArrayRef<Expr*>, RegisterValue) {
-      fox_unimplemented_feature("ArrayAppend emission");
+    RegisterValue emitArrayAppend(ArrayRef<Expr*> args, RegisterValue dest) {
+      /// Emit a call to the arrAppend builtin.
+      assert((args.size() == 2) 
+        && "incorrect number of args for arrAppend");
+      assert(!dest && "cannot have a destination for ArrayAppend");
+      return emitBuiltinCall(
+        BuiltinID::arrAppend, 
+        RegisterValue(), 
+        { getGTForExpr(args[0]), getGTForExpr(args[1]) }
+      );
     }
 
     RegisterValue emitArrayBack(ArrayRef<Expr*>, RegisterValue) {
@@ -600,8 +608,12 @@ class BCGen::ExprGenerator : public Generator,
       fox_unimplemented_feature("ArrayPop emission");
     }
 
-    RegisterValue emitArraySize(ArrayRef<Expr*>, RegisterValue) {
-      fox_unimplemented_feature("ArraySize emission");
+    RegisterValue emitArraySize(ArrayRef<Expr*> args, RegisterValue dest) {
+      /// Emit a call to the arrSize builtin.
+      assert((args.size() == 1) 
+        && "incorrect number of args for arrSize");
+      GenThunk gen = getGTForExpr(args[0]);
+      return emitBuiltinCall(BuiltinID::arrSize, std::move(dest), {gen});
     }
 
     RegisterValue emitStringNumBytes(ArrayRef<Expr*> args, RegisterValue dest) {
