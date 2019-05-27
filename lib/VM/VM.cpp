@@ -418,6 +418,10 @@ namespace {
                             , std::uint64_t(value));
   REG_CONVERT(StringObject* , cast<StringObject>(reg.object)     
                             , value);
+  REG_CONVERT(ArrayObject*  , cast<ArrayObject>(reg.object)     
+                            , value);
+  REG_CONVERT(FoxAny        , FoxAny(reg.raw)     
+                            , value.raw);
   #undef REG_CONVERT
 
   template<typename Ty>
