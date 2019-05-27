@@ -72,8 +72,11 @@ namespace {
         fox_unreachable("FunctionType shouldn't appear in a variable's type");
       }
 
-      void visitArrayType(ArrayType*, regaddr_t) {
-        fox_unimplemented_feature("ArrayType variables default initialization");
+      void visitArrayType(ArrayType* type, regaddr_t dest) {
+        if(type->getElementType()->isReferenceType())
+          builder.createNewRefArrayInstr(dest, /*initialSize*/ 0);
+        else
+          builder.createNewValueArrayInstr(dest, /*initialSize*/ 0);
       }
 
       void visitLValueType(LValueType*, regaddr_t) {
