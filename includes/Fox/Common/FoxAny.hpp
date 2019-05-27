@@ -28,31 +28,31 @@ namespace fox {
 
     /// Templated getter that returns the intValue of this union.
     /// This is not a checked operation, so if the union doesn't
-    /// contain a FoxInt, this is call will result in UB.
+    /// contain a FoxInt, this call is UB.
     template<>
     FoxInt get<FoxInt>() const        { return intVal;  }
 
     /// Templated getter that returns the doubleValue of this union.
     /// This is not a checked operation, so if the union doesn't
-    /// contain a FoxDouble, this is call will result in UB.
+    /// contain a FoxDouble, this call is UB.
     template<>
     FoxDouble get<FoxDouble>() const  { return doubleVal; }
 
     /// Templated getter that returns the boolVal of this union.
     /// This is not a checked operation, so if the union doesn't
-    /// contain a FoxBool, this is call will result in UB.
+    /// contain a FoxBool, this call is UB.
     template<>
     bool get<bool>() const            { return boolVal; }
 
     /// Templated getter that returns the charVal of this union.
     /// This is not a checked operation, so if the union doesn't
-    /// contain a FoxChar, this is call will result in UB.
+    /// contain a FoxChar, this call is UB.
     template<>
     FoxChar get<FoxChar>() const      { return charVal; }
 
     /// Templated getter that returns the objectVal of this union.
     /// This is not a checked operation, so if the union doesn't
-    /// contain a Object*, this is call will result in UB.
+    /// contain a Object*, this call is UB.
     template<>
     Object* get<Object*>() const      { return objectVal; }
 
