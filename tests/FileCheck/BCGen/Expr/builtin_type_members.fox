@@ -5,8 +5,25 @@ func foo() {
   // CHECK-NEXT:  LoadStringK 1 0
   // CHECK-NEXT:  Call 0 0
   "s".length();
-  // CHECK:       LoadBuiltinFunc 0 strNumBytes
+  // CHECK-NEXT:  LoadBuiltinFunc 0 strNumBytes
   // CHECK-NEXT:  LoadStringK 1 0
   // CHECK-NEXT:  Call 0 0
   "s".numBytes();
+  // CHECK-NEXT:  LoadBuiltinFunc 0 arrSize
+  // CHECK-NEXT:  NewValueArray 1 1
+  // CHECK-NEXT:  LoadBuiltinFunc 2 arrAppend
+  // CHECK-NEXT:  Copy 3 1
+  // CHECK-NEXT:  StoreSmallInt 4 0
+  // CHECK-NEXT:  CallVoid 2
+  // CHECK-NEXT:  Call 0 0
+  [0].size();
+  // CHECK-NEXT:  LoadBuiltinFunc 0 arrAppend
+  // CHECK-NEXT:  NewValueArray 1 1
+  // CHECK-NEXT:  LoadBuiltinFunc 3 arrAppend
+  // CHECK-NEXT:  Copy 4 1
+  // CHECK-NEXT:  StoreSmallInt 5 0
+  // CHECK-NEXT:  CallVoid 3
+  // CHECK-NEXT:  StoreSmallInt 2 1
+  // CHECK-NEXT:  CallVoid 0
+  [0].append(1);
 }

@@ -1,0 +1,6 @@
+// RUN: %fox-run | %filecheck
+
+func main() {
+  // CHECK: Array has a size of '2'
+  printString("Array has a size of '" + $([0, 1].size()) + "'\n"); 
+}

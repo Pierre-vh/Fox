@@ -12,4 +12,12 @@ func foo() {
   let d : char;
   // CHECK-NEXT: NewString 0
   let e : string;
+  // CHECK-NEXT: NewValueArray 0
+  let f : [int];
+  // CHECK-NEXT: NewRefArray 0
+  let g : [string];
+  // CHECK-NEXT: NewRefArray 0
+  let h : [[int]];
+  // CHECK-NEXT: NewRefArray 0
+  let i : [[string]];
 }
