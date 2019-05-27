@@ -98,6 +98,7 @@ PRIVATE_BUILTIN(getChar)
 
 // Arrays
 PRIVATE_BUILTIN(arrAppend)
+PRIVATE_BUILTIN(arrSize)
 
 //----------------------------------------------------------------------------//
 

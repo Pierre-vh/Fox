@@ -87,5 +87,8 @@ namespace fox {
 
     /// inserts \p element in \p array
     void arrAppend(ArrayObject* arr, FoxAny elem);
+
+    /// \returns the size of \p arr
+    FoxInt arrSize(ArrayObject* arr);
   }
 }

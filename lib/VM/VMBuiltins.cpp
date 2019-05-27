@@ -66,3 +66,8 @@ void builtin::arrAppend(ArrayObject* arr, FoxAny elem) {
   assert(arr && "array is null");
   arr->append(elem);
 }
+
+FoxInt builtin::arrSize(ArrayObject* arr) {
+  assert(arr && "array is null");
+  return arr->size();
+}
