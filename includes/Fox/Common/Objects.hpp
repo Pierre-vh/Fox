@@ -69,10 +69,11 @@ namespace fox {
   /// ArrayObject is a dynamic, untyped array.
   /// It is intended to store homogenous data -> it doesn't provide support
   /// for storing both value/reference types at the same time. 
-  /// (It has a single "containsReference" tag, and not a full "reference" map!)
+  /// (It has a single "containsReference" tag, and not a full "reference map")
   class ArrayObject : public Object {
     public:
-      using ArrayT = std::vector<FoxAny>;
+      using ElemT = FoxAny;
+      using ArrayT = std::vector<ElemT>;
 
       /// Creates an empty array
       /// \param containsReferences true if this array will contain 
@@ -82,7 +83,7 @@ namespace fox {
       ///                      \p minCapacity elems)
       ArrayObject(bool containsReferences, std::size_t minCapacity = 0);
 
-      /// void push_back(Element elem);
+      void append(ElemT elem);
       /// void set(std::size_t elem, Element)
       /// Element get(std::size_t elem);
       /// Element& operator[](std::size_t idx)

@@ -60,6 +60,10 @@ fox::ArrayObject::ArrayObject(bool containsReferences, std::size_t minCapacity)
     data_.reserve(minCapacity);
 }
 
+void ArrayObject::append(ElemT elem) {
+  data_.push_back(elem);
+}
+
 std::size_t ArrayObject::size() const {
   return data_.size();
 }

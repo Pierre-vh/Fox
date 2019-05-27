@@ -11,11 +11,13 @@
 
 #include "FoxTypes.hpp"
 #include "BuiltinID.hpp"
+#include "FoxAny.hpp"
 #include <string>
 
 namespace fox {
   class VM;
   class StringObject;
+  class ArrayObject;
 
   template<typename Ty>
   struct BuiltinFnArgTypeTrait { static constexpr bool ignored = false; };
@@ -82,5 +84,8 @@ namespace fox {
 
     /// \returns the nth codepoint (FoxChar) of a string.
     FoxChar getChar(StringObject* str, FoxInt n);
+
+    /// inserts \p element in \p array
+    void arrAppend(ArrayObject* arr, FoxAny elem);
   }
 }

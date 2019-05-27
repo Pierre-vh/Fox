@@ -91,9 +91,13 @@ BUILTIN_RANGE(Public, printInt, charConcat)
 // Private Builtins
 //----------------------------------------------------------------------------//
 
+// Strings
 PRIVATE_BUILTIN(strLength)
 PRIVATE_BUILTIN(strNumBytes)
 PRIVATE_BUILTIN(getChar)
+
+// Arrays
+PRIVATE_BUILTIN(arrAppend)
 
 //----------------------------------------------------------------------------//
 

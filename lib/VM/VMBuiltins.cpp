@@ -61,3 +61,8 @@ FoxChar builtin::getChar(StringObject* str, FoxInt n) {
   assert((n >= 0) && (n < str->length()) && "out of range index");
   return str->getChar(static_cast<std::size_t>(n));
 }
+
+void builtin::arrAppend(ArrayObject* arr, FoxAny elem) {
+  assert(arr && "array is null");
+  arr->append(elem);
+}
