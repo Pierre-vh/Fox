@@ -95,7 +95,8 @@ namespace fox {
     FoxAny arrGet(ArrayObject* arr, FoxInt n);
 
     /// sets the element at index \p n of \p arr to \p val
-    void arrSet(ArrayObject* arr, FoxInt n, FoxAny val);
+    /// \returns \p val
+    FoxAny arrSet(ArrayObject* arr, FoxInt n, FoxAny val);
 
     /// Removes the last element of \p arr
     void arrPop(ArrayObject* arr);

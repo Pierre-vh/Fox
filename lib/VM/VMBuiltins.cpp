@@ -77,9 +77,10 @@ FoxAny builtin::arrGet(ArrayObject* arr, FoxInt n) {
   return (*arr)[n];
 }
 
-void builtin::arrSet(ArrayObject* arr, FoxInt n, FoxAny val) {
+FoxAny builtin::arrSet(ArrayObject* arr, FoxInt n, FoxAny val) {
   assert((n >= 0) && (n < arr->size()) && "out-of-range");
   (*arr)[n] = val;
+  return val;
 }
 
 void builtin::arrPop(ArrayObject* arr) {
