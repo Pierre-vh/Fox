@@ -1,6 +1,22 @@
-// RUN: %fox-run | %filecheck
+﻿// RUN: %fox-run | %filecheck
 
 func main() {
   // CHECK: Array has a size of '2'
   printString("Array has a size of '" + $([0, 1].size()) + "'\n"); 
+  let x : [string] = ["bonjour", "hello"];
+  // CHECK-NEXT: bonjour
+  printString(x.front() + '\n');
+  // CHECK-NEXT: hello
+  printString(x.back() + '\n');
+  x.append("こんにちは");
+  // CHECK-NEXT: bonjour
+  printString(x.front() + '\n');
+  // CHECK-NEXT: こんにちは
+  printString(x.back() + '\n');
+  x.pop();
+  x.pop();
+  // CHECK-NEXT: bonjour
+  printString(x.front() + '\n');
+  // CHECK-NEXT: bonjour
+  printString(x.back() + '\n');
 }

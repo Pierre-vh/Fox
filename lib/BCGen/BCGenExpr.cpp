@@ -596,24 +596,48 @@ class BCGen::ExprGenerator : public Generator,
       );
     }
 
-    RegisterValue emitArrayBack(ArrayRef<Expr*>, RegisterValue) {
-      fox_unimplemented_feature("ArrayBack emission");
+    RegisterValue emitArrayBack(ArrayRef<Expr*> args, RegisterValue dest) {
+      /// Emit a call to the arrBack builtin.
+      assert((args.size() == 1) 
+        && "incorrect number of args for arrBack");
+      return emitBuiltinCall(
+        BuiltinID::arrBack, 
+        std::move(dest), 
+        { getGTForExpr(args[0]) }
+      );
     }
 
-    RegisterValue emitArrayFront(ArrayRef<Expr*>, RegisterValue) {
-      fox_unimplemented_feature("ArrayFront emission");
+    RegisterValue emitArrayFront(ArrayRef<Expr*> args, RegisterValue dest) {
+      /// Emit a call to the arrFront builtin.
+      assert((args.size() == 1) 
+        && "incorrect number of args for arrFront");
+      return emitBuiltinCall(
+        BuiltinID::arrFront, 
+        std::move(dest), 
+        { getGTForExpr(args[0]) }
+      );
     }
 
-    RegisterValue emitArrayPop(ArrayRef<Expr*>, RegisterValue) {
-      fox_unimplemented_feature("ArrayPop emission");
+    RegisterValue emitArrayPop(ArrayRef<Expr*> args, RegisterValue dest) {
+      /// Emit a call to the arrPop builtin.
+      assert((args.size() == 1) 
+        && "incorrect number of args for arrPop");
+      return emitBuiltinCall(
+        BuiltinID::arrPop, 
+        std::move(dest), 
+        { getGTForExpr(args[0]) }
+      );
     }
 
     RegisterValue emitArraySize(ArrayRef<Expr*> args, RegisterValue dest) {
       /// Emit a call to the arrSize builtin.
       assert((args.size() == 1) 
         && "incorrect number of args for arrSize");
-      GenThunk gen = getGTForExpr(args[0]);
-      return emitBuiltinCall(BuiltinID::arrSize, std::move(dest), {gen});
+      return emitBuiltinCall(
+        BuiltinID::arrSize, 
+        std::move(dest), 
+        { getGTForExpr(args[0]) }
+      );
     }
 
     RegisterValue emitStringNumBytes(ArrayRef<Expr*> args, RegisterValue dest) {
@@ -621,15 +645,22 @@ class BCGen::ExprGenerator : public Generator,
       assert((args.size() == 1) 
         && "incorrect number of args for strNumBytes");
       GenThunk gen = getGTForExpr(args[0]);
-      return emitBuiltinCall(BuiltinID::strNumBytes, std::move(dest), {gen});
+      return emitBuiltinCall(
+        BuiltinID::strNumBytes, 
+        std::move(dest), 
+        { getGTForExpr(args[0]) }
+      );
     }
 
     RegisterValue emitStringLength(ArrayRef<Expr*> args, RegisterValue dest) {
-      /// Emit a call to the strSize builtin.
+      /// Emit a call to the strLength builtin.
       assert((args.size() == 1) 
-        && "incorrect number of args for strSize");
-      GenThunk gen = getGTForExpr(args[0]);
-      return emitBuiltinCall(BuiltinID::strLength, std::move(dest), {gen});
+        && "incorrect number of args for strLength");
+      return emitBuiltinCall(
+        BuiltinID::strLength, 
+        std::move(dest), 
+        { getGTForExpr(args[0]) }
+      );
     }
 
     //------------------------------------------------------------------------//
