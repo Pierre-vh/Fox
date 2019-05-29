@@ -71,3 +71,25 @@ FoxInt builtin::arrSize(ArrayObject* arr) {
   assert(arr && "array is null");
   return arr->size();
 }
+
+FoxAny builtin::arrGet(ArrayObject* arr, FoxInt n) {
+  assert((n >= 0) && (n < arr->size()) && "out-of-range");
+  return (*arr)[n];
+}
+
+void builtin::arrSet(ArrayObject* arr, FoxInt n, FoxAny val) {
+  assert((n >= 0) && (n < arr->size()) && "out-of-range");
+  (*arr)[n] = val;
+}
+
+void builtin::arrPop(ArrayObject* arr) {
+  arr->pop();
+}
+
+FoxAny builtin::arrFront(ArrayObject* arr) {
+  return arr->front();
+}
+
+FoxAny builtin::arrBack(ArrayObject* arr) {
+  return arr->back();
+}

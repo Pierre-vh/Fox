@@ -90,5 +90,20 @@ namespace fox {
 
     /// \returns the size of \p arr
     FoxInt arrSize(ArrayObject* arr);
+
+    /// \returns the element at index \p n of \p arr
+    FoxAny arrGet(ArrayObject* arr, FoxInt n);
+
+    /// sets the element at index \p n of \p arr to \p val
+    void arrSet(ArrayObject* arr, FoxInt n, FoxAny val);
+
+    /// Removes the last element of \p arr
+    void arrPop(ArrayObject* arr);
+
+    /// \returns the first element of \p arr
+    FoxAny arrFront(ArrayObject* arr);
+
+    /// \returns the last element of \p arr
+    FoxAny arrBack(ArrayObject* arr);
   }
 }

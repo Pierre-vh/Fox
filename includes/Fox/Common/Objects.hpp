@@ -84,13 +84,19 @@ namespace fox {
       ArrayObject(bool containsReferences, std::size_t minCapacity = 0);
 
       void append(ElemT elem);
-      /// void set(std::size_t elem, Element)
-      /// Element get(std::size_t elem);
-      /// Element& operator[](std::size_t idx)
-      /// const Element& operator[](std::size_t idx)
+
+      ElemT& operator[](std::size_t idx);
+      const ElemT& operator[](std::size_t idx) const;
+
+      /// Removes the last element from the array
+      void pop();
+
+      /// \returns the first element of the array
+      ElemT front();
+      /// \returns the last element of the array
+      ElemT back();
 
       std::size_t size() const;
-      /// void reset()
 
       /// void pop_back();
       /// void erase(std::size_t start, std::size_t num);

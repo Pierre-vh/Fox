@@ -64,6 +64,26 @@ void ArrayObject::append(ElemT elem) {
   data_.push_back(elem);
 }
 
+ArrayObject::ElemT& ArrayObject::operator[](std::size_t idx) {
+  return data_[idx];
+}
+
+const ArrayObject::ElemT& ArrayObject::operator[](std::size_t idx) const {
+  return data_[idx];
+}
+
+void ArrayObject::pop() {
+  data_.pop_back();
+}
+
+ArrayObject::ElemT ArrayObject::front() {
+  return data_.front();
+}
+
+ArrayObject::ElemT ArrayObject::back() {
+  return data_.back();
+}
+
 std::size_t ArrayObject::size() const {
   return data_.size();
 }
