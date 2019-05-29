@@ -142,6 +142,7 @@ class BCGen::ExprGenerator : public Generator,
 
     RegisterAllocator& regAlloc;
 
+    friend AssignementGenerator;
   private:
     /// Binary Operator Kinds
     using BinOp = BinaryExpr::OpKind;
@@ -833,12 +834,18 @@ class BCGen::ExprGenerator : public Generator,
     }
 
     RegisterValue visitSubscriptExpr(SubscriptExpr* expr, RegisterValue dest) {
+      Expr* base = expr->getBase();
       // Subscript on strings
-      if (expr->getBase()->getType()->isStringType())
+      if (base->getType()->isStringType())
         return emitStringSubscript(expr, std::move(dest));
 
-      // Needs Arrays implemented in the VM.
-      fox_unimplemented_feature("ArraySubscriptExpr on Arrays BCGen");
+      assert(base->getType()->isArrayType() && "not an array subscript");
+
+      // arrGet takes the array as first parameter and the index second.
+      return emitBuiltinCall(BuiltinID::arrGet, std::move(dest), {
+        getGTForExpr(base),
+        getGTForExpr(expr->getIndex())
+      });
     }
 
     RegisterValue 
@@ -1060,22 +1067,25 @@ RegisterValue BCGen::AssignementGenerator::generate(BinaryExpr* expr) {
 }
 
 RegisterValue BCGen::AssignementGenerator::
-visitSubscriptExpr(SubscriptExpr*, Expr*, BinOp) {
+visitSubscriptExpr(SubscriptExpr* expr, Expr* src, BinOp op) {
   // VM doesn't support arrays yet
-  fox_unimplemented_feature("ArraySubscript Assignement");
-  // -> Gen the Subscripted Expression (SSE) using exprGen
-  // -> Gen the Index (IDX) using exprGen
-  // -> Gen something like "SetSubscript SSE IDX SRC
+  assert((op == BinOp::Assign) && "Unsupported assignement type");
+  op; // Avoid 'unreferenced formal parameter'
+  // arrSet expects the array first, the index second and the value third.
+  return exprGen.emitBuiltinCall(
+    BuiltinID::arrSet, 
+    RegisterValue(), {
+      exprGen.getGTForExpr(expr->getBase()),
+      exprGen.getGTForExpr(expr->getIndex()),
+      exprGen.getGTForExpr(src)
+    }
+  );
 }
 
 RegisterValue BCGen::AssignementGenerator::
 visitDeclRefExpr(DeclRefExpr* dst, Expr* src, BinOp op) {
-  // Assert that the only assignement possible is a vanilla one '='.
-  // So, if in the future I add +=, -=, etc. this doesn't fail
-  // silently.
   assert((op == BinOp::Assign) && "Unsupported assignement type");
-  // Avoid 'unreferenced formal parameter'
-  op;
+  op; // Avoid 'unreferenced formal parameter'
   return exprGen.generate(src, regAlloc.useDecl(dst->getDecl()));
 }
 

@@ -1,10 +1,37 @@
 // RUN: %fox-dump-bcgen | %filecheck
 
 // CHECK: Function 0
-func main() {
+func strSub() {
   // CHECK-NEXT:  LoadBuiltinFunc 0 getChar
   // CHECK-NEXT:  LoadStringK 1 0
   // CHECK-NEXT:  StoreSmallInt 2 1
   // CHECK-NEXT:  Call 0 0
   "hello"[1];
+}
+
+// CHECK: Function 1
+func arrSub() {
+  // CHECK-NEXT:  LoadBuiltinFunc 0 arrGet
+  // CHECK-NEXT:  NewValueArray 1 3
+  // CHECK-NEXT:  LoadBuiltinFunc 3 arrAppend
+  // CHECK-NEXT:  Copy 4 1
+  // CHECK-NEXT:  StoreSmallInt 5 0
+  // CHECK-NEXT:  CallVoid 3
+  // CHECK-NEXT:  StoreSmallInt 5 1
+  // CHECK-NEXT:  CallVoid 3
+  // CHECK-NEXT:  StoreSmallInt 5 2
+  // CHECK-NEXT:  CallVoid 3
+  // CHECK-NEXT:  StoreSmallInt 2 2
+  // CHECK-NEXT:  Call 0 0
+  [0, 1, 2][2];
+
+  let x : [int] = [0, 1, 2];
+
+  // CHECK:       LoadBuiltinFunc 1 arrSet
+  // CHECK-NEXT:  Copy 2 0
+  // CHECK-NEXT:  StoreSmallInt 3 0
+  // CHECK-NEXT:  StoreSmallInt 4 2
+  // CHECK-NEXT:  CallVoid 1
+  x[0] = 2;
+  
 }

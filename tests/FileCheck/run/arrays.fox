@@ -19,4 +19,7 @@ func main() {
   printString(x.front() + '\n');
   // CHECK-NEXT: bonjour
   printString(x.back() + '\n');
+  x[0] = "HELLO!\n";
+  // CHECK-NEXT: HELLO
+  printString(x[0]);
 }
