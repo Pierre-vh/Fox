@@ -55,9 +55,9 @@ RegisterValue call(GenThunk thunk, RegisterValue dest = RegisterValue()) {
 
 class BCGen::AssignementGenerator : public Generator,
                              ExprVisitor<AssignementGenerator, RegisterValue,
-                                                            Expr*, BinOp> {
+                                                Expr*, RegisterValue, BinOp> {
   using Visitor = ExprVisitor<AssignementGenerator, RegisterValue, 
-                                                    Expr*, BinOp>;
+                                      Expr*, RegisterValue, BinOp>;
   friend Visitor;
   public:  
     AssignementGenerator(BCGen& gen, BCBuilder& builder, 
@@ -68,8 +68,19 @@ class BCGen::AssignementGenerator : public Generator,
     /// The RegisterAllocator associted with the exprGenerator
     RegisterAllocator& regAlloc;
   
-    /// Generates the bytecode for an assignement expression \p expr
-    RegisterValue generate(BinaryExpr* expr);
+    /// Generates the bytecode for an assignement expression \p expr and puts
+    /// the result inside \p dest
+    RegisterValue generate(BinaryExpr* expr, RegisterValue dest);
+
+    /// copies \p src in \p dest if \p dest is alive and != from \p src.
+    /// \returns \p dest or \p src depending on if the copy was emitted or not.
+    RegisterValue copyInDest(RegisterValue dest, RegisterValue src) {
+      if ((dest) && (src != dest)) {
+        builder.createCopyInstr(dest.getAddress(), src.getAddress());
+        return dest;
+      }
+      return src;
+    }
 
   private:
     ///----------------------------------------------------------------------///
@@ -77,32 +88,34 @@ class BCGen::AssignementGenerator : public Generator,
     ///----------------------------------------------------------------------///
 
     RegisterValue
-    visitSubscriptExpr(SubscriptExpr* dst, Expr* src, BinOp op);
+    visitSubscriptExpr(SubscriptExpr* dst, Expr* src, RegisterValue dest, 
+                       BinOp op);
     RegisterValue
-    visitDeclRefExpr(DeclRefExpr* dst, Expr* src, BinOp op);
+    visitDeclRefExpr(DeclRefExpr* dst, Expr* src, RegisterValue dest, BinOp op);
 
     ///----------------------------------------------------------------------///
     /// Unhandled scenarios
     ///----------------------------------------------------------------------///
 
     RegisterValue
-    visitUnresolvedDeclRefExpr(UnresolvedDeclRefExpr*, Expr*, BinOp) {
+    visitUnresolvedDeclRefExpr(UnresolvedDeclRefExpr*, Expr*, 
+                               RegisterValue, BinOp) {
       fox_unreachable("UnresolvedDeclRefExpr found past Semantic Analysis");
     }
 
     RegisterValue
-    visitUnresolvedDotExpr(UnresolvedDotExpr*, Expr*, BinOp) {
+    visitUnresolvedDotExpr(UnresolvedDotExpr*, Expr*, RegisterValue, BinOp) {
       fox_unreachable("UnresolvedDotExpr found past Semantic Analysis");
     }
 
     RegisterValue 
-    visitErrorExpr(ErrorExpr*, Expr*, BinOp) {
+    visitErrorExpr(ErrorExpr*, Expr*, RegisterValue, BinOp) {
       fox_unreachable("ErrorExpr found past Semantic Analysis");
     }
 
     // Some nodes should never be found in the LHS of an assignement.
     #define IMPOSSIBLE_ASSIGNEMENT(KIND) RegisterValue\
-      visit##KIND(KIND*, Expr*, BinOp)\
+      visit##KIND(KIND*, Expr*, RegisterValue, BinOp)\
       { fox_unreachable("Unhandled Assignement: Cannot assign to a " #KIND); }
     IMPOSSIBLE_ASSIGNEMENT(BinaryExpr)
     IMPOSSIBLE_ASSIGNEMENT(UnaryExpr)
@@ -708,14 +721,7 @@ class BCGen::ExprGenerator : public Generator,
         && "BinaryExpr with OpKind::Invalid past semantic analysis");
       if (expr->isAssignement()) {
         AssignementGenerator assignGen(bcGen, builder, *this);
-        RegisterValue reg = assignGen.generate(expr);
-        // Copy in the destination register if required
-        if (dest && (reg != dest)) {
-          builder.createCopyInstr(dest.getAddress(), reg.getAddress());
-          return dest;
-        }
-        // Else just return
-        return reg;
+        return assignGen.generate(expr, std::move(dest));
       }
       if (expr->isConcat())
         return emitConcatBinaryExpr(expr, std::move(dest));
@@ -1061,32 +1067,60 @@ BCGen::AssignementGenerator::
 AssignementGenerator(BCGen& gen, BCBuilder& builder, ExprGenerator& exprGen)
   : Generator(gen, builder), exprGen(exprGen), regAlloc(exprGen.regAlloc) {}
 
-RegisterValue BCGen::AssignementGenerator::generate(BinaryExpr* expr) {
-  assert(expr->isAssignement() && "Not an Assignement");
-  return visit(expr->getLHS(), expr->getRHS(), expr->getOp());
+RegisterValue 
+BCGen::AssignementGenerator::generate(BinaryExpr* expr, RegisterValue dest) {
+  Expr* lhs = expr->getLHS();
+  Expr* rhs = expr->getRHS();
+  BinOp op = expr->getOp();
+#ifndef NDEBUG
+  // In debug mode, check that the destination is respected
+  bool hadDest = dest.isAlive();
+  regaddr_t expectedAddr = dest ? dest.getAddress() : 0;
+  RegisterValue resultRV = visit(lhs, rhs, std::move(dest), op);
+  if (hadDest) {
+    assert(resultRV
+      && "A destination register was provided but the expression did not "
+          "produce any result");
+    assert((expectedAddr == resultRV.getAddress())
+      && "A destination register was provided but was not respected");
+  }
+  assert(resultRV && "Assignements always return a value!");
+  return resultRV;
+#else 
+  return visit(lhs, rhs, std::move(dest), op);
+#endif
 }
 
-RegisterValue BCGen::AssignementGenerator::
-visitSubscriptExpr(SubscriptExpr* expr, Expr* src, BinOp op) {
+RegisterValue 
+BCGen::AssignementGenerator::visitSubscriptExpr(SubscriptExpr* expr, 
+                                                Expr* src, 
+                                                RegisterValue dest, 
+                                                BinOp op) {
   // VM doesn't support arrays yet
   assert((op == BinOp::Assign) && "Unsupported assignement type");
   op; // Avoid 'unreferenced formal parameter'
+
   // arrSet expects the array first, the index second and the value third.
-  return exprGen.emitBuiltinCall(
+  // It returns its third argument.
+  RegisterValue rtr = exprGen.emitBuiltinCall(
     BuiltinID::arrSet, 
-    RegisterValue(), {
+    std::move(dest),
+    {
       exprGen.getGTForExpr(expr->getBase()),
       exprGen.getGTForExpr(expr->getIndex()),
       exprGen.getGTForExpr(src)
     }
   );
+
+  return rtr;
 }
 
 RegisterValue BCGen::AssignementGenerator::
-visitDeclRefExpr(DeclRefExpr* dst, Expr* src, BinOp op) {
+visitDeclRefExpr(DeclRefExpr* dst, Expr* src, RegisterValue dest, BinOp op) {
   assert((op == BinOp::Assign) && "Unsupported assignement type");
   op; // Avoid 'unreferenced formal parameter'
-  return exprGen.generate(src, regAlloc.useDecl(dst->getDecl()));
+  RegisterValue rtr = exprGen.generate(src, regAlloc.useDecl(dst->getDecl()));
+  return copyInDest(std::move(dest), std::move(rtr));
 }
 
 //----------------------------------------------------------------------------//

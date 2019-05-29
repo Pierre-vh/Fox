@@ -1,7 +1,7 @@
 // RUN: %fox-dump-bcgen | %filecheck
 
 // CHECK:   Function 0
-func foo() {
+func valueAssign() {
   // CHECK-NEXT: StoreSmallInt 0 0
   var x : int;
   // CHECK-NEXT: StoreSmallInt 0 0
@@ -15,4 +15,41 @@ func foo() {
   x = x = x;
   // CHECK-NEXT: StoreSmallInt 0 42
   x = 42;
+
+  // chained assignement
+
+  // CHECK-NEXT: StoreSmallInt 1 0
+  var a : int;
+  // CHECK-NEXT: StoreSmallInt 2 0
+  var b : int;
+  // CHECK-NEXT: StoreSmallInt 2 0
+  // CHECK-NEXT: Copy 1 2
+  // CHECK-NEXT: Copy 0 1
+  x = a = b = 0;
+}
+
+func arrAssign() {
+  let x : [int] = [0, 1, 2];
+  // CHECK:       LoadBuiltinFunc 1 arrSet
+  // CHECK-NEXT:  Copy 2 0
+  // CHECK-NEXT:  StoreSmallInt 3 0
+  // CHECK-NEXT:  StoreSmallInt 4 0
+  // CHECK-NEXT:  Call 1 1
+  x[0] = 0;
+
+  // chained assignement
+  // CHECK-NEXT:  LoadBuiltinFunc 1 arrSet
+  // CHECK-NEXT:  Copy 2 0
+  // CHECK-NEXT:  StoreSmallInt 3 0
+  // CHECK-NEXT:  LoadBuiltinFunc 5 arrSet
+  // CHECK-NEXT:  Copy 6 0
+  // CHECK-NEXT:  StoreSmallInt 7 1
+  // CHECK-NEXT:  LoadBuiltinFunc 9 arrSet
+  // CHECK-NEXT:  Copy 10 0
+  // CHECK-NEXT:  StoreSmallInt 11 2
+  // CHECK-NEXT:  StoreSmallInt 12 0
+  // CHECK-NEXT:  Call 9 8
+  // CHECK-NEXT:  Call 5 4
+  // CHECK-NEXT:  Call 1 0
+  x[0] = x[1] = x[2] = 0;
 }

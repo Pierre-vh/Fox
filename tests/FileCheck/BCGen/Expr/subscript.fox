@@ -23,15 +23,5 @@ func arrSub() {
   // CHECK-NEXT:  CallVoid 3
   // CHECK-NEXT:  StoreSmallInt 2 2
   // CHECK-NEXT:  Call 0 0
-  [0, 1, 2][2];
-
-  let x : [int] = [0, 1, 2];
-
-  // CHECK:       LoadBuiltinFunc 1 arrSet
-  // CHECK-NEXT:  Copy 2 0
-  // CHECK-NEXT:  StoreSmallInt 3 0
-  // CHECK-NEXT:  StoreSmallInt 4 2
-  // CHECK-NEXT:  CallVoid 1
-  x[0] = 2;
-  
+  [0, 1, 2][2]; 
 }
