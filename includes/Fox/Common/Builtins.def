@@ -99,6 +99,11 @@ PRIVATE_BUILTIN(getChar)
 // Arrays
 PRIVATE_BUILTIN(arrAppend)
 PRIVATE_BUILTIN(arrSize)
+PRIVATE_BUILTIN(arrGet)
+PRIVATE_BUILTIN(arrSet)
+PRIVATE_BUILTIN(arrPop)
+PRIVATE_BUILTIN(arrFront)
+PRIVATE_BUILTIN(arrBack)
 
 //----------------------------------------------------------------------------//
 
