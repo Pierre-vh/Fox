@@ -229,8 +229,10 @@ TEST(BCModuleTest, dump) {
     theModule.dump(ss);
     EXPECT_EQ(ss.str(), "[Empty BCModule]\n");
   }
-  auto createFn = [&](){
+  auto createFn = [&](bool isEntryPoint){
     BCFunction& func = theModule.createFunction();
+    if(isEntryPoint)
+      theModule.setEntryPoint(func);
     BCBuilder builder = func.createBCBuilder();
     builder.createRetVoidInstr();
     builder.createNoOpInstr();
@@ -238,14 +240,14 @@ TEST(BCModuleTest, dump) {
     builder.createLoadBuiltinFuncInstr(0, BuiltinID::printBool);
   };
   // Add a function to trigger a more detailed dump
-  createFn();
+  createFn(false);
   {
     // Check the dump
     std::stringstream ss;
     theModule.dump(ss);
     EXPECT_EQ(ss.str(),
       "[No Constants]\n"
-      "[Functions: 1]\n"
+      "[Functions: 1][Entry Point: None]\n"
       "\n"
       "Function 0\n"
       "    0\t| RetVoid\n"
@@ -255,8 +257,8 @@ TEST(BCModuleTest, dump) {
     );
   }
   // Create a few more functions
-  createFn();
-  createFn();
+  createFn(true);
+  createFn(false);
   // Add a few constants
   theModule.addIntConstant(42);
   theModule.addIntConstant(0);
@@ -284,7 +286,7 @@ TEST(BCModuleTest, dump) {
       "  [Strings: 2 constants]\n"
       "    0\t| \"foobar\"\n"
       "    1\t| \"\\n\\t\\r\\\\'\\\"\\0\"\n"
-      "[Functions: 3]\n"
+      "[Functions: 3][Entry Point: Function #1]\n"
       "\n"
       "Function 0\n"
       "    0\t| RetVoid\n"
