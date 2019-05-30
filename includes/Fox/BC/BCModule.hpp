@@ -80,6 +80,15 @@ namespace fox {
       /// \returns a view of the double constants vector
       ArrayRef<FoxDouble> getDoubleConstants() const;
 
+      /// \returns the entry point of this BCModule
+      BCFunction* getEntryPoint();
+      /// \returns the entry point of this BCModule
+      const BCFunction* getEntryPoint() const;
+
+      /// sets the entry point of this module to \p func. Cannot be changed
+      /// once set.
+      void setEntryPoint(BCFunction& func);
+
       /// \returns true if the module is completely empty
       bool empty() const;
 
@@ -91,6 +100,7 @@ namespace fox {
 
     private:
       FunctionVector functions_;
+      BCFunction* entryPoint_ = nullptr;
 
       // FIXME: The type of the values in the vectors should really be
       // constant, but SmallVector does not allow it for some reason.

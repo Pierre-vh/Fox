@@ -83,6 +83,19 @@ ArrayRef<FoxDouble> BCModule::getDoubleConstants() const {
   return doubleConstants_;
 }
 
+BCFunction* BCModule::getEntryPoint() {
+  return entryPoint_;
+}
+
+const BCFunction* BCModule::getEntryPoint() const {
+  return entryPoint_;
+}
+
+void BCModule::setEntryPoint(BCFunction& func) {
+  assert(!entryPoint_ && "entry point already set");
+  entryPoint_ = &func;
+}
+
 bool BCModule::empty() const {
   return functions_.empty()
       && empty_constants();
@@ -136,7 +149,14 @@ void BCModule::dump(std::ostream& out) const {
   }
   // Dump functions
   if (std::size_t size = functions_.size()) {
-    out << "[Functions: " << size << "]\n";
+    const BCFunction* entry = getEntryPoint();
+    out << "[Functions: " << size << ']';
+    out << "[Entry Point:";
+    if(entry)
+      out << " Function #" << entry->getID();
+    else 
+      out << " None";
+    out << "]\n";
     for (auto& fn : functions_) {
       // Print a newline before each function dump so it's more readable.
       out << '\n';

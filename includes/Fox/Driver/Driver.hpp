@@ -15,6 +15,8 @@
 #include <iosfwd>
 
 namespace fox {
+  class BCModule;
+  class ASTContext;
   /// The driver class for the Fox interpreter.
   class Driver {
     public:
@@ -71,5 +73,10 @@ namespace fox {
 
       /// \returns true if we must generate the bytecode
       bool needsToGenerateBytecode() const;
+
+      /// Tries to run \p theModule
+      /// \p ctxt and \p mainFile are needed to diagnose the lack of
+      /// an entry point in the module.
+      bool run(ASTContext& ctxt, FileID mainFile, BCModule& theModule);
   };
 }

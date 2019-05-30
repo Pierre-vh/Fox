@@ -177,6 +177,33 @@ void ASTContext::addCleanup(std::function<void(void)> fn) {
   cleanups_.push_back(fn);
 }
 
+Identifier ASTContext::getEntryPointIdentifier() const {
+  if(entryPointIdentifier_)
+    return entryPointIdentifier_;
+  // Lazily compute the entry point on first call
+  // Currently it's the identifier for "main"
+  ASTContext* me = const_cast<ASTContext*>(this);
+  return me->entryPointIdentifier_ = me->getIdentifier("main");
+}
+
+Type ASTContext::getEntryPointType() const {
+  if(entryPointType_)
+    return entryPointType_;
+  // Lazily compute the entry point type on first call.
+  // Currently it's a FunctionType with signature () -> void
+  ASTContext* me = const_cast<ASTContext*>(this);
+  return me->entryPointType_ = FunctionType::get(*me, {}, VoidType::get(*me));
+}
+
+FuncDecl* ASTContext::getEntryPoint() const {
+  return entryPoint_;
+}
+
+void ASTContext::setEntryPoint(FuncDecl* decl) {
+  assert(!entryPoint_ && "entry point has already been set");
+  entryPoint_ = decl;
+}
+
 void ASTContext::callCleanups() {
   for(const auto& cleanup : cleanups_)
     cleanup();

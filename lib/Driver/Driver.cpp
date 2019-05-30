@@ -77,9 +77,11 @@ bool Driver::processFile(string_view path) {
   FileID file = tryLoadFile(path);
   if(!file) return false; // Stop if it can't be loaded.
 
+  bool isVerifyMode = options.verifyMode;
+
 	// Create the DiagnosticVerifier if we're in verify mode.
   std::unique_ptr<DiagnosticVerifier> dv;
-  if (options.verifyMode) {
+  if (isVerifyMode) {
     dv = std::make_unique<DiagnosticVerifier>(diagEngine, sourceMgr);
     // Parse the file
     dv->parseFile(file);
@@ -133,13 +135,22 @@ bool Driver::processFile(string_view path) {
     s.checkUnitDecl(unit);
   }
 
-  // Helper
-  auto finish = [&]() {
-    auto timer = createTimer(*this, "ASTContext::reset()");
-    ctxt.reset();
-    return !diagEngine.hadAnyError(); 
+  /// Helper function to finish the processing of the file.
+  /// \p result is what the function should return when not in verify mode.
+  auto finish = [&](bool result) {
+    // (Verify mode) Finish Verification
+    if (isVerifyMode) {
+      assert(dv && "DiagnosticVerifier is null");
+      // In verify mode, override the result with the DV's.
+      result = dv->finish();
+    }
+    // Reset the ASTContext
+    {
+      auto timer = createTimer(*this, "ASTContext::reset()");
+      ctxt.reset();
+    }
+    return result;
   };
-
 
   // Dump AST if needed, and if the unit isn't null
   if (unit && options.dumpAST) {
@@ -148,19 +159,12 @@ bool Driver::processFile(string_view path) {
     ASTDumper(sourceMgr, out, 1).print(unit);
   }
 
-  // (Verify mode) Finish Verification
-  if (options.verifyMode) {
-    assert(dv && "DiagnosticVerifier is null");
-    // Return directly after finishing. We won't do BCGen or execute
-    // anything in verify mode
-    return finish(), dv->finish();
-  }
-
   if(!canContinue())
-    return finish();
+    return finish(!diagEngine.hadAnyError());
 
+  // Generate the bytecode if needed
   if(!needsToGenerateBytecode())
-    return finish();
+    return finish(!diagEngine.hadAnyError());
 
   BCModule theModule;
   BCGen generator(ctxt, theModule);
@@ -171,12 +175,12 @@ bool Driver::processFile(string_view path) {
     theModule.dump(out);
 
   // Run the bytecode if needed
-  if (options.run) {
-    VM(theModule).call(theModule.getFunction(0));
-    return true;
-  }
+  if (options.run)
+    return finish(run(ctxt, file, theModule));
 
-  return true;
+  // If we reach that point, it's safe to assume that everything
+  // went well, or we'd have bailed early.
+  return finish(true);
 }
 
 int Driver::main(int argc, char* argv[]) {
@@ -188,7 +192,7 @@ int Driver::main(int argc, char* argv[]) {
   }
 
   // Get file path
-  std::string filepath = argv[1];
+  string_view filepath = argv[1];
   if((filepath.front() == '"') && (filepath.back() == '"'))
     filepath = filepath.substr(1, filepath.size()-2);
 
@@ -231,4 +235,21 @@ FileID Driver::tryLoadFile(string_view path) {
 
 bool Driver::needsToGenerateBytecode() const {
   return options.run || options.dumpBCGen;
+}
+
+bool Driver::run(ASTContext& ctxt, FileID mainFile, BCModule& theModule) {
+  BCFunction* entryPoint = theModule.getEntryPoint();
+  // Diagnose if there is no entry point
+  if (!entryPoint) {
+    diagEngine.report(DiagID::no_entry_point_found, mainFile)
+      .addArg(ctxt.getEntryPointIdentifier())
+      .addArg(ctxt.getEntryPointType());
+    return false;
+  }
+  // TODO: Once the "main" can return an int, return what the main
+  // returns instead of returning "true" each time.
+  //
+  // This function will need to be changed so it can return an int too.
+  VM(theModule).call(*entryPoint);
+  return true;
 }

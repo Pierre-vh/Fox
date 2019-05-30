@@ -1,0 +1,12 @@
+// RUN: %fox-dump-bcgen | %filecheck
+
+// CHECK: [Functions: 3][Entry Point: Function #1]
+
+// CHECK: Function 0
+func foo() {}
+
+// CHECK: Function 1
+func main() {}
+
+// CHECK: Function 2
+func bar() {}

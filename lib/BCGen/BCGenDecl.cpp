@@ -7,6 +7,7 @@
 
 #include "Fox/BCGen/BCGen.hpp"
 #include "Registers.hpp"
+#include "Fox/AST/ASTContext.hpp"
 #include "Fox/AST/Decl.hpp"
 #include "Fox/AST/Expr.hpp"
 #include "Fox/AST/Stmt.hpp"
@@ -269,6 +270,11 @@ void BCGen::genFunc(FuncDecl* func) {
   // If it wasn't, or if the function is empty, insert a RetVoid
   if (builder.empty() || (!builder.getLastInstrIter()->isAnyRet()))
     builder.createRetVoidInstr();
+
+  // If this function was our entry point, set it as the entry point
+  // of the BCModule we're generating.
+  if (func == ctxt.getEntryPoint())
+    theModule.setEntryPoint(fn);
 }
 
 void BCGen::genGlobalVar(BCBuilder&, VarDecl*) {  

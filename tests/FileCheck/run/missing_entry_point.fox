@@ -1,0 +1,4 @@
+// RUN: %fox-run-verify
+
+// expect-error@-2: no entry point (function 'main' with signature '() -> void') found
+func foo() {}

@@ -87,6 +87,18 @@ namespace fox {
       ///        is called.
       void addCleanup(std::function<void(void)> fn);
 
+      /// \returns the identifier of the entry point function.
+      Identifier getEntryPointIdentifier() const;
+
+      /// \returns the type of the entry point function
+      Type getEntryPointType() const;
+
+      /// \returns the entry point function, nullptr if there isn't any.
+      FuncDecl* getEntryPoint() const;
+      /// sets the entry point to \p decl. Once an entry point has been set, it
+      /// cannot be changed anymore.
+      void setEntryPoint(FuncDecl* decl);
+
       /// Templated version of \ref "addCleanup" that calls an object's destructor.
       template<typename Ty>
       void addDestructorCleanup(Ty& obj) {
@@ -139,6 +151,15 @@ namespace fox {
       BoolType*    theBoolType_    = nullptr;
       StringType*  theStringType_  = nullptr;
       VoidType*    theVoidType_    = nullptr;
+
+      /// The entry point of the program
+      FuncDecl* entryPoint_ = nullptr;
+
+      /// The identifier of the entry point function ('main').
+      Identifier entryPointIdentifier_;
+
+      /// The type of the entry point function ('() -> void')
+      FunctionType* entryPointType_ = nullptr;
 
       /// The set of unique identifier strings.
       std::unordered_set<string_view> idents_;

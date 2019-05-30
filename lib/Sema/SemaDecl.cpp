@@ -9,6 +9,7 @@
 //----------------------------------------------------------------------------//
 
 #include "Fox/Sema/Sema.hpp"
+#include "Fox/AST/ASTContext.hpp"
 #include "Fox/AST/ASTVisitor.hpp"
 #include "Fox/AST/ASTWalker.hpp"
 #include "Fox/AST/Types.hpp"
@@ -260,6 +261,12 @@ class Sema::DeclChecker : Checker, DeclVisitor<DeclChecker, void> {
       // emitted errors. Unfortunately, there's no way to know that
       // for now.
       FuncFlowChecker(decl, diagEngine).check();
+
+      // Check if this function can be our entry point.
+      if (canBeEntryPoint(decl)) {
+        assert(!ctxt.getEntryPoint() && "entry point has already been set");
+        ctxt.setEntryPoint(decl);
+      }
     }
 
     void visitBuiltinFuncDecl(BuiltinFuncDecl*) {
@@ -278,6 +285,16 @@ class Sema::DeclChecker : Checker, DeclVisitor<DeclChecker, void> {
     //----------------------------------------------------------------------//
     // Various semantics-related helper methods 
     //----------------------------------------------------------------------//
+
+    /// \returns true if \p decl can be the entry point of the program
+    bool canBeEntryPoint(FuncDecl* decl) {
+      // Cannot be an illegal redeclaration
+      if(decl->isIllegalRedecl()) return false;
+      // Name must match the entry point's
+      if(decl->getIdentifier() != ctxt.getEntryPointIdentifier()) return false;
+      // Signature must match the entry point's
+      return sema.unify(decl->getValueType(), ctxt.getEntryPointType());
+    }
 
     /// Checks if "decl" is a illegal redeclaration.
     /// If "decl" is a illegal redecl, the appropriate diagnostic is emitted
