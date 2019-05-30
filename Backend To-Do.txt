@@ -112,8 +112,7 @@ Basic VM data types and their mappings to Fox types:
       > ArrayLiteral compilation (Done)
       > Subscripts (Done)
       > Array-related builtins (Done)
-    -> Tests (Semi-Done: Needs more "run" tests, especially some that iterate over the array to print it.)
-
+ 
 ---- Getting feature-complete (with the current feature set) ----
   -> Entry point detection (basic, just the function called 'main' with a '() -> int' signature for now. Update the "run" tests as well)
       -> Store the entry point in the ASTContext (FuncDecl* ASTContext::getEntryPoint() + corresponding setter)

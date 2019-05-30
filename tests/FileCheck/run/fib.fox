@@ -1,36 +1,38 @@
 // RUN: %fox-run | %filecheck
 
-func foo() {
+func main() {
+  // CHECK: [0, 1, 1, 2, 3, 5, 8, 13, 21, 34, 55, 89, 144, 233, 377, 610, 987]
   fib(16);
 }
 
-func fib(n: int) {
-  var prevPrev : int;
-  var prev : int;
-  var cur : int = 1;
-  var k : int = 1;
-  while(k < n) {
-    prevPrev = prev;
-    prev = cur;
-    cur = prevPrev + prev;
-    k = k+1;
-    printInt(cur);
-    printChar('\n');
+func printArray(n: [int]) {
+  let size : int = n.size();
+  var k : int = 0;
+  printChar('[');  
+  while k < size {
+    if k != 0 {
+      printString(", ");
+    }
+    printInt(n[k]);
+    k = k + 1;
   }
+  printChar(']');
 }
 
-// CHECK:       1
-// CHECK-NEXT:  2
-// CHECK-NEXT:  3
-// CHECK-NEXT:  5
-// CHECK-NEXT:  8
-// CHECK-NEXT:  13
-// CHECK-NEXT:  21
-// CHECK-NEXT:  34
-// CHECK-NEXT:  55
-// CHECK-NEXT:  89
-// CHECK-NEXT:  144
-// CHECK-NEXT:  233
-// CHECK-NEXT:  377
-// CHECK-NEXT:  610
-// CHECK-NEXT:  987
+func fib(n: int) {
+  let result : [int];
+  var k : int;
+  while k <= n {
+    if k == 0 {
+      result.append(0);
+    }
+    else if k == 1 {
+      result.append(1);
+    }
+    else {
+      result.append(result[k-2] + result[k-1]);
+    }
+    k = k + 1;
+  }
+  printArray(result);
+}
