@@ -70,8 +70,9 @@ namespace {
 // ASTContext
 //----------------------------------------------------------------------------//
 
-ASTContext::ASTContext(SourceManager& srcMgr, DiagnosticEngine& diags):
-  sourceMgr(srcMgr), diagEngine(diags) {}
+ASTContext::ASTContext(SourceManager& srcMgr, DiagnosticEngine& diags, 
+                       FileID mainFile):
+  sourceMgr(srcMgr), diagEngine(diags), mainFile_(mainFile) {}
 
 ASTContext::~ASTContext() {
   reset();
@@ -175,6 +176,14 @@ string_view ASTContext::allocateCopy(string_view str) {
 
 void ASTContext::addCleanup(std::function<void(void)> fn) {
   cleanups_.push_back(fn);
+}
+
+FileID ASTContext::getMainFileID() const {
+  return mainFile_;
+}
+
+void ASTContext::setMainFileID(FileID file) {
+  mainFile_ = file;
 }
 
 Identifier ASTContext::getEntryPointIdentifier() const {

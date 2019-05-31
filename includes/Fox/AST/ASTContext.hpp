@@ -14,6 +14,7 @@
 #include "Fox/Common/BuiltinID.hpp"
 #include "Fox/Common/LLVM.hpp"
 #include "Fox/Common/LinearAllocator.hpp"
+#include "Fox/Common/SourceLoc.hpp"
 #include "Fox/Common/string_view.hpp"
 #include "llvm/ADT/SmallVector.h"
 #include <unordered_map>
@@ -41,7 +42,9 @@ namespace fox {
       ///        AST and related classes.
       /// \param diags the DiagnosticEngine instance that should be used by the
       ///        AST and related classes.
-      ASTContext(SourceManager& srcMgr, DiagnosticEngine& diags);
+      /// \param mainFile the FileID of the "main" file.
+      ASTContext(SourceManager& srcMgr, DiagnosticEngine& diags, 
+                 FileID mainFile = FileID());
       ~ASTContext();
 
       /// Allocates memory using the default allocator
@@ -86,7 +89,15 @@ namespace fox {
       /// \param fn the cleanup function that should be called when free()
       ///        is called.
       void addCleanup(std::function<void(void)> fn);
+      
+      /// \returns the FileID of the "main" file, which is the file that
+      /// the interpreter is currently processing. There is only one "main"
+      /// file, but the "main" file may include other files.
+      FileID getMainFileID() const;
 
+      /// Sets the "main" file's FileID.
+      void setMainFileID(FileID file);
+      
       /// \returns the identifier of the entry point function.
       Identifier getEntryPointIdentifier() const;
 
@@ -95,6 +106,7 @@ namespace fox {
 
       /// \returns the entry point function, nullptr if there isn't any.
       FuncDecl* getEntryPoint() const;
+
       /// sets the entry point to \p decl. Once an entry point has been set, it
       /// cannot be changed anymore.
       void setEntryPoint(FuncDecl* decl);
@@ -160,6 +172,9 @@ namespace fox {
 
       /// The type of the entry point function ('() -> void')
       FunctionType* entryPointType_ = nullptr;
+
+      /// The "main" file's FileID.
+      FileID mainFile_;
 
       /// The set of unique identifier strings.
       std::unordered_set<string_view> idents_;

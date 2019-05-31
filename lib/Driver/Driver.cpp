@@ -89,7 +89,7 @@ bool Driver::processFile(string_view path) {
     diagEngine.enableVerifyMode(dv.get());
   }
 
-  ASTContext ctxt(sourceMgr, diagEngine);
+  ASTContext ctxt(sourceMgr, diagEngine, file);
 
   UnitDecl* unit = nullptr;
   {
