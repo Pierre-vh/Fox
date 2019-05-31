@@ -24,6 +24,10 @@
 #include <chrono>
 #include <fstream>
 
+// Some includes are only needed when assertions are enabled.
+#ifndef NDEBUG
+  #include "Fox/AST/Types.hpp"
+#endif
 
 using namespace fox;
 
@@ -246,10 +250,18 @@ int Driver::run(ASTContext& ctxt, FileID mainFile, BCModule& theModule) {
       .addArg(ctxt.getEntryPointType());
     return EXIT_FAILURE;
   }
-  // TODO: Once the "main" can return an int, return what the main
-  // returns instead of returning "true" each time.
-  //
-  // This function will need to be changed so it can return an int too.
-  VM(theModule).call(*entryPoint);
-  return EXIT_SUCCESS;
+#ifndef NDEBUG
+  // Check that our assumptions about the entry point's type are correct.
+  FunctionType* entryType = ctxt.getEntryPointType()->getAs<FunctionType>();
+  assert(entryType && entryType->getReturnType()->isIntType() 
+    && "Entry Point's type is not () -> int");
+#endif
+  VM::Register reg = VM(theModule).call(*entryPoint);
+  FoxInt rtr = reg.intVal;
+  // Clamp it to int's min/max.
+  constexpr int iMax = std::numeric_limits<int>::max();
+  constexpr int iMin = std::numeric_limits<int>::max();
+  if(rtr < 0) 
+    return (rtr < iMin) ? iMin : rtr;
+  return (rtr > iMax) ? iMax : rtr;
 }

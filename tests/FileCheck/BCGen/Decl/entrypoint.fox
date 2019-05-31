@@ -6,7 +6,7 @@
 func foo() {}
 
 // CHECK: Function 1
-func main() {}
+func main() : int { return 0; }
 
 // CHECK: Function 2
 func bar() {}

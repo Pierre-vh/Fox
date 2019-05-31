@@ -199,9 +199,9 @@ Type ASTContext::getEntryPointType() const {
   if(entryPointType_)
     return entryPointType_;
   // Lazily compute the entry point type on first call.
-  // Currently it's a FunctionType with signature () -> void
-  ASTContext* me = const_cast<ASTContext*>(this);
-  return me->entryPointType_ = FunctionType::get(*me, {}, VoidType::get(*me));
+  // Currently it's a FunctionType with signature () -> int
+  ASTContext& me = *const_cast<ASTContext*>(this);
+  return me.entryPointType_ = FunctionType::get(me, {}, IntegerType::get(me));
 }
 
 FuncDecl* ASTContext::getEntryPoint() const {

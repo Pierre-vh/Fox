@@ -1,7 +1,8 @@
 ﻿// RUN: %fox-run | %filecheck
 
-func main() {
+func main() : int {
   stringInterfaceTest();
+  return 0;
 }
 
 func stringInterfaceTest() {

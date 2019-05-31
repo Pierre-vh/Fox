@@ -1,6 +1,6 @@
 ﻿// RUN: %fox-run | %filecheck
 
-func main() {
+func main() : int {
   // CHECK: Array has a size of '2'
   printString("Array has a size of '" + $([0, 1].size()) + "'\n"); 
   let x : [string] = ["bonjour", "hello"];
@@ -22,4 +22,5 @@ func main() {
   x[0] = "HELLO!\n";
   // CHECK-NEXT: HELLO
   printString(x[0]);
+  return 0;
 }

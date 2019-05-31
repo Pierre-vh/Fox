@@ -1,0 +1,3 @@
+// RUN: %fox-run
+
+func main() : int { return 0; }

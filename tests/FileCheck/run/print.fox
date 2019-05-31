@@ -1,8 +1,9 @@
 ﻿// RUN: %fox-run | %filecheck
 
-func main() {
+func main() : int {
   foo();
   consistencyTest();
+  return 0;
 }
 
 func foo() {
