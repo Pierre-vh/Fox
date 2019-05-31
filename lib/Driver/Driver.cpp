@@ -69,7 +69,7 @@ namespace {
 Driver::Driver(std::ostream& out) : out(out), 
   diagEngine(sourceMgr, out) {}
 
-bool Driver::processFile(string_view path) {
+int Driver::processFile(string_view path) {
   // Cleanup the file path
   path = cleanupPath(path);
 
@@ -137,12 +137,12 @@ bool Driver::processFile(string_view path) {
 
   /// Helper function to finish the processing of the file.
   /// \p result is what the function should return when not in verify mode.
-  auto finish = [&](bool result) {
+  auto finish = [&](int result) {
     // (Verify mode) Finish Verification
     if (isVerifyMode) {
       assert(dv && "DiagnosticVerifier is null");
       // In verify mode, override the result with the DV's.
-      result = dv->finish();
+      result = dv->finish() ? EXIT_SUCCESS : EXIT_FAILURE;
     }
     // Reset the ASTContext
     {
@@ -160,11 +160,11 @@ bool Driver::processFile(string_view path) {
   }
 
   if(!canContinue())
-    return finish(!diagEngine.hadAnyError());
+    return finish(diagEngine.hadAnyError());
 
   // Generate the bytecode if needed
   if(!needsToGenerateBytecode())
-    return finish(!diagEngine.hadAnyError());
+    return finish(diagEngine.hadAnyError());
 
   BCModule theModule;
   BCGen generator(ctxt, theModule);
@@ -180,7 +180,7 @@ bool Driver::processFile(string_view path) {
 
   // If we reach that point, it's safe to assume that everything
   // went well, or we'd have bailed early.
-  return finish(true);
+  return finish(EXIT_SUCCESS);
 }
 
 int Driver::main(int argc, char* argv[]) {
@@ -219,7 +219,7 @@ int Driver::main(int argc, char* argv[]) {
     }
   }
  
-  return processFile(filepath) ? EXIT_SUCCESS : EXIT_FAILURE;
+  return processFile(filepath);
 }
 
 FileID Driver::tryLoadFile(string_view path) {
@@ -237,19 +237,19 @@ bool Driver::needsToGenerateBytecode() const {
   return options.run || options.dumpBCGen;
 }
 
-bool Driver::run(ASTContext& ctxt, FileID mainFile, BCModule& theModule) {
+int Driver::run(ASTContext& ctxt, FileID mainFile, BCModule& theModule) {
   BCFunction* entryPoint = theModule.getEntryPoint();
   // Diagnose if there is no entry point
   if (!entryPoint) {
     diagEngine.report(DiagID::no_entry_point_found, mainFile)
       .addArg(ctxt.getEntryPointIdentifier())
       .addArg(ctxt.getEntryPointType());
-    return false;
+    return EXIT_FAILURE;
   }
   // TODO: Once the "main" can return an int, return what the main
   // returns instead of returning "true" each time.
   //
   // This function will need to be changed so it can return an int too.
   VM(theModule).call(*entryPoint);
-  return true;
+  return EXIT_SUCCESS;
 }

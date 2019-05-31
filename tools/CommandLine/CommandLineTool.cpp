@@ -43,7 +43,7 @@ int interactiveMain() {
   std::cout << "\tUsage : Enter a path to a source file, or enter * to exit.\n\n";
 
   std::string uinput = "";
-  bool res = true;
+  int result = 0;
   while (1) {
     std::cout << "> ";
     std::getline(std::cin, uinput);
@@ -51,9 +51,9 @@ int interactiveMain() {
       break;
     Driver drv(std::cout);
     drv.options.dumpAST = true;
-    res = drv.processFile(uinput);
+    result = drv.processFile(uinput);
   }
-  return res ? EXIT_SUCCESS : EXIT_FAILURE;
+  return result;
 }
 
 int main(int argc, char *argv[]) {

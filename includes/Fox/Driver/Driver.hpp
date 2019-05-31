@@ -27,11 +27,11 @@ namespace fox {
 
       /// Processes a single file
       /// \param filepath the path to the file
-      /// \returns true if the file was processed successfully, false otherwise
-      bool processFile(string_view path);
+      /// \returns 0 on success
+      int processFile(string_view path);
 
       /// Entry point for starting the driver from the command-line.
-      /// \return 0 on success, 1 on error.
+      /// \return 0 on success
       int main(int argc, char* argv[]);
 
       struct Options {
@@ -77,6 +77,8 @@ namespace fox {
       /// Tries to run \p theModule
       /// \p ctxt and \p mainFile are needed to diagnose the lack of
       /// an entry point in the module.
-      bool run(ASTContext& ctxt, FileID mainFile, BCModule& theModule);
+      /// \returns the value returned by the entry point, or "EXIT_FAILURE"
+      /// if the program wasn't run.
+      int run(ASTContext& ctxt, FileID mainFile, BCModule& theModule);
   };
 }
