@@ -116,7 +116,6 @@ Basic VM data types and their mappings to Fox types:
 ---- Getting feature-complete (with the current feature set) ----
   -> Entry point detection (basic, just the function called 'main' with a '() -> int' signature for now. Update the "run" tests as well)
     -> Implementation (Done)
-    -> Diagnose duplicate entry points instead of crashing
     -> Make the entry point return an "int" instead of "void"
   -> Global Variables
   -> Better (but not yet final) error management system for the VM (at least one that doesn't use assert)

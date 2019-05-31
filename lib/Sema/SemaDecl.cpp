@@ -264,6 +264,8 @@ class Sema::DeclChecker : Checker, DeclVisitor<DeclChecker, void> {
 
       // Check if this function can be our entry point.
       if (canBeEntryPoint(decl)) {
+        // We shouldn't ever have duplicate entry points since duplicate
+        // entry points will be illegal redeclarations that will be ignored.
         assert(!ctxt.getEntryPoint() && "entry point has already been set");
         ctxt.setEntryPoint(decl);
       }
@@ -290,6 +292,8 @@ class Sema::DeclChecker : Checker, DeclVisitor<DeclChecker, void> {
     bool canBeEntryPoint(FuncDecl* decl) {
       // Cannot be an illegal redeclaration
       if(decl->isIllegalRedecl()) return false;
+      // Decl must be in the "main" file
+      if(decl->getFileID() != ctxt.getMainFileID()) return false;
       // Name must match the entry point's
       if(decl->getIdentifier() != ctxt.getEntryPointIdentifier()) return false;
       // Signature must match the entry point's
