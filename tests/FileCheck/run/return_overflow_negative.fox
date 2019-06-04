@@ -1,0 +1,5 @@
+// RUN: %fox-run -v
+// XFAIL:*
+
+// CHECK: program exited with code 2147483647
+func main() : int { return 2**63; }

@@ -1,3 +1,4 @@
-// RUN: %fox-run
+// RUN: %fox-run -v
 
+// CHECK: program exited with code 0
 func main() : int { return 0; }

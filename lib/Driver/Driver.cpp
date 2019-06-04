@@ -179,8 +179,12 @@ int Driver::processFile(string_view path) {
     theModule.dump(out);
 
   // Run the bytecode if needed
-  if (options.run)
-    return finish(run(ctxt, file, theModule));
+  if (options.run) {
+    int code = run(ctxt, file, theModule);
+    if(options.verbose)
+      out << "program exited with code " << code << '\n';
+    return finish(code);
+  }
 
   // If we reach that point, it's safe to assume that everything
   // went well, or we'd have bailed early.
@@ -216,9 +220,11 @@ int Driver::main(int argc, char* argv[]) {
       options.dumpTokens = true;
     else if(str == "-run") 
       options.run = true;
+    else if(str == "-v" || str == "-verbose")
+      options.verbose = true;
     else {
       // TODO: Emit a diagnostic for this.
-      out << "Unknown argument \"" << str << "\"\n";
+      out << "Unknown argument '" << str << "'\n";
       return false;
     }
   }

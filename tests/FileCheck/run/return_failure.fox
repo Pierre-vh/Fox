@@ -1,4 +1,5 @@
-// RUN: %fox-run
+// RUN: %fox-run -v
 // XFAIL:*
 
+// CHECK: program exited with code 1
 func main() : int { return 1; }

@@ -1,4 +1,0 @@
-// RUN: %fox-run
-// XFAIL:*
-
-func main() : int { return 2**63; }

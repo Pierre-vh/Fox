@@ -54,6 +54,12 @@ namespace fox {
         bool dumpTokens     = false;
         /// Whether the input should be run using the VM.
         bool run            = false;
+        /// Whether we run in verbose mode or not. 
+        /// In verbose mode, the driver will emit more messages. 
+        /// NOTE: This mode is still a work in progress. Currently, we
+        ///       only print "program exited with code x" after running
+        ///       the program and that's it.
+        bool verbose        = false;
       };
 
       /// Driver options
