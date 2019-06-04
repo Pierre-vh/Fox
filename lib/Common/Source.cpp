@@ -539,9 +539,9 @@ std::string fox::to_string(SourceManager::ReadFileResult status) {
     case FS::Ok:
       return "Ok";
     case FS::NotFound:
-      return "File Not Found";
+      return "NotFound";
     case FS::InvalidEncoding:
-      return "File Encoding Not Supported";
+      return "InvalidEncoding";
     default:
       fox_unreachable("unknown ReadFileResult");
   }
