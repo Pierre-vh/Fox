@@ -33,7 +33,7 @@ namespace fox {
     /// \returns the CompleteLoc as a string formatted like this:
     ///  file:line:column  (if printFilename = true)
     ///  line:column       (if printFilename = false)
-    std::string toString(bool printFilename = true) const;
+    std::string to_string(bool printFilename = true) const;
 
     /// The name of the file
     const string_view fileName;
@@ -58,7 +58,7 @@ namespace fox {
     /// \returns the CompleteRange as a string formatted like this:
     ///  file:line:column-line:column (if printFilename = true)
     ///  line:column-line:column      (if printFilename = true)
-    std::string toString(bool printFilename = true) const;
+    std::string to_string(bool printFilename = true) const;
 
     /// The name of the file
     const string_view fileName;
@@ -235,5 +235,5 @@ namespace fox {
   };
   
   // Converts a SourceManager::ReadFileResult to a string.
-  std::string toString(SourceManager::ReadFileResult status);
+  std::string to_string(SourceManager::ReadFileResult status);
 }

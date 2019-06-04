@@ -139,7 +139,7 @@ bool DiagnosticVerifier::finish() {
   for (auto diag : expectedDiags_) {
     diags_.report(DiagID::dv_note_diag_not_emitted, diag.file)
       .addArg(diag.diagStr)
-      .addArg(toString(diag.severity))
+      .addArg(to_string(diag.severity))
       .addArg(diag.line).isFileWide();
     // Some expected diags weren't emitted.
     success = false;

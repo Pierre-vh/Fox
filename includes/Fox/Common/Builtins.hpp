@@ -32,13 +32,13 @@ namespace fox {
       // copies are made. Could this be made more efficient?
 
       /// Converts an integer \p value to a string
-      std::string toString(FoxInt value);
+      std::string to_string(FoxInt value);
       /// Converts a double \p value to a string
-      std::string toString(FoxDouble value);
+      std::string to_string(FoxDouble value);
       /// Converts a bool \p value to a string
-      std::string toString(bool value);
+      std::string to_string(bool value);
       /// Converts a char \p value to a string
-      std::string toString(FoxChar value);
+      std::string to_string(FoxChar value);
     }
 
     /// Prints an integer to stdout

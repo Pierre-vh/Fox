@@ -90,9 +90,9 @@ namespace fox {
 
       bool isDebug() const;
 
-      std::string toString(Type type) const;
-      std::string toString(TypeLoc type) const;
-      std::string toString(SourceRange range) const;
+      std::string to_string(Type type) const;
+      std::string to_string(TypeLoc type) const;
+      std::string to_string(SourceRange range) const;
 
       // Returns the name of the file, or the "alternative" string if
       // the file doesn't exist or the SourceManager isn't available.

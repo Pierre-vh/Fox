@@ -1101,7 +1101,7 @@ class Sema::ExprChecker : Checker, ExprVisitor<ExprChecker, Expr*>,  ASTWalker {
       for(Expr* arg : call->getArgs()) {
         if(first) first = false;
         else ss << ",";
-        ss << arg->getType()->toString();
+        ss << arg->getType()->to_string();
       }
       ss << ")";
       return ss.str();

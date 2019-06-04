@@ -61,7 +61,7 @@ void Token::dump(std::ostream& out, SourceManager& srcMgr,
     out << '"' << str << "\", ";
   out << getKindSpelling(kind);
   if(range)
-    out << ", " << srcMgr.getCompleteRange(range).toString(printFileName);
+    out << ", " << srcMgr.getCompleteRange(range).to_string(printFileName);
   out << '\n';
 }
 

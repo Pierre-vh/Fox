@@ -39,7 +39,7 @@ namespace {
         file = result.first;
         if (!file) {
           error("Couldn't load file \"" + path + "\"\n\tReason:" + 
-            toString(result.second));
+            to_string(result.second));
           return;
         }
         diags.enableVerifyMode(&dv);

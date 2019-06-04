@@ -40,7 +40,7 @@ namespace fox {
   };
 
   /// Converts a severity to a user readable string.
-  std::string toString(DiagSeverity sev);
+  std::string to_string(DiagSeverity sev);
   std::ostream& operator<<(std::ostream& os, DiagSeverity sev);
 
   /// The Diagnostic object. It contains the Diagnostic's data and allow

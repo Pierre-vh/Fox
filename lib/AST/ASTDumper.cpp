@@ -10,6 +10,7 @@
 #include "Fox/AST/Type.hpp"
 #include "Fox/AST/Types.hpp"
 #include "Fox/Common/Errors.hpp"
+#include "Fox/Common/BuiltinID.hpp"
 #include "Fox/Common/QuotedString.hpp"
 #include "Fox/Common/SourceManager.hpp"
 #include "Fox/Common/UTF8.hpp"
@@ -65,7 +66,7 @@ void ASTDumper::visitCastExpr(CastExpr* node) {
   TypeLoc tl = node->getCastTypeLoc();
   dumpLine() 
     << getBasicExprInfo(node) << " "
-    << makeKeyPairDump("to_type", toString(tl.getType())) << " "
+    << makeKeyPairDump("to_type", to_string(tl.getType())) << " "
     << getSourceRangeDump("to_type_range", tl.getSourceRange()) << '\n';
   
   indent();
@@ -102,7 +103,7 @@ void ASTDumper::visitUnresolvedDotExpr(UnresolvedDotExpr* node) {
 void ASTDumper::visitBuiltinMemberRefExpr(BuiltinMemberRefExpr* node) {
   dumpLine() << getBasicExprInfo(node) 
     << " ." << node->getMemberIdentifier() 
-    << " (Builtin '" << to_string(node->getBuiltinTypeMemberKind()) << "')"
+    << " (Builtin '" << node->getBuiltinTypeMemberKind() << "')"
     << (node->isMethod() ? " method" : "") 
     << (node->isCalled() ? " called" : "")
     << "\n";
@@ -118,7 +119,7 @@ void ASTDumper::visitDeclRefExpr(DeclRefExpr* node) {
     << ref->getIdentifier() << " "
     << makeKeyPairDump("decl", (void*)node->getDecl());
   if (auto* builtin = dyn_cast<BuiltinFuncDecl>(node->getDecl())) 
-    out << " (Builtin '" << to_string(builtin->getBuiltinID()) << "')";
+    out << " (Builtin '" << builtin->getBuiltinID() << "')";
   out << "\n";
 }
 
@@ -290,27 +291,27 @@ void ASTDumper::visitFuncDecl(FuncDecl* node) {
 
 void ASTDumper::visitBuiltinFuncDecl(BuiltinFuncDecl* node) {
   dumpLine() << getValueDeclInfo(node) 
-             << " " << to_string(node->getBuiltinID()) << "\n";
+             << " " << node->getBuiltinID() << "\n";
 }
 
 bool ASTDumper::isDebug() const {
   return debug_;
 }
 
-std::string ASTDumper::toString(Type type) const {
+std::string ASTDumper::to_string(Type type) const {
   if(!type) return "<null>";
-  std::string typeStr = isDebug() ? type->toDebugString() : type->toString();
+  std::string typeStr = isDebug() ? type->toDebugString() : type->to_string();
   return "'" + typeStr + "'";
 }
 
-std::string ASTDumper::toString(TypeLoc type) const {
-  return toString(type.getType()) + ":" + toString(type.getSourceRange());
+std::string ASTDumper::to_string(TypeLoc type) const {
+  return to_string(type.getType()) + ":" + to_string(type.getSourceRange());
 }
 
-std::string ASTDumper::toString(SourceRange range) const {
+std::string ASTDumper::to_string(SourceRange range) const {
   if (!range || !hasSrcMgr())
     return "<invalid_range>";
-  return srcMgr_->getCompleteRange(range).toString(/*printFileName*/ false);
+  return srcMgr_->getCompleteRange(range).to_string(/*printFileName*/ false);
 }
 
 string_view 
@@ -402,7 +403,7 @@ std::string ASTDumper::getBasicExprInfo(Expr* expr) const {
     //    debug will print "'LValue(string)'"
     if(ty->is<LValueType>() && !isDebug())
       ss << " lvalue";
-    ss << " " << toString(ty);
+    ss << " " << to_string(ty);
   }
   return ss.str();
 }
@@ -453,7 +454,7 @@ std::string ASTDumper::getValueDeclInfo(ValueDecl* decl) const {
   }
 
   ss << decl->getIdentifier() << " "
-     << toString(decl->getValueType());
+     << to_string(decl->getValueType());
   return ss.str();
 }
 
@@ -492,7 +493,7 @@ std::string ASTDumper::getSourceLocDump(string_view label,
 std::string ASTDumper::getSourceRangeDump(string_view label,
   SourceRange range) const {
   if(hasSrcMgr())
-    return makeKeyPairDump(label, toString(range));
+    return makeKeyPairDump(label, to_string(range));
   return "";
 }
 

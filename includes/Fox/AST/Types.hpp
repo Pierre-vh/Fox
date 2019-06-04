@@ -47,7 +47,7 @@ namespace fox {
     public:
       /// \returns the type's name in a user friendly form, 
       ///          e.g. "int", "string"
-      std::string toString() const;
+      std::string to_string() const;
 
       /// \returns the type's name in a more "developer-friendly"
       ///          form, which provides more information.

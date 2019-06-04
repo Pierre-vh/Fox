@@ -236,7 +236,7 @@ FileID Driver::tryLoadFile(string_view path) {
   FileID file = result.first;
   if (!file)
     diagEngine.report(DiagID::couldnt_open_file, SourceLoc())
-      .addArg(path).addArg(toString(result.second));
+      .addArg(path).addArg(to_string(result.second));
   return file;
 }
 

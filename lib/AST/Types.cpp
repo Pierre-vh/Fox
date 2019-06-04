@@ -69,7 +69,7 @@ bool Type::operator<(const Type other) const {
 
 std::ostream& fox::operator<<(std::ostream& os, Type ty) {
   assert(ty && "can't print a null type");
-  os << ty->toString();
+  os << ty->to_string();
   return os;
 }
 
@@ -197,7 +197,7 @@ TypeBase::TypeBase(TypeKind tc): kind_(tc) {
   propsValue_ = 0;
 }
 
-std::string TypeBase::toString() const {
+std::string TypeBase::to_string() const {
   std::ostringstream oss;
   TypePrinter tp(oss, /* debug print */ false);
   // This is ugly but needed. TypePrinter won't alter

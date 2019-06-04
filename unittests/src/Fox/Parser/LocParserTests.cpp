@@ -33,7 +33,7 @@ class LocTests : public ::testing::Test {
       // If file couldn't be loaded, give us the reason
       if (!file) {
         FAIL() << "Couldn't load file \""<< filepath << "\" in memory."
-          "\n\tReason: " + toString(result.second);
+          "\n\tReason: " + to_string(result.second);
       }
 
       lexer = std::make_unique<Lexer>(srcMgr, diags, file);

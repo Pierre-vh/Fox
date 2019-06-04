@@ -39,7 +39,7 @@ TEST_F(LexerTest,CorrectTest1) {
   auto result = sourceMgr.readFile(fullPath);
   FileID file = result.first;
   ASSERT_TRUE(file) << "Could not open test file '" << fullPath << 
-    "'\n\tReason:" << toString(result.second);
+    "'\n\tReason:" << to_string(result.second);
   createLexer(file).lex();
   EXPECT_FALSE(diagEngine.hadAnyError());
 }
@@ -49,7 +49,7 @@ TEST_F(LexerTest, IncorrectTest1) {
   auto result = sourceMgr.readFile(fullPath);
   FileID file = result.first;
   ASSERT_TRUE(file) << "Could not open test file '" << fullPath << 
-    "'\n\tReason:" << toString(result.second);
+    "'\n\tReason:" << to_string(result.second);
   createLexer(file).lex();
   EXPECT_TRUE(diagEngine.hadAnyError());
 }
@@ -59,7 +59,7 @@ TEST_F(LexerTest, IncorrectTest2) {
   auto result = sourceMgr.readFile(fullPath);
   FileID file = result.first;
   ASSERT_TRUE(file) << "Could not open test file '" << fullPath << 
-    "'\n\tReason:" << toString(result.second);
+    "'\n\tReason:" << to_string(result.second);
   createLexer(file).lex();
   EXPECT_TRUE(diagEngine.hadAnyError());
 }
@@ -69,7 +69,7 @@ TEST_F(LexerTest, IncorrectTest3) {
   auto result = sourceMgr.readFile(fullPath);
   FileID file = result.first;
   ASSERT_TRUE(file) << "Could not open test file '" << fullPath << 
-    "'\n\tReason:" << toString(result.second);
+    "'\n\tReason:" << to_string(result.second);
   createLexer(file).lex();
   EXPECT_TRUE(diagEngine.hadAnyError());
 }
@@ -79,7 +79,7 @@ TEST_F(LexerTest, IncorrectTest4) {
   auto result = sourceMgr.readFile(fullPath);
   FileID file = result.first;
   ASSERT_TRUE(file) << "Could not open test file '" << fullPath << 
-    "'\n\tReason:" << toString(result.second);
+    "'\n\tReason:" << to_string(result.second);
   createLexer(file).lex();
   EXPECT_TRUE(diagEngine.hadAnyError());
 }

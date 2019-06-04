@@ -27,9 +27,9 @@ TEST(SourceManagerTest, LoadingFromFile) {
   FileID aFile = aRes.first;
   FileID bFile = bRes.first;
   EXPECT_TRUE(aFile) << "Error while reading '" << aPath 
-    << "': " << toString(aRes.second); 
+    << "': " << to_string(aRes.second); 
   EXPECT_TRUE(bFile) << "Error while reading '" << bPath 
-    << "': " << toString(bRes.second); 
+    << "': " << to_string(bRes.second); 
 
   // The name is correctly stored
   EXPECT_EQ(aPath, srcMgr.getFileName(aFile));
@@ -104,7 +104,7 @@ TEST(SourceManagerTest, PreciseLocation) {
   auto result = srcMgr.readFile(testFilePath);
   FileID testFile = result.first;
   ASSERT_TRUE(testFile) << "Error while reading '" << testFilePath 
-    << "': " << toString(result.second);
+    << "': " << to_string(result.second);
 
   // Load file in StringManipulator
   string_view str = srcMgr.getFileContent(testFile);
@@ -131,17 +131,17 @@ TEST(SourceManagerTest, CompleteLocToString) {
   auto result = srcMgr.readFile(testFilePath);
   FileID testFile = result.first;
   ASSERT_TRUE(testFile) << "Error while reading '" << testFilePath 
-    << "': " << toString(result.second);
+    << "': " << to_string(result.second);
 
   SourceLoc loc_a(testFile);
   CompleteLoc cloc_a = srcMgr.getCompleteLoc(loc_a);
-  EXPECT_EQ(cloc_a.toString(/*printFileName*/ false), "1:1");
-  EXPECT_EQ(cloc_a.toString(/*printFileName*/ true), testFilePath + ":1:1");
+  EXPECT_EQ(cloc_a.to_string(/*printFileName*/ false), "1:1");
+  EXPECT_EQ(cloc_a.to_string(/*printFileName*/ true), testFilePath + ":1:1");
 
   SourceLoc loc_b(testFile, 10);
   CompleteLoc cloc_b = srcMgr.getCompleteLoc(loc_b);
-  EXPECT_EQ(cloc_b.toString(/*printFileName*/ false), "1:11");
-  EXPECT_EQ(cloc_b.toString(/*printFileName*/ true), testFilePath + ":1:11");
+  EXPECT_EQ(cloc_b.to_string(/*printFileName*/ false), "1:11");
+  EXPECT_EQ(cloc_b.to_string(/*printFileName*/ true), testFilePath + ":1:11");
 }
 
 bool isCRLF(string_view str) {
@@ -160,26 +160,26 @@ TEST(SourceManagerTest, CompleteRangeToString) {
   auto result = srcMgr.readFile(testFilePath);
   FileID testFile = result.first;
   ASSERT_TRUE(testFile) << "Error while reading '" << testFilePath 
-    << "': " << toString(result.second);
+    << "': " << to_string(result.second);
   ASSERT_TRUE(testFile) << "File couldn't be read";
 
   bool crlf = isCRLF(srcMgr.getFileContent(testFile));
 
   SourceRange r_a(SourceLoc(testFile), 10);
   CompleteRange cr_a = srcMgr.getCompleteRange(r_a);
-  EXPECT_EQ(cr_a.toString(/*printFileName*/ false), "1:1-1:11");
-  EXPECT_EQ(cr_a.toString(/*printFileName*/ true),  testFilePath + ":1:1-1:11");
+  EXPECT_EQ(cr_a.to_string(/*printFileName*/ false), "1:1-1:11");
+  EXPECT_EQ(cr_a.to_string(/*printFileName*/ true),  testFilePath + ":1:1-1:11");
 
   // Here, we want to land at 3-2, to achieve that with CRLF, we must 
   // end the range at loc+5, but with LF, we must end the range at +3.
   SourceRange r_b(SourceLoc(testFile, 14), crlf ? 5 : 3);
   CompleteRange cr_b = srcMgr.getCompleteRange(r_b);
-  EXPECT_EQ(cr_b.toString(/*printFileName*/ false), "1:15-3:2");
-  EXPECT_EQ(cr_b.toString(/*printFileName*/ true), testFilePath + ":1:15-3:2");
+  EXPECT_EQ(cr_b.to_string(/*printFileName*/ false), "1:15-3:2");
+  EXPECT_EQ(cr_b.to_string(/*printFileName*/ true), testFilePath + ":1:15-3:2");
 
   SourceRange r_c(SourceLoc(testFile, 5));
   CompleteRange cr_c = srcMgr.getCompleteRange(r_c);
-  EXPECT_EQ(cr_c.toString(/*printFileName*/ false), "1:6-1:6");
-  EXPECT_EQ(cr_c.toString(/*printFileName*/ true), testFilePath + ":1:6-1:6");
+  EXPECT_EQ(cr_c.to_string(/*printFileName*/ false), "1:6-1:6");
+  EXPECT_EQ(cr_c.to_string(/*printFileName*/ true), testFilePath + ":1:6-1:6");
 
 }

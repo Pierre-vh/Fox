@@ -31,7 +31,7 @@ bool CompleteLoc::operator!=(const CompleteLoc& other) const {
   return !((*this) == other);
 }
 
-std::string CompleteLoc::toString(bool printFilename) const {
+std::string CompleteLoc::to_string(bool printFilename) const {
   std::stringstream ss;
   if(printFilename)
     ss << fileName << ':';
@@ -58,7 +58,7 @@ bool CompleteRange::operator!=(const CompleteRange& other) const {
   return !((*this) == other);
 }
 
-std::string CompleteRange::toString(bool printFilename) const {
+std::string CompleteRange::to_string(bool printFilename) const {
   std::stringstream ss;
   if (printFilename)
     ss  << fileName << ':';
@@ -533,7 +533,7 @@ FileID SourceManager::insertData(std::unique_ptr<Data> data) {
 // Others
 //----------------------------------------------------------------------------//
 
-std::string fox::toString(SourceManager::ReadFileResult status) {
+std::string fox::to_string(SourceManager::ReadFileResult status) {
   using FS = SourceManager::ReadFileResult;
   switch(status) {
     case FS::Ok:

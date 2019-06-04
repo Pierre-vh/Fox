@@ -16,19 +16,19 @@
 using namespace fox;
 
 StringObject* builtin::charToString(VM& vm, FoxChar value) {
-  return vm.newStringObject(util::toString(value));
+  return vm.newStringObject(util::to_string(value));
 }
 
 StringObject* builtin::intToString(VM& vm, FoxInt value) {
-  return vm.newStringObject(util::toString(value));
+  return vm.newStringObject(util::to_string(value));
 }
 
 StringObject* builtin::doubleToString(VM& vm, FoxDouble value) {
-  return vm.newStringObject(util::toString(value));
+  return vm.newStringObject(util::to_string(value));
 }
 
 StringObject* builtin::boolToString(VM& vm, bool value) {
-  return vm.newStringObject(util::toString(value));
+  return vm.newStringObject(util::to_string(value));
 }
 
 StringObject* builtin::strConcat(VM& vm, StringObject* lhs, StringObject* rhs) {

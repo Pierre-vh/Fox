@@ -374,7 +374,7 @@ Diagnostic::operator bool() const {
 // DiagnSeverity helpers
 //----------------------------------------------------------------------------//
 
-std::string fox::toString(DiagSeverity sev) {
+std::string fox::to_string(DiagSeverity sev) {
   using DS = DiagSeverity;
   switch (sev) {
     case DS::Ignore:
@@ -393,6 +393,6 @@ std::string fox::toString(DiagSeverity sev) {
 }
 
 std::ostream& fox::operator<<(std::ostream& os, DiagSeverity sev) {
-  os << toString(sev);
+  os << to_string(sev);
   return os;
 }
