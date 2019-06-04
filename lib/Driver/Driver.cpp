@@ -231,12 +231,24 @@ int Driver::main(int argc, char* argv[]) {
   return processFile(filepath);
 }
 
+/// \returns an error message for a ReadFileResult.
+static const char* getMessage(SourceManager::ReadFileResult result) {  
+  using RFR = SourceManager::ReadFileResult;
+  switch(result) {
+    case RFR::Ok:               fox_unreachable("not an error");
+    case RFR::NotFound:         return "file not found";
+    case RFR::InvalidEncoding:  return "unsupported file encoding";
+    default:
+      fox_unreachable("unknown ReadFileResult");
+  }
+}
+
 FileID Driver::tryLoadFile(string_view path) {
   auto result = sourceMgr.readFile(path);
   FileID file = result.first;
   if (!file)
     diagEngine.report(DiagID::couldnt_open_file, SourceLoc())
-      .addArg(path).addArg(to_string(result.second));
+      .addArg(path).addArg(getMessage(result.second));
   return file;
 }
 
