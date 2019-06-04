@@ -32,6 +32,7 @@ NOTE(unittest_placeholderremoval4,
 //----------------------------------------------------------------------------//
 
 ERROR(unknown_argument, "unknown argument '%0'")
+ERROR(couldnt_open_file, "couldn't open file '%0' (reason: %1)")
 
 //----------------------------------------------------------------------------//
 // Misc.

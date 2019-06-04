@@ -234,11 +234,9 @@ int Driver::main(int argc, char* argv[]) {
 FileID Driver::tryLoadFile(string_view path) {
   auto result = sourceMgr.readFile(path);
   FileID file = result.first;
-  if (!file) {
-    // TO-DO: Emit a diagnostic instead
-    out << "Could not open file \"" << path << "\"\n"
-      "\tReason:" << toString(result.second) << '\n';
-  }
+  if (!file)
+    diagEngine.report(DiagID::couldnt_open_file, SourceLoc())
+      .addArg(path).addArg(toString(result.second));
   return file;
 }
 
