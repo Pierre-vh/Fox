@@ -1,0 +1,3 @@
+// RUN: %fox -foo -bar
+// expect-error@-1: unknown argument '-foo'
+// expect-error@-2: unknown argument '-bar'

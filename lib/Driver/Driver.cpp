@@ -223,8 +223,7 @@ int Driver::main(int argc, char* argv[]) {
     else if(str == "-v" || str == "-verbose")
       options.verbose = true;
     else {
-      // TODO: Emit a diagnostic for this.
-      out << "Unknown argument '" << str << "'\n";
+      diagEngine.report(DiagID::unknown_argument, SourceLoc()).addArg(str);
       return false;
     }
   }
