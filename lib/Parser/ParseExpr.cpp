@@ -473,15 +473,11 @@ Parser::Result<Expr*> Parser::parseBinaryExpr(unsigned precedence) {
 
   Expr* lhs = lhsResult.get();
   BinaryExpr* rtr = nullptr;
-  
-  // { <binary_operator> <cast_expr> }  
-  while (true) {
-    // <binary_operator>
-    SourceRange opRange;
-    auto binop_res = parseBinaryOp(precedence, opRange);
-    if (!binop_res) // No operator found : break.
-      break;
 
+  // <binary_operator>
+  // { <binary_operator> <cast_expr> } 
+  SourceRange opRange;
+  while (auto binop_res = parseBinaryOp(precedence, opRange)) {
     // <cast_expr> OR a binaryExpr of inferior priority.
     Result<Expr*> rhsResult;
     if (precedence > 0)
@@ -505,11 +501,8 @@ Parser::Result<Expr*> Parser::parseBinaryExpr(unsigned precedence) {
       (rtr ? rtr : lhs), rhs, opRange);
   }
 
-  if (!rtr) {
-    assert(lhs && "no rtr node + no lhs node?");
-    return Result<Expr*>(lhs);
-  }
-  return Result<Expr*>(rtr);
+  assert((rtr || lhs) && "no rtr node & no lhs node?");
+  return Result<Expr*>(rtr ? rtr : lhs);
 }
 
 Parser::Result<Expr*> Parser::parseExpr() {

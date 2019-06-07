@@ -129,19 +129,15 @@ Parser::Result<Decl*> Parser::parseFuncDecl() {
     if (auto first = parseParamDecl()) {
       SmallVector<ParamDecl*, 4> paramsVec;
       paramsVec.push_back(first.castTo<ParamDecl>());
-      while (true) {
-        if (tryConsume(TokenKind::Comma)) {
-          if (auto param = parseParamDecl())
-            paramsVec.push_back(param.castTo<ParamDecl>());
-          else {
-            paramHadError = true;
-            if (param.isNotFound())
-              reportErrorExpected(DiagID::expected_paramdecl);
-            break;
-          }
-        } 
-        else
+      while (tryConsume(TokenKind::Comma)) {
+        if (auto param = parseParamDecl())
+          paramsVec.push_back(param.castTo<ParamDecl>());
+        else {
+          paramHadError = true;
+          if (param.isNotFound())
+            reportErrorExpected(DiagID::expected_paramdecl);
           break;
+        }
       }
       func->setParams(ParamList::create(ctxt, paramsVec));
     }
