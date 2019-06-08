@@ -207,13 +207,36 @@ TEST(BCBuilderTest, orderIsRespected) {
 // BCModule tests
 //----------------------------------------------------------------------------//
 
-TEST(BCModuleTest, funcCreation) {
+TEST(BCModuleTest, funcIDs) {
   BCModule theModule;
-  // Create a few functions, checking that the IDs match the ones we expected.
+  // Create a few functions, checking that the IDs match the ones we expect.
   for (std::size_t idx = 0, end = 42; idx < end; ++idx) {
     ASSERT_EQ(theModule.createFunction().getID(), idx)
       << "Func ID was not the one expected";
   }
+}
+
+TEST(BCModuleTest, funcCreation) {
+  BCModule theModule;
+  BCFunction& fn = theModule.createFunction();
+  fn.createBCBuilder().createNoOpInstr();
+  EXPECT_EQ(&(theModule.getFunction(fn.getID())), &fn);
+}
+
+TEST(BCModuleTest, globIDs) {
+  BCModule theModule;
+  // Create a few functions, checking that the IDs match the ones we expect.
+  for (std::size_t idx = 0, end = 42; idx < end; ++idx) {
+    ASSERT_EQ(theModule.createGlobalVariable().getID(), idx)
+      << "Func ID was not the one expected";
+  }
+}
+
+TEST(BCModuleTest, globCreation) {
+  BCModule theModule;
+  BCFunction& fn = theModule.createGlobalVariable();
+  fn.createBCBuilder().createNoOpInstr();
+  EXPECT_EQ(&(theModule.getGlobalVarInitializer(fn.getID())), &fn);
 }
 
 TEST(BCModuleTest, newModulesAreEmpty) {

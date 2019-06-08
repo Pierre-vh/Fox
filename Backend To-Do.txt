@@ -116,9 +116,21 @@ Basic VM data types and their mappings to Fox types:
 ---- Getting feature-complete (with the current feature set) ----
   -> Entry point (Done)
   -> Global Variables
-    -> Implementation still to be defined. I'll probably have a BCGlobalVar that contains a set of
-       instructions to initialize the variable (using return), and I'll use BitVector mark init/uninit
-       variables.
+    -> BC
+    -> CodeGen
+      -> Roughly the same as functions
+    -> Instructions
+      -> GetGlobal <id> <dest>
+      -> SetGlobal <id> <src>
+    -> VM
+      -> On startup, create an array of size (theModule.numGlobals()) and run
+         each global initializer to initialize them.
+      
+  -> Add BCModule/BCFunction .verify() to check invariants:
+    -> Global Var Init Fns cannot use SetGlobal/GetGlobal and must always end with Ret
+    -> Both GVI fns and normal fns IDs should match their position in their arrays.
+    -> Constants shouldn't contain duplicates
+
   -> Better (but not yet final) error management system for the VM (at least one that doesn't use assert)
     -> Used when dividing by zero, getChar out of range/negative, etc.
      -> Add debug info only for risky instructions (calls, division) (Instruction n° -> SourceRange)      

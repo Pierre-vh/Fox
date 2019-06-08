@@ -18,6 +18,8 @@
 namespace fox {
   class BCBuilder;
 
+  /// A Bytecode function, which can be either a function or a global variable's
+  /// initializer.
   class BCFunction {
     public:
       /// Creates a BCFunction
@@ -27,8 +29,7 @@ namespace fox {
       BCFunction(const BCFunction&) = delete;
       BCFunction& operator=(const BCFunction&) = delete;
 
-      /// FIXME: Should this return a func_id_t?
-      /// \returns the unique identifier of this function
+      /// \returns the id of this function
       std::size_t getID() const {
         return id_;
       }

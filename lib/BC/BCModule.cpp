@@ -15,19 +15,38 @@ std::size_t BCModule::numFunctions() const {
   return functions_.size();
 }
 
+std::size_t BCModule::numGlobals() const {
+  return globalVarInitializers_.size();
+}
+
 BCFunction& BCModule::createFunction() {
   functions_.push_back(std::make_unique<BCFunction>(numFunctions()));
   return *functions_.back();
 }
 
+BCFunction& BCModule::createGlobalVariable() {
+  globalVarInitializers_.push_back(std::make_unique<BCFunction>(numGlobals()));
+  return *globalVarInitializers_.back();
+}
+
 BCFunction& BCModule::getFunction(std::size_t idx) {
-  assert((idx < numFunctions())&& "out of range");
+  assert((idx < numFunctions()) && "out of range");
   return *functions_[idx];
 }
 
 const BCFunction& BCModule::getFunction(std::size_t idx) const {
-  assert((idx < numFunctions())&& "out of range");
+  assert((idx < numFunctions()) && "out of range");
   return *functions_[idx];
+}
+
+BCFunction& BCModule::getGlobalVarInitializer(std::size_t idx) {
+  assert((idx < numGlobals()) && "out of range");
+  return *globalVarInitializers_[idx];
+}
+
+const BCFunction& BCModule::getGlobalVarInitializer(std::size_t idx) const {
+  assert((idx < numGlobals()) && "out of range");
+  return *globalVarInitializers_[idx];
 }
 
 BCModule::FunctionVector& BCModule::getFunctions() {
@@ -36,6 +55,14 @@ BCModule::FunctionVector& BCModule::getFunctions() {
 
 const BCModule::FunctionVector& BCModule::getFunctions() const {
   return functions_;
+}
+
+BCModule::FunctionVector& BCModule::getGlobalVarInitializers() {
+  return globalVarInitializers_;
+}
+
+const BCModule::FunctionVector& BCModule::getGlobalVarInitializers() const {
+  return globalVarInitializers_;
 }
 
 std::size_t BCModule::addStringConstant(string_view str) {

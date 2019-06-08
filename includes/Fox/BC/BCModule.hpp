@@ -35,9 +35,25 @@ namespace fox {
       /// \returns the number of functions in the module
       std::size_t numFunctions() const;
 
+      /// \returns the number of global variables in the module
+      std::size_t numGlobals() const;
+
       /// Creates a new function (that will be stored in this module)
       /// \returns a reference to the created function
       BCFunction& createFunction();
+
+      /// Creates a new global variable (that will be stored in this module)
+      /// \returns a reference to the created function responsible for 
+      ///          initializing this global variable.
+      /// NOTE: Global initializers shouldn't call setGlobal manually.
+      /// They should simply return the value that the global should have.
+      /// e.g. to init it to 0, the initializer should do
+      /// \verbatim
+      ///   StoreSmallInt 0 0
+      ///   Ret 0
+      /// \endverbatim
+      /// Nothing more, nothing less.
+      BCFunction& createGlobalVariable();
 
       /// \returns a reference to the function in this module with ID \p idx
       BCFunction& getFunction(std::size_t idx);
@@ -45,10 +61,22 @@ namespace fox {
       ///          with ID \p idx
       const BCFunction& getFunction(std::size_t idx) const;
 
+      /// \returns a reference to the initializer function for the 
+      ///          global with ID \p idx
+      BCFunction& getGlobalVarInitializer(std::size_t idx);
+      /// \returns a const reference to the initializer function for the global
+      ///          with ID \p idx
+      const BCFunction& getGlobalVarInitializer(std::size_t idx) const;
+
       /// \returns a reference to the functions vector
       FunctionVector& getFunctions();
       /// \returns a const reference to the functions vector
       const FunctionVector& getFunctions() const;
+
+      /// \returns a reference to the global variable initializers vector
+      FunctionVector& getGlobalVarInitializers();
+      /// \returns a const reference to the global variable initializers vector
+      const FunctionVector& getGlobalVarInitializers() const;
 
       /// Adds a new string constant into the BCModule.
       /// This is simply a push_back operation, it does not unique the constant.
@@ -98,13 +126,19 @@ namespace fox {
       /// Dumps the module to 'out'
       void dump(std::ostream& out) const;
 
+      /// TODO
+      /// Checks BCModule invariants, printing errors to \p out
+      /// \returns true if the module is valid
+      /// bool verify(std::ostream& out); 
+
     private:
+      /// Functions
       FunctionVector functions_;
+      /// Global Variable Initialization Functions
+      FunctionVector globalVarInitializers_;
+      /// Entry function
       BCFunction* entryPoint_ = nullptr;
 
-      // FIXME: The type of the values in the vectors should really be
-      // constant, but SmallVector does not allow it for some reason.
-      // Either change this to a std::vector, or find a workaround.
       SmallVector<std::string, 4> strConstants_;
       SmallVector<FoxInt, 4> intConstants_;
       SmallVector<FoxDouble, 4> doubleConstants_;
