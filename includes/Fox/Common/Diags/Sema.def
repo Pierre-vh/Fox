@@ -64,6 +64,8 @@ ERROR(type_has_no_member_named,
   "type '%0' has no member named '%1'")
 ERROR(uncalled_bound_member_function,
   "reference to a bound member function must be called")
+ERROR(global_init_cannot_ref_other_decl,
+  "global variable initializers cannot reference other declarations")
 
 WARNING(code_after_return_not_reachable,
   "code after 'return' will never be executed")

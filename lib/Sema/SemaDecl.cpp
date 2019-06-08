@@ -240,6 +240,9 @@ class Sema::DeclChecker : Checker, DeclVisitor<DeclChecker, void> {
         if(!ok)
           diagnoseInvalidVarInitExpr(decl, init);
       }
+
+      if(decl->hasInitExpr() && !decl->isLocal())
+        checkGlobalVarInitExpr(decl->getInitExpr());
     }
 
     void visitFuncDecl(FuncDecl* decl) {
@@ -287,6 +290,28 @@ class Sema::DeclChecker : Checker, DeclVisitor<DeclChecker, void> {
     //----------------------------------------------------------------------//
     // Various semantics-related helper methods 
     //----------------------------------------------------------------------//
+
+    /// Checks a global variable init expr. Such expression cannot contain
+    /// references to other declarations.
+    void checkGlobalVarInitExpr(Expr* expr) {
+      class Impl : public ASTWalker {
+        public:
+          Impl(DiagnosticEngine& diagEngine) : diagEngine(diagEngine) {}
+          
+          DiagnosticEngine& diagEngine;
+
+          std::pair<Expr*, bool> handleExprPre(Expr* expr) {
+            if (isa<DeclRefExpr>(expr)) {
+              diagEngine
+                .report(DiagID::global_init_cannot_ref_other_decl, 
+                        expr->getSourceRange());
+              return {nullptr, false};
+            }
+            return {expr, true};
+          }
+      };
+      Impl(diagEngine).walk(expr);
+    }
 
     /// \returns true if \p decl can be the entry point of the program
     bool canBeEntryPoint(FuncDecl* decl) {

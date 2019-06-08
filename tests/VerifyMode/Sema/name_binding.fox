@@ -54,11 +54,6 @@ func test_lexical_order() {
   let y : int;
 }
 
-// Another lexical order test : lexical order matters when trying to
-// find something inside the same DeclContext
-let before : int = after; // expect-error: undeclared identifier 'after'
-let after : int = before; // Ok
-
 //----------------------------------------------------------------------------//
 // Shadowing a variable and using the shadowed variable in the initializer
 //----------------------------------------------------------------------------//
