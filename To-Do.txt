@@ -224,6 +224,14 @@ Other things that aren't part of the main pipeline:
         ASTContext::Arena class: type maps, the allocator and cleanups
         
   Medium priority:  
+    > Find a better fix for recursive dependecy of global variable initializers, e.g. scenarios
+      like 
+        let a : int = b;
+        let b : int = a;  
+      (this doesn't work if they're in the same file, but if they're in different files, it should)
+      Currently the fix is to disallow referencing other declarations inside a global var initializer,
+      but this might be a bit too restrictive. I'd like to give some more freedom there.
+
     > Add a "RAIIIgnoreAll" object to ignore all diagnostics temporarily, and
       remove setIgnoreAll(value) (replace by ignoreAll() returning RAIIIgnoreAll)
 
