@@ -61,7 +61,7 @@ namespace fox {
 
     private:
       /// Emits the bytecode for a GLOBAL VarDecl "var" 
-      void genGlobalVar(BCBuilder& builder, VarDecl* var);
+      void genGlobalVar(VarDecl* var);
 
       /// Emits the bytecode for a function declaration "func" 
       void genFunc(FuncDecl* func);
@@ -85,8 +85,12 @@ namespace fox {
       void genLocalDecl(BCBuilder& builder, 
                         RegisterAllocator& regAlloc, Decl* decl);
 
-      /// \returns the BCFunction object for a FuncDecl*
+      /// \returns the BCFunction object for \p func
       BCFunction& getBCFunction(FuncDecl* func);
+
+      /// \returns the BCFunction responsible for initializing the global
+      /// variable \p var.
+      BCFunction& getGlobalVariableInitializer(VarDecl* var);
 
       class Generator;
       class ExprGenerator;
@@ -95,6 +99,7 @@ namespace fox {
       class StmtGenerator;
 
       std::unordered_map<FuncDecl*, BCFunction&> funcs_;
+      std::unordered_map<VarDecl*, BCFunction&> globalInitializers_;
 
       // Constant maps, used to 'unique' constants.
       // Note: For the string constants map, we store the hash of the string

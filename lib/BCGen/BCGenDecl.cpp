@@ -277,9 +277,28 @@ void BCGen::genFunc(FuncDecl* func) {
     theModule.setEntryPoint(fn);
 }
 
-void BCGen::genGlobalVar(BCBuilder&, VarDecl*) {  
-  // assert(var && var->isGlobal());
-  fox_unimplemented_feature("BCGen::genGlobalVar");
+void BCGen::genGlobalVar(VarDecl* var) {  
+  assert(var && var->isGlobal());
+
+  BCFunction& initializer = getGlobalVariableInitializer(var);
+  BCBuilder builder = initializer.createBCBuilder();
+  RegisterAllocator regAlloc;
+
+  RegisterValue dest;
+
+  if (Expr* init = var->getInitExpr()) {
+    dest = genExpr(builder, regAlloc, init);
+  }
+  else {
+    dest = regAlloc.allocateTemporary();
+
+    DefaultInitGenerator dig(builder);
+    dig.gen(var->getTypeLoc().getType(), dest.getAddress());
+  }
+
+  // The last instruction in the initializer should be a "Ret" of
+  // the value.
+  builder.createRetInstr(dest.getAddress());
 }
 
 void BCGen::genLocalDecl(BCBuilder& builder,
@@ -302,13 +321,30 @@ BCFunction& BCGen::getBCFunction(FuncDecl* func) {
   return fn;
 }
 
+BCFunction& BCGen::getGlobalVariableInitializer(VarDecl* var) {
+  assert(var && var->isGlobal());
+  {
+    auto it = globalInitializers_.find(var);
+    if(it != globalInitializers_.end())
+      return it->second;
+  }
+  // a BCFunction for this FuncDecl* was not created yet so create it
+  // NOTE: We use max_functions because for all intents and purposes global
+  // variable initializers are functions.
+  assert((theModule.numGlobals() <= bc_limits::max_functions)
+    && "Cannot create function: too many functions in the module");
+  BCFunction& init = theModule.createGlobalVariable();
+  globalInitializers_.insert({var, init});
+  return init;
+}
+
 void BCGen::genUnit(UnitDecl* unit) {
   assert(unit && "arg is nullptr");
   for (Decl* decl : unit->getDecls()) {
     if (FuncDecl* fn = dyn_cast<FuncDecl>(decl))
       genFunc(fn);
     else if (VarDecl* var = dyn_cast<VarDecl>(decl)) 
-      fox_unimplemented_feature("Global Var BCGen");
+      genGlobalVar(var);
     else 
       fox_unreachable("unknown top level decl kind");
   }

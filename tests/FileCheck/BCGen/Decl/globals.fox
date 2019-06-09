@@ -1,0 +1,32 @@
+// RUN: %fox-dump-bcgen | %filecheck
+
+// CHECK: [Globals: 4]
+
+// CHECK-NEXT: Initializer of Global 0
+// CHECK-NEXT: 0   | StoreSmallInt 0 0
+// CHECK-NEXT: 1   | Ret 0
+let a : int;
+
+// CHECK-NEXT: Initializer of Global 1
+// CHECK-NEXT: 0   | NewString 0
+// CHECK-NEXT: 1   | Ret 0
+let b : string;
+
+// CHECK-NEXT: Initializer of Global 2
+// CHECK-NEXT: 0   | StoreSmallInt 0 3
+// CHECK-NEXT: 1   | StoreSmallInt 1 3
+// CHECK-NEXT: 2   | SubInt 0 0 1
+// CHECK-NEXT: 3   | StoreSmallInt 1 3
+// CHECK-NEXT: 4   | StoreSmallInt 2 3
+// CHECK-NEXT: 5   | AddInt 1 1 2
+// CHECK-NEXT: 6   | MulInt 0 0 1
+// CHECK-NEXT: 7   | Ret 0
+let c : int = (3-3)*(3+3);
+
+// CHECK-NEXT: Initializer of Global 3
+// CHECK-NEXT: 0   | LoadBuiltinFunc 0 strConcat
+// CHECK-NEXT: 1   | LoadStringK 1 0
+// CHECK-NEXT: 2   | LoadStringK 2 1
+// CHECK-NEXT: 3   | Call 0 0
+// CHECK-NEXT: 4   | Ret 0
+let d : string = "foo" + "bar";

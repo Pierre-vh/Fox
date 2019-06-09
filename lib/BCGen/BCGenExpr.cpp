@@ -874,7 +874,7 @@ class BCGen::ExprGenerator : public Generator,
       assert((isa<VarDecl>(decl) || isa<ParamDecl>(decl))
         && "unknown ValueDecl kind");
       // Reference to Global variables
-      if(!decl->isLocal())
+      if(decl->isGlobal())
         fox_unimplemented_feature("Global DeclRefExpr BCGen");
       // Reference to local decls
       RegisterValue varReg = regAlloc.useDecl(decl);
