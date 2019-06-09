@@ -39,6 +39,10 @@ bool Decl::isLocal() const {
   return dc_ && isa<FuncDecl>(dc_);
 }
 
+bool Decl::isGlobal() const {
+  return !isLocal();
+}
+
 DeclContext* Decl::getClosestDeclContext() const {
   if(auto* dc = dyn_cast<DeclContext>(const_cast<Decl*>(this)))
     return dc;

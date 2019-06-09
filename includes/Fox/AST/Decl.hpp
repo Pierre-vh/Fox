@@ -70,8 +70,11 @@ namespace fox {
       /// Returns nullptr for local decls, or if the parent is null.
       DeclContext* getDeclContext() const;
 
-      /// Returns true if this is a local declaration
+      /// \returns true if this is a local declaration
       bool isLocal() const;
+
+      /// \returns true if this is a global declaration
+      bool isGlobal() const;
 
       /// Returns the "closest" DeclContext.
       ///  -> If this Decl is also a DeclContext, returns 
