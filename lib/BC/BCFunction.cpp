@@ -21,13 +21,13 @@ BCBuilder BCFunction::createBCBuilder() {
   return BCBuilder(instrs_);
 }
 
-void BCFunction::dump(std::ostream& out) const {
-  out << "Function " << id_ << "\n";
+void BCFunction::dump(std::ostream& out, string_view title) const {
+  out << title << ' ' << id_ << '\n';
 
   if(instrs_.empty())
     out << "    <empty>\n";
   else
-  dumpInstructions(out, instrs_, "   ");
+    dumpInstructions(out, instrs_, "   ");
 }
 
 InstructionVector::iterator BCFunction::instrs_begin() {

@@ -135,61 +135,80 @@ bool BCModule::empty_constants() const {
 }
 
 void BCModule::dump(std::ostream& out) const {
-  // If the module is empty, just print [Empty BCModule] and move on.
   if (empty()) {
     out << "[Empty BCModule]\n";
     return;
   }
-  // Dump constants
+  dumpConstants(out);
+  dumpGlobVarInitializers(out);
+  dumpFunctions(out);
+}
+
+void BCModule::dumpConstants(std::ostream& out) const {
   if (empty_constants()) {
     out << "[No Constants]\n";
+    return;
   }
-  else {
-    out << "[Constants]\n";
 
-    if(std::size_t size = intConstants_.size()) {
-      out << "  [Integers: " << size << " constants]\n";
-      for (std::size_t idx = 0; idx < size; ++idx) 
-        out << "    " << idx << "\t| " << intConstants_[idx] << '\n';
-    }
-    else 
-      out << "  [No Integer Constants]\n";
+  out << "[Constants]\n";
 
-    if(std::size_t size = doubleConstants_.size()) {
-      out << "  [Floating-Point: " << size << " constants]\n";
-      for (std::size_t idx = 0; idx < size; ++idx) 
-        out << "    " << idx << "\t| " << doubleConstants_[idx] << '\n';
-    }
-    else 
-      out << "  [No Floating-Point Constants]\n";
-
-    if(std::size_t size = strConstants_.size()) {
-      out << "  [Strings: " << size << " constants]\n";
-      for (std::size_t idx = 0; idx < size; ++idx) {
-        out << "    " << idx << "\t| ";
-        printQuotedString(strConstants_[idx], out, '"');
-        out << '\n';
-      }
-    }
-    else 
-      out << "  [No String Constants]\n";
+  if(std::size_t size = intConstants_.size()) {
+    out << "  [Integers: " << size << " constants]\n";
+    for (std::size_t idx = 0; idx < size; ++idx) 
+      out << "    " << idx << "\t| " << intConstants_[idx] << '\n';
   }
-  // Dump functions
-  if (std::size_t size = functions_.size()) {
-    const BCFunction* entry = getEntryPoint();
-    out << "[Functions: " << size << ']';
-    out << "[Entry Point:";
-    if(entry)
-      out << " Function #" << entry->getID();
-    else 
-      out << " None";
-    out << "]\n";
-    for (auto& fn : functions_) {
-      // Print a newline before each function dump so it's more readable.
+  else 
+    out << "  [No Integer Constants]\n";
+
+  if(std::size_t size = doubleConstants_.size()) {
+    out << "  [Floating-Point: " << size << " constants]\n";
+    for (std::size_t idx = 0; idx < size; ++idx) 
+      out << "    " << idx << "\t| " << doubleConstants_[idx] << '\n';
+  }
+  else 
+    out << "  [No Floating-Point Constants]\n";
+
+  if(std::size_t size = strConstants_.size()) {
+    out << "  [Strings: " << size << " constants]\n";
+    for (std::size_t idx = 0; idx < size; ++idx) {
+      out << "    " << idx << "\t| ";
+      printQuotedString(strConstants_[idx], out, '"');
       out << '\n';
-      fn->dump(out);
     }
   }
   else 
+    out << "  [No String Constants]\n";
+}
+
+void BCModule::dumpGlobVarInitializers(std::ostream& out) const {
+  std::size_t size = globalVarInitializers_.size();
+  if(size == 0) {
+    out << "[No Globals]\n";
+    return;
+  }
+  out << "[Globals: " << size << "]\n";
+  for (auto& gvi : globalVarInitializers_) {
+    gvi->dump(out, "Initializer of Global");
+  }
+}
+
+void BCModule::dumpFunctions(std::ostream& out) const {
+  std::size_t size = functions_.size();
+  if (size == 0) {
     out << "[No Functions]\n";
+    return;
+  }
+  const BCFunction* entry = getEntryPoint();
+  out << "[Functions: " << size << ']';
+  out << "[Entry Point:";
+  if(entry)
+    out << " Function #" << entry->getID();
+  else 
+    out << " None";
+  out << "]\n";
+  for (auto& fn : functions_) {
+    // Print a newline before each function dump so it's more readable.
+    out << '\n';
+    fn->dump(out);
+  }
 }

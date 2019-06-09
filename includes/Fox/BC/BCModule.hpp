@@ -132,6 +132,10 @@ namespace fox {
       /// bool verify(std::ostream& out); 
 
     private:
+      void dumpConstants(std::ostream& out) const;
+      void dumpGlobVarInitializers(std::ostream& out) const;
+      void dumpFunctions(std::ostream& out) const;
+
       /// Functions
       FunctionVector functions_;
       /// Global Variable Initialization Functions

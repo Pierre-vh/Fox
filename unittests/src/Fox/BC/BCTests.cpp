@@ -270,6 +270,7 @@ TEST(BCModuleTest, dump) {
     theModule.dump(ss);
     EXPECT_EQ(ss.str(),
       "[No Constants]\n"
+      "[No Globals]\n"
       "[Functions: 1][Entry Point: None]\n"
       "\n"
       "Function 0\n"
@@ -288,6 +289,10 @@ TEST(BCModuleTest, dump) {
   theModule.addIntConstant(-42);
   theModule.addDoubleConstant(3.14);
   theModule.addDoubleConstant(-3.14);
+  // Add a few globals
+  theModule.createGlobalVariable().createBCBuilder().createNoOpInstr();
+  theModule.createGlobalVariable().createBCBuilder().createNoOpInstr();
+  theModule.createGlobalVariable().createBCBuilder().createNoOpInstr();
   // For strings, use special characters to see if they're correctly displayed
   theModule.addStringConstant("foobar");
   // The string must be constructed with an explicit size 
@@ -309,6 +314,13 @@ TEST(BCModuleTest, dump) {
       "  [Strings: 2 constants]\n"
       "    0\t| \"foobar\"\n"
       "    1\t| \"\\n\\t\\r\\\\'\\\"\\0\"\n"
+      "[Globals: 3]\n"
+      "Initializer of Global 0\n"
+      "    0\t| NoOp\n"
+      "Initializer of Global 1\n"
+      "    0\t| NoOp\n"
+      "Initializer of Global 2\n"
+      "    0\t| NoOp\n"
       "[Functions: 3][Entry Point: Function #1]\n"
       "\n"
       "Function 0\n"
@@ -363,12 +375,22 @@ TEST(BCFunctionTest, dump) {
   builder.createNoOpInstr();
   builder.createRetVoidInstr();
   builder.createJumpIfInstr(1, 2);
-  // Check that the dump is correct
-  std::stringstream ss;
-  fn.dump(ss);
-  EXPECT_EQ(ss.str(),
-    "Function 42\n"
-    "    0\t| NoOp\n"
-    "    1\t| RetVoid\n"
-    "    2\t| JumpIf 1 2\n");
+  {
+    std::stringstream ss;
+    fn.dump(ss);
+    EXPECT_EQ(ss.str(),
+      "Function 42\n"
+      "    0\t| NoOp\n"
+      "    1\t| RetVoid\n"
+      "    2\t| JumpIf 1 2\n");
+  }
+  {
+    std::stringstream ss;
+    fn.dump(ss, "Foo");
+    EXPECT_EQ(ss.str(),
+      "Foo 42\n"
+      "    0\t| NoOp\n"
+      "    1\t| RetVoid\n"
+      "    2\t| JumpIf 1 2\n");
+  }
 }

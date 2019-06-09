@@ -12,6 +12,7 @@
 #include "Fox/BC/BCUtils.hpp"
 #include "Fox/BC/Instruction.hpp"
 #include "Fox/Common/LLVM.hpp"
+#include "Fox/Common/string_view.hpp"
 #include "llvm/ADT/SmallVector.h"
 #include <iosfwd>
 
@@ -50,8 +51,12 @@ namespace fox {
         return instrs_;
       }
 
-      /// Dumps the module to 'out'
-      void dump(std::ostream& out) const;
+      /// Dumps this function to 'out'
+      /// \param out the output stream
+      /// \param title the title of the function. By default, "Function".
+      /// The title is printed before the function's id. So in this case,
+      /// if the function's ID is "0", it'd print "Function 0"
+      void dump(std::ostream& out, string_view title = "Function") const;
 
       /// \returns the begin iterator for the instruction buffer
       InstructionVector::iterator instrs_begin();
