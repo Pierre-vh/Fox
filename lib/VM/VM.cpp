@@ -32,7 +32,7 @@ VM::VM(BCModule& theModule) : bcModule(theModule) {
 /// StringObject and others.
 VM::~VM() = default;
 
-VM::Register VM::call(BCFunction& func, ArrayRef<Register> args) {
+VM::Register VM::run(BCFunction& func, ArrayRef<Register> args) {
   /// Copy the args into registers r0 -> rN
   if(args.size()) {
     regaddr_t k = 0;
@@ -40,14 +40,15 @@ VM::Register VM::call(BCFunction& func, ArrayRef<Register> args) {
       getReg(k++) = arg;
   }
   /// Run the function
-  return call(func);
+  return run(func);
 }
 
-VM::Register VM::call(BCFunction& func) {
+VM::Register VM::run(BCFunction& func) {
   // TODO: Add/Remove the function in the call stack
   return run(func.getInstructions());
 }
 
+// This is where most of the magic happens!
 VM::Register VM::run(ArrayRef<Instruction> instrs) {
   pc_ = instrs.begin();
   Instruction instr;
@@ -366,7 +367,7 @@ void VM::initGlobals() {
   auto& initializers = bcModule.getGlobalVarInitializers();
   // Run every initializer
   for (std::size_t k = 0; k < numGlobals; ++k)
-    globals_[k] = call(*initializers[k]);
+    globals_[k] = run(*initializers[k]);
 }
 
 VM::Register VM::callFunc(regaddr_t base) {
@@ -384,7 +385,7 @@ VM::Register VM::callFunc(regaddr_t base) {
 
   Register rtr;
   if(fnRef.isBCFunction()) 
-    rtr = call(*fnRef.getBCFunction());           // normal functions
+    rtr = run(*fnRef.getBCFunction());           // normal functions
   else if(fnRef.isBuiltinID())  
     rtr = callBuiltinFunc(fnRef.getBuiltinID());  // builtin functions
   else 

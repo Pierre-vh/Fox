@@ -133,11 +133,11 @@ namespace fox {
       /// Executes a function \p func with parameters \p args.
       /// \p args the arguments array
       /// \return the return value of the executed function.
-      Register call(BCFunction& func, ArrayRef<Register> args);
+      Register run(BCFunction& func, ArrayRef<Register> args);
                  
       /// Calls a function \p func
       /// \return the return value of the executed function.
-      Register call(BCFunction& func);
+      Register run(BCFunction& func);
 
       /// Executes a bytecode buffer \p instrs.
       /// \return the return value of the executed instruction buffer.

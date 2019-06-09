@@ -271,7 +271,7 @@ int Driver::run(ASTContext& ctxt, FileID mainFile, BCModule& theModule) {
   assert(entryType && entryType->getReturnType()->isIntType() 
     && "Entry Point's type is not () -> int");
 #endif
-  VM::Register reg = VM(theModule).call(*entryPoint);
+  VM::Register reg = VM(theModule).run(*entryPoint);
   FoxInt rtr = reg.intVal;
   // Clamp it to int's min/max.
   constexpr int iMax = std::numeric_limits<int>::max();

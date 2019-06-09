@@ -488,7 +488,7 @@ TEST_F(VMTest, RetRetVoid) {
   BCFunction& f1 = theModule.createFunction();
   f1.createBCBuilder().createRetVoidInstr();
   VM vm(theModule);
-  EXPECT_EQ(vm.call(f1), VM::Register()) << "RetVoid returned something non-null";
+  EXPECT_EQ(vm.run(f1), VM::Register()) << "RetVoid returned something non-null";
   // f2 = stores something in r1 and and returns 
   // the value in r1
   BCFunction& f2 = theModule.createFunction();
@@ -498,7 +498,7 @@ TEST_F(VMTest, RetRetVoid) {
     builder.createRetInstr(1);
   }
   // Compare values
-  auto ret = vm.call(f2);
+  auto ret = vm.run(f2);
   auto regstack = vm.getRegisterStack();
   EXPECT_EQ(ret.intVal, 526);
 }
@@ -522,7 +522,7 @@ TEST_F(VMTest, runFuncWithArgs) {
   FoxInt a1 = 0;
   FoxInt a2 = 5;
   Register args[3] = {Register(a0), Register(a1), Register(a2)};
-  Register result = vm.call(fn, args);
+  Register result = vm.run(fn, args);
   EXPECT_EQ(result.intVal, a2);
 }
 
@@ -533,7 +533,7 @@ TEST_F(VMTest, loadFunc) {
   builder.createLoadFuncInstr(0, 0);
   builder.createRetVoidInstr();
   VM vm(theModule);
-  vm.call(fn);
+  vm.run(fn);
   // Helper to get a register's value as a BCFunction*
   auto getReg = [&](std::size_t idx) {
     return vm.getRegisterStack()[idx].funcRef.getBCFunction();
@@ -549,7 +549,7 @@ TEST_F(VMTest, loadBuiltinFunc) {
   builder.createLoadBuiltinFuncInstr(0, BuiltinID::printBool);
   builder.createRetVoidInstr();
   VM vm(theModule);
-  vm.call(fn);
+  vm.run(fn);
   // Helper to get a register's value as a BuiltinID
   auto getReg = [&](std::size_t idx) {
     return vm.getRegisterStack()[idx].funcRef.getBuiltinID();
@@ -588,7 +588,7 @@ TEST_F(VMTest, call) {
   }
   // Test
   VM vm(theModule);
-  vm.call(f0);
+  vm.run(f0);
   // Helper to get a register's value as a FoxInt
   auto getReg = [&](std::size_t idx) {
     return vm.getRegisterStack()[idx].intVal;
