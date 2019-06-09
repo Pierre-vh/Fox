@@ -131,16 +131,13 @@ namespace fox {
       VM& operator=(const VM&) = delete;
 
       /// Executes a function \p func with parameters \p args.
-      /// This is intended as an entry point for clients, and not as an internal
-      /// method to handle function calls (mainly because it copies arguments
-      /// and doesn't slide the register window)
-      /// \p args must be null, or its size must match func.numParameters()
-      /// \returns a pointer to the register containing the return value
-      /// of the executed bytecode. nullptr if there is no return value
-      /// (void)
+      /// \p args the arguments array
       /// \return the return value of the executed function.
-      Register call(BCFunction& func, 
-                  MutableArrayRef<Register> args = MutableArrayRef<Register>());
+      Register call(BCFunction& func, ArrayRef<Register> args);
+                 
+      /// Calls a function \p func
+      /// \return the return value of the executed function.
+      Register call(BCFunction& func);
 
       /// Executes a bytecode buffer \p instrs.
       /// \return the return value of the executed instruction buffer.
@@ -160,6 +157,9 @@ namespace fox {
       /// Do not trust the pointer after code has been run, functions
       /// have been called, etc.
       MutableArrayRef<Register> getRegisterStack();
+
+      /// \returns a view of the array containing the global variables
+      ArrayRef<Register> getGlobalVariables() const;
 
       ///--------------------------------------------------------------------///
       /// Object Allocation
@@ -192,6 +192,10 @@ namespace fox {
       BCModule& bcModule;
 
     private:
+      /// Creates the register array for the global variables and runs the
+      /// initializers.
+      void initGlobals();
+
       /// Internal method to handle calls to a function
       /// \param base the base register of the call
       /// \returns a pointer to the register containing the return value
@@ -224,6 +228,8 @@ namespace fox {
       std::array<Register, numStackRegister> regStack_;
       /// The base register (rO) of the current function's register window.
       Register* baseReg_ = nullptr;
+      /// Global variable registers
+      std::unique_ptr<Register[]> globals_;
 
       // Temporarily, objects are simply allocated in vectors of unique_ptrs
       // for simplicity. I'll implement a more elaborate allocation technique

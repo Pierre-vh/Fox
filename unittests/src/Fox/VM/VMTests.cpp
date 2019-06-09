@@ -523,10 +523,7 @@ TEST_F(VMTest, runFuncWithArgs) {
   FoxInt a2 = 5;
   Register args[3] = {Register(a0), Register(a1), Register(a2)};
   Register result = vm.call(fn, args);
-  // Check that the call went as expected
   EXPECT_EQ(result.intVal, a2);
-  EXPECT_EQ(args[0].intVal, a1 + a2);
-  EXPECT_EQ(args[1].intVal, a1 + a2);
 }
 
 TEST_F(VMTest, loadFunc) {
@@ -663,4 +660,33 @@ TEST_F(VMTest, arrayCreation) {
     EXPECT_TRUE(arr->containsReferences());
     EXPECT_EQ(arr->size(), 0u);
   }
+}
+
+TEST_F(VMTest, globalInits) {
+  // Create a few globals with simple initializers 
+  auto createSimpleIntGlobal = [&](FoxInt val){
+    BCFunction& fn = theModule.createGlobalVariable();
+    BCBuilder builder = fn.createBCBuilder();
+    builder.createStoreSmallIntInstr(0, val);
+    builder.createRetInstr(0);
+  };
+
+  FoxInt g0 = 0;
+  FoxInt g1 = -16000;
+  FoxInt g2 = 16000;
+  
+  createSimpleIntGlobal(g0);
+  createSimpleIntGlobal(g1);
+  createSimpleIntGlobal(g2);
+  
+  VM vm(theModule);
+
+  // Check that they have been initialized as expected.
+  auto getGlobal = [&](std::size_t idx) {
+    return vm.getGlobalVariables()[idx].intVal;
+  };
+
+  EXPECT_EQ(getGlobal(0), g0);
+  EXPECT_EQ(getGlobal(1), g1);
+  EXPECT_EQ(getGlobal(2), g2);
 }

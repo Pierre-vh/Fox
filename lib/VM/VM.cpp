@@ -24,27 +24,28 @@ VM::VM(BCModule& theModule) : bcModule(theModule) {
   /// The base register will simply be the first register in the
   /// stack.
   baseReg_ = regStack_.data();
+  /// Initialize the global variables
+  initGlobals();
 }
 
 /// Out of line because unique_ptr needs to see the definition of
 /// StringObject and others.
 VM::~VM() = default;
 
-VM::Register VM::call(BCFunction& func, MutableArrayRef<Register> args) {
+VM::Register VM::call(BCFunction& func, ArrayRef<Register> args) {
   /// Copy the args into registers r0 -> rN
   if(args.size()) {
     regaddr_t k = 0;
     for (auto arg : args)
       getReg(k++) = arg;
   }
-  /// Run the bytecode
-  Register rtr = run(func.getInstructions());
-  /// Copy the args back if needed
-  if(args.size()) {
-    for (regaddr_t k = 0; k < args.size(); k++)
-      args[k] = getReg(k);
-  }
-  return rtr;
+  /// Run the function
+  return call(func);
+}
+
+VM::Register VM::call(BCFunction& func) {
+  // TODO: Add/Remove the function in the call stack
+  return run(func.getInstructions());
 }
 
 VM::Register VM::run(ArrayRef<Instruction> instrs) {
@@ -351,11 +352,26 @@ MutableArrayRef<VM::Register> VM::getRegisterStack() {
   return regStack_;
 }
 
+ArrayRef<VM::Register> VM::getGlobalVariables() const {
+  return ArrayRef<Register>(globals_.get(), bcModule.numGlobals());
+}
+
+void VM::initGlobals() {
+  assert(!globals_ && "global variables have already been initialized");
+  std::size_t numGlobals = bcModule.numGlobals();
+  // Nothing to do if there are no global variables.
+  if(numGlobals == 0) return;
+  // Create an array with enough space to store every global variable
+  globals_ = std::make_unique<Register[]>(numGlobals);
+  auto& initializers = bcModule.getGlobalVarInitializers();
+  // Run every initializer
+  for (std::size_t k = 0; k < numGlobals; ++k)
+    globals_[k] = call(*initializers[k]);
+}
+
 VM::Register VM::callFunc(regaddr_t base) {
   Register* basePtr = getRegPtr(base);
   FunctionRef& fnRef = basePtr->funcRef;
-
-  // Backup the instrBeg and curInstr ptrs
 
   // Backup the current register window position
   Register* previousBase = baseReg_;
@@ -368,9 +384,9 @@ VM::Register VM::callFunc(regaddr_t base) {
 
   Register rtr;
   if(fnRef.isBCFunction()) 
-    rtr = run(fnRef.getBCFunction()->getInstructions());
-  else if(fnRef.isBuiltinID()) 
-    rtr = callBuiltinFunc(fnRef.getBuiltinID());
+    rtr = call(*fnRef.getBCFunction());           // normal functions
+  else if(fnRef.isBuiltinID())  
+    rtr = callBuiltinFunc(fnRef.getBuiltinID());  // builtin functions
   else 
     fox_unreachable("unknown FunctionRef kind");
 
