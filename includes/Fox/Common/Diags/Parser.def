@@ -29,6 +29,8 @@ ERROR(expected_type,
   "expected a type")
 ERROR(expected_paramdecl,
   "expected a parameter declaration")
+ERROR(unexpected_token_expected_a_decl,
+  "unexpected token; expected a declaration")
 ERROR(else_without_if,
   "else without matching if")
 ERROR(expected_decl_in_unit,

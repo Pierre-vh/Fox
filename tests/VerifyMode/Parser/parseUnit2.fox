@@ -1,0 +1,5 @@
+// RUN: %fox-verify
+
+let x : int = 0;
+
+blep // expect-error: unexpected token; expected a declaration

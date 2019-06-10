@@ -54,10 +54,18 @@ UnitDecl* Parser::parseUnit(Identifier unitName) {
       continue;
     }
     else {
-      if (parsedDecl.isError()) declHadError = true;
+      // Diagnose only if "not found"
+      if (parsedDecl.isError()) 
+        declHadError = true;
+      else if(!isDone()) {
+        // FIXME: is this diagnostic good enough?
+        diagEngine
+          .report(DiagID::unexpected_token_expected_a_decl, getCurtok().range);
+      }
 
       // EOF -> Break.
       if (isDone()) break;
+
       // No EOF? There's an unexpected token on the way that 
 			// prevents us from finding the decl, so try to recover.
       if (skipUntilDecl()) 
