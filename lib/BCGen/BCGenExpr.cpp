@@ -1143,6 +1143,7 @@ BCGen::AssignementGenerator::visitSubscriptExpr(SubscriptExpr* expr,
 RegisterValue BCGen::AssignementGenerator::
 visitDeclRefExpr(DeclRefExpr* dst, Expr* src, RegisterValue dest, BinOp op) {
   assert((op == BinOp::Assign) && "Unsupported assignement type");
+  op;
   ValueDecl* decl = dst->getDecl();
 
   // Setting a local declaration
