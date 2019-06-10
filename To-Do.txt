@@ -224,6 +224,9 @@ Other things that aren't part of the main pipeline:
         ASTContext::Arena class: type maps, the allocator and cleanups
         
   Medium priority:  
+    > Parser diagnostics could be better in some places, especially when there are unexpected tokens
+      in the input.
+
     > Find a better fix for recursive dependecy of global variable initializers, e.g. scenarios
       like 
         let a : int = b;
