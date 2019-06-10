@@ -132,21 +132,14 @@ Basic VM data types and their mappings to Fox types:
       -> Keep track of the most recent function executed (in a "call stack")
         -> use a "StackEntry" structure containing the BCFunction&/BuiltinID and a copy of the PC
       -> Use "vm.diagnose(DiagID)" to report errors
-        -> It automatically handles things based on the state of the VM
-          -> First version will simply print the error and add a note "in function 'x' (pointing at the beginning of the decl)
+          -> First version will simply print the error and add a note "in function 'x' or 'in builtin function 'x' called by 'y''
 
-    -> Add a "DebugInfoMap" to each function
-      -> Map of Instruction to SourceRange
-      -> Either have a hit (we have debug info for that instr), or approximate using the 2 closest debug infos
-      -> VM should use it when available, and it should always be available (else just fall back to "in function 'x'")"
-          -> If the error happens inside a builtin function, we use the information of the last BCFunction called,
-                error: array pointer is null
-                    arr.size()
-                    ^^^^^^^^^^
-          This isn't ideal, but it's better than nothing.
-
-    -> BCGen
-      -> For "risky" instruction (Calls, Div, Mod), add an entry in the DebugInfoMap
+    -> Advanced debug information
+      -> Exact implementation still to be decided, but the goal is to be able to produce
+         error messages like this:
+          foo.fox:3:4 error: array pointer is null
+                  arr.size()
+                  ^^^
 
   -> Allow the register stack to grow dynamically
     -> Add recursion tests
