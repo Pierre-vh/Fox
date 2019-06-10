@@ -92,6 +92,9 @@ namespace fox {
       /// variable \p var.
       BCFunction& getGlobalVariableInitializer(VarDecl* var);
 
+      /// \returns the unique identifier of the global variable \p var
+      global_id_t getGlobalVarID(VarDecl* var);
+
       class Generator;
       class ExprGenerator;
       class AssignementGenerator;

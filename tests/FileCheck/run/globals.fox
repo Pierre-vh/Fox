@@ -1,0 +1,41 @@
+// RUN: %fox-run | %filecheck
+
+var g0 : int = 10;
+var g1 : int = 20;
+let arr : [int] = [];
+
+func main() : int {
+  setGlobals();
+  // CHECK: g0: 20
+  // CHECK-NEXT: g1: 10
+  // CHECK-NEXT: arr[0]: 0
+  // CHECK-NEXT: arr[1]: 1
+  // CHECK-NEXT: arr[2]: 2
+  printGlobals();
+  return 0;
+}
+
+// sets the globals
+func setGlobals() {
+  // Swap g0 and g1
+  let tmp : int = g0;
+  g0 = g1;
+  g1 = tmp;
+  // Fill arr
+  arr.append(0);
+  arr.append(1);
+  arr.append(2);
+}
+
+// prints the globals
+func printGlobals() {
+  printString("g0: " + $g0 + '\n');
+  printString("g1: " + $g1 + '\n');
+
+  let size : int = arr.size();
+  var k : int;
+  while k < size {
+    printString("arr[" + $k + "]: " + $arr[k] + '\n');
+    k = k + 1;
+  }
+}

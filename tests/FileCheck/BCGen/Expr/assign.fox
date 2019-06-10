@@ -1,5 +1,9 @@
 // RUN: %fox-dump-bcgen | %filecheck
 
+var g0 : int = 10;
+var g1 : int = 20;
+var g2 : int = 30;
+
 // CHECK:   Function 0
 func valueAssign() {
   // CHECK-NEXT: StoreSmallInt 0 0
@@ -26,6 +30,11 @@ func valueAssign() {
   // CHECK-NEXT: Copy 1 2
   // CHECK-NEXT: Copy 0 1
   x = a = b = 0;
+
+  // CHECK-NEXT: GetGlobal 2 0
+  // CHECK-NEXT: SetGlobal 1 0
+  // CHECK-NEXT: SetGlobal 0 0
+  g0 = g1 = g2;
 }
 
 func arrAssign() {

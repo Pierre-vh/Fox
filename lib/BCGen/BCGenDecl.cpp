@@ -227,10 +227,8 @@ namespace {
           // Local VarDecl
           if(var->isLocal()) 
             regAlloc.addUsage(var);
-          // Global VarDecl
-          else 
-            fox_unimplemented_feature("FuncGenPrologue for DeclRefExpr "
-              "of non-local VarDecls");
+          // Global VarDecls: nothing to do.
+            
         }
         else if (ParamDecl* param = dyn_cast<ParamDecl>(decl))
           regAlloc.addUsage(param);
@@ -334,6 +332,10 @@ BCFunction& BCGen::getGlobalVariableInitializer(VarDecl* var) {
   BCFunction& init = theModule.createGlobalVariable();
   globalInitializers_.insert({var, init});
   return init;
+}
+
+global_id_t BCGen::getGlobalVarID(VarDecl* var) {
+  return (global_id_t)getGlobalVariableInitializer(var).getID();
 }
 
 void BCGen::genUnit(UnitDecl* unit) {

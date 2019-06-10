@@ -199,7 +199,7 @@ class BCGen::ExprGenerator : public Generator,
       return false;
     }
 
-    /// Tries to use \p dest, if \p dest is dead/null, allocates
+    /// Tries to use \p dest, if \p dest is dead, allocates
     /// a new temporary
     RegisterValue tryUse(RegisterValue dest) {
       // NOTE: Don't recycle 'dest' because dest might be owning a 
@@ -857,6 +857,7 @@ class BCGen::ExprGenerator : public Generator,
     RegisterValue 
     visitDeclRefExpr(DeclRefExpr* expr, RegisterValue dest) { 
       ValueDecl* decl = expr->getDecl();
+
       // References to Functions
       if (auto func = dyn_cast<FuncDecl>(decl)) {
         auto fID = static_cast<func_id_t>(bcGen.getBCFunction(func).getID());
@@ -864,6 +865,7 @@ class BCGen::ExprGenerator : public Generator,
         builder.createLoadFuncInstr(dest.getAddress(), fID);
         return dest;
       }
+
       // References to builtins
       if (auto builtin = dyn_cast<BuiltinFuncDecl>(decl)) {
         auto bID = builtin->getBuiltinID();
@@ -871,12 +873,22 @@ class BCGen::ExprGenerator : public Generator,
         builder.createLoadBuiltinFuncInstr(dest.getAddress(), bID);
         return dest;
       }
+
       assert((isa<VarDecl>(decl) || isa<ParamDecl>(decl))
         && "unknown ValueDecl kind");
-      // Reference to Global variables
-      if(decl->isGlobal())
-        fox_unimplemented_feature("Global DeclRefExpr BCGen");
-      // Reference to local decls
+
+      // Reference to Global variables (VarDecl)
+      if (decl->isGlobal()) {
+        VarDecl* var = dyn_cast<VarDecl>(decl);
+        assert(var && var->isGlobal() && "not a global variable");
+        // Just generate a GetGlobal
+        dest = tryUse(std::move(dest));
+        global_id_t id = bcGen.getGlobalVarID(var);
+        builder.createGetGlobalInstr(id, dest.getAddress());
+        return dest;
+      }
+
+      // Reference to local declarations (VarDecl or ParamDecl)
       RegisterValue varReg = regAlloc.useDecl(decl);
       if (dest && (dest != varReg)) {
         // If we have a destination register, emit a Copy instr so the result
@@ -1118,9 +1130,27 @@ BCGen::AssignementGenerator::visitSubscriptExpr(SubscriptExpr* expr,
 RegisterValue BCGen::AssignementGenerator::
 visitDeclRefExpr(DeclRefExpr* dst, Expr* src, RegisterValue dest, BinOp op) {
   assert((op == BinOp::Assign) && "Unsupported assignement type");
-  op; // Avoid 'unreferenced formal parameter'
-  RegisterValue rtr = exprGen.generate(src, regAlloc.useDecl(dst->getDecl()));
-  return copyInDest(std::move(dest), std::move(rtr));
+  ValueDecl* decl = dst->getDecl();
+
+  // Setting a local declaration
+  if (decl->isLocal()) {
+    RegisterValue rtr = exprGen.generate(src, regAlloc.useDecl(decl));
+    return copyInDest(std::move(dest), std::move(rtr));
+  }
+
+  // Setting a global declaration (VarDecl)
+  VarDecl* var = dyn_cast<VarDecl>(decl);
+  assert(var && var->isGlobal() && "not a global variable");
+
+  // Gen the expr in dest 
+  dest = exprGen.generate(src, std::move(dest));
+  assert(dest && "expr has no result");
+
+  // Gen a SetGlobal
+  global_id_t id = bcGen.getGlobalVarID(var);
+  builder.createSetGlobalInstr(id, dest.getAddress());
+
+  return dest;
 }
 
 //----------------------------------------------------------------------------//
