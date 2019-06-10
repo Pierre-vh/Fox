@@ -196,6 +196,9 @@ namespace fox {
       /// initializers.
       void initGlobals();
 
+      /// \returns the number of global variables available
+      std::size_t numGlobals() const;
+
       /// Internal method to handle calls to a function
       /// \param base the base register of the call
       /// \returns a pointer to the register containing the return value
@@ -211,6 +214,12 @@ namespace fox {
       Register& getReg(regaddr_t idx) {
         assert((idx < numStackRegister) && "out-of-range");
         return baseReg_[idx];
+      }
+
+      /// \returns a reference to the global variable with id \p id
+      Register& getGlobal(global_id_t id) {
+        assert((id < numGlobals()) && "out-of-range");
+        return globals_[id];
       }
 
       /// \returns the address of the register at \p idx in the current

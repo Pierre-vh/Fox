@@ -117,13 +117,12 @@ Basic VM data types and their mappings to Fox types:
   -> Entry point (Done)
   -> Global Variables
     -> BC
-    -> CodeGen (Done)
+    -> CodeGen of Global Variables Declarations (Done)
     -> VM Support for Globals(Done)
-    -> VM Instructions
-      -> GetGlobal <id> <dest>
-      -> SetGlobal <id> <src>
+    -> VM Instructions (Done)
     -> CodeGen
-      -> Get/Set Global variables (DeclRefs)
+      -> Get Global variables
+      -> Set Global Variables
 
   -> Add BCModule/BCFunction .verify() to check invariants:
     -> Global Var Init Fns cannot use SetGlobal/GetGlobal and must always end with Ret

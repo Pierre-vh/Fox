@@ -106,6 +106,14 @@ VM::Register VM::run(ArrayRef<Instruction> instrs) {
         getReg(instr.NewRefArray.dest).object =
           newRefArrayObject(instr.NewRefArray.n);
         continue;
+      case Opcode::GetGlobal:
+        // Stores the content of the global variable 'id' in 'dest'
+        getReg(instr.GetGlobal.dest) = getGlobal(instr.GetGlobal.id);
+        continue;
+      case Opcode::SetGlobal:
+        // Stores the content of 'src' in the global variable 'id'
+        getGlobal(instr.SetGlobal.id) = getReg(instr.SetGlobal.src);
+        continue;
       case Opcode::AddInt: 
         // AddInt dest lhs rhs: dest = lhs + rhs (FoxInts)
         TRIVIAL_TAC_BINOP_IMPL(AddInt, intVal, +);
@@ -354,20 +362,24 @@ MutableArrayRef<VM::Register> VM::getRegisterStack() {
 }
 
 ArrayRef<VM::Register> VM::getGlobalVariables() const {
-  return ArrayRef<Register>(globals_.get(), bcModule.numGlobals());
+  return ArrayRef<Register>(globals_.get(), numGlobals());
 }
 
 void VM::initGlobals() {
   assert(!globals_ && "global variables have already been initialized");
-  std::size_t numGlobals = bcModule.numGlobals();
+  std::size_t size = numGlobals();
   // Nothing to do if there are no global variables.
-  if(numGlobals == 0) return;
+  if(size == 0) return;
   // Create an array with enough space to store every global variable
-  globals_ = std::make_unique<Register[]>(numGlobals);
+  globals_ = std::make_unique<Register[]>(size);
   auto& initializers = bcModule.getGlobalVarInitializers();
   // Run every initializer
-  for (std::size_t k = 0; k < numGlobals; ++k)
+  for (std::size_t k = 0; k < size; ++k)
     globals_[k] = run(*initializers[k]);
+}
+
+std::size_t VM::numGlobals() const {
+  return bcModule.numGlobals();
 }
 
 VM::Register VM::callFunc(regaddr_t base) {

@@ -74,6 +74,10 @@ BINARY_INSTR(LoadStringK, dest, regaddr_t, kID, constant_id_t)
 BINARY_INSTR(NewValueArray, dest, regaddr_t, n, std::uint16_t)
   // Creates an ArrayObject of references, reserving enough space for N elements
 BINARY_INSTR(NewRefArray, dest, regaddr_t, n, std::uint16_t)
+// Fetches the global variable with id 'id' and stores it in 'dest'
+BINARY_INSTR(GetGlobal, id, global_id_t, dest, regaddr_t)
+// Stores 'src' in the global variable with id 'id'
+BINARY_INSTR(SetGlobal, id, global_id_t, src, regaddr_t)
 
 // Arithmetic : dest = lhs (op) rhs. Result's type is the type of the operand.
 BINARY_REG_OP(AddInt)    // Int Addition

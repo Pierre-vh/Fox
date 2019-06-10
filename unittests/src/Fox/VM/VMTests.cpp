@@ -662,22 +662,21 @@ TEST_F(VMTest, arrayCreation) {
   }
 }
 
-TEST_F(VMTest, globalInits) {
-  // Create a few globals with simple initializers 
-  auto createSimpleIntGlobal = [&](FoxInt val){
-    BCFunction& fn = theModule.createGlobalVariable();
-    BCBuilder builder = fn.createBCBuilder();
-    builder.createStoreSmallIntInstr(0, val);
-    builder.createRetInstr(0);
-  };
+static void createSimpleIntGlobal(BCModule& theModule, FoxInt val) {
+  BCFunction& fn = theModule.createGlobalVariable();
+  BCBuilder builder = fn.createBCBuilder();
+  builder.createStoreSmallIntInstr(0, val);
+  builder.createRetInstr(0);
+}
 
+TEST_F(VMTest, globalInits) {
   FoxInt g0 = 0;
   FoxInt g1 = -16000;
   FoxInt g2 = 16000;
   
-  createSimpleIntGlobal(g0);
-  createSimpleIntGlobal(g1);
-  createSimpleIntGlobal(g2);
+  createSimpleIntGlobal(theModule, g0);
+  createSimpleIntGlobal(theModule, g1);
+  createSimpleIntGlobal(theModule, g2);
   
   VM vm(theModule);
 
@@ -689,4 +688,38 @@ TEST_F(VMTest, globalInits) {
   EXPECT_EQ(getGlobal(0), g0);
   EXPECT_EQ(getGlobal(1), g1);
   EXPECT_EQ(getGlobal(2), g2);
+}
+
+TEST_F(VMTest, getSetGlobals) {
+  // Create 2 globals, g0 and g1
+  FoxInt g0 = 0;
+  FoxInt g1 = -16000;
+  createSimpleIntGlobal(theModule, g0);
+  createSimpleIntGlobal(theModule, g1);
+
+  // Emit the code to swap g0 and g1. This will test both
+  // GetGlobal and SetGlobal.
+  BCFunction& fn = theModule.createFunction();
+  BCBuilder builder = fn.createBCBuilder();
+
+  // r0 = g0
+  builder.createGetGlobalInstr(0, 0);
+  // r1 = g1
+  builder.createGetGlobalInstr(1, 1);
+  // g0 = r1
+  builder.createSetGlobalInstr(0, 1);
+  // g1 = r0
+  builder.createSetGlobalInstr(1, 0);
+  builder.createRetVoidInstr();
+
+  VM vm(theModule);
+  vm.run(fn);
+
+  // Check that they have been swapped as expected
+  auto getGlobal = [&](std::size_t idx) {
+    return vm.getGlobalVariables()[idx].intVal;
+  };
+
+  EXPECT_EQ(getGlobal(0), g1);
+  EXPECT_EQ(getGlobal(1), g0);
 }
