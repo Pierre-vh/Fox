@@ -88,6 +88,10 @@ std::size_t ArrayObject::size() const {
   return data_.size();
 }
 
+void ArrayObject::reset() {
+  data_.clear();
+}
+
 bool ArrayObject::containsReferences() const {
   return containsReferences_;
 }

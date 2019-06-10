@@ -602,7 +602,7 @@ class BCGen::ExprGenerator : public Generator,
       /// Emit a call to the arrAppend builtin.
       assert((args.size() == 2) 
         && "incorrect number of args for arrAppend");
-      assert(!dest && "cannot have a destination for ArrayAppend");
+      assert(!dest && "array.append returns void!");
       return emitBuiltinCall(
         BuiltinID::arrAppend, 
         RegisterValue(), 
@@ -636,6 +636,7 @@ class BCGen::ExprGenerator : public Generator,
       /// Emit a call to the arrPop builtin.
       assert((args.size() == 1) 
         && "incorrect number of args for arrPop");
+      assert(!dest && "array.pop returns void!");
       return emitBuiltinCall(
         BuiltinID::arrPop, 
         std::move(dest), 
@@ -649,6 +650,18 @@ class BCGen::ExprGenerator : public Generator,
         && "incorrect number of args for arrSize");
       return emitBuiltinCall(
         BuiltinID::arrSize, 
+        std::move(dest), 
+        { getGTForExpr(args[0]) }
+      );
+    }
+
+    RegisterValue emitArrayReset(ArrayRef<Expr*> args, RegisterValue dest) {
+      /// Emit a call to the arrReset builtin.
+      assert((args.size() == 1) 
+        && "incorrect number of args for arrReset");
+      assert(!dest && "array.reset returns void!");
+      return emitBuiltinCall(
+        BuiltinID::arrReset, 
         std::move(dest), 
         { getGTForExpr(args[0]) }
       );

@@ -96,7 +96,11 @@ namespace fox {
       /// \returns the last element of the array
       ElemT back();
 
+      /// \returns the size of the array
       std::size_t size() const;
+
+      /// removes every element inside the array
+      void reset();
 
       /// void pop_back();
       /// void erase(std::size_t start, std::size_t num);

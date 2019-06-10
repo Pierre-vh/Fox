@@ -54,6 +54,7 @@ ARRAY_MEMBER(ArrayAppend, append)
 ARRAY_MEMBER(ArrayPop,    pop)
 ARRAY_MEMBER(ArrayFront,  front)
 ARRAY_MEMBER(ArrayBack,   back)
+ARRAY_MEMBER(ArrayReset,  reset)
 
 MEMBER_RANGE(ArrayMember, ArraySize, ArrayBack)
 

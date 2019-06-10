@@ -90,6 +90,11 @@ namespace {
       return FunctionType::get(ctxt, {}, baseType->getElementType());
     }
 
+    /// array.reset is a function of type '() -> void'
+    Type getTypeOfArrayReset(ArrayType*) {
+      return FunctionType::get(ctxt, {}, voidType);
+    }
+
     //------------------------------------------------------------------------//
     // String Members
     //------------------------------------------------------------------------//

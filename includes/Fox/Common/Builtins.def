@@ -104,6 +104,7 @@ PRIVATE_BUILTIN(arrSet)
 PRIVATE_BUILTIN(arrPop)
 PRIVATE_BUILTIN(arrFront)
 PRIVATE_BUILTIN(arrBack)
+PRIVATE_BUILTIN(arrReset)
 
 //----------------------------------------------------------------------------//
 

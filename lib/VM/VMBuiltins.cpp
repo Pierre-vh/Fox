@@ -84,13 +84,21 @@ FoxAny builtin::arrSet(ArrayObject* arr, FoxInt n, FoxAny val) {
 }
 
 void builtin::arrPop(ArrayObject* arr) {
+  assert(arr && "array is null");
   arr->pop();
 }
 
 FoxAny builtin::arrFront(ArrayObject* arr) {
+  assert(arr && "array is null");
   return arr->front();
 }
 
 FoxAny builtin::arrBack(ArrayObject* arr) {
+  assert(arr && "array is null");
   return arr->back();
+}
+
+void builtin::arrReset(ArrayObject * arr) {
+  assert(arr && "array is null");
+  arr->reset();
 }

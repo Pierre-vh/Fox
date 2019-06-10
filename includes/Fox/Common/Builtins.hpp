@@ -96,6 +96,8 @@ namespace fox {
 
     /// sets the element at index \p n of \p arr to \p val
     /// \returns \p val
+    /// NOTE: This returns \p val because it makes things easier
+    /// in BCGen.
     FoxAny arrSet(ArrayObject* arr, FoxInt n, FoxAny val);
 
     /// Removes the last element of \p arr
@@ -106,5 +108,8 @@ namespace fox {
 
     /// \returns the last element of \p arr
     FoxAny arrBack(ArrayObject* arr);
+
+    /// Removes every element inside arr
+    void arrReset(ArrayObject* arr);
   }
 }
