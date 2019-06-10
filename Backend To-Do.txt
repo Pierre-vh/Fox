@@ -115,12 +115,7 @@ Basic VM data types and their mappings to Fox types:
  
 ---- Getting feature-complete (with the current feature set) ----
   -> Entry point (Done)
-  -> Global Variables
-    -> BC
-    -> CodeGen of Global Variables Declarations (Done)
-    -> VM Support for Globals(Done)
-    -> VM Instructions (Done)
-    -> CodeGen (Done)
+  -> Global Variables (Done)
 
   -> Add BCModule/BCFunction .verify() to check invariants:
     -> Global Var Init Fns cannot use SetGlobal/GetGlobal and must always end with Ret
@@ -128,10 +123,31 @@ Basic VM data types and their mappings to Fox types:
     -> Constants shouldn't contain duplicates
 
   -> Runtime error management system for the VM 
-    -> Use the DiagnosticEngine for this
-    -> Used when dividing by zero, getChar out of range/negative, etc.
-    -> Add debug info only for risky instructions (calls, division) (Map of Instruction idx -> SourceRange)  
-    
+    -> BCFunction additions:
+      -> Identifier (the id of the function, or of the global variable)
+      -> SourceRange (of the Func/VarDecl)
+      -> Kind (GlobalVarInitializer or Func)
+
+    -> VM additions:
+      -> Keep track of the most recent function executed (in a "call stack")
+        -> use a "StackEntry" structure containing the BCFunction&/BuiltinID and a copy of the PC
+      -> Use "vm.diagnose(DiagID)" to report errors
+        -> It automatically handles things based on the state of the VM
+          -> First version will simply print the error and add a note "in function 'x' (pointing at the beginning of the decl)
+
+    -> Add a "DebugInfoMap" to each function
+      -> Map of Instruction to SourceRange
+      -> Either have a hit (we have debug info for that instr), or approximate using the 2 closest debug infos
+      -> VM should use it when available, and it should always be available (else just fall back to "in function 'x'")"
+          -> If the error happens inside a builtin function, we use the information of the last BCFunction called,
+                error: array pointer is null
+                    arr.size()
+                    ^^^^^^^^^^
+          This isn't ideal, but it's better than nothing.
+
+    -> BCGen
+      -> For "risky" instruction (Calls, Div, Mod), add an entry in the DebugInfoMap
+
   -> Allow the register stack to grow dynamically
     -> Add recursion tests
 
