@@ -125,17 +125,22 @@ Basic VM data types and their mappings to Fox types:
   -> Runtime error management system for the VM 
     -> BCModule Additions
       -> SourceManager&
+
     -> BCFunction additions:
       -> std::string identifierStr (the identifier of the function, or of the global variable)
       -> SourceRange (of the Func/VarDecl)
       -> Kind (GlobalVarInitializer or Func)
+
     -> BCModule createGlobal/createFunction should ask for a string (id) and a SourceRange
 
     -> VM additions:
       -> Keep track of the most recent function executed (in a "call stack")
         -> use a "StackEntry" structure containing the BCFunction&/BuiltinKind and a copy of the PC
+
       -> Use "vm.diagnose(DiagID)" to report errors
-          -> First version will simply print the error and add a note "in function 'x' or 'in builtin function 'x' called by 'y''
+          -> BCModule will need to have a DiagnosticEngine too I guess.
+          -> First version will simply print the error using the DiagnosticEngine
+             and add a note "in function 'x' or 'in builtin function 'x' called by 'y''
 
     -> Advanced debug information
       -> Exact implementation still to be decided, but the goal is to be able to produce

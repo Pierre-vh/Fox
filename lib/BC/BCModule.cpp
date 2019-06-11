@@ -11,58 +11,23 @@
 
 using namespace fox;
 
-std::size_t BCModule::numFunctions() const {
-  return functions_.size();
-}
-
-std::size_t BCModule::numGlobals() const {
-  return globalVarInitializers_.size();
+static func_id_t to_func_id_t(std::size_t value) {
+  assert((value <= bc_limits::max_func_id) && "func_id_t's limit reached.");
+  return func_id_t(value);
 }
 
 BCFunction& BCModule::createFunction() {
-  functions_.push_back(std::make_unique<BCFunction>(numFunctions()));
+  functions_.push_back(
+    std::make_unique<BCFunction>(to_func_id_t(numFunctions()))
+  );
   return *functions_.back();
 }
 
 BCFunction& BCModule::createGlobalVariable() {
-  globalVarInitializers_.push_back(std::make_unique<BCFunction>(numGlobals()));
+  globalVarInitializers_.push_back(
+    std::make_unique<BCFunction>(to_func_id_t(numGlobals()))
+  );
   return *globalVarInitializers_.back();
-}
-
-BCFunction& BCModule::getFunction(std::size_t idx) {
-  assert((idx < numFunctions()) && "out of range");
-  return *functions_[idx];
-}
-
-const BCFunction& BCModule::getFunction(std::size_t idx) const {
-  assert((idx < numFunctions()) && "out of range");
-  return *functions_[idx];
-}
-
-BCFunction& BCModule::getGlobalVarInitializer(std::size_t idx) {
-  assert((idx < numGlobals()) && "out of range");
-  return *globalVarInitializers_[idx];
-}
-
-const BCFunction& BCModule::getGlobalVarInitializer(std::size_t idx) const {
-  assert((idx < numGlobals()) && "out of range");
-  return *globalVarInitializers_[idx];
-}
-
-BCModule::FunctionVector& BCModule::getFunctions() {
-  return functions_;
-}
-
-const BCModule::FunctionVector& BCModule::getFunctions() const {
-  return functions_;
-}
-
-BCModule::FunctionVector& BCModule::getGlobalVarInitializers() {
-  return globalVarInitializers_;
-}
-
-const BCModule::FunctionVector& BCModule::getGlobalVarInitializers() const {
-  return globalVarInitializers_;
 }
 
 std::size_t BCModule::addStringConstant(string_view str) {
@@ -108,19 +73,6 @@ FoxDouble BCModule::getDoubleConstant(std::size_t idx) const {
 
 ArrayRef<FoxDouble> BCModule::getDoubleConstants() const {
   return doubleConstants_;
-}
-
-BCFunction* BCModule::getEntryPoint() {
-  return entryPoint_;
-}
-
-const BCFunction* BCModule::getEntryPoint() const {
-  return entryPoint_;
-}
-
-void BCModule::setEntryPoint(BCFunction& func) {
-  assert(!entryPoint_ && "entry point already set");
-  entryPoint_ = &func;
 }
 
 bool BCModule::empty() const {

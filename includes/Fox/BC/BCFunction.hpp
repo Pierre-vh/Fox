@@ -25,18 +25,20 @@ namespace fox {
     public:
       /// Creates a BCFunction
       /// \param id the ID of the function
-      BCFunction(std::size_t id);
+      BCFunction(func_id_t id) : id_(id) {}
 
       BCFunction(const BCFunction&) = delete;
       BCFunction& operator=(const BCFunction&) = delete;
 
       /// \returns the id of this function
-      std::size_t getID() const {
+      func_id_t getID() const {
         return id_;
       }
       
       /// \returns the number of instructions in the instruction buffer
-      std::size_t numInstructions() const;
+      std::size_t numInstructions() const {
+        return instrs_.size();
+      }
 
       /// Creates a bytecode builder for this function's instruction buffer.
       BCBuilder createBCBuilder();
@@ -59,16 +61,27 @@ namespace fox {
       void dump(std::ostream& out, string_view title = "Function") const;
 
       /// \returns the begin iterator for the instruction buffer
-      InstructionVector::iterator instrs_begin();
+      InstructionVector::iterator instrs_begin() {
+        return instrs_.begin();
+      }
+
       /// \returns the begin iterator for the instruction buffer
-      InstructionVector::const_iterator instrs_begin() const;
+      InstructionVector::const_iterator instrs_begin() const {
+        return instrs_.begin();
+      }
+
       /// \returns the end iterator for the instruction buffer
-      InstructionVector::iterator instrs_end();
+      InstructionVector::iterator instrs_end() {
+        return instrs_.end();
+      }
+
       /// \returns the end iterator for the instruction buffer
-      InstructionVector::const_iterator instrs_end() const;
+      InstructionVector::const_iterator instrs_end() const {
+        return instrs_.end();
+      }
 
     private:
       InstructionVector instrs_;
-      const std::size_t id_ = 0;
+      const func_id_t id_ = 0;
   };
 }

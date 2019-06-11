@@ -26,6 +26,12 @@ namespace fox {
   class BCFunction;
   class SourceManager;
 
+  /// The BCModule is the top-level container for the bytecode.
+  /// 
+  /// NOTE: The BCModule has a limit of 65536 functions and globals
+  /// because func_id_t is 16 bits in size. 
+  /// (Note that realistically, this is a limit we should never hit under
+  ///  normal circumstances)
   class BCModule {
     public:
       using FunctionVector = SmallVector<std::unique_ptr<BCFunction>, 4>;
@@ -35,10 +41,14 @@ namespace fox {
       BCModule& operator=(const BCModule&) = delete;
 
       /// \returns the number of functions in the module
-      std::size_t numFunctions() const;
+      std::size_t numFunctions() const {
+          return functions_.size();
+      }
 
       /// \returns the number of global variables in the module
-      std::size_t numGlobals() const;
+      std::size_t numGlobals() const {
+        return globalVarInitializers_.size();
+      }
 
       /// Creates a new function (that will be stored in this module)
       /// \returns a reference to the created function
@@ -58,27 +68,51 @@ namespace fox {
       BCFunction& createGlobalVariable();
 
       /// \returns a reference to the function in this module with ID \p idx
-      BCFunction& getFunction(std::size_t idx);
+      BCFunction& getFunction(std::size_t idx) {
+        assert((idx < numFunctions()) && "out of range");
+        return *functions_[idx];
+      }
+
       /// \returns a const reference to the function in this module 
       ///          with ID \p idx
-      const BCFunction& getFunction(std::size_t idx) const;
+      const BCFunction& getFunction(std::size_t idx) const {
+        assert((idx < numFunctions()) && "out of range");
+        return *functions_[idx];
+      }
 
       /// \returns a reference to the initializer function for the 
       ///          global with ID \p idx
-      BCFunction& getGlobalVarInitializer(std::size_t idx);
+      BCFunction& getGlobalVarInitializer(std::size_t idx) {
+        assert((idx < numGlobals()) && "out of range");
+        return *globalVarInitializers_[idx];
+      }
+
       /// \returns a const reference to the initializer function for the global
       ///          with ID \p idx
-      const BCFunction& getGlobalVarInitializer(std::size_t idx) const;
+      const BCFunction& getGlobalVarInitializer(std::size_t idx) const {
+        assert((idx < numGlobals()) && "out of range");
+        return *globalVarInitializers_[idx];
+      }
 
       /// \returns a reference to the functions vector
-      FunctionVector& getFunctions();
+      FunctionVector& getFunctions() {
+        return functions_;
+      }
+
       /// \returns a const reference to the functions vector
-      const FunctionVector& getFunctions() const;
+      const FunctionVector& getFunctions() const {
+        return functions_;
+      }
 
       /// \returns a reference to the global variable initializers vector
-      FunctionVector& getGlobalVarInitializers();
+      FunctionVector& getGlobalVarInitializers() {
+        return globalVarInitializers_;
+      }
+
       /// \returns a const reference to the global variable initializers vector
-      const FunctionVector& getGlobalVarInitializers() const;
+      const FunctionVector& getGlobalVarInitializers() const {
+        return globalVarInitializers_;
+      }
 
       /// Adds a new string constant into the BCModule.
       /// This is simply a push_back operation, it does not unique the constant.
@@ -111,13 +145,21 @@ namespace fox {
       ArrayRef<FoxDouble> getDoubleConstants() const;
 
       /// \returns the entry point of this BCModule
-      BCFunction* getEntryPoint();
+      BCFunction* getEntryPoint() {
+        return entryPoint_;
+      }
+
       /// \returns the entry point of this BCModule
-      const BCFunction* getEntryPoint() const;
+      const BCFunction* getEntryPoint() const {
+        return entryPoint_;
+      }
 
       /// sets the entry point of this module to \p func. Cannot be changed
       /// once set.
-      void setEntryPoint(BCFunction& func);
+      void setEntryPoint(BCFunction& func) {
+        assert(!entryPoint_ && "entry point already set");
+        entryPoint_ = &func;
+      }
 
       /// \returns true if the module is completely empty
       bool empty() const;
