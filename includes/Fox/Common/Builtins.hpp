@@ -10,7 +10,7 @@
 #pragma once
 
 #include "FoxTypes.hpp"
-#include "BuiltinID.hpp"
+#include "BuiltinKinds.hpp"
 #include "FoxAny.hpp"
 #include <string>
 

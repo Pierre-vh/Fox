@@ -35,9 +35,9 @@ const char* fox::to_string(Opcode op) {
 
 namespace {
   /// Because we use the unary+ to uprank uint8/int8 to a int (so it doesn't
-  /// print rubbish), we need to specify it for BuiltinID so it works with
+  /// print rubbish), we need to specify it for BuiltinKind so it works with
   /// it too.
-  BuiltinID operator+(BuiltinID id) {
+  BuiltinKind operator+(BuiltinKind id) {
     return id;
   }
 }

@@ -12,7 +12,7 @@
 
 #include "Fox/BC/BCUtils.hpp"
 #include "Fox/BC/BCFunction.hpp"
-#include "Fox/Common/BuiltinID.hpp"
+#include "Fox/Common/BuiltinKinds.hpp"
 #include "Fox/Common/FoxTypes.hpp"
 #include "Fox/Common/LLVM.hpp"
 #include "Fox/Common/string_view.hpp"
@@ -40,18 +40,18 @@ namespace fox {
       ///--------------------------------------------------------------------///
 
       /// A Function reference: a discriminated union of a BCFunction*
-      /// and a BuiltinID.
+      /// and a BuiltinKind.
       class FunctionRef {
         public:
           FunctionRef(BCFunction* fn) { *this = fn; }
-          FunctionRef(BuiltinID id)   { *this = id; }
+          FunctionRef(BuiltinKind id)   { *this = id; }
 
           FunctionRef& operator=(BCFunction* fn) {
             data_ = fn;
             return *this;
           }
-          FunctionRef& operator=(BuiltinID id) {
-            data_ = static_cast<builtin_id_t>(id);
+          FunctionRef& operator=(BuiltinKind id) {
+            data_ = static_cast<BuiltinKind_t>(id);
             return *this;
           }
 
@@ -60,8 +60,8 @@ namespace fox {
             return data_.is<BCFunction*>();
           }
 
-          /// \returns true if this FunctionRef contains a BuiltinID
-          bool isBuiltinID() const {
+          /// \returns true if this FunctionRef contains a BuiltinKind
+          bool isBuiltin() const {
             return data_.is<EmbeddedID>();
           }
 
@@ -71,14 +71,14 @@ namespace fox {
             return data_.get<BCFunction*>();
           }
 
-          /// \returns the BuiltinID contained in this function
-          /// (isBuiltinID() must return true)
-          BuiltinID getBuiltinID() {
-            return BuiltinID((builtin_id_t)data_.get<EmbeddedID>());
+          /// \returns the BuiltinKind contained in this function
+          /// (isBuiltin() must return true)
+          BuiltinKind getBuiltinKind() {
+            return BuiltinKind((BuiltinKind_t)data_.get<EmbeddedID>());
           }
 
         private:
-          using EmbeddedID = llvm::PointerEmbeddedInt<builtin_id_t>;
+          using EmbeddedID = llvm::PointerEmbeddedInt<BuiltinKind_t>;
           llvm::PointerUnion<BCFunction*, EmbeddedID> data_;
       };
 
@@ -90,7 +90,7 @@ namespace fox {
         explicit Register(FoxInt v)          : intVal(v) {}
         explicit Register(FoxDouble v)       : doubleVal(v) {}
         explicit Register(BCFunction* v)     : funcRef(v) {}
-        explicit Register(BuiltinID v)       : funcRef(v) {}
+        explicit Register(BuiltinKind v)       : funcRef(v) {}
         explicit Register(Object* v)         : object(v) {}
 
         friend bool operator==(Register lhs, Register rhs) {
@@ -207,7 +207,7 @@ namespace fox {
       Register callFunc(regaddr_t base);
 
       /// Internal method to run a builtin function in the current window.
-      Register callBuiltinFunc(BuiltinID id);
+      Register callBuiltinFunc(BuiltinKind id);
 
       /// \returns a reference to the register at address \p idx in the current
       /// register window.

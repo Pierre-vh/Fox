@@ -6,7 +6,7 @@
 //----------------------------------------------------------------------------//
 
 #include "Fox/Common/Builtins.hpp"
-#include "Fox/Common/BuiltinID.hpp"
+#include "Fox/Common/BuiltinKinds.hpp"
 #include "Fox/Common/Errors.hpp"
 #include "Fox/Common/Objects.hpp"
 #include "Fox/Common/UTF8.hpp"
@@ -30,27 +30,27 @@ namespace {
   }
 }
 
-bool fox::hasNonVoidReturnType(BuiltinID id) {
+bool fox::hasNonVoidReturnType(BuiltinKind id) {
   switch (id) {
     #define BUILTIN(FUNC) \
-    case BuiltinID::FUNC: \
+    case BuiltinKind::FUNC: \
       return !isReturnTypeVoid(builtin::FUNC);
     #include "Fox/Common/Builtins.def"
     default:
-      fox_unreachable("unknown BuiltinID");
+      fox_unreachable("unknown BuiltinKind");
   }
 }
 
-const char* fox::to_string(BuiltinID id) {
+const char* fox::to_string(BuiltinKind id) {
   switch (id) {
-    #define BUILTIN(FUNC) case BuiltinID::FUNC: return #FUNC;
+    #define BUILTIN(FUNC) case BuiltinKind::FUNC: return #FUNC;
     #include "Fox/Common/Builtins.def"
     default:
-      fox_unreachable("unknown BuiltinID");
+      fox_unreachable("unknown BuiltinKind");
   }
 }
 
-std::ostream& fox::operator<<(std::ostream& os, BuiltinID id) {
+std::ostream& fox::operator<<(std::ostream& os, BuiltinKind id) {
   return os << to_string(id);
 }
 

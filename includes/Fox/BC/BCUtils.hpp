@@ -17,7 +17,7 @@
 
 #include <cstdint>
 #include <cstddef>
-#include "Fox/Common/BuiltinID.hpp"
+#include "Fox/Common/BuiltinKinds.hpp"
 
 namespace llvm {
   template <typename T, unsigned N> class SmallVector;

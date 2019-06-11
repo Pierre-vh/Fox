@@ -44,8 +44,8 @@
 
 /// Ranges of builtins
 ///   NAME is the name of the range
-///   FIRST is the first BuiltinID of the range
-///   LAST is the last BuiltinID of the range
+///   FIRST is the first BuiltinKind of the range
+///   LAST is the last BuiltinKind of the range
 #ifndef BUILTIN_RANGE
   #define BUILTIN_RANGE(NAME, FIRST, LAST)
 #endif

@@ -119,19 +119,19 @@ void ASTContext::lookupBuiltin(Identifier id,
   /// (at nearly every lookup)
   /// Of course, back this up by measurements before optimizing anything.
   #define PUBLIC_BUILTIN(FUNC, FOX) if(id.getStr() == #FOX)\
-    results.push_back(BuiltinFuncDecl::get(*this, BuiltinID::FUNC));
+    results.push_back(BuiltinFuncDecl::get(*this, BuiltinKind::FUNC));
   #include "Fox/Common/Builtins.def"
 }
 
-Type ASTContext::getPublicBuiltinFuncType(BuiltinID id) {
+Type ASTContext::getPublicBuiltinFuncType(BuiltinKind id) {
   assert(isPublic(id) && "not a public builtin");
   switch (id) {
     #define PUBLIC_BUILTIN(FUNC, FOX)\
-      case BuiltinID::FUNC:\
+      case BuiltinKind::FUNC:\
         return getFoxTypeOfFunc(*this, builtin::FUNC);
     #include "Fox/Common/Builtins.def"
     default:
-      fox_unreachable("unknown BuiltinID");
+      fox_unreachable("unknown BuiltinKind");
   }
 }
 
@@ -151,13 +151,13 @@ Identifier ASTContext::getIdentifier(string_view str) {
   return Identifier(str.data());
 }
 
-Identifier ASTContext::getIdentifier(BuiltinID id) {
+Identifier ASTContext::getIdentifier(BuiltinKind id) {
   switch (id) {
-    #define PUBLIC_BUILTIN(FUNC, FOX) case BuiltinID::FUNC:\
+    #define PUBLIC_BUILTIN(FUNC, FOX) case BuiltinKind::FUNC:\
       return getIdentifier(#FOX);
     #include "Fox/Common/Builtins.def"
     default:
-      fox_unreachable("unknown BuiltinID");
+      fox_unreachable("unknown BuiltinKind");
   }
 }
 

@@ -130,7 +130,7 @@ Basic VM data types and their mappings to Fox types:
 
     -> VM additions:
       -> Keep track of the most recent function executed (in a "call stack")
-        -> use a "StackEntry" structure containing the BCFunction&/BuiltinID and a copy of the PC
+        -> use a "StackEntry" structure containing the BCFunction&/BuiltinKind and a copy of the PC
       -> Use "vm.diagnose(DiagID)" to report errors
           -> First version will simply print the error and add a note "in function 'x' or 'in builtin function 'x' called by 'y''
 

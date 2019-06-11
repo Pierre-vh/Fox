@@ -13,7 +13,7 @@
 #include "ASTAligns.hpp"
 #include "Type.hpp"
 #include "Identifier.hpp"
-#include "Fox/Common/BuiltinID.hpp"
+#include "Fox/Common/BuiltinKinds.hpp"
 #include "llvm/Support/TrailingObjects.h"
 #include "llvm/ADT/ArrayRef.h"
 #include "llvm/ADT/PointerUnion.h"
@@ -347,7 +347,7 @@ namespace fox {
     public:
       /// \returns the unique BuiltinFuncDecl for the Builtin with id \p id
       /// in the context \p ctxt
-      static BuiltinFuncDecl* get(ASTContext& ctxt, BuiltinID id);
+      static BuiltinFuncDecl* get(ASTContext& ctxt, BuiltinKind id);
 
       /// \returns the invalid SourceRange (SourceRange())
       SourceRange getSourceRange() const {
@@ -359,8 +359,8 @@ namespace fox {
         return type_;
       }
 
-      /// \returns the BuiltinID of this BuiltinFuncDecl
-      BuiltinID getBuiltinID() const {
+      /// \returns the BuiltinKind of this BuiltinFuncDecl
+      BuiltinKind getBuiltinKind() const {
         return bID_;
       }
 
@@ -371,14 +371,14 @@ namespace fox {
     private:
       friend ASTContext;
 
-      BuiltinFuncDecl(ASTContext& ctxt, BuiltinID id);
+      BuiltinFuncDecl(ASTContext& ctxt, BuiltinKind id);
 
       /// Method for use by the ASTContext which loads the builtin
       /// with it \p id in the builtinFuncs_ map.
-      void load(ASTContext& ctxt, BuiltinID id);
+      void load(ASTContext& ctxt, BuiltinKind id);
 
       Type type_;
-      BuiltinID bID_;
+      BuiltinKind bID_;
   };
 
   /// VarDecl

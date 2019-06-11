@@ -546,16 +546,16 @@ TEST_F(VMTest, loadBuiltinFunc) {
   BCFunction& fn = theModule.createFunction();
   BCBuilder builder = fn.createBCBuilder();
   ASSERT_EQ(fn.getID(), 0u);
-  builder.createLoadBuiltinFuncInstr(0, BuiltinID::printBool);
+  builder.createLoadBuiltinFuncInstr(0, BuiltinKind::printBool);
   builder.createRetVoidInstr();
   VM vm(theModule);
   vm.run(fn);
-  // Helper to get a register's value as a BuiltinID
+  // Helper to get a register's value as a BuiltinKind
   auto getReg = [&](std::size_t idx) {
-    return vm.getRegisterStack()[idx].funcRef.getBuiltinID();
+    return vm.getRegisterStack()[idx].funcRef.getBuiltinKind();
   };
   // Check that the builtin was loaded correctly
-  EXPECT_EQ(getReg(0), BuiltinID::printBool);
+  EXPECT_EQ(getReg(0), BuiltinKind::printBool);
 }
 
 TEST_F(VMTest, call) {

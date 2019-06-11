@@ -336,7 +336,7 @@ TEST_F(ASTTest, DeclRTTI) {
   EXPECT_TRUE(NamedDecl::classof(fndecl));
 
   // BuiltinFunc
-  auto* builtin = BuiltinFuncDecl::get(ctxt, BuiltinID::printBool);
+  auto* builtin = BuiltinFuncDecl::get(ctxt, BuiltinKind::printBool);
   EXPECT_EQ(builtin->getKind(), DeclKind::BuiltinFuncDecl);
   EXPECT_TRUE(BuiltinFuncDecl::classof((Decl*)builtin));
   EXPECT_TRUE(NamedDecl::classof(builtin));
@@ -580,9 +580,9 @@ class ASTBuiltinsTest : public ::testing::Test {
 };
 
 TEST_F(ASTBuiltinsTest, builtinFuncTypes) {
-  Type printIntTy = ctxt.getPublicBuiltinFuncType(BuiltinID::printInt);
-  Type printBoolTy = ctxt.getPublicBuiltinFuncType(BuiltinID::printBool);
-  Type printStrTy = ctxt.getPublicBuiltinFuncType(BuiltinID::printString);
+  Type printIntTy = ctxt.getPublicBuiltinFuncType(BuiltinKind::printInt);
+  Type printBoolTy = ctxt.getPublicBuiltinFuncType(BuiltinKind::printBool);
+  Type printStrTy = ctxt.getPublicBuiltinFuncType(BuiltinKind::printString);
 
   // FIXME: Isn't this a hacky way of comparing types?
   EXPECT_EQ(printIntTy->toDebugString(),  "(int) -> void");
@@ -591,33 +591,33 @@ TEST_F(ASTBuiltinsTest, builtinFuncTypes) {
 }
 
 TEST_F(ASTBuiltinsTest, builtinIdentifier) {
-  EXPECT_EQ(ctxt.getIdentifier(BuiltinID::printBool).getStr(), 
+  EXPECT_EQ(ctxt.getIdentifier(BuiltinKind::printBool).getStr(), 
             "printBool");
-  EXPECT_EQ(ctxt.getIdentifier(BuiltinID::printBool),
-            ctxt.getIdentifier(BuiltinID::printBool));
+  EXPECT_EQ(ctxt.getIdentifier(BuiltinKind::printBool),
+            ctxt.getIdentifier(BuiltinKind::printBool));
 
-  EXPECT_EQ(ctxt.getIdentifier(BuiltinID::printInt).getStr(), 
+  EXPECT_EQ(ctxt.getIdentifier(BuiltinKind::printInt).getStr(), 
             "printInt");
-  EXPECT_EQ(ctxt.getIdentifier(BuiltinID::printInt),
-            ctxt.getIdentifier(BuiltinID::printInt));
+  EXPECT_EQ(ctxt.getIdentifier(BuiltinKind::printInt),
+            ctxt.getIdentifier(BuiltinKind::printInt));
 }
 
 TEST_F(ASTBuiltinsTest, builtinLookup) {
-  auto printBool = ctxt.getIdentifier(BuiltinID::printBool);
-  auto printInt = ctxt.getIdentifier(BuiltinID::printInt);
+  auto printBool = ctxt.getIdentifier(BuiltinKind::printBool);
+  auto printInt = ctxt.getIdentifier(BuiltinKind::printInt);
   {
     SmallVector<BuiltinFuncDecl*, 4> results;
     ctxt.lookupBuiltin(printBool, results);
     ASSERT_EQ(results.size(), 1u) 
       << "Incorrect number of results for " << printBool.getStr();
-    EXPECT_EQ(results.front(), BuiltinFuncDecl::get(ctxt, BuiltinID::printBool));
+    EXPECT_EQ(results.front(), BuiltinFuncDecl::get(ctxt, BuiltinKind::printBool));
   }
   {
     SmallVector<BuiltinFuncDecl*, 4> results;
     ctxt.lookupBuiltin(printInt, results);
     ASSERT_EQ(results.size(), 1u) 
       << "Incorrect number of results for " << printInt.getStr();
-    EXPECT_EQ(results.front(), BuiltinFuncDecl::get(ctxt, BuiltinID::printInt));
+    EXPECT_EQ(results.front(), BuiltinFuncDecl::get(ctxt, BuiltinKind::printInt));
   }
 }
 
@@ -643,7 +643,7 @@ TEST_F(ASTBuiltinsTest, unambiguousBuiltins) {
     SmallVector<std::pair<string_view, Type>, 2>
   > buitlins;
   #define PUBLIC_BUILTIN(FUNC, FOX)\
-    buitlins[#FOX].push_back({#FUNC, ctxt.getPublicBuiltinFuncType(BuiltinID::FUNC)});
+    buitlins[#FOX].push_back({#FUNC, ctxt.getPublicBuiltinFuncType(BuiltinKind::FUNC)});
   #include "Fox/Common/Builtins.def"
   // For now, simply check that every vector in the array has a size of one.
   for (auto builtin : buitlins) {

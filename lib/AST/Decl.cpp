@@ -372,7 +372,7 @@ SourceRange FuncDecl::getSourceRange() const {
 // BuiltinFuncDecl
 //----------------------------------------------------------------------------//
 
-BuiltinFuncDecl* BuiltinFuncDecl::get(ASTContext& ctxt, BuiltinID id) {
+BuiltinFuncDecl* BuiltinFuncDecl::get(ASTContext& ctxt, BuiltinKind id) {
   auto& map = ctxt.builtinFuncs_;
   /// Check if it exists already
   auto it = map.find(id);
@@ -383,7 +383,7 @@ BuiltinFuncDecl* BuiltinFuncDecl::get(ASTContext& ctxt, BuiltinID id) {
   return func;
 }
 
-BuiltinFuncDecl::BuiltinFuncDecl(ASTContext& ctxt, BuiltinID id) : 
+BuiltinFuncDecl::BuiltinFuncDecl(ASTContext& ctxt, BuiltinKind id) : 
   ValueDecl(DeclKind::BuiltinFuncDecl, nullptr, 
             ctxt.getIdentifier(id), SourceRange()), 
   type_(ctxt.getPublicBuiltinFuncType(id)), bID_(id) {
@@ -391,7 +391,7 @@ BuiltinFuncDecl::BuiltinFuncDecl(ASTContext& ctxt, BuiltinID id) :
   setCheckState(CheckState::Checked);
 }
 
-void BuiltinFuncDecl::load(ASTContext& ctxt, BuiltinID id) {
+void BuiltinFuncDecl::load(ASTContext& ctxt, BuiltinKind id) {
   BuiltinFuncDecl*& entry = ctxt.builtinFuncs_[id];
   if(!entry) entry = new(ctxt) BuiltinFuncDecl(ctxt, id);
 }

@@ -260,7 +260,7 @@ TEST(BCModuleTest, dump) {
     builder.createRetVoidInstr();
     builder.createNoOpInstr();
     builder.createRetVoidInstr();
-    builder.createLoadBuiltinFuncInstr(0, BuiltinID::printBool);
+    builder.createLoadBuiltinFuncInstr(0, BuiltinKind::printBool);
   };
   // Add a function to trigger a more detailed dump
   createFn(false);

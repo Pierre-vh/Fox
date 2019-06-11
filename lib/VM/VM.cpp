@@ -398,8 +398,8 @@ VM::Register VM::callFunc(regaddr_t base) {
   Register rtr;
   if(fnRef.isBCFunction()) 
     rtr = run(*fnRef.getBCFunction());           // normal functions
-  else if(fnRef.isBuiltinID())  
-    rtr = callBuiltinFunc(fnRef.getBuiltinID());  // builtin functions
+  else if(fnRef.isBuiltin())  
+    rtr = callBuiltinFunc(fnRef.getBuiltinKind());  // builtin functions
   else 
     fox_unreachable("unknown FunctionRef kind");
 
@@ -509,13 +509,13 @@ namespace {
   }
 }
 
-VM::Register VM::callBuiltinFunc(BuiltinID id) {
+VM::Register VM::callBuiltinFunc(BuiltinKind id) {
   switch (id) {
     #define BUILTIN(FUNC)\
-      case BuiltinID::FUNC:   \
+      case BuiltinKind::FUNC:   \
         return doBuiltinCall(*this, getRegPtr(0), builtin::FUNC);
     #include "Fox/Common/Builtins.def"
     default:
-      fox_unreachable("Unknown BuiltinID");
+      fox_unreachable("Unknown BuiltinKind");
   }
 }

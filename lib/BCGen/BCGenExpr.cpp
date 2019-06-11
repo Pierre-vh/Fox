@@ -258,7 +258,7 @@ class BCGen::ExprGenerator : public Generator,
     // the arguments as needed.
     //
     // NOTE: This doesn't check that the call is well formed, it just emits it.
-    RegisterValue emitBuiltinCall(BuiltinID bID, RegisterValue dest, 
+    RegisterValue emitBuiltinCall(BuiltinKind bID, RegisterValue dest, 
                                   ArrayRef<GenThunk> generators) {
       // Reserve registers
       SmallVector<RegisterValue, 4> callRegs;
@@ -473,7 +473,7 @@ class BCGen::ExprGenerator : public Generator,
         GenThunk lhsGT = getGTForExpr(lhs);
         GenThunk rhsGT = getGTForExpr(rhs);
         return 
-          emitBuiltinCall(BuiltinID::charConcat, std::move(dest), {lhsGT, rhsGT});
+          emitBuiltinCall(BuiltinKind::charConcat, std::move(dest), {lhsGT, rhsGT});
       }
 
       // string + string
@@ -493,7 +493,7 @@ class BCGen::ExprGenerator : public Generator,
           return this->visit(lhs, std::move(dest));
         // Else it's a char, so emit a charToString
         return 
-          this->emitBuiltinCall(BuiltinID::charToString, 
+          this->emitBuiltinCall(BuiltinKind::charToString, 
                                 std::move(dest),
                                 this->getGTForExpr(lhs));
       };
@@ -504,13 +504,13 @@ class BCGen::ExprGenerator : public Generator,
           return this->visit(rhs, std::move(dest));
         // Else it's a char, so emit a charToString
         return 
-          this->emitBuiltinCall(BuiltinID::charToString, 
+          this->emitBuiltinCall(BuiltinKind::charToString, 
                                 std::move(dest),
                                 this->getGTForExpr(rhs));
       };
 
       return 
-        emitBuiltinCall(BuiltinID::strConcat, std::move(dest), {lhsGT, rhsGT});
+        emitBuiltinCall(BuiltinKind::strConcat, std::move(dest), {lhsGT, rhsGT});
     }
 
     RegisterValue emitToStringUnOp(UnaryExpr* expr, RegisterValue dest) {
@@ -526,14 +526,14 @@ class BCGen::ExprGenerator : public Generator,
 
       // Emit the builtin call depending on the type of the child
       class ToStringBuiltinChooser 
-      : public TypeVisitor<ToStringBuiltinChooser, BuiltinID> {
+      : public TypeVisitor<ToStringBuiltinChooser, BuiltinKind> {
         public:
           #define HANDLE(TYPE, ACTION)\
-            BuiltinID visit##TYPE(TYPE*) { ACTION; }
-          HANDLE(IntegerType, return BuiltinID::intToString)
-          HANDLE(DoubleType,  return BuiltinID::doubleToString)
-          HANDLE(BoolType,    return BuiltinID::boolToString)
-          HANDLE(CharType,    return BuiltinID::charToString)
+            BuiltinKind visit##TYPE(TYPE*) { ACTION; }
+          HANDLE(IntegerType, return BuiltinKind::intToString)
+          HANDLE(DoubleType,  return BuiltinKind::doubleToString)
+          HANDLE(BoolType,    return BuiltinKind::boolToString)
+          HANDLE(CharType,    return BuiltinKind::charToString)
           HANDLE(StringType,  
             fox_unreachable("Should have been handled above");)
           HANDLE(VoidType,    
@@ -551,7 +551,7 @@ class BCGen::ExprGenerator : public Generator,
             fox_unreachable("ErrorType shouldn't be present in BCGen");)
       };
 
-      BuiltinID builtin;
+      BuiltinKind builtin;
       {
         ToStringBuiltinChooser tsbc;
         builtin = tsbc.visit(child->getType()->getRValue());
@@ -569,7 +569,7 @@ class BCGen::ExprGenerator : public Generator,
       auto indexGT = getGTForExpr(expr->getIndex());
       // getChar has a (string, int) -> char signature.
       return 
-        emitBuiltinCall(BuiltinID::getChar, std::move(dest), {baseGT, indexGT});
+        emitBuiltinCall(BuiltinKind::getChar, std::move(dest), {baseGT, indexGT});
     }
 
     /// Emits a CallExpr whose callee is a BuiltinMemberRef.
@@ -604,7 +604,7 @@ class BCGen::ExprGenerator : public Generator,
         && "incorrect number of args for arrAppend");
       assert(!dest && "array.append returns void!");
       return emitBuiltinCall(
-        BuiltinID::arrAppend, 
+        BuiltinKind::arrAppend, 
         RegisterValue(), 
         { getGTForExpr(args[0]), getGTForExpr(args[1]) }
       );
@@ -615,7 +615,7 @@ class BCGen::ExprGenerator : public Generator,
       assert((args.size() == 1) 
         && "incorrect number of args for arrBack");
       return emitBuiltinCall(
-        BuiltinID::arrBack, 
+        BuiltinKind::arrBack, 
         std::move(dest), 
         { getGTForExpr(args[0]) }
       );
@@ -626,7 +626,7 @@ class BCGen::ExprGenerator : public Generator,
       assert((args.size() == 1) 
         && "incorrect number of args for arrFront");
       return emitBuiltinCall(
-        BuiltinID::arrFront, 
+        BuiltinKind::arrFront, 
         std::move(dest), 
         { getGTForExpr(args[0]) }
       );
@@ -638,7 +638,7 @@ class BCGen::ExprGenerator : public Generator,
         && "incorrect number of args for arrPop");
       assert(!dest && "array.pop returns void!");
       return emitBuiltinCall(
-        BuiltinID::arrPop, 
+        BuiltinKind::arrPop, 
         std::move(dest), 
         { getGTForExpr(args[0]) }
       );
@@ -649,7 +649,7 @@ class BCGen::ExprGenerator : public Generator,
       assert((args.size() == 1) 
         && "incorrect number of args for arrSize");
       return emitBuiltinCall(
-        BuiltinID::arrSize, 
+        BuiltinKind::arrSize, 
         std::move(dest), 
         { getGTForExpr(args[0]) }
       );
@@ -661,7 +661,7 @@ class BCGen::ExprGenerator : public Generator,
         && "incorrect number of args for arrReset");
       assert(!dest && "array.reset returns void!");
       return emitBuiltinCall(
-        BuiltinID::arrReset, 
+        BuiltinKind::arrReset, 
         std::move(dest), 
         { getGTForExpr(args[0]) }
       );
@@ -673,7 +673,7 @@ class BCGen::ExprGenerator : public Generator,
         && "incorrect number of args for strNumBytes");
       GenThunk gen = getGTForExpr(args[0]);
       return emitBuiltinCall(
-        BuiltinID::strNumBytes, 
+        BuiltinKind::strNumBytes, 
         std::move(dest), 
         { getGTForExpr(args[0]) }
       );
@@ -684,7 +684,7 @@ class BCGen::ExprGenerator : public Generator,
       assert((args.size() == 1) 
         && "incorrect number of args for strLength");
       return emitBuiltinCall(
-        BuiltinID::strLength, 
+        BuiltinKind::strLength, 
         std::move(dest), 
         { getGTForExpr(args[0]) }
       );
@@ -861,7 +861,7 @@ class BCGen::ExprGenerator : public Generator,
       assert(base->getType()->isArrayType() && "not an array subscript");
 
       // arrGet takes the array as first parameter and the index second.
-      return emitBuiltinCall(BuiltinID::arrGet, std::move(dest), {
+      return emitBuiltinCall(BuiltinKind::arrGet, std::move(dest), {
         getGTForExpr(base),
         getGTForExpr(expr->getIndex())
       });
@@ -881,7 +881,7 @@ class BCGen::ExprGenerator : public Generator,
 
       // References to builtins
       if (auto builtin = dyn_cast<BuiltinFuncDecl>(decl)) {
-        auto bID = builtin->getBuiltinID();
+        auto bID = builtin->getBuiltinKind();
         dest = tryUse(std::move(dest));
         builder.createLoadBuiltinFuncInstr(dest.getAddress(), bID);
         return dest;
@@ -1044,7 +1044,7 @@ class BCGen::ExprGenerator : public Generator,
 
       regaddr_t baseAddr = callRegs[0].getAddress();
       // Base = Reference to arrAppend.
-      builder.createLoadBuiltinFuncInstr(baseAddr, BuiltinID::arrAppend);
+      builder.createLoadBuiltinFuncInstr(baseAddr, BuiltinKind::arrAppend);
 
       // arg0 = reference to the array
       RegisterValue& arg0 = callRegs[1];
@@ -1128,7 +1128,7 @@ BCGen::AssignementGenerator::visitSubscriptExpr(SubscriptExpr* expr,
   // arrSet expects the array first, the index second and the value third.
   // It returns its third argument.
   RegisterValue rtr = exprGen.emitBuiltinCall(
-    BuiltinID::arrSet, 
+    BuiltinKind::arrSet, 
     std::move(dest),
     {
       exprGen.getGTForExpr(expr->getBase()),

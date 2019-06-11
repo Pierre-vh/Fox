@@ -10,7 +10,7 @@
 #include "Fox/AST/Type.hpp"
 #include "Fox/AST/Types.hpp"
 #include "Fox/Common/Errors.hpp"
-#include "Fox/Common/BuiltinID.hpp"
+#include "Fox/Common/BuiltinKinds.hpp"
 #include "Fox/Common/QuotedString.hpp"
 #include "Fox/Common/SourceManager.hpp"
 #include "Fox/Common/UTF8.hpp"
@@ -119,7 +119,7 @@ void ASTDumper::visitDeclRefExpr(DeclRefExpr* node) {
     << ref->getIdentifier() << " "
     << makeKeyPairDump("decl", (void*)node->getDecl());
   if (auto* builtin = dyn_cast<BuiltinFuncDecl>(node->getDecl())) 
-    out << " (Builtin '" << builtin->getBuiltinID() << "')";
+    out << " (Builtin '" << builtin->getBuiltinKind() << "')";
   out << "\n";
 }
 
@@ -291,7 +291,7 @@ void ASTDumper::visitFuncDecl(FuncDecl* node) {
 
 void ASTDumper::visitBuiltinFuncDecl(BuiltinFuncDecl* node) {
   dumpLine() << getValueDeclInfo(node) 
-             << " " << node->getBuiltinID() << "\n";
+             << " " << node->getBuiltinKind() << "\n";
 }
 
 bool ASTDumper::isDebug() const {

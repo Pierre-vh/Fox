@@ -11,7 +11,7 @@
 
 #include "Identifier.hpp"
 #include "ASTFwdDecl.hpp"
-#include "Fox/Common/BuiltinID.hpp"
+#include "Fox/Common/BuiltinKinds.hpp"
 #include "Fox/Common/LLVM.hpp"
 #include "Fox/Common/LinearAllocator.hpp"
 #include "Fox/Common/SourceLoc.hpp"
@@ -68,7 +68,7 @@ namespace fox {
 
       /// \returns the FunctionType of the public builtin function with ID \p id
       ///          for this ASTContext.
-      Type getPublicBuiltinFuncType(BuiltinID id);
+      Type getPublicBuiltinFuncType(BuiltinKind id);
 
 			/// \param str an identifier string
       /// \returns the unique "Identifier" object for this string.
@@ -77,7 +77,7 @@ namespace fox {
       /// \param id the builtin id
       /// \returns the unique "Identifier" object for the builtin 
       ///          with id \p id
-      Identifier getIdentifier(BuiltinID id);
+      Identifier getIdentifier(BuiltinKind id);
 
       /// \param str a string
       /// \returns a NULL-TERMINATED version of this string, allocated 
@@ -152,8 +152,8 @@ namespace fox {
       /// Managed by the \ref FunctionType class.
       std::unordered_map<std::size_t, FunctionType*> functionTypes_;
 
-      /// The map of BuiltinID -> BuiltinFuncDecl
-      std::unordered_map<BuiltinID, BuiltinFuncDecl*> builtinFuncs_;
+      /// The map of BuiltinKind -> BuiltinFuncDecl
+      std::unordered_map<BuiltinKind, BuiltinFuncDecl*> builtinFuncs_;
 
       // Singleton/unique types. Lazily created by their respective classes.
       ErrorType*   theErrorType_   = nullptr;
