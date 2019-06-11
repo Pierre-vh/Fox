@@ -44,7 +44,7 @@ namespace fox {
       class FunctionRef {
         public:
           FunctionRef(BCFunction* fn) { *this = fn; }
-          FunctionRef(BuiltinKind id)   { *this = id; }
+          FunctionRef(BuiltinKind id) { *this = id; }
 
           FunctionRef& operator=(BCFunction* fn) {
             data_ = fn;
