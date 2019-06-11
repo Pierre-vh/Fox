@@ -15,6 +15,7 @@
 #include "Fox/BC/Instruction.hpp"
 #include "Fox/Common/FoxTypes.hpp"
 #include "Fox/Common/LLVM.hpp"
+#include "Fox/Common/SourceManager.hpp"
 #include "llvm/ADT/ArrayRef.h"
 #include <sstream>
 
@@ -208,7 +209,8 @@ TEST(BCBuilderTest, orderIsRespected) {
 //----------------------------------------------------------------------------//
 
 TEST(BCModuleTest, funcIDs) {
-  BCModule theModule;
+  SourceManager srcMgr;
+  BCModule theModule(srcMgr);
   // Create a few functions, checking that the IDs match the ones we expect.
   for (std::size_t idx = 0, end = 42; idx < end; ++idx) {
     ASSERT_EQ(theModule.createFunction().getID(), idx)
@@ -217,14 +219,16 @@ TEST(BCModuleTest, funcIDs) {
 }
 
 TEST(BCModuleTest, funcCreation) {
-  BCModule theModule;
+  SourceManager srcMgr;
+  BCModule theModule(srcMgr);
   BCFunction& fn = theModule.createFunction();
   fn.createBCBuilder().createNoOpInstr();
   EXPECT_EQ(&(theModule.getFunction(fn.getID())), &fn);
 }
 
 TEST(BCModuleTest, globIDs) {
-  BCModule theModule;
+  SourceManager srcMgr;
+  BCModule theModule(srcMgr);
   // Create a few functions, checking that the IDs match the ones we expect.
   for (std::size_t idx = 0, end = 42; idx < end; ++idx) {
     ASSERT_EQ(theModule.createGlobalVariable().getID(), idx)
@@ -233,19 +237,22 @@ TEST(BCModuleTest, globIDs) {
 }
 
 TEST(BCModuleTest, globCreation) {
-  BCModule theModule;
+  SourceManager srcMgr;
+  BCModule theModule(srcMgr);
   BCFunction& fn = theModule.createGlobalVariable();
   fn.createBCBuilder().createNoOpInstr();
   EXPECT_EQ(&(theModule.getGlobalVarInitializer(fn.getID())), &fn);
 }
 
 TEST(BCModuleTest, newModulesAreEmpty) {
-  ASSERT_TRUE(BCModule().empty()) 
-    << "newly created modules aren't ""considered empty";
+  SourceManager srcMgr;
+  ASSERT_TRUE(BCModule(srcMgr).empty()) 
+    << "newly created modules aren't considered empty";
 }
 
 TEST(BCModuleTest, dump) { 
-  BCModule theModule;
+  SourceManager srcMgr;
+  BCModule theModule(srcMgr);
   // Empty modules should display just "[Empty BCModule]" with a newline
   {
     std::stringstream ss;

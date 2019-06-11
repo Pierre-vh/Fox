@@ -170,7 +170,7 @@ int Driver::processFile(string_view path) {
   if(!needsToGenerateBytecode())
     return finish(diagEngine.hadAnyError());
 
-  BCModule theModule;
+  BCModule theModule(sourceMgr);
   BCGen generator(ctxt, theModule);
   generator.genUnit(unit);
 

@@ -22,7 +22,8 @@ namespace {
   class BCGenTest : public ::testing::Test {
     public:
       BCGenTest() : 
-        diags(srcMgr, std::cout), ctxt(srcMgr, diags), bcGen(ctxt, theModule) {}
+        diags(srcMgr, std::cout), ctxt(srcMgr, diags), 
+          theModule(srcMgr), bcGen(ctxt, theModule) {}
       
       SourceManager srcMgr;
       DiagnosticEngine diags;

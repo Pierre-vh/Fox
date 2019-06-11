@@ -24,12 +24,14 @@
 
 namespace fox {
   class BCFunction;
+  class SourceManager;
+
   class BCModule {
     public:
       using FunctionVector = SmallVector<std::unique_ptr<BCFunction>, 4>;
 
-      BCModule() = default;
-      BCModule(const BCModule&) = delete;
+      BCModule(SourceManager& srcMgr) : srcMgr(srcMgr) {}
+
       BCModule& operator=(const BCModule&) = delete;
 
       /// \returns the number of functions in the module
@@ -130,6 +132,10 @@ namespace fox {
       /// Checks BCModule invariants, printing errors to \p out
       /// \returns true if the module is valid
       /// bool verify(std::ostream& out); 
+
+      /// The SourceManager instance that owns the buffers of source code that
+      /// generated this BCModule.
+      SourceManager& srcMgr;
 
     private:
       void dumpConstants(std::ostream& out) const;

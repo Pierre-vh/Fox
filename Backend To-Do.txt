@@ -123,10 +123,13 @@ Basic VM data types and their mappings to Fox types:
     -> Constants shouldn't contain duplicates
 
   -> Runtime error management system for the VM 
+    -> BCModule Additions
+      -> SourceManager&
     -> BCFunction additions:
-      -> Identifier (the id of the function, or of the global variable)
+      -> std::string identifierStr (the identifier of the function, or of the global variable)
       -> SourceRange (of the Func/VarDecl)
       -> Kind (GlobalVarInitializer or Func)
+    -> BCModule createGlobal/createFunction should ask for a string (id) and a SourceRange
 
     -> VM additions:
       -> Keep track of the most recent function executed (in a "call stack")

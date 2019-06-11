@@ -14,6 +14,7 @@
 #include "Fox/VM/VM.hpp"
 #include "Fox/Common/FoxTypes.hpp"
 #include "Fox/Common/Objects.hpp"
+#include "Fox/Common/SourceManager.hpp"
 #include <sstream>
 
 using namespace fox;
@@ -21,11 +22,12 @@ using namespace fox;
 namespace {
   class VMTest : public ::testing::Test {
     public:
+      SourceManager srcMgr;
       BCModule theModule;
       InstructionVector instrs;
       BCBuilder builder;
 
-      VMTest() : builder(instrs) {}
+      VMTest() : theModule(srcMgr), builder(instrs) {}
   };
 }
 
