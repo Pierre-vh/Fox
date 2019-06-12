@@ -123,15 +123,24 @@ Basic VM data types and their mappings to Fox types:
     -> Constants shouldn't contain duplicates
 
   -> Runtime error management system for the VM 
-    -> BCModule Additions
+      Goal: Be able to diagnose out of range accesses and divisions by zero easily.
+            I don't need more advanced diagnostics (e.g. diagnosing a single argument in a builtin call)
+            for now (and I'll probably never need them unless I add null pointers to Fox, which is probably
+            not going to happen)
+
+    -> BCModule Additions (Done)
       -> SourceManager&
 
     -> BCFunction additions:
       -> std::string identifierStr (the identifier of the function, or of the global variable)
-      -> SourceRange (of the Func/VarDecl)
+      -> SourceLoc (of the beginning of the decl)
       -> Kind (GlobalVarInitializer or Func)
 
-    -> BCModule createGlobal/createFunction should ask for a string (id) and a SourceRange
+    -> BCModule createGlobal/createFunction should ask for the identifier and the SourceLoc
+
+    -> Debug map for each BCFunction:
+      -> A sorted vector of { std::size_t (instruction index), SourceRange (range of the node that emitted this instr)}
+      -> Used to emit error messages for divisions by zero, out of range accesses, etc.
 
     -> VM additions:
       -> Keep track of the most recent function executed (in a "call stack")
@@ -139,15 +148,10 @@ Basic VM data types and their mappings to Fox types:
 
       -> Use "vm.diagnose(DiagID)" to report errors
           -> BCModule will need to have a DiagnosticEngine too I guess.
-          -> First version will simply print the error using the DiagnosticEngine
-             and add a note "in function 'x' or 'in builtin function 'x' called by 'y''
-
-    -> Advanced debug information
-      -> Exact implementation still to be decided, but the goal is to be able to produce
-         error messages like this:
-          foo.fox:3:4 error: array pointer is null
-                  arr.size()
-                  ^^^
+          -> First version will simply print the error using the DiagnosticEngine and the "Debug Map", however
+             if no entry is found (which shouldn't be possible at first), it just prints the diagnostic without
+             loc and adds a note with "in function x". We could even use the SourceRanges located before/after the
+             instruction to emit something like "in function x between lines 4 and 5"
 
   -> Allow the register stack to grow dynamically
     -> Add recursion tests
