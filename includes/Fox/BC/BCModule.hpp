@@ -24,6 +24,7 @@
 
 namespace fox {
   class BCFunction;
+  class DiagnosticEngine;
   class SourceManager;
 
   /// The BCModule is the top-level container for the bytecode.
@@ -36,7 +37,8 @@ namespace fox {
     public:
       using FunctionVector = SmallVector<std::unique_ptr<BCFunction>, 4>;
 
-      BCModule(SourceManager& srcMgr) : srcMgr(srcMgr) {}
+      BCModule(SourceManager& srcMgr, DiagnosticEngine& diagEngine) 
+        : srcMgr(srcMgr), diagEngine(diagEngine) {}
 
       BCModule& operator=(const BCModule&) = delete;
 
@@ -178,6 +180,10 @@ namespace fox {
       /// The SourceManager instance that owns the buffers of source code that
       /// generated this BCModule.
       SourceManager& srcMgr;
+
+      /// The DiagnosticEngine instance that should be used to emit runtime
+      /// diagnostics for this module.
+      DiagnosticEngine& diagEngine;
 
     private:
       void dumpConstants(std::ostream& out) const;

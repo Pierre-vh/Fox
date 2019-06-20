@@ -12,6 +12,7 @@
 #include "Fox/BC/BCBuilder.hpp"
 #include "Fox/BC/BCModule.hpp"
 #include "Fox/VM/VM.hpp"
+#include "Fox/Common/DiagnosticEngine.hpp"
 #include "Fox/Common/FoxTypes.hpp"
 #include "Fox/Common/Objects.hpp"
 #include "Fox/Common/SourceManager.hpp"
@@ -23,11 +24,13 @@ namespace {
   class VMTest : public ::testing::Test {
     public:
       SourceManager srcMgr;
+      DiagnosticEngine diags;
       BCModule theModule;
       InstructionVector instrs;
       BCBuilder builder;
 
-      VMTest() : theModule(srcMgr), builder(instrs) {}
+      VMTest() 
+        : diags(srcMgr, std::cout), theModule(srcMgr, diags), builder(instrs) {}
   };
 }
 

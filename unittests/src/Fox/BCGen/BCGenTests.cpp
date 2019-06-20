@@ -23,7 +23,7 @@ namespace {
     public:
       BCGenTest() : 
         diags(srcMgr, std::cout), ctxt(srcMgr, diags), 
-          theModule(srcMgr), bcGen(ctxt, theModule) {}
+          theModule(srcMgr, diags), bcGen(ctxt, theModule) {}
       
       SourceManager srcMgr;
       DiagnosticEngine diags;
