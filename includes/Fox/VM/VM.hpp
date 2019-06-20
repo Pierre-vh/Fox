@@ -29,6 +29,9 @@
 namespace fox {
   struct Instruction;
   class BCModule;
+  class Diagnostic;
+  class DiagnosticEngine;
+  enum class DiagID : std::uint16_t;
   class Object;
   class StringObject;
   class ArrayObject;
@@ -146,6 +149,10 @@ namespace fox {
       /// \returns the program counter
       const Instruction* getPC() const;
 
+      /// Emits a diagnostic at the current instruction's location.
+      /// \returns the diagnostic object (see DiagnosticEngine::report)
+      Diagnostic diagnose(DiagID diag) const;
+
       /// \returns a view of the register stack
       /// Note: this might be invalidated if a reallocation occurs.
       /// Do not trust the pointer after code has been run, functions
@@ -190,6 +197,9 @@ namespace fox {
 
       /// The Bytecode module executed by this VM instance.
       BCModule& bcModule;
+
+      /// The DiagnosticEngine used to emit runtime diagnostics
+      DiagnosticEngine& diagEngine;
 
     private:
       /// Creates the register array for the global variables and runs the

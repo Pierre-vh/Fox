@@ -20,7 +20,8 @@
 
 using namespace fox;
 
-VM::VM(BCModule& theModule) : bcModule(theModule) {
+VM::VM(BCModule& theModule) 
+  : bcModule(theModule), diagEngine(bcModule.diagEngine) {
   /// The base register will simply be the first register in the
   /// stack.
   baseReg_ = regStack_.data();

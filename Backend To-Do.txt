@@ -146,12 +146,12 @@ Basic VM data types and their mappings to Fox types:
       -> Keep track of the most recent function executed (in a "call stack")
         -> use a "StackEntry" structure containing the BCFunction&/BuiltinKind and a copy of the PC
 
-      -> Use "vm.diagnose(DiagID)" to report errors
-          -> BCModule will need to have a DiagnosticEngine too I guess.
-          -> First version will simply print the error using the DiagnosticEngine and the "Debug Map", however
-             if no entry is found (which shouldn't be possible at first), it just prints the diagnostic without
-             loc and adds a note with "in function x". We could even use the SourceRanges located before/after the
-             instruction to emit something like "in function x between lines 4 and 5"
+      -> Use "vm.diagnose(DiagID)" 
+        -> Implementation (done)
+        -> Use DebugInfo to fetch the range
+        -> Allow emission of notes after the diagnostic (needs callback in Diagnostic object)
+
+      -> Question: Do I really need the SourceManager& in BCModule?
 
   -> Allow the register stack to grow dynamically
     -> Add recursion tests
