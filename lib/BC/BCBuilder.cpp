@@ -50,7 +50,8 @@ using namespace fox;
 // BCBuilder
 //----------------------------------------------------------------------------//
 
-BCBuilder::BCBuilder(InstructionVector& vector) : vector(vector) {}
+BCBuilder::BCBuilder(InstructionVector& vector, DebugInfo* debugInfo) 
+  : vector(vector), debugInfo(debugInfo) {}
 
 void BCBuilder::truncate_instrs(StableInstrIter beg) {
   vector.erase(beg.getContainerIterator(), vector.end());
@@ -72,6 +73,18 @@ BCBuilder::StableInstrIter BCBuilder::getLastInstrIter() {
 BCBuilder::StableInstrConstIter BCBuilder::getLastInstrIter() const {
   assert(vector.size() && "not available for empty buffers");
   return StableInstrConstIter(vector, vector.size()-1);
+}
+
+void BCBuilder::addDebugRange(StableInstrConstIter iter, SourceRange range) {
+  assert(debugInfo && "no debug info!");
+
+  auto ptr = iter.getContainerIterator();
+  assert(ptr != vector.end() 
+    && "iter is the end iterator");
+
+  std::size_t idx = std::distance((const Instruction*)vector.begin(), ptr);
+  
+  debugInfo->addSourceRange(idx, range);
 }
 
 void BCBuilder::popInstr() {

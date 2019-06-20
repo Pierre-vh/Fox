@@ -94,6 +94,41 @@ TEST(InstructionTest, isAnyJump) {
 // BCBuilder tests
 //----------------------------------------------------------------------------//
 
+TEST(BCBuilderTest, debugInfo) {
+  using IRP = DebugInfo::IndexRangePair;
+
+  SourceLoc aLoc(FileID(), 42);
+  SourceLoc bLoc(FileID(), 84);
+  
+  SourceRange aRange(aLoc);
+  SourceRange bRange(bLoc);
+
+  InstructionVector instrs;
+  DebugInfo dbg;
+  BCBuilder builder(instrs, &dbg);
+
+
+  // Create a few instruction and insert debug info for the 1st and 3rd one.
+  // (So indexes 0 and 2)
+  auto a = builder.createRetVoidInstr();
+  builder.createRetVoidInstr();
+  auto b = builder.createRetVoidInstr();
+  builder.createRetVoidInstr();
+
+  builder.addDebugRange(a, aRange);
+  builder.addDebugRange(b, bRange);
+
+  // Check the ranges
+  auto dbgRanges = dbg.getRanges();
+  ASSERT_EQ(dbgRanges.size(), 2u);
+  EXPECT_EQ(dbgRanges[0], IRP(0, aRange));
+  EXPECT_EQ(dbgRanges[1], IRP(2, bRange));
+
+  // Check that we can fetch them
+  EXPECT_EQ(dbg.getSourceRange(0), aRange);
+  EXPECT_EQ(dbg.getSourceRange(2), bRange);
+}
+
 TEST(BCBuilderTest, TernaryInstr) {
   InstructionVector instrs;
   BCBuilder builder(instrs);

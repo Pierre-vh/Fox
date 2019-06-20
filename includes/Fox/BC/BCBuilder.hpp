@@ -27,7 +27,7 @@ namespace fox {
       using StableInstrConstIter = 
         StableVectorConstIterator<InstructionVector>;
 
-      BCBuilder(InstructionVector& vector);
+      BCBuilder(InstructionVector& vector, DebugInfo* debugInfo = nullptr);
 
       #define TERNARY_INSTR(ID, I1, T1, I2, T2, I3, T3)\
         StableInstrIter create##ID##Instr(T1 I1, T2 I2, T3 I3);
@@ -56,11 +56,19 @@ namespace fox {
       /// in the buffer. The buffer must not be empty.
       StableInstrConstIter getLastInstrIter() const;
 
+      /// Adds a debug range for an instruction.
+      /// \p iter_ must not be the end iterator.
+      /// The BCBuilder must have a non-null DebugInfo*
+      void addDebugRange(StableInstrConstIter iter, SourceRange range);
+
       /// Removes the last instruction added to this module.
       void popInstr();
 
       /// The Instruction vector that we are inserting into.
       InstructionVector& vector;
+      
+      /// The DebugInfo, if present.
+      DebugInfo * const debugInfo = nullptr;
 
     private:
       StableInstrIter insert(Instruction instr);
