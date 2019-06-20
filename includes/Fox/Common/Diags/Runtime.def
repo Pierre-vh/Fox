@@ -1,0 +1,14 @@
+//----------------------------------------------------------------------------//
+// This file is part of the Fox project.        
+// See the LICENSE.txt file at the root of the project for license information.            
+// File : Runtime.def                      
+// Author : Pierre van Houtryve                
+//----------------------------------------------------------------------------//
+// Runtime Diagnostics (for the VM, VM Builtins, etc.)
+//----------------------------------------------------------------------------//
+
+ERROR(runtime_subscript_negative_index,
+  "index was negative ('%0')")
+
+ERROR(runtime_subscript_out_of_range,
+  "out-of-range (size of container is '%0', index is '%1')")

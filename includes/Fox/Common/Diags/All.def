@@ -28,6 +28,7 @@
 #include "Common.def"
 #include "Lexer.def"
 #include "Parser.def"
+#include "Runtime.def"
 #include "Sema.def"
 
 #undef DIAG
