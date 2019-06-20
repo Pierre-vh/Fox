@@ -4,7 +4,8 @@
 // File : BCTests.cpp                      
 // Author : Pierre van Houtryve                
 //----------------------------------------------------------------------------//
-//  Tests for Opcodes, Instructions, BCModule, BCBuilder and BCFunction.
+//  Tests for Opcodes, Instructions, DebugInfo, BCModule, BCBuilder and 
+//  BCFunction.
 //----------------------------------------------------------------------------//
 
 #include "gtest/gtest.h"
@@ -12,6 +13,7 @@
 #include "Fox/BC/BCFunction.hpp"
 #include "Fox/BC/BCModule.hpp"
 #include "Fox/BC/BCUtils.hpp"
+#include "Fox/BC/DebugInfo.hpp"
 #include "Fox/BC/Instruction.hpp"
 #include "Fox/Common/FoxTypes.hpp"
 #include "Fox/Common/LLVM.hpp"
@@ -401,3 +403,46 @@ TEST(BCFunctionTest, dump) {
       "    2\t| JumpIf 1 2\n");
   }
 }
+
+//----------------------------------------------------------------------------//
+// DebugInfo tests
+//----------------------------------------------------------------------------//
+
+TEST(DebugInfoTest, debugInfoTest) {
+  SourceLoc aLoc(FileID(), 42);
+  SourceLoc bLoc(FileID(), 84);
+  SourceLoc cLoc(FileID(), 126);
+  
+  SourceRange aRange(aLoc);
+  SourceRange bRange(bLoc);
+  SourceRange cRange(cLoc);
+
+  std::size_t aIdx = 42;
+  std::size_t bIdx = 43;
+  std::size_t cIdx = 4224;
+
+  DebugInfo dbg;
+
+  // Insert a few things
+  dbg.addSourceRange(aIdx, aRange);
+  dbg.addSourceRange(bIdx, bRange);
+  dbg.addSourceRange(cIdx, cRange);
+
+  // Check that the vector is sorted
+  auto vec = dbg.getRanges();
+  ASSERT_TRUE(
+    std::is_sorted(
+      vec.begin(), 
+      vec.end(), 
+      DebugInfo::IndexRangePairLessThanComparator())
+  ) << "Vector of Ranges not Sorted!";
+
+  // Try to fetch the elements
+  auto check = [&](std::size_t idx, SourceRange expected) {
+    auto result = dbg.getSourceRange(idx);
+    if(result.hasValue())
+      return result.getValue() == expected;
+    return false;
+  };
+}
+
