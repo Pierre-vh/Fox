@@ -246,10 +246,16 @@ TEST(BCBuilderTest, orderIsRespected) {
 // BCModule tests
 //----------------------------------------------------------------------------//
 
-TEST(BCModuleTest, funcIDs) {
-  SourceManager srcMgr;
-  DiagnosticEngine diag(srcMgr, std::cout);
-  BCModule theModule(srcMgr, diag);
+namespace {
+  class BCModuleTest : public ::testing::Test {
+    public:
+      SourceManager srcMgr;
+      DiagnosticEngine diag = {srcMgr, std::cout};
+      BCModule theModule = {srcMgr, diag};
+  };
+}
+
+TEST_F(BCModuleTest, funcIDs) {
   // Create a few functions, checking that the IDs match the ones we expect.
   for (std::size_t idx = 0, end = 42; idx < end; ++idx) {
     ASSERT_EQ(theModule.createFunction().getID(), idx)
@@ -257,19 +263,13 @@ TEST(BCModuleTest, funcIDs) {
   }
 }
 
-TEST(BCModuleTest, funcCreation) {
-  SourceManager srcMgr;
-  DiagnosticEngine diag(srcMgr, std::cout);
-  BCModule theModule(srcMgr, diag);
+TEST_F(BCModuleTest, funcCreation) {
   BCFunction& fn = theModule.createFunction();
   fn.createBCBuilder().createNoOpInstr();
   EXPECT_EQ(&(theModule.getFunction(fn.getID())), &fn);
 }
 
-TEST(BCModuleTest, globIDs) {
-  SourceManager srcMgr;
-  DiagnosticEngine diag(srcMgr, std::cout);
-  BCModule theModule(srcMgr, diag);
+TEST_F(BCModuleTest, globIDs) {
   // Create a few functions, checking that the IDs match the ones we expect.
   for (std::size_t idx = 0, end = 42; idx < end; ++idx) {
     ASSERT_EQ(theModule.createGlobalVariable().getID(), idx)
@@ -277,27 +277,18 @@ TEST(BCModuleTest, globIDs) {
   }
 }
 
-TEST(BCModuleTest, globCreation) {
-  SourceManager srcMgr;
-  DiagnosticEngine diag(srcMgr, std::cout);
-  BCModule theModule(srcMgr, diag);
+TEST_F(BCModuleTest, globCreation) {
   BCFunction& fn = theModule.createGlobalVariable();
   fn.createBCBuilder().createNoOpInstr();
   EXPECT_EQ(&(theModule.getGlobalVarInitializer(fn.getID())), &fn);
 }
 
-TEST(BCModuleTest, newModulesAreEmpty) {
-  SourceManager srcMgr;
-  DiagnosticEngine diag(srcMgr, std::cout);
-  BCModule theModule(srcMgr, diag);
+TEST_F(BCModuleTest, newModulesAreEmpty) {
   ASSERT_TRUE(theModule.empty()) 
     << "newly created modules aren't considered empty";
 }
 
-TEST(BCModuleTest, dump) { 
-  SourceManager srcMgr;
-  DiagnosticEngine diag(srcMgr, std::cout);
-  BCModule theModule(srcMgr, diag);
+TEST_F(BCModuleTest, dump) { 
   // Empty modules should display just "[Empty BCModule]" with a newline
   {
     std::stringstream ss;
