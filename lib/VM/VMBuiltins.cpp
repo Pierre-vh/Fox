@@ -11,6 +11,7 @@
 #include "Fox/Common/Objects.hpp"
 #include "Fox/Common/Errors.hpp"
 #include "Fox/Common/UTF8.hpp"
+#include "Fox/Common/DiagnosticEngine.hpp"
 #include "Fox/VM/VM.hpp"
 
 using namespace fox;
@@ -56,9 +57,31 @@ FoxInt builtin::strNumBytes(StringObject* str) {
   return str->numBytes();
 }
 
-FoxChar builtin::getChar(StringObject* str, FoxInt n) {
+// Checks that \p idx is not negative or >= \p size
+// If it is, emits a diagnostic and returns false.
+static bool checkSubscript(VM& vm, std::size_t size, FoxInt idx) {
+  if (idx < 0) {
+    vm.diagnose(DiagID::runtime_subscript_negative_index)
+      .addArg(idx);
+    // TODO: Once diagnose() stops execution, remove this.
+    exit(EXIT_FAILURE);
+    //return false;
+  }
+  if (idx >= size) {
+    vm.diagnose(DiagID::runtime_subscript_out_of_range)
+      .addArg(size).addArg(idx);
+    // TODO: Once diagnose() stops execution, remove this.
+    exit(EXIT_FAILURE);
+    //return false;
+  }
+  return true;
+}
+
+FoxChar builtin::getChar(VM& vm, StringObject* str, FoxInt n) {
   assert(str && "string is null");
-  assert((n >= 0) && (n < str->length()) && "out of range index");
+  if(!checkSubscript(vm, str->length(), n))
+    return 0;
+  // Do the subscript
   return str->getChar(static_cast<std::size_t>(n));
 }
 
@@ -72,13 +95,15 @@ FoxInt builtin::arrSize(ArrayObject* arr) {
   return arr->size();
 }
 
-FoxAny builtin::arrGet(ArrayObject* arr, FoxInt n) {
-  assert((n >= 0) && (n < arr->size()) && "out-of-range");
+FoxAny builtin::arrGet(VM& vm, ArrayObject* arr, FoxInt n) {
+  if(!checkSubscript(vm, arr->size(), n))
+    return FoxAny();
   return (*arr)[n];
 }
 
-FoxAny builtin::arrSet(ArrayObject* arr, FoxInt n, FoxAny val) {
-  assert((n >= 0) && (n < arr->size()) && "out-of-range");
+FoxAny builtin::arrSet(VM& vm, ArrayObject* arr, FoxInt n, FoxAny val) {
+  if(!checkSubscript(vm, arr->size(), n))
+    return FoxAny();
   (*arr)[n] = val;
   return val;
 }

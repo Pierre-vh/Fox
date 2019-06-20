@@ -83,7 +83,7 @@ namespace fox {
     FoxInt strNumBytes(StringObject* str);
 
     /// \returns the nth codepoint (FoxChar) of a string.
-    FoxChar getChar(StringObject* str, FoxInt n);
+    FoxChar getChar(VM& vm, StringObject* str, FoxInt n);
 
     /// inserts \p element in \p array
     void arrAppend(ArrayObject* arr, FoxAny elem);
@@ -92,13 +92,13 @@ namespace fox {
     FoxInt arrSize(ArrayObject* arr);
 
     /// \returns the element at index \p n of \p arr
-    FoxAny arrGet(ArrayObject* arr, FoxInt n);
+    FoxAny arrGet(VM& vm, ArrayObject* arr, FoxInt n);
 
     /// sets the element at index \p n of \p arr to \p val
     /// \returns \p val
     /// NOTE: This returns \p val because it makes things easier
     /// in BCGen.
-    FoxAny arrSet(ArrayObject* arr, FoxInt n, FoxAny val);
+    FoxAny arrSet(VM& vm, ArrayObject* arr, FoxInt n, FoxAny val);
 
     /// Removes the last element of \p arr
     void arrPop(ArrayObject* arr);
