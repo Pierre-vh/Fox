@@ -151,6 +151,10 @@ Basic VM data types and their mappings to Fox types:
         -> Use DebugInfo to fetch the range
         -> Allow emission of notes after the diagnostic (needs callback in Diagnostic object)
 
+      -> add a new "runtime error" category of diagnostics
+      -> Rewrite the messages for the runtime diagnostics
+      -> Write runtime diagnostic tests
+
       -> Question: Do I really need the SourceManager& in BCModule?
 
   -> Allow the register stack to grow dynamically
