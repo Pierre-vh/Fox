@@ -120,11 +120,11 @@ SourceLoc::operator bool() const {
   return isValid();
 }
 
-bool SourceLoc::operator==(const SourceLoc other) const {
+bool SourceLoc::operator==(const SourceLoc& other) const {
   return (fid_ == other.fid_) && (idx_ == other.idx_);
 }
 
-bool SourceLoc::operator!=(const SourceLoc other) const {
+bool SourceLoc::operator!=(const SourceLoc& other) const {
   return !(*this == other);
 }
 
@@ -211,6 +211,14 @@ bool SourceRange::contains(SourceLoc loc) const {
 
 bool SourceRange::contains(SourceRange range) const {
   return contains(range.getBeginLoc()) && contains(range.getEndLoc());
+}
+
+bool SourceRange::operator==(const SourceRange& other) const {
+  return (loc_ == other.loc_) && (offset_ == other.offset_);
+}
+
+bool SourceRange::operator!=(const SourceRange& other) const {
+  return !(*this == other);
 }
 
 FileID SourceRange::getFileID() const {

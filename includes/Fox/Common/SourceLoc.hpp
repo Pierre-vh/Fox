@@ -64,8 +64,8 @@ namespace fox {
       /// \returns isValid()
       explicit operator bool() const; 
 
-      bool operator ==(const SourceLoc other) const;
-      bool operator !=(const SourceLoc other) const;
+      bool operator ==(const SourceLoc& other) const;
+      bool operator !=(const SourceLoc& other) const;
 
       /// \returns the FileID of this SourceLoc
       FileID getFileID() const;
@@ -128,6 +128,9 @@ namespace fox {
       /// \returns true if the SourceRange is contained inside this SourceRange.
       /// (contains(range.getBeginLoc()) && (contains(range.getEndLoc()))
       bool contains(SourceRange range) const;
+
+      bool operator ==(const SourceRange& other) const;
+      bool operator !=(const SourceRange& other) const;
 
       friend std::ostream& operator<<(std::ostream& os, SourceRange range);
 
