@@ -10,14 +10,17 @@
 #pragma once
 
 #include "Fox/BC/BCUtils.hpp"
+#include "Fox/BC/DebugInfo.hpp"
 #include "Fox/BC/Instruction.hpp"
 #include "Fox/Common/LLVM.hpp"
 #include "Fox/Common/string_view.hpp"
 #include "llvm/ADT/SmallVector.h"
 #include <iosfwd>
+#include <memory>
 
 namespace fox {
   class BCBuilder;
+  class DebugInfo;
 
   /// A Bytecode function, which can be either a function or a global variable's
   /// initializer.
@@ -60,6 +63,25 @@ namespace fox {
       /// if the function's ID is "0", it'd print "Function 0"
       void dump(std::ostream& out, string_view title = "Function") const;
 
+      /// creates an instance of DebugInfo for this function
+      /// \returns a reference to the instance created
+      DebugInfo& createDebugInfo();
+      
+      /// Removes the debug info currently attached to this function
+      void removeDebugInfo();
+
+      /// \returns true if this function has a DebugInfo instance associated
+      /// with it.
+      bool hasDebugInfo() const;
+
+      /// \returns the DebugInfo instance attached to this function 
+      /// (can be null)
+      DebugInfo* getDebugInfo();
+
+      /// \returns the DebugInfo instance attached to this function 
+      /// (can be null)
+      const DebugInfo* getDebugInfo() const;
+
       /// \returns the begin iterator for the instruction buffer
       InstructionVector::iterator instrs_begin() {
         return instrs_.begin();
@@ -81,7 +103,13 @@ namespace fox {
       }
 
     private:
+      /// The buffer of instructions
       InstructionVector instrs_;
+
+      /// The ID of this function
       const func_id_t id_ = 0;
+
+      /// The (optional) debug information for this function
+      std::unique_ptr<DebugInfo> debugInfo_;
   };
 }
