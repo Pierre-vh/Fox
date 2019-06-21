@@ -130,34 +130,24 @@ Basic VM data types and their mappings to Fox types:
 
     -> BCModule Additions (Done)
       -> SourceManager&
+      -> DiagnosticEngine&
 
-    -> BCFunction additions:
-      -> std::string identifierStr (the identifier of the function, or of the global variable)
-      -> SourceLoc (of the beginning of the decl)
-      -> Kind (GlobalVarInitializer or Func)
-
-    -> BCModule createGlobal/createFunction should ask for the identifier and the SourceLoc
-
-    -> Debug map for each BCFunction:
-      -> A sorted vector of { std::size_t (instruction index), SourceRange (range of the node that emitted this instr)}
-      -> Used to emit error messages for divisions by zero, out of range accesses, etc.
+    -> DebugInfo (Done)
 
     -> VM additions:
-      -> Keep track of the most recent function executed (Done)
-
-      -> Use "vm.diagnose(DiagID)" 
-        -> Implementation (done)
-        -> Use DebugInfo to fetch the range (done)
-        -> Allow emission of notes after the diagnostic?
+      -> Runtime error (core logic) (Done)
 
       -> add a new "runtime error" category of diagnostics?
       -> Rewrite the messages for the runtime diagnostics
+
+      -> Write runtime diagnostic tests (done)
+
       -> Add debug info dump feature
       -> Write debug info dump tests
-      -> Write runtime diagnostic tests (done)
 
   -> Non-numeric CastExpr BCGen
     -> Array casts
+      -> IntArrayToDoubleArray & DoubleArrayToIntArray (work like IntToDouble/DoubleToInt but take a "num dimension" parameter)
 
   -> Allow the register stack to grow dynamically
     -> Add recursion tests
@@ -169,7 +159,7 @@ Basic VM data types and their mappings to Fox types:
   -> Rewrite Wiki
 
 ---- Implementing the GC ----
-  -> Objects should behave like a linked list
+  -> Objects should behave like a big linked list
   -> Change my VM allocator
     -> Options are:
       -> new/delete + keep a pointer to the first object of the list
