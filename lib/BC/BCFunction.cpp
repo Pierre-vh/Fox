@@ -12,7 +12,7 @@
 using namespace fox;
 
 BCBuilder BCFunction::createBCBuilder() {
-  return BCBuilder(instrs_);
+  return BCBuilder(instrs_, debugInfo_.get());
 }
 
 void BCFunction::dump(std::ostream& out, string_view title) const {
