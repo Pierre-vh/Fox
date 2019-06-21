@@ -12,16 +12,20 @@
 
 using namespace fox;
 
-Diagnostic VM::diagnose(DiagID diag) const {
-  // TO-DO: Use DebugInfo for the current instruction to emit a more precise
-  // diagnostic
+Diagnostic VM::diagnose(DiagID diag) {
+  assert(curFn_ && "Can't diagnose without a function being called");
+  // Get the current instruction's index
+  const Instruction* instrsBegin = curFn_->instrs_begin();
+  std::size_t instrIdx = std::distance(instrsBegin, pc_);
 
-  return diagEngine.report(diag, SourceRange());
-  
-  // FIXME: Sometimes we might want to emit notes after the diag is emitted.
-  // To do that we'd need to have a "callback" function that is called once
-  // the diagnostic has been emitted. This needs modification to the 
-  // Diagnostic object.
+  // Fetch the SourceRange (should always have one!)
+  DebugInfo* dbg = curFn_->getDebugInfo();
+  assert(dbg && "no debug info?");
+  auto result = dbg->getSourceRange(instrIdx);
+  assert(result.hasValue() && "no debug info for this instruction");
 
-  // TO-DO: Stop execution
+  // Stop execution & emit the error.
+  actOnRuntimeError();
+  return diagEngine.report(diag, result.getValue());
+ 
 }

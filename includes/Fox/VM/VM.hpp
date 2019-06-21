@@ -151,7 +151,7 @@ namespace fox {
 
       /// Emits a diagnostic at the current instruction's location.
       /// \returns the diagnostic object (see DiagnosticEngine::report)
-      Diagnostic diagnose(DiagID diag) const;
+      Diagnostic diagnose(DiagID diag);
 
       /// \returns a view of the register stack
       /// Note: this might be invalidated if a reallocation occurs.
@@ -167,6 +167,10 @@ namespace fox {
 
       /// \returns a view of the array containing the global variables
       ArrayRef<Register> getGlobalVariables() const;
+
+      /// \returns true if the VM is alive, false if it's 'dead' (can no
+      /// longer execute code due to a runtime error)
+      bool isAlive() const;
 
       ///--------------------------------------------------------------------///
       /// Object Allocation
@@ -202,6 +206,9 @@ namespace fox {
       DiagnosticEngine& diagEngine;
 
     private:
+      /// This should be called when a runtime error occurs.
+      void actOnRuntimeError();
+
       /// Creates the register array for the global variables and runs the
       /// initializers.
       void initGlobals();
@@ -249,6 +256,11 @@ namespace fox {
       Register* baseReg_ = nullptr;
       /// Global variable registers
       std::unique_ptr<Register[]> globals_;
+      /// The current function being called
+      BCFunction* curFn_;
+      /// Flag indicating whether the VM is still "alive" and can execute
+      /// code.
+      bool isAlive_ = true;
 
       // Temporarily, objects are simply allocated in vectors of unique_ptrs
       // for simplicity. I'll implement a more elaborate allocation technique

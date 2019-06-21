@@ -45,8 +45,14 @@ VM::Register VM::run(BCFunction& func, ArrayRef<Register> args) {
 }
 
 VM::Register VM::run(BCFunction& func) {
-  // TODO: Add/Remove the function in the call stack
-  return run(func.getInstructions());
+  auto oldFn = curFn_;
+  curFn_ = &func;
+
+  auto rtr = run(func.getInstructions());
+
+  curFn_ = oldFn;
+
+  return rtr;
 }
 
 // This is where most of the magic happens!
@@ -308,9 +314,8 @@ VM::Register VM::run(ArrayRef<Instruction> instrs) {
     }
     #undef TRIVIAL_TAC_BINOP_IMPL
     #undef TRIVIAL_TAC_COMP_IMPL
-  } while(++pc_);
-  fox_unreachable("execution did not terminate correctly: "
-    "reached the end of the buffer before a return instr");
+  } while(isAlive_ && ++pc_);
+  return Register();
 }
 
 const Instruction* VM::getPC() const {
@@ -364,6 +369,14 @@ MutableArrayRef<VM::Register> VM::getRegisterStack() {
 
 ArrayRef<VM::Register> VM::getGlobalVariables() const {
   return ArrayRef<Register>(globals_.get(), numGlobals());
+}
+
+bool VM::isAlive() const {
+  return isAlive_;
+}
+
+void VM::actOnRuntimeError() {
+  isAlive_ = false;
 }
 
 void VM::initGlobals() {

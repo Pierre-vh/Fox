@@ -259,7 +259,8 @@ class BCGen::ExprGenerator : public Generator,
     //
     // NOTE: This doesn't check that the call is well formed, it just emits it.
     RegisterValue emitBuiltinCall(BuiltinKind bID, RegisterValue dest, 
-                                  ArrayRef<GenThunk> generators) {
+                                  ArrayRef<GenThunk> generators, 
+                                  SourceRange debugRange) {
       // Reserve registers
       SmallVector<RegisterValue, 4> callRegs;
       regAlloc.allocateCallRegisters(callRegs, generators.size()+1);
@@ -273,17 +274,21 @@ class BCGen::ExprGenerator : public Generator,
         callRegs[k+1] = call(generators[k], std::move(callRegs[k+1]));
 
 
+      BCBuilder::StableInstrConstIter callInstrIter;
       // Gen the call. If the builtin returns void, use
       if(hasNonVoidReturnType(bID)) {
         // Choose a destination register
         dest = getDestReg(std::move(dest), callRegs);
         // Emit.
-        builder.createCallInstr(baseAddr, dest.getAddress());
+        callInstrIter = builder.createCallInstr(baseAddr, dest.getAddress());
       }
       else {
         assert(!dest && "cannot have a destination if the builtin returns void");
-        builder.createCallVoidInstr(baseAddr);
+        callInstrIter = builder.createCallVoidInstr(baseAddr);
       }
+
+      assert(debugRange && "debugRange cannot be null");
+      builder.addDebugRange(callInstrIter, debugRange);
 
       return dest;
     }
@@ -306,7 +311,8 @@ class BCGen::ExprGenerator : public Generator,
     // Generates the adequate instruction(s) to perform a binary
     // operation on doubles
     void 
-    emitDoubleBinOp(BinOp op, regaddr_t dst, regaddr_t lhs, regaddr_t rhs) {
+    emitDoubleBinOp(BinOp op, regaddr_t dst, regaddr_t lhs, regaddr_t rhs,
+                    SourceRange debugRange) {
       assert((lhs != rhs) && "lhs and rhs are identical");
       // Emit
       switch (op) {
@@ -319,12 +325,16 @@ class BCGen::ExprGenerator : public Generator,
         case BinOp::Mul:  // *
           builder.createMulDoubleInstr(dst, lhs, rhs);
           break;
-        case BinOp::Div:  // /
-          builder.createDivDoubleInstr(dst, lhs, rhs);
+        case BinOp::Div: {  // /
+          auto instr = builder.createDivDoubleInstr(dst, lhs, rhs);
+          builder.addDebugRange(instr, debugRange);
           break;
-        case BinOp::Mod:  // %
-          builder.createModDoubleInstr(dst, lhs, rhs);
+        }
+        case BinOp::Mod: {  // %
+          auto instr = builder.createModDoubleInstr(dst, lhs, rhs);
+          builder.addDebugRange(instr, debugRange);
           break;
+        }
         case BinOp::Pow:  // **
           builder.createPowDoubleInstr(dst, lhs, rhs);
           break;
@@ -361,7 +371,8 @@ class BCGen::ExprGenerator : public Generator,
     // operation on integers.
     // This is used to generate operations involving chars, 
     // booleans and ints.
-    void emitIntBinOp(BinOp op, regaddr_t dst, regaddr_t lhs, regaddr_t rhs) {
+    void emitIntBinOp(BinOp op, regaddr_t dst, regaddr_t lhs, regaddr_t rhs, 
+                      SourceRange debugRange) {
       assert((lhs != rhs) && "lhs and rhs are identical");
       // Emit
       switch (op) {
@@ -374,12 +385,16 @@ class BCGen::ExprGenerator : public Generator,
         case BinOp::Mul:  // *
           builder.createMulIntInstr(dst, lhs, rhs);
           break;
-        case BinOp::Div:  // /
-          builder.createDivIntInstr(dst, lhs, rhs);
+        case BinOp::Div: {  // /
+          auto instr = builder.createDivIntInstr(dst, lhs, rhs);
+          builder.addDebugRange(instr, debugRange);
           break;
-        case BinOp::Mod:  // %
-          builder.createModIntInstr(dst, lhs, rhs);
+        }
+        case BinOp::Mod: {  // %
+          auto instr = builder.createModIntInstr(dst, lhs, rhs);
+          builder.addDebugRange(instr, debugRange);
           break;
+        }
         case BinOp::Pow:  // **
           builder.createPowIntInstr(dst, lhs, rhs);
           break;
@@ -446,12 +461,14 @@ class BCGen::ExprGenerator : public Generator,
 
       // Integer or Boolean expressions
       if (canGenToIntBinop(expr))
-        emitIntBinOp(expr->getOp(), dstAddr, lhsAddr, rhsAddr);
+        emitIntBinOp(expr->getOp(), dstAddr, lhsAddr, rhsAddr,
+                     expr->getSourceRange());
       // Double operands
       else if (expr->getLHS()->getType()->isDoubleType()) {
         assert(expr->getRHS()->getType()->isDoubleType()
           && "Inconsistent Operands");
-        emitDoubleBinOp(expr->getOp(), dstAddr, lhsAddr, rhsAddr);
+        emitDoubleBinOp(expr->getOp(), dstAddr, lhsAddr, rhsAddr, 
+                        expr->getSourceRange());
       }
       else 
         fox_unreachable("unhandled situation : operands are "
@@ -472,8 +489,11 @@ class BCGen::ExprGenerator : public Generator,
         // Generate a call to the charConcat builtin
         GenThunk lhsGT = getGTForExpr(lhs);
         GenThunk rhsGT = getGTForExpr(rhs);
-        return 
-          emitBuiltinCall(BuiltinKind::charConcat, std::move(dest), {lhsGT, rhsGT});
+        return emitBuiltinCall(
+          BuiltinKind::charConcat, 
+          std::move(dest), 
+          {lhsGT, rhsGT}, 
+          expr->getSourceRange());
       }
 
       // string + string
@@ -487,7 +507,7 @@ class BCGen::ExprGenerator : public Generator,
 
       // FIXME: lhsGT and rhsGT have a lot in common, could code duplication
       //        be reduced here?
-      GenThunk lhsGT = [this, lhs](RegisterValue dest) {
+      GenThunk lhsGT = [this, lhs, expr](RegisterValue dest) {
         // If the lhs is a string, just gen it
         if(lhs->getType()->isStringType())
           return this->visit(lhs, std::move(dest));
@@ -495,10 +515,11 @@ class BCGen::ExprGenerator : public Generator,
         return 
           this->emitBuiltinCall(BuiltinKind::charToString, 
                                 std::move(dest),
-                                this->getGTForExpr(lhs));
+                                this->getGTForExpr(lhs),
+                                expr->getSourceRange());
       };
 
-      GenThunk rhsGT = [this, rhs](RegisterValue dest) {
+      GenThunk rhsGT = [this, rhs, expr](RegisterValue dest) {
         // If the rhs is a string, just gen it
         if(rhs->getType()->isStringType())
           return this->visit(rhs, std::move(dest));
@@ -506,11 +527,16 @@ class BCGen::ExprGenerator : public Generator,
         return 
           this->emitBuiltinCall(BuiltinKind::charToString, 
                                 std::move(dest),
-                                this->getGTForExpr(rhs));
+                                this->getGTForExpr(rhs),
+                                expr->getSourceRange());
       };
 
-      return 
-        emitBuiltinCall(BuiltinKind::strConcat, std::move(dest), {lhsGT, rhsGT});
+      return emitBuiltinCall(
+        BuiltinKind::strConcat, 
+        std::move(dest), 
+        {lhsGT, rhsGT}, 
+        expr->getSourceRange()
+      );
     }
 
     RegisterValue emitToStringUnOp(UnaryExpr* expr, RegisterValue dest) {
@@ -542,7 +568,8 @@ class BCGen::ExprGenerator : public Generator,
             fox_unreachable("Cannot cast 'FunctionType' to string");)
           HANDLE(ArrayType,    
             fox_unreachable("Cannot cast 'ArrayType' to string");)
-          // We use getRValue() to call this, so there shouldn't be any LValues here
+          // We use getRValue() to call this, so there shouldn't be 
+          // any LValues here
           HANDLE(LValueType,
             fox_unreachable("Should have been handled by getRValue()");)
           HANDLE(TypeVariableType,   
@@ -558,7 +585,12 @@ class BCGen::ExprGenerator : public Generator,
       }
 
       // Emit the builtin call.
-      return emitBuiltinCall(builtin, std::move(dest), {childGT});
+      return emitBuiltinCall(
+        builtin, 
+        std::move(dest), 
+        {childGT}, 
+        expr->getSourceRange()
+      );
     }
 
     RegisterValue 
@@ -569,7 +601,8 @@ class BCGen::ExprGenerator : public Generator,
       auto indexGT = getGTForExpr(expr->getIndex());
       // getChar has a (string, int) -> char signature.
       return 
-        emitBuiltinCall(BuiltinKind::getChar, std::move(dest), {baseGT, indexGT});
+        emitBuiltinCall(BuiltinKind::getChar, std::move(dest), {baseGT, indexGT}, 
+                        expr->getSourceRange());
     }
 
     /// Emits a CallExpr whose callee is a BuiltinMemberRef.
@@ -589,7 +622,7 @@ class BCGen::ExprGenerator : public Generator,
       switch (kind) {
         default: fox_unreachable("unknown BuiltinTypeMemberKind");
         #define ANY_MEMBER(ID) case BuiltinTypeMemberKind::ID:\
-          return emit##ID(args, std::move(dest));
+          return emit##ID(call, args, std::move(dest));
         #include "Fox/AST/BuiltinTypeMembers.def"
       }
     }
@@ -598,7 +631,8 @@ class BCGen::ExprGenerator : public Generator,
     // Builtin Type Member Emitters
     //------------------------------------------------------------------------//
 
-    RegisterValue emitArrayAppend(ArrayRef<Expr*> args, RegisterValue dest) {
+    RegisterValue 
+    emitArrayAppend(Expr* src, ArrayRef<Expr*> args, RegisterValue dest) {
       /// Emit a call to the arrAppend builtin.
       assert((args.size() == 2) 
         && "incorrect number of args for arrAppend");
@@ -606,33 +640,39 @@ class BCGen::ExprGenerator : public Generator,
       return emitBuiltinCall(
         BuiltinKind::arrAppend, 
         RegisterValue(), 
-        { getGTForExpr(args[0]), getGTForExpr(args[1]) }
+        { getGTForExpr(args[0]), getGTForExpr(args[1]) },
+        src->getSourceRange()
       );
     }
 
-    RegisterValue emitArrayBack(ArrayRef<Expr*> args, RegisterValue dest) {
+    RegisterValue 
+    emitArrayBack(Expr* src, ArrayRef<Expr*> args, RegisterValue dest) {
       /// Emit a call to the arrBack builtin.
       assert((args.size() == 1) 
         && "incorrect number of args for arrBack");
       return emitBuiltinCall(
         BuiltinKind::arrBack, 
         std::move(dest), 
-        { getGTForExpr(args[0]) }
+        { getGTForExpr(args[0]) },
+        src->getSourceRange()
       );
     }
 
-    RegisterValue emitArrayFront(ArrayRef<Expr*> args, RegisterValue dest) {
+    RegisterValue 
+    emitArrayFront(Expr* src, ArrayRef<Expr*> args, RegisterValue dest) {
       /// Emit a call to the arrFront builtin.
       assert((args.size() == 1) 
         && "incorrect number of args for arrFront");
       return emitBuiltinCall(
         BuiltinKind::arrFront, 
         std::move(dest), 
-        { getGTForExpr(args[0]) }
+        { getGTForExpr(args[0]) },
+        src->getSourceRange()
       );
     }
 
-    RegisterValue emitArrayPop(ArrayRef<Expr*> args, RegisterValue dest) {
+    RegisterValue 
+    emitArrayPop(Expr* src, ArrayRef<Expr*> args, RegisterValue dest) {
       /// Emit a call to the arrPop builtin.
       assert((args.size() == 1) 
         && "incorrect number of args for arrPop");
@@ -640,22 +680,26 @@ class BCGen::ExprGenerator : public Generator,
       return emitBuiltinCall(
         BuiltinKind::arrPop, 
         std::move(dest), 
-        { getGTForExpr(args[0]) }
+        { getGTForExpr(args[0]) },
+        src->getSourceRange()
       );
     }
 
-    RegisterValue emitArraySize(ArrayRef<Expr*> args, RegisterValue dest) {
+    RegisterValue 
+    emitArraySize(Expr* src, ArrayRef<Expr*> args, RegisterValue dest) {
       /// Emit a call to the arrSize builtin.
       assert((args.size() == 1) 
         && "incorrect number of args for arrSize");
       return emitBuiltinCall(
         BuiltinKind::arrSize, 
         std::move(dest), 
-        { getGTForExpr(args[0]) }
+        { getGTForExpr(args[0]) },
+        src->getSourceRange()
       );
     }
 
-    RegisterValue emitArrayReset(ArrayRef<Expr*> args, RegisterValue dest) {
+    RegisterValue 
+    emitArrayReset(Expr* src, ArrayRef<Expr*> args, RegisterValue dest) {
       /// Emit a call to the arrReset builtin.
       assert((args.size() == 1) 
         && "incorrect number of args for arrReset");
@@ -663,11 +707,13 @@ class BCGen::ExprGenerator : public Generator,
       return emitBuiltinCall(
         BuiltinKind::arrReset, 
         std::move(dest), 
-        { getGTForExpr(args[0]) }
+        { getGTForExpr(args[0]) },
+        src->getSourceRange()
       );
     }
 
-    RegisterValue emitStringNumBytes(ArrayRef<Expr*> args, RegisterValue dest) {
+    RegisterValue 
+    emitStringNumBytes(Expr* src, ArrayRef<Expr*> args, RegisterValue dest) {
       /// Emit a call to the strNumBytes builtin.
       assert((args.size() == 1) 
         && "incorrect number of args for strNumBytes");
@@ -675,18 +721,21 @@ class BCGen::ExprGenerator : public Generator,
       return emitBuiltinCall(
         BuiltinKind::strNumBytes, 
         std::move(dest), 
-        { getGTForExpr(args[0]) }
+        { getGTForExpr(args[0]) },
+        src->getSourceRange()
       );
     }
 
-    RegisterValue emitStringLength(ArrayRef<Expr*> args, RegisterValue dest) {
+    RegisterValue 
+    emitStringLength(Expr* src, ArrayRef<Expr*> args, RegisterValue dest) {
       /// Emit a call to the strLength builtin.
       assert((args.size() == 1) 
         && "incorrect number of args for strLength");
       return emitBuiltinCall(
         BuiltinKind::strLength, 
         std::move(dest), 
-        { getGTForExpr(args[0]) }
+        { getGTForExpr(args[0]) },
+        src->getSourceRange()
       );
     }
 
@@ -740,7 +789,7 @@ class BCGen::ExprGenerator : public Generator,
         return emitConcatBinaryExpr(expr, std::move(dest));
       if (expr->getType()->isNumericOrBool())
         return emitNumericOrBoolBinaryExpr(expr, std::move(dest));
-      fox_unimplemented_feature("Non-numeric BinaryExpr BCGen");
+      fox_unreachable("Unknown BinaryExpr kind");
     }
 
     RegisterValue 
@@ -757,10 +806,10 @@ class BCGen::ExprGenerator : public Generator,
       Type subTy = subExpr->getType();
       regaddr_t childRegAddr = childReg.getAddress();
 
-      RegisterValue dstReg = getDestReg(std::move(dest), {childReg});
+      dest = getDestReg(std::move(dest), {childReg});
 
-      assert(dstReg && "no destination register selected");
-      regaddr_t dstRegAddr = dstReg.getAddress();
+      assert(dest && "no destination register selected");
+      regaddr_t destAddr = dest.getAddress();
 
       // Casts to numeric types
       if (ty->isNumericType()) {
@@ -771,11 +820,11 @@ class BCGen::ExprGenerator : public Generator,
           if (ty->isDoubleType()) {
             assert(subTy->isIntType());
             // It's a Int -> Double cast
-            builder.createIntToDoubleInstr(dstRegAddr, childRegAddr);
+            builder.createIntToDoubleInstr(destAddr, childRegAddr);
           }
           else if (ty->isIntType()) {
             // It's a Double -> Int cast
-            builder.createDoubleToIntInstr(dstRegAddr, childRegAddr);
+            builder.createDoubleToIntInstr(destAddr, childRegAddr);
           }
           else 
             fox_unreachable("Unhandled numeric type kind");
@@ -786,12 +835,23 @@ class BCGen::ExprGenerator : public Generator,
             "(CastExpr from non-numeric to numeric");
         }
       }
-      // Other casts
-      else {
-        fox_unimplemented_feature("Non-numeric CastExpr BCGen");
+      // Array casts
+      else if (ty->isArrayType()) {
+        // If the subExpr is simply an empty array literal, we don't have to
+        // do anything except copying the sub expr's result if needed.
+        if (auto arr = dyn_cast<ArrayLiteralExpr>(subExpr)) {
+          if (arr->numElems() == 0) {
+            if(childReg != dest)
+              builder.createCopyInstr(destAddr, childReg.getAddress());
+            return dest;
+          }
+        }
+        fox_unimplemented_feature("CastExpr on Non-empty Array BCGen");
       }
+      else
+        fox_unreachable("unknown CastExpr kind");
 
-      return dstReg;
+      return dest;
     }
 
     RegisterValue 
@@ -861,10 +921,12 @@ class BCGen::ExprGenerator : public Generator,
       assert(base->getType()->isArrayType() && "not an array subscript");
 
       // arrGet takes the array as first parameter and the index second.
-      return emitBuiltinCall(BuiltinKind::arrGet, std::move(dest), {
-        getGTForExpr(base),
-        getGTForExpr(expr->getIndex())
-      });
+      return emitBuiltinCall(
+        BuiltinKind::arrGet, 
+        std::move(dest), 
+        {getGTForExpr(base), getGTForExpr(expr->getIndex())},
+        expr->getSourceRange()
+      );
     }
 
     RegisterValue 
@@ -1134,7 +1196,8 @@ BCGen::AssignementGenerator::visitSubscriptExpr(SubscriptExpr* expr,
       exprGen.getGTForExpr(expr->getBase()),
       exprGen.getGTForExpr(expr->getIndex()),
       exprGen.getGTForExpr(src)
-    }
+    },
+    expr->getSourceRange()
   );
 
   return rtr;

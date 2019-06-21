@@ -12,3 +12,6 @@ ERROR(runtime_subscript_negative_index,
 
 ERROR(runtime_subscript_out_of_range,
   "out-of-range (size of container is '%0', index is '%1')")
+
+ERROR(runtime_cannot_call_on_empty_array,
+  "cannot call '%0' on an empty array")

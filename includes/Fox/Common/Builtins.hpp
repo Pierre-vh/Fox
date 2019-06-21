@@ -101,13 +101,13 @@ namespace fox {
     FoxAny arrSet(VM& vm, ArrayObject* arr, FoxInt n, FoxAny val);
 
     /// Removes the last element of \p arr
-    void arrPop(ArrayObject* arr);
+    void arrPop(VM& vm, ArrayObject* arr);
 
     /// \returns the first element of \p arr
-    FoxAny arrFront(ArrayObject* arr);
+    FoxAny arrFront(VM& vm, ArrayObject* arr);
 
     /// \returns the last element of \p arr
-    FoxAny arrBack(ArrayObject* arr);
+    FoxAny arrBack(VM& vm, ArrayObject* arr);
 
     /// Removes every element inside arr
     void arrReset(ArrayObject* arr);

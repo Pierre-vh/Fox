@@ -1,0 +1,6 @@
+// RUN: %fox-run-verify
+
+func main() : int {
+  ""[1]; // expect-error: out-of-range (size of container is '0', index is '1')
+  return 0;
+}

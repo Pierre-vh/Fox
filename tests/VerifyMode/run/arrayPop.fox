@@ -1,0 +1,6 @@
+// RUN: %fox-run-verify
+
+func main() : int {
+  ([] as [int]).pop(); // expect-error: cannot call 'array.pop' on an empty array
+  return 0;
+}

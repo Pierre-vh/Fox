@@ -143,19 +143,21 @@ Basic VM data types and their mappings to Fox types:
       -> Used to emit error messages for divisions by zero, out of range accesses, etc.
 
     -> VM additions:
-      -> Keep track of the most recent function executed (in a "call stack")
-        -> use a "StackEntry" structure containing the BCFunction&/BuiltinKind and a copy of the PC
+      -> Keep track of the most recent function executed (Done)
 
       -> Use "vm.diagnose(DiagID)" 
         -> Implementation (done)
-        -> Use DebugInfo to fetch the range
-        -> Allow emission of notes after the diagnostic (needs callback in Diagnostic object)
+        -> Use DebugInfo to fetch the range (done)
+        -> Allow emission of notes after the diagnostic?
 
-      -> add a new "runtime error" category of diagnostics
+      -> add a new "runtime error" category of diagnostics?
       -> Rewrite the messages for the runtime diagnostics
-      -> Write runtime diagnostic tests
+      -> Add debug info dump feature
+      -> Write debug info dump tests
+      -> Write runtime diagnostic tests (done)
 
-      -> Question: Do I really need the SourceManager& in BCModule?
+  -> Non-numeric CastExpr BCGen
+    -> Array casts
 
   -> Allow the register stack to grow dynamically
     -> Add recursion tests

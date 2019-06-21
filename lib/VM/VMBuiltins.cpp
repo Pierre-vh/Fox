@@ -63,16 +63,12 @@ static bool checkSubscript(VM& vm, std::size_t size, FoxInt idx) {
   if (idx < 0) {
     vm.diagnose(DiagID::runtime_subscript_negative_index)
       .addArg(idx);
-    // TODO: Once diagnose() stops execution, remove this.
-    exit(EXIT_FAILURE);
-    //return false;
+    return false;
   }
   if (idx >= size) {
     vm.diagnose(DiagID::runtime_subscript_out_of_range)
       .addArg(size).addArg(idx);
-    // TODO: Once diagnose() stops execution, remove this.
-    exit(EXIT_FAILURE);
-    //return false;
+    return false;
   }
   return true;
 }
@@ -108,18 +104,31 @@ FoxAny builtin::arrSet(VM& vm, ArrayObject* arr, FoxInt n, FoxAny val) {
   return val;
 }
 
-void builtin::arrPop(ArrayObject* arr) {
+/// Checks if \p arr is empty, if it is, emit a 
+/// runtime_cannot_call_on_empty_array diagnostic with \p fnName as argument.
+/// \returns true if the array was empty
+static bool 
+checkIfEmptyArrayForCall(VM& vm, ArrayObject* arr, string_view fnName) {
+  if(arr->size()) return false;
+  vm.diagnose(DiagID::runtime_cannot_call_on_empty_array).addArg(fnName);
+  return true;
+}
+
+void builtin::arrPop(VM& vm, ArrayObject* arr) {
   assert(arr && "array is null");
+  if(checkIfEmptyArrayForCall(vm, arr, "array.pop")) return;
   arr->pop();
 }
 
-FoxAny builtin::arrFront(ArrayObject* arr) {
+FoxAny builtin::arrFront(VM& vm, ArrayObject* arr) {
   assert(arr && "array is null");
+  if(checkIfEmptyArrayForCall(vm, arr, "array.front")) return FoxAny();
   return arr->front();
 }
 
-FoxAny builtin::arrBack(ArrayObject* arr) {
+FoxAny builtin::arrBack(VM& vm, ArrayObject* arr) {
   assert(arr && "array is null");
+  if(checkIfEmptyArrayForCall(vm, arr, "array.back")) return FoxAny();
   return arr->back();
 }
 

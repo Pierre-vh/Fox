@@ -1,0 +1,6 @@
+// RUN: %fox-run-verify
+
+func main() : int {
+  ([] as [int])[-1]; // expect-error: index was negative ('-1')
+  return 0;
+}

@@ -1,0 +1,6 @@
+// RUN: %fox-run-verify
+
+func main() : int {
+  ([] as [int]).back(); // expect-error: cannot call 'array.back' on an empty array
+  return 0;
+}

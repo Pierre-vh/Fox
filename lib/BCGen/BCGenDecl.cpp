@@ -315,6 +315,7 @@ BCFunction& BCGen::getBCFunction(FuncDecl* func) {
   assert((theModule.numFunctions() <= bc_limits::max_func_id)
     && "Cannot gen function: too many functions in the module");
   BCFunction& fn = theModule.createFunction();
+  fn.createDebugInfo();
   funcs_.insert({func, fn});
   return fn;
 }
@@ -330,6 +331,7 @@ BCFunction& BCGen::getGlobalVariableInitializer(VarDecl* var) {
   assert((theModule.numGlobals() <= bc_limits::max_global_id)
     && "Cannot gen global variable: too many globals in the module");
   BCFunction& init = theModule.createGlobalVariable();
+  init.createDebugInfo();
   globalInitializers_.insert({var, init});
   return init;
 }
