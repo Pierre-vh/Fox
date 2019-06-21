@@ -49,6 +49,11 @@ namespace fox {
       ///          e.g. "int", "string"
       std::string to_string() const;
 
+      /// \returns the type kind as a string. This returns exactly the same
+      /// thing as to_string for primitive types, but for types such as Arrays
+      /// it just returns "array".
+      std::string getTypeFamilyString() const;
+
       /// \returns the type's name in a more "developer-friendly"
       ///          form, which provides more information.
       ///          e.g. "Array(int)" instead of [int]"

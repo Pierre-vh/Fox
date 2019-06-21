@@ -119,13 +119,12 @@ const Type TypeLoc::getType() const {
 namespace {
   class TypePrinter : public TypeVisitor<TypePrinter, void> {
     std::ostream& out;
-    bool debugPrint = false;
+    bool debugPrint;
+    bool onlyPrintKind;
 
     public:
-      TypePrinter(std::ostream& out, bool debugPrint) :
-        out(out), debugPrint(debugPrint) {
-
-      }
+      TypePrinter(std::ostream& out, bool debugPrint, bool onlyPrintKind) :
+        out(out), debugPrint(debugPrint), onlyPrintKind(onlyPrintKind) {}
 
       #define LEAF(TYPE, STR) void visit##TYPE(TYPE*) { out << STR; }
       LEAF(ErrorType,   "<error>")
@@ -138,6 +137,11 @@ namespace {
       #undef LEAF
 
       void visitArrayType(ArrayType* type) {
+        if (onlyPrintKind) {
+          out << "array";
+          return;
+        }
+
         out << "[";
         visit(type->getElementType());
         out << "]";
@@ -199,17 +203,21 @@ TypeBase::TypeBase(TypeKind tc): kind_(tc) {
 
 std::string TypeBase::to_string() const {
   std::ostringstream oss;
-  TypePrinter tp(oss, /* debug print */ false);
-  // This is ugly but needed. TypePrinter won't alter
-  // this instance anyway so it's meaningless.
+  TypePrinter tp(oss, /* debugPrint */ false, /*printOnlyKind*/ false);
+  tp.visit(const_cast<TypeBase*>(this));
+  return oss.str();
+}
+
+std::string TypeBase::getTypeFamilyString() const {
+  std::ostringstream oss;
+  TypePrinter tp(oss, /* debugPrint */ false, /*printOnlyKind*/ true);
   tp.visit(const_cast<TypeBase*>(this));
   return oss.str();
 }
 
 std::string TypeBase::toDebugString() const {
   std::ostringstream oss;
-  TypePrinter tp(oss, /* debug print */ true);
-  // See above (lines 128/129)
+  TypePrinter tp(oss, /* debugPrint */ true, /*printOnlyKind*/ false);
   tp.visit(const_cast<TypeBase*>(this));
   return oss.str();
 }
