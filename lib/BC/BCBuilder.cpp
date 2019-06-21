@@ -87,6 +87,10 @@ void BCBuilder::addDebugRange(StableInstrConstIter iter, SourceRange range) {
   debugInfo->addSourceRange(idx, range);
 }
 
+bool BCBuilder::hasDebugInfo() const {
+  return debugInfo;
+}
+
 void BCBuilder::popInstr() {
   vector.pop_back();
 }

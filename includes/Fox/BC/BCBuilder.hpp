@@ -61,6 +61,9 @@ namespace fox {
       /// The BCBuilder must have a non-null DebugInfo*
       void addDebugRange(StableInstrConstIter iter, SourceRange range);
 
+      /// \returns true if we have a DebugInfo instance attached.
+      bool hasDebugInfo() const;
+
       /// Removes the last instruction added to this module.
       void popInstr();
 
