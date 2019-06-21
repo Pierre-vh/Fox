@@ -1121,9 +1121,11 @@ class Sema::ExprChecker : Checker, ExprVisitor<ExprChecker, Expr*>,  ASTWalker {
         return declref->getDecl()->getIdentifier().getStr().to_string();
       if (auto builtinMemb = dyn_cast<BuiltinMemberRefExpr>(expr)) {
         std::stringstream ss;
-        ss << builtinMemb->getBase()->getType()
-           << '.' 
-           << builtinMemb->getMemberIdentifier();
+        Type baseType = builtinMemb->getBase()->getType();
+        ss 
+          << baseType->getTypeFamilyString() 
+          << '.'
+          << builtinMemb->getMemberIdentifier();
         return ss.str();
       }
       fox_unreachable("unknown callee kind");
