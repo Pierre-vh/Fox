@@ -147,12 +147,19 @@ int Driver::processFile(string_view path) {
       assert(dv && "DiagnosticVerifier is null");
       // In verify mode, override the result with the DV's.
       result = dv->finish() ? EXIT_SUCCESS : EXIT_FAILURE;
+      if(options.verbose)
+        out 
+          << "verification done: " 
+          << ((result == EXIT_SUCCESS) ? "success" : "failure") 
+          << '\n';
     }
     // Reset the ASTContext
     {
       auto timer = createTimer(*this, "ASTContext::reset()");
       ctxt.reset();
     }
+    if(options.verbose)
+      out << "final return code: " << result << '\n';
     return result;
   };
 
@@ -271,7 +278,11 @@ int Driver::run(ASTContext& ctxt, FileID mainFile, BCModule& theModule) {
   assert(entryType && entryType->getReturnType()->isIntType() 
     && "Entry Point's type is not () -> int");
 #endif
-  VM::Register reg = VM(theModule).run(*entryPoint);
+  VM vm(theModule);
+  VM::Register reg = vm.run(*entryPoint);
+  if(!vm.isAlive())
+    return EXIT_FAILURE;
+
   FoxInt rtr = reg.intVal;
   // Clamp it to int's min/max.
   constexpr int iMax = std::numeric_limits<int>::max();
