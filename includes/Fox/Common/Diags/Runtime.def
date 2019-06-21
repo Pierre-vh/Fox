@@ -15,3 +15,9 @@ ERROR(runtime_subscript_out_of_range,
 
 ERROR(runtime_cannot_call_on_empty_array,
   "cannot call '%0' on an empty array")
+
+ERROR(runtime_div_zero,
+  "division by zero")
+
+ERROR(runtime_mod_zero,
+  "modulo by zero")

@@ -1,0 +1,6 @@
+// RUN: %fox-run-verify
+
+func main() : int {
+  0%0; // expect-error: modulo by zero
+  return 0;
+}

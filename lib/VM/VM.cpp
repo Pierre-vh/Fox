@@ -142,38 +142,57 @@ VM::Register VM::run(ArrayRef<Instruction> instrs) {
         TRIVIAL_TAC_BINOP_IMPL(MulInt, intVal, *);
         continue;
       case Opcode::MulDouble:
-        // SubDouble dest lhs rhs: dest = lhs * rhs (FoxDoubles)
+        // MulDouble dest lhs rhs: dest = lhs * rhs (FoxDoubles)
         TRIVIAL_TAC_BINOP_IMPL(MulDouble, doubleVal, *);
         continue;
-      case Opcode::DivInt:
-        // DivInt dest lhs rhs: dest = lhs / rhs (FoxInts)
-        // TO-DO: Handle division by zero with something else than an assert
-        assert(getReg(instr.DivInt.rhs).intVal && "division by zero");
-        TRIVIAL_TAC_BINOP_IMPL(DivInt, intVal, /);
+      case Opcode::DivInt: {
+        // DivInt dest lhs rhs: dest = lhs / rhs (FoxDoubles)
+        FoxInt& lhs  = getReg(instr.DivInt.lhs).intVal;
+        FoxInt& rhs  = getReg(instr.DivInt.rhs).intVal;
+        FoxInt& dest = getReg(instr.DivInt.dest).intVal;
+        if (rhs == 0) {
+          diagnoseDivisionByZero();
+          continue;
+        }
+        dest = lhs / rhs;
         continue;
-      case Opcode::DivDouble:
-        // SubDouble dest lhs rhs: dest = lhs / rhs (FoxDoubles)
-        // TO-DO: Handle division by zero with something else than an assert
-        assert(getReg(instr.DivDouble.rhs).doubleVal && "division by zero");
-        TRIVIAL_TAC_BINOP_IMPL(DivDouble, doubleVal, /);
+      }
+      case Opcode::DivDouble: {
+        // DivDouble dest lhs rhs: dest = lhs / rhs (FoxDoubles)
+        FoxDouble& lhs  = getReg(instr.DivDouble.lhs).doubleVal;
+        FoxDouble& rhs  = getReg(instr.DivDouble.rhs).doubleVal;
+        FoxDouble& dest = getReg(instr.DivDouble.dest).doubleVal;
+        if (rhs == 0) {
+          diagnoseDivisionByZero();
+          continue;
+        }
+        dest = lhs / rhs;
         continue;
-      case Opcode::ModInt:
+      }
+      case Opcode::ModInt: {
         // ModInt dest lhs rhs: dest = lhs % rhs (FoxInts)
-        // TO-DO: Handle modulo by zero with something else than an assert
-        assert(getReg(instr.ModInt.rhs).intVal && "Modulo by zero");
-        TRIVIAL_TAC_BINOP_IMPL(ModInt, intVal, %);
+        FoxInt& lhs  = getReg(instr.ModInt.lhs).intVal;
+        FoxInt& rhs  = getReg(instr.ModInt.rhs).intVal;
+        FoxInt& dest = getReg(instr.ModInt.dest).intVal;
+        if (rhs == 0) {
+          diagnoseModuloByZero();
+          continue;
+        }
+        dest = lhs % rhs;
         continue;
-      case Opcode::ModDouble:
+      }
+      case Opcode::ModDouble: {
         // ModDouble dest lhs rhs: dest = lhs % rhs (FoxDoubles)
-        // TO-DO: Handle modulo by zero with something else than an assert
-        assert(getReg(instr.ModDouble.rhs).doubleVal && "Modulo by zero");
-        getReg(instr.ModDouble.dest).doubleVal = static_cast<FoxDouble>(
-          std::fmod(
-            getReg(instr.ModDouble.lhs).doubleVal, 
-            getReg(instr.ModDouble.rhs).doubleVal
-          )
-        );
+        FoxDouble& lhs  = getReg(instr.ModDouble.lhs).doubleVal;
+        FoxDouble& rhs  = getReg(instr.ModDouble.rhs).doubleVal;
+        FoxDouble& dest = getReg(instr.ModDouble.dest).doubleVal;
+        if (rhs == 0) {
+          diagnoseModuloByZero();
+          continue;
+        }
+        dest = std::fmod(lhs, rhs);
         continue;
+      }
       case Opcode::PowInt:
         // PowInt dest lhs rhs: dest = pow(lhs, rhs) (FoxInts)
         getReg(instr.PowInt.dest).intVal = static_cast<FoxInt>(

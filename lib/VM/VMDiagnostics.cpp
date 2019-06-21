@@ -27,5 +27,12 @@ Diagnostic VM::diagnose(DiagID diag) {
   // Stop execution & emit the error.
   actOnRuntimeError();
   return diagEngine.report(diag, result.getValue());
- 
+}
+
+void VM::diagnoseDivisionByZero() {
+  diagnose(DiagID::runtime_div_zero);
+}
+
+void VM::diagnoseModuloByZero() {
+  diagnose(DiagID::runtime_mod_zero);
 }

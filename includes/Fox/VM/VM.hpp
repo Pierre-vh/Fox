@@ -206,6 +206,12 @@ namespace fox {
       DiagnosticEngine& diagEngine;
 
     private:
+      /// Diagnoses a division by zero
+      void diagnoseDivisionByZero();
+
+      /// Diagnoses a modulo by zero
+      void diagnoseModuloByZero();
+
       /// This should be called when a runtime error occurs.
       void actOnRuntimeError();
 
