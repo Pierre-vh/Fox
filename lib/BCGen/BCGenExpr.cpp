@@ -1087,7 +1087,7 @@ class BCGen::ExprGenerator : public Generator,
         // Use the number of elements inside the array literal as the
         // initial size of the array, but max out at 65535 (the max of uint16,
         // the type of the second operand);
-        auto initialSize = (std::uint16_t)std::min(expr->numElems(), 0xFFFFu);
+        auto initialSize = std::min<std::uint16_t>(expr->numElems(), 0xFFFFu);
         // Create the array
         if(elemTypeIsRefType)
           builder.createNewRefArrayInstr(arrAddr, initialSize);

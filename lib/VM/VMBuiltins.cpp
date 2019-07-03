@@ -65,7 +65,7 @@ static bool checkSubscript(VM& vm, std::size_t size, FoxInt idx) {
       .addArg(idx);
     return false;
   }
-  if (idx >= size) {
+  if (static_cast<std::size_t>(idx) >= size) {
     vm.diagnose(DiagID::runtime_subscript_out_of_range)
       .addArg(size).addArg(idx);
     return false;
