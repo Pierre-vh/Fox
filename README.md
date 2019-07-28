@@ -2,13 +2,13 @@
 
 Fox is a language that aims to be small and easily embeddable. 
 
-This is a project that I started to learn more about compilers and interpreter but even if the main goal is to learn, I'm still developing it seriously, hoping that it might be useful to someone someday. 
+This is a project that I started to learn more about compilers and interpreter.
 
-My current plan is to implement a few last features (Arrays/Global Variables/GC/Imports and a few more) before moving on to another project.
+NOTE: Working on Fox isn't a priority for me anymore. New commits will be relatively rare (or nonexistent).
 
 ## Quick language tour
 
-NOTE: Not all features described here are fully working
+NOTE: Not all features described here are fully working. For instance, array casting (`[int]` from/to `[double]`) doesn't work yet.
 
 Here's a few examples of Fox code:
 ```swift
@@ -74,6 +74,9 @@ Assuming that the binaries are installed in your path:
   * `-werr` promotes warnings to errors
   * `-dump-ast` will dump the abstract syntax tree (AST) after processing the file.
   * `-parse-only` will stop the interpretation process right after parsing
+  * `-dump-bcgen` will dump the bytecode
+  * `-run` will run the program
+  * `-v` or `-verbose` will enable verbose output (note: it's relatively limited)
 
 
 ## Doc
