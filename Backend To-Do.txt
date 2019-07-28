@@ -1,15 +1,3 @@
-Work on this part of the project has just started, so expect the BC, BCGen and VM parts
-to be incomplete for a bit of time. 
-
-Basic VM data types and their mappings to Fox types:
-    Fox       VM
-    int       int
-    double    double
-    bool      int
-    char      int
-    string    TBA
-    []        TBA
-
 ---- Initial Preparation and Scaffolding ---- DONE ----
   -> Opcode (Done)
   -> InstructionBuilder (Done)
@@ -141,9 +129,6 @@ Basic VM data types and their mappings to Fox types:
       -> Rewrite the messages for the runtime diagnostics
 
       -> Write runtime diagnostic tests (done)
-
-      -> Add debug info dump feature
-      -> Write debug info dump tests
 
   -> Non-numeric CastExpr BCGen
     -> Array casts
